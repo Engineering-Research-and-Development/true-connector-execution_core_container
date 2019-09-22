@@ -1,0 +1,23 @@
+POST /idscp_out HTTP/1.1
+Host: core-container:8080
+Content-Type: multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6;charset=UTF-8
+Forward-To: broker
+
+--CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6
+Content-Disposition: form-data; name="header"
+Content-Length: 333
+
+{
+  "@context" : "https://w3id.org/idsa/contexts/context.jsonld",
+  "@type" : "ids:BrokerQueryMessage",
+  "modelVersion" : "1.0.2",
+  "issued" : "2019-07-18T11:51:03.604+02:00",
+  "issuerConnector" : "https://ids.tno.nl/test",
+  "@id" : "https://w3id.org/idsa/autogen/brokerQueryMessage/6bed5855-489b-4f47-82dc-08c5f1656101"
+}
+--CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6
+Content-Disposition: form-data; name="payload"
+Content-Length: 50
+
+{"catalog.offers.0.resourceEndpoints.path":"/pet"}
+--CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6--
