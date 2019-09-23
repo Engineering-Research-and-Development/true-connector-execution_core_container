@@ -1,5 +1,7 @@
 package it.eng.idsa.businesslogic.service;
 
+import de.fraunhofer.iais.eis.Message;
+
 /**
  * 
  * @author Milan Karajovic and Gabriele De Luca
@@ -10,5 +12,8 @@ package it.eng.idsa.businesslogic.service;
  * Service Interface for managing MultiPartMessage.
  */
 public interface MultiPartMessageService {
+	public String getHeader(String body);
+	public String getPayload(String body);
 
+	public Message getMessage(String body);
 }

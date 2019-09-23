@@ -13,8 +13,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.MessageBuilder;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import it.eng.idsa.businesslogic.service.MultiPartMessageService;
 import nl.tno.ids.common.multipart.MultiPart;
 import nl.tno.ids.common.multipart.MultiPartMessage;
 
@@ -38,6 +41,10 @@ public class IncomingDataAppResource {
 	@Autowired
     private ApplicationConfiguration configuration;
 
+
+	@Autowired
+    private MultiPartMessageService multiPartMessageService;
+	
 	@PostMapping("/message")
 	public ResponseEntity<?> postMessage(@RequestHeader("Content-Type") String contentType, @RequestHeader("Forward-To") String forwardTo,
 			@RequestBody String imcomingDataappMessageBody) {
@@ -58,15 +65,11 @@ public class IncomingDataAppResource {
 		
 		// TODO: Parse the received imcomingDataappMessage and header and convert to the
 		// MultiPartMessage
-        MultiPartMessage deserializedMultipartMessage = MultiPart.parseString(imcomingDataappMessageBody);
-        String header=deserializedMultipartMessage.getHeaderString();
-        Message message=deserializedMultipartMessage.getHeader();
-        String payload=deserializedMultipartMessage.getHeaderString();
-        logger.info("header="+header);
-        logger.info("payload="+payload);
-        logger.info("meesage id="+message.getId());
+        logger.info("header="+multiPartMessageService.getHeader(imcomingDataappMessageBody));
+        logger.info("payload="+multiPartMessageService.getPayload(imcomingDataappMessageBody));
+        logger.info("message id="+multiPartMessageService.getMessage(imcomingDataappMessageBody).getId());
      
-		
+
 
 		// TODO: Get the Token from the DAPS
 
