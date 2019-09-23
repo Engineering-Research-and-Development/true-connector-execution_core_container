@@ -20,6 +20,17 @@
 		<start-class>it.eng.idsa.businesslogic.Application</start-class>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>nl.tno.ids</id>
+			<url>https://ci.ids.smart-connected.nl/nexus/repository/tno-ids/</url>
+		</repository>
+		<repository>
+			<id>snapshots</id>
+			<name>maven-snapshots</name>
+			<url>http://maven.iais.fraunhofer.de/artifactory/eis-ids-public</url>
+		</repository>
+	</repositories>
 	<dependencies>
 
 		<!-- Spring Boot - common dependencies -->
