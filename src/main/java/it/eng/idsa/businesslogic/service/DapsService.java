@@ -11,4 +11,6 @@ package it.eng.idsa.businesslogic.service;
  */
 public interface DapsService {
 
+	public String getJwtToken();
+	
 }
