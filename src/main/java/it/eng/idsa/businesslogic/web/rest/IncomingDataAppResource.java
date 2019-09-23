@@ -58,8 +58,10 @@ public class IncomingDataAppResource {
 		// TODO: Parse the received imcomingDataappMessage and header and convert to the
 		// MultiPartMessage
         MultiPartMessage deserializedMultipartMessage = MultiPart.parseString(imcomingDataappMessageBody);
-        logger.info("header="+deserializedMultipartMessage.getHeaderString());
-        logger.info("payload="+deserializedMultipartMessage.getPayload());
+        String header=deserializedMultipartMessage.getHeaderString();
+        String payload=deserializedMultipartMessage.getHeaderString();
+        logger.info("header="+header);
+        logger.info("payload="+payload);
 
 		
 
