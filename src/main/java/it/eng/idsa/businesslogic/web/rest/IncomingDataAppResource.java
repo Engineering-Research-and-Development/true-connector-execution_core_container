@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import nl.tno.ids.common.multipart.MultiPart;
+import nl.tno.ids.common.multipart.MultiPartMessage;
 
 /**
  * 
@@ -36,7 +38,7 @@ public class IncomingDataAppResource {
     private ApplicationConfiguration configuration;
 
 	@PostMapping("/message")
-	public ResponseEntity<?> postMessage(@RequestHeader MultiValueMap<String, String> imcomingDataappMessageHeader,
+	public ResponseEntity<?> postMessage(@RequestHeader("Content-Type") String contentType, @RequestHeader("Forward-To") String forwardTo,
 			@RequestBody String imcomingDataappMessageBody) {
 		
 		// EXAMPLE: How to use the object Logger
@@ -46,15 +48,20 @@ public class IncomingDataAppResource {
 		logger.info("property keyStoreName: {}", () -> configuration.getKeyStoreName());
 		
 		// EXAMPLE: How to read the Header
-		imcomingDataappMessageHeader.forEach((key, value) -> {
-			logger.info(String.format("Header '%s' = %s", key, value.stream().collect(Collectors.joining("|"))));
-	    });
+		logger.info(String.format("Header '%s' = %s", "Content-Type", contentType));
+		logger.info(String.format("Header '%s' = %s", "Forward-To", forwardTo));
+	   
 		
 		// EXAMPLE: How to read the Body
 		logger.info("Body: {}", () -> imcomingDataappMessageBody);
 		
 		// TODO: Parse the received imcomingDataappMessage and header and convert to the
 		// MultiPartMessage
+        MultiPartMessage deserializedMultipartMessage = MultiPart.parseString(imcomingDataappMessageBody);
+        logger.info("header="+deserializedMultipartMessage.getHeaderString());
+        logger.info("payload="+deserializedMultipartMessage.getPayload());
+
+		
 
 		// TODO: Get the Token from the DAPS
 
