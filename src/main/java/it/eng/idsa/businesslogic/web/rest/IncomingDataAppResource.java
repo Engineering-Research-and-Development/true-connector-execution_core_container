@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import nl.tno.ids.common.multipart.MultiPart;
 import nl.tno.ids.common.multipart.MultiPartMessage;
@@ -59,10 +60,12 @@ public class IncomingDataAppResource {
 		// MultiPartMessage
         MultiPartMessage deserializedMultipartMessage = MultiPart.parseString(imcomingDataappMessageBody);
         String header=deserializedMultipartMessage.getHeaderString();
+        Message message=deserializedMultipartMessage.getHeader();
         String payload=deserializedMultipartMessage.getHeaderString();
         logger.info("header="+header);
         logger.info("payload="+payload);
-
+        logger.info("meesage id="+message.getId());
+     
 		
 
 		// TODO: Get the Token from the DAPS
