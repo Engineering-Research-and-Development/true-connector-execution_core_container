@@ -1,6 +1,11 @@
 package it.eng.idsa.businesslogic.service.impl;
 
 
+import java.io.IOException;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -17,6 +22,7 @@ import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.service.MultiPartMessageService;
 import nl.tno.ids.common.multipart.MultiPart;
 import nl.tno.ids.common.multipart.MultiPartMessage;
+import nl.tno.ids.common.serialization.SerializationHelper;
 
 /**
  * 
@@ -34,8 +40,8 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 
 	@Override
 	public String getHeader(String body) {
-		 MultiPartMessage deserializedMultipartMessage = MultiPart.parseString(body);
-	     return deserializedMultipartMessage.getHeaderString();
+		MultiPartMessage deserializedMultipartMessage = MultiPart.parseString(body);
+		return deserializedMultipartMessage.getHeaderString();
 	}
 
 	@Override
@@ -71,5 +77,29 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 		return null;
 	}
 
+	@Override
+	public Message getMessage(Object header) {
+		Message message = null;
+		try {
+			message = SerializationHelper.getInstance().fromJsonLD(((String) header), Message.class);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return message;
+
+	}
 	
+	
+	
+	public HttpEntity createMultipartMessage(String header, String payload/*, String boundary, String contentType*/) {
+        MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
+        multipartEntityBuilder.addTextBody("header", header, ContentType.APPLICATION_JSON);
+        multipartEntityBuilder.addTextBody("payload", payload, ContentType.APPLICATION_JSON);
+        // multipartEntityBuilder.setBoundary(boundary)
+        HttpEntity multipart = multipartEntityBuilder.build();
+        
+		return multipart;
+	}
+
+
 }
