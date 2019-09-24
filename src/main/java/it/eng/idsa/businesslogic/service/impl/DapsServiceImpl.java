@@ -123,7 +123,10 @@ public class DapsServiceImpl implements DapsService {
 								new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort))))
 						.proxyAuthenticator(proxyAuthenticator).build();
 			}
-
+			else {
+				client = new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS)
+						.writeTimeout(60, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS).build();
+			}
 			RequestBody formBody = new FormBody.Builder().add("grant_type", "client_credentials")
 					.add("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
 					.add("client_assertion", jws).build();

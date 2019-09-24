@@ -16,4 +16,5 @@ public interface MultiPartMessageService {
 	public String getPayload(String body);
 
 	public Message getMessage(String body);
+	public String addToken(Message message, String token);
 }
