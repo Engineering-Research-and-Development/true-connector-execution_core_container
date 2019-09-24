@@ -23,6 +23,7 @@ public class ApplicationConfiguration {
 	private String proxyPassword;
 	private String proxyHost;
 	private String proxyPort;
+	private String dapsJWKSUrl;
 	
 	public String getTargetDirectory() {
 		return targetDirectory;
@@ -83,6 +84,12 @@ public class ApplicationConfiguration {
 	}
 	public void setProxyPort(String proxyPort) {
 		this.proxyPort = proxyPort;
+	}
+	public String getDapsJWKSUrl() {
+		return dapsJWKSUrl;
+	}
+	public void setDapsJWKSUrl(String dapsJWKSUrl) {
+		this.dapsJWKSUrl = dapsJWKSUrl;
 	}
 	
 }

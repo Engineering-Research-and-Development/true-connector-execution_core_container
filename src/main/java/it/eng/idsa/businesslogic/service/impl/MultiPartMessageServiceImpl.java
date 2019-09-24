@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.Token;
@@ -58,6 +60,7 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 
 	@Override
 	public String addToken(Message message, String token) {
+		String output = null;
 		try {
 			String msgSerialized = new Serializer().serializePlainJson(message);
 			Token tokenJsonValue = new TokenBuilder()
@@ -68,13 +71,12 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 			JSONObject jsonObject = (JSONObject) parser.parse(msgSerialized);
 			JSONObject jsonObjectMark = (JSONObject) parser.parse(tokenValueSerialized);
 			jsonObject.put("authorizationToken",jsonObjectMark);
-			String output=new Serializer().serializePlainJson(jsonObject);
-			return output;
+			output=new Serializer().serializePlainJson(jsonObject);
 		} catch (JsonProcessingException | ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null;
+		return output;
 	}
 
 	@Override
@@ -89,8 +91,7 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 
 	}
 	
-	
-	
+	@Override
 	public HttpEntity createMultipartMessage(String header, String payload/*, String boundary, String contentType*/) {
         MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
         multipartEntityBuilder.addTextBody("header", header, ContentType.APPLICATION_JSON);
@@ -101,5 +102,11 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 		return multipart;
 	}
 
-
+	@Override
+	public String getToken(String message) {
+				JsonObject messageObject = new JsonParser().parse(message).getAsJsonObject();
+				JsonObject authorizationTokenObject = messageObject.get("authorizationToken").getAsJsonObject();
+				String token = authorizationTokenObject.get("tokenValue").getAsString();
+				return token;
+	}
 }

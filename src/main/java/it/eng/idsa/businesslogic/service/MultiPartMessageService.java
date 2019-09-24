@@ -1,5 +1,7 @@
 package it.eng.idsa.businesslogic.service;
 
+import org.apache.http.HttpEntity;
+
 import de.fraunhofer.iais.eis.Message;
 
 /**
@@ -18,4 +20,6 @@ public interface MultiPartMessageService {
 	public Message getMessage(String body);
 	public Message getMessage(Object header);
 	public String addToken(Message message, String token);
+	public HttpEntity createMultipartMessage(String header, String payload/*, String boundary, String contentType*/);
+	public String getToken(String message);
 }

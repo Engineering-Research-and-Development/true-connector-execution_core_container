@@ -13,4 +13,5 @@ public interface DapsService {
 
 	public String getJwtToken();
 	
+	public boolean validateToken(String tokenValue);
 }

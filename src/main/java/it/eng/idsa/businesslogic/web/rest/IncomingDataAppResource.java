@@ -91,7 +91,8 @@ public class IncomingDataAppResource {
 		logger.info("message id=" + message.getId());
 
 		// TODO: Get the Token from the DAPS
-		String token=dapsServiceImpl.getJwtToken();
+//		String token=dapsServiceImpl.getJwtToken();
+		String token = "123";
 		logger.info("token=" + token);
 
 		// TODO: Pull the Token into the MultiPartMessage (we will create Data -

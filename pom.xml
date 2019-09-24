@@ -10,10 +10,12 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>it.eng.idsa</groupId>
-	<artifactId>market4.0-execution_core_container_business_logic</artifactId>
+	<artifactId>market4.0-execution_core_container_business_logic
+	</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>market4.0-execution_core_container_business_logic</name>
-	<description>Market4.0 execution core container Business Logic</description>
+	<description>Market4.0 execution core container Business Logic
+	</description>
 
 	<properties>
 		<java.version>1.8</java.version>
@@ -23,7 +25,8 @@
 	<repositories>
 		<repository>
 			<id>nl.tno.ids</id>
-			<url>https://ci.ids.smart-connected.nl/nexus/repository/tno-ids/</url>
+			<url>https://ci.ids.smart-connected.nl/nexus/repository/tno-ids/
+			</url>
 		</repository>
 		<repository>
 			<id>snapshots</id>
@@ -167,6 +170,20 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-text</artifactId>
 			<version>1.8</version>
+		</dependency>
+
+		<!-- gson -->
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.8.5</version>
+		</dependency>
+		
+		<!-- nimbusds-jso-jwt -->
+		<dependency>
+			<groupId>com.nimbusds</groupId>
+			<artifactId>nimbus-jose-jwt</artifactId>
+			<version>7.5.1</version>
 		</dependency>
 
 
