@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.impl.DapsServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 
@@ -22,16 +23,19 @@ import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
  * REST controller for managing Incoming Data Chanel.
  */
 @RestController
-@RequestMapping({ "/incoming-data-chanel" })
-public class IncomingDataChanelResource {
+@RequestMapping({ "/incoming-data-channel" })
+public class IncomingDataChannelResource {
 	
-	private static final Logger logger = LogManager.getLogger(IncomingDataAppResource.class);
+	private static final Logger logger = LogManager.getLogger(IncomingDataChannelResource.class);
 	
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
 	
 	@Autowired
 	private DapsServiceImpl dapsServiceImpl;
+
+	@Autowired
+	private MultiPartMessageServiceImpl multiPartMessageService;
 	
 	// Example for the Message:
 	//		{
@@ -53,22 +57,23 @@ public class IncomingDataChanelResource {
 	// Post for the end-point F
 	@PostMapping("/message")
 	public ResponseEntity<?> postMessage(@RequestBody String message){
-		
+		String header=multiPartMessageService.getHeader(message);
 		logger.debug("Enter to the end-point: incoming-data-chanel/message");
 		// Get the token from the message
-		String token = multiPartMessageServiceImpl.getToken(message);
+		String token = multiPartMessageServiceImpl.getToken(header);
 		logger.info("tokenl: {}", () -> token);
 		
 		// Validate the Token with the DAPS from the received MultiPartMessage
 		boolean isTokenValid = dapsServiceImpl.validateToken(token);
-
+		logger.info("isTokenValid="+isTokenValid);
 		// TODO: If the Token from the MultiPartMessage pass the DAPS validation, Send
 		// the customized received MultiPartMessage(in the MultiPartMessage remove the
 		// part in the header "Forward-to") to the end-point G (G is end-point in the
 		// Camel. Camel should rout the message from the end-point G to the end-point D
 		// of the API Data App)
+		
 		if(isTokenValid) {
-			
+			logger.info("token valid");
 		}
 
 		// TODO: Send the information about the transaction to the Clearing House (CH)
