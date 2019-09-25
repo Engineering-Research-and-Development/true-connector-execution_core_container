@@ -56,8 +56,10 @@ public class IncomingDataChannelResource {
 
 	// Post for the end-point F
 	@PostMapping("/message")
-	public ResponseEntity<?> postMessage(@RequestBody String message){
-		String header=multiPartMessageService.getHeader(message);
+	public ResponseEntity<?> postMessage(@RequestBody String data){
+		String header=multiPartMessageService.getHeader(data);
+		String payload=multiPartMessageService.getPayload(data);
+		Message message=multiPartMessageService.getMessage(data);
 		logger.debug("Enter to the end-point: incoming-data-chanel/message");
 		// Get the token from the message
 		String token = multiPartMessageServiceImpl.getToken(header);
@@ -74,6 +76,10 @@ public class IncomingDataChannelResource {
 		
 		if(isTokenValid) {
 			logger.info("token valid");
+			//TODO 
+			//Send directly to the D endpoint (DataApp) configured into the properties file
+			//using MultiPart 
+			
 		}
 
 		// TODO: Send the information about the transaction to the Clearing House (CH)
