@@ -1,5 +1,6 @@
 package it.eng.idsa.businesslogic.web.rest;
 
+import org.apache.http.HttpEntity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.fraunhofer.iais.eis.Message;
+import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.DapsServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 
@@ -34,8 +36,11 @@ public class IncomingDataChannelResource {
 	@Autowired
 	private DapsServiceImpl dapsServiceImpl;
 
+	
 	@Autowired
-	private MultiPartMessageServiceImpl multiPartMessageService;
+	private CommunicationServiceImpl communicationServiceImpl;
+
+
 	
 	// Example for the Message:
 	//		{
@@ -57,9 +62,9 @@ public class IncomingDataChannelResource {
 	// Post for the end-point F
 	@PostMapping("/message")
 	public ResponseEntity<?> postMessage(@RequestBody String data){
-		String header=multiPartMessageService.getHeader(data);
-		String payload=multiPartMessageService.getPayload(data);
-		Message message=multiPartMessageService.getMessage(data);
+		String header=multiPartMessageServiceImpl.getHeader(data);
+		String payload=multiPartMessageServiceImpl.getPayload(data);
+		Message message=multiPartMessageServiceImpl.getMessage(data);
 		logger.debug("Enter to the end-point: incoming-data-chanel/message");
 		// Get the token from the message
 		String token = multiPartMessageServiceImpl.getToken(header);
@@ -76,6 +81,11 @@ public class IncomingDataChannelResource {
 		
 		if(isTokenValid) {
 			logger.info("token valid");
+			String headerWithoutToken=multiPartMessageServiceImpl.removeToken(message);
+			HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(headerWithoutToken,payload);
+		
+			communicationServiceImpl.sendData(/*DEndpoint*/"http://localhost:8081/", entity);
+			logger.info("data sent to destination DataApp");
 			//TODO 
 			//Send directly to the D endpoint (DataApp) configured into the properties file
 			//using MultiPart 

@@ -69,8 +69,8 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 			String tokenValueSerialized=new Serializer().serializePlainJson(tokenJsonValue);
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = (JSONObject) parser.parse(msgSerialized);
-			JSONObject jsonObjectMark = (JSONObject) parser.parse(tokenValueSerialized);
-			jsonObject.put("authorizationToken",jsonObjectMark);
+			JSONObject jsonObjectToken = (JSONObject) parser.parse(tokenValueSerialized);
+			jsonObject.put("authorizationToken",jsonObjectToken);
 			output=new Serializer().serializePlainJson(jsonObject);
 		} catch (JsonProcessingException | ParseException e) {
 			// TODO Auto-generated catch block
@@ -78,6 +78,23 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 		}
 		return output;
 	}
+	
+	@Override
+	public String removeToken(Message message) {
+		String output = null;
+		try {
+			String msgSerialized = new Serializer().serializePlainJson(message);
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = (JSONObject) parser.parse(msgSerialized);
+			jsonObject.remove("authorizationToken");
+			output=new Serializer().serializePlainJson(jsonObject);
+		} catch (JsonProcessingException | ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return output;
+	}
+
 
 	@Override
 	public Message getMessage(Object header) {
