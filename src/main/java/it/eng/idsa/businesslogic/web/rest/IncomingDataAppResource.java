@@ -1,18 +1,8 @@
 package it.eng.idsa.businesslogic.web.rest;
 
-import java.io.IOException;
-import java.net.URI;
-
-import org.apache.commons.text.StringEscapeUtils;
-import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jackson.JsonObjectDeserializer;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,16 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import de.fraunhofer.iais.eis.Message;
-import de.fraunhofer.iais.eis.Token;
-import de.fraunhofer.iais.eis.TokenBuilder;
-import de.fraunhofer.iais.eis.TokenFormat;
-import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
-import it.eng.idsa.businesslogic.service.MultiPartMessageService;
+import it.eng.idsa.businesslogic.service.impl.ClearingHouseServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.DapsServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
@@ -64,6 +47,9 @@ public class IncomingDataAppResource {
 
 	@Autowired
 	private DapsServiceImpl dapsServiceImpl;
+	
+	@Autowired
+	private ClearingHouseServiceImpl clearingHouseService;
 
 	@PostMapping("/JSONMessage")
 	public ResponseEntity<?> postMessage(@RequestHeader("Content-Type") String contentType,
@@ -150,6 +136,11 @@ public class IncomingDataAppResource {
 		org.apache.http.HttpEntity entity = multiPartMessageService.createMultipartMessage(messageStringWithToken, (String) payload);
 		communicationMessageService.sendData(forwardTo, entity);
 		logger.info("data sent to destination "+forwardTo);
+		
+		
+		// TODO: CH
+		clearingHouseService.registerTransaction(message);
+		
 		return ResponseEntity.ok().build();
 	}
 	

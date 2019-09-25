@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.fraunhofer.iais.eis.Message;
+import it.eng.idsa.businesslogic.service.impl.ClearingHouseServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.DapsServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
@@ -40,7 +41,8 @@ public class IncomingDataChannelResource {
 	@Autowired
 	private CommunicationServiceImpl communicationServiceImpl;
 
-
+	@Autowired
+	private ClearingHouseServiceImpl clearingHouseService;
 	
 	// Example for the Message:
 	//		{
@@ -84,11 +86,14 @@ public class IncomingDataChannelResource {
 			String headerWithoutToken=multiPartMessageServiceImpl.removeToken(message);
 			HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(headerWithoutToken,payload);
 		
-			communicationServiceImpl.sendData(/*DEndpoint*/"http://localhost:8081/", entity);
-			logger.info("data sent to destination DataApp");
+			
 			//TODO 
 			//Send directly to the D endpoint (DataApp) configured into the properties file
 			//using MultiPart 
+			communicationServiceImpl.sendData(/*DEndpoint*/"http://localhost:8081/", entity);
+			logger.info("data sent to destination DataApp");
+			// TODO: CH
+			clearingHouseService.registerTransaction(message);
 			
 		}
 

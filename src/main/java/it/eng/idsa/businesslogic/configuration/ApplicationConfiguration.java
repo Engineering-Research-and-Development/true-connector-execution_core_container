@@ -24,6 +24,10 @@ public class ApplicationConfiguration {
 	private String proxyHost;
 	private String proxyPort;
 	private String dapsJWKSUrl;
+	private String clearingHouseUrl;
+	private String uriSchema;
+	private String uriAuthority;
+	private String uriConnector;
 	
 	public String getTargetDirectory() {
 		return targetDirectory;
@@ -90,6 +94,30 @@ public class ApplicationConfiguration {
 	}
 	public void setDapsJWKSUrl(String dapsJWKSUrl) {
 		this.dapsJWKSUrl = dapsJWKSUrl;
+	}
+	public String getClearingHouseUrl() {
+		return clearingHouseUrl;
+	}
+	public void setClearingHouseUrl(String clearingHouseUrl) {
+		this.clearingHouseUrl = clearingHouseUrl;
+	}
+	public String getUriSchema() {
+		return uriSchema;
+	}
+	public void setUriSchema(String uriSchema) {
+		this.uriSchema = uriSchema;
+	}
+	public String getUriAuthority() {
+		return uriAuthority;
+	}
+	public void setUriAuthority(String uriAuthority) {
+		this.uriAuthority = uriAuthority;
+	}
+	public String getUriConnector() {
+		return uriConnector;
+	}
+	public void setUriConnector(String uriConnector) {
+		this.uriConnector = uriConnector;
 	}
 	
 }
