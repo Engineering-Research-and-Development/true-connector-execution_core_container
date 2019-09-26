@@ -28,6 +28,7 @@ public class ApplicationConfiguration {
 	private String uriSchema;
 	private String uriAuthority;
 	private String uriConnector;
+	private String activemqAddress;
 	
 	public String getTargetDirectory() {
 		return targetDirectory;
@@ -118,6 +119,12 @@ public class ApplicationConfiguration {
 	}
 	public void setUriConnector(String uriConnector) {
 		this.uriConnector = uriConnector;
+	}
+	public String getActivemqAddress() {
+		return activemqAddress;
+	}
+	public void setActivemqAddress(String activemqAddress) {
+		this.activemqAddress = activemqAddress;
 	}
 	
 }

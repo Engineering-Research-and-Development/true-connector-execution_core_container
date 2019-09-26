@@ -1,11 +1,18 @@
 package it.eng.idsa.businesslogic.service.impl;
 
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.FormBodyPart;
+import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.ContentBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -78,7 +85,7 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 		}
 		return output;
 	}
-	
+
 	@Override
 	public String removeToken(Message message) {
 		String output = null;
@@ -107,23 +114,78 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 		return message;
 
 	}
-	
+
 	@Override
 	public HttpEntity createMultipartMessage(String header, String payload/*, String boundary, String contentType*/) {
-        MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
-        multipartEntityBuilder.addTextBody("header", header, ContentType.APPLICATION_JSON);
-        multipartEntityBuilder.addTextBody("payload", payload, ContentType.APPLICATION_JSON);
-        // multipartEntityBuilder.setBoundary(boundary)
-        HttpEntity multipart = multipartEntityBuilder.build();
-        
-		return multipart;
+		MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
+		multipartEntityBuilder.addTextBody("header", header);
+		multipartEntityBuilder.addTextBody("payload", payload);
+
+		// multipartEntityBuilder.setBoundary(boundary)
+		HttpEntity multipart = multipartEntityBuilder.build();
+
+		//return multipart;
+		InputStream streamHeader = new ByteArrayInputStream(header.getBytes(StandardCharsets.UTF_8));
+		InputStream streamPayload = new ByteArrayInputStream(payload.getBytes(StandardCharsets.UTF_8));
+
+
+
+
+		multipartEntityBuilder = MultipartEntityBuilder.create().setMode(HttpMultipartMode.STRICT);
+		try {
+			FormBodyPart bodyHeaderPart;
+
+			/*
+			 * bodyHeaderPart = FormBodyPartBuilder.create() .addField("Content-Lenght",
+			 * ""+header.length()) .setName("header") .setBody(new StringBody(header))
+			 * .build();
+			 */
+			bodyHeaderPart = new FormBodyPart("header", new StringBody(header, ContentType.DEFAULT_TEXT)) {
+				@Override
+				protected void generateContentType(ContentBody body) {
+				}
+				@Override
+				protected void generateTransferEncoding(ContentBody body){
+				}
+			};
+			bodyHeaderPart.addField("Content-Lenght", ""+header.length());
+
+			FormBodyPart bodyPayloadPart;
+			bodyPayloadPart=new FormBodyPart("payload", new StringBody(payload, ContentType.DEFAULT_TEXT)) {
+				@Override
+				protected void generateContentType(ContentBody body) {
+				}
+				@Override
+				protected void generateTransferEncoding(ContentBody body){
+				}
+			};
+			bodyPayloadPart.addField("Content-Lenght", ""+payload.length());
+
+			/*
+			 * = FormBodyPartBuilder.create() .addField("Content-Lenght",
+			 * ""+payload.length()) .setName("payload") .setBody(new StringBody(payload))
+			 * .build();
+			 */
+
+
+			multipartEntityBuilder.addPart (bodyHeaderPart);
+			multipartEntityBuilder.addPart(bodyPayloadPart);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return multipartEntityBuilder.build();
 	}
 
 	@Override
 	public String getToken(String message) {
-				JsonObject messageObject = new JsonParser().parse(message).getAsJsonObject();
-				JsonObject authorizationTokenObject = messageObject.get("authorizationToken").getAsJsonObject();
-				String token = authorizationTokenObject.get("tokenValue").getAsString();
-				return token;
+		JsonObject messageObject = new JsonParser().parse(message).getAsJsonObject();
+		JsonObject authorizationTokenObject = messageObject.get("authorizationToken").getAsJsonObject();
+		String token = authorizationTokenObject.get("tokenValue").getAsString();
+		return token;
 	}
+
+
+
+
 }
