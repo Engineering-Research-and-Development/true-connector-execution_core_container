@@ -34,24 +34,23 @@ public class IncomingDataAppResource {
 
 	// EXAMPLE: How to create the object Logger
 	private static final Logger logger = LogManager.getLogger(IncomingDataAppResource.class);
-
 	// EXAMPLE: How to create the object ApplicationConfiguration
 	@Autowired
 	private ApplicationConfiguration configuration;
 
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageService;
-	
+
 	@Autowired
 	private CommunicationServiceImpl communicationMessageService;
 
 	@Autowired
 	private DapsServiceImpl dapsServiceImpl;
-	
+
 	@Autowired
 	private ClearingHouseServiceImpl clearingHouseService;
 
-	@PostMapping("/JSONMessage")
+	@PostMapping(value="/JSONMessage", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> postMessage(@RequestHeader("Content-Type") String contentType,
 			@RequestHeader("Forward-To") String forwardTo, @RequestBody String incomingDataAppMessageBody) {
 
@@ -71,13 +70,35 @@ public class IncomingDataAppResource {
 
 		// TODO: Parse the received imcomingDataappMessage and header and convert to the
 		// MultiPartMessage
-		Message message=multiPartMessageService.getMessage(incomingDataAppMessageBody);
-		logger.info("header=" + multiPartMessageService.getHeader(incomingDataAppMessageBody));
-		logger.info("payload=" + multiPartMessageService.getPayload(incomingDataAppMessageBody));
-		logger.info("message id=" + message.getId());
+		Message message=null;
+		try {
+			message=multiPartMessageService.getMessage(incomingDataAppMessageBody);
+			logger.info("header=" + multiPartMessageService.getHeader(incomingDataAppMessageBody));
+			logger.info("payload=" + multiPartMessageService.getPayload(incomingDataAppMessageBody));
+			logger.info("message id=" + message.getId());
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return ResponseEntity.ok(multiPartMessageService.createRejectionMessageLocalIssues(message));
+			
+		}
 
+		//if (message==null)
+			//return ResponseEntity.ok(multiPartMessageService.createRejectionMessageLocalIssues(message));
+		
 		// TODO: Get the Token from the DAPS
-		String token=dapsServiceImpl.getJwtToken();
+		String token="";
+		try {
+			token=dapsServiceImpl.getJwtToken();
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return ResponseEntity.ok(multiPartMessageService.createRejectionTokenLocalIssues(message));
+
+		}
+		if (token.isEmpty()) 
+			return ResponseEntity.ok(multiPartMessageService.createRejectionTokenLocalIssues(message));
+
 		logger.info("token=" + token);
 
 		// TODO: Pull the Token into the MultiPartMessage (we will create Data -
@@ -87,18 +108,18 @@ public class IncomingDataAppResource {
 
 		// TODO: Send the Data to the Destination (end-point E on the ActiveMQ) (forward
 		// to the destination which is in the MultiPartMessage header)
-	
+
 
 		return ResponseEntity.ok().build();
 	}
-	
-	@PostMapping(value="/MultipartMessage", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, "multipart/mixed" }, produces= MediaType.MULTIPART_FORM_DATA_VALUE)
+
+	@PostMapping(value="/MultipartMessage", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, "multipart/mixed" }, produces= /*MediaType.MULTIPART_FORM_DATA_VALUE*/ MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> postMessage(@RequestHeader("Content-Type") String contentType,
 			@RequestHeader("Forward-To") String forwardTo,  @RequestParam("header")  Object header,             
-            @RequestParam("payload") Object payload   ) {
+			@RequestParam("payload") Object payload   ) {
 
-	
-		
+
+
 		// EXAMPLE: How to use the object Logger
 		logger.info("Enter to the end-point incoming-data-app/MultipartMessage");
 
@@ -116,16 +137,45 @@ public class IncomingDataAppResource {
 
 		// TODO: Parse the received imcomingDataappMessage and header and convert to the
 		// MultiPartMessage
-		Message message=multiPartMessageService.getMessage(header);
+		Message message=null;
+		try {
+			message=multiPartMessageService.getMessage(header);
+			logger.info("header1");
+
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			logger.info("header2");
+			return ResponseEntity.ok(multiPartMessageService.createRejectionMessageLocalIssues(message));
+			
+		}
+		logger.info("header3");
+		if (message==null) {
+			logger.info("header4");
+			return ResponseEntity.ok(multiPartMessageService.createRejectionMessageLocalIssues(message));
+
+		}
+		
+		logger.info("header5");
 
 		logger.info("header=" + header);
 		logger.info("payload=" +payload);
 		logger.info("message id=" + message.getId());
 
 		// TODO: Get the Token from the DAPS
-		String token=dapsServiceImpl.getJwtToken();
-		logger.info("token=" + token);
+		String token="";
+		try {
+			token=dapsServiceImpl.getJwtToken();
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return ResponseEntity.ok(multiPartMessageService.createRejectionTokenLocalIssues(message));
 
+		}
+		if (token==null) 
+			return ResponseEntity.ok(multiPartMessageService.createRejectionTokenLocalIssues(message));
+
+		logger.info("token=" + token);
 		// TODO: Pull the Token into the MultiPartMessage (we will create Data -
 		// customized MultiPartMessage (add token in the MultiPartMessage))
 		String messageStringWithToken=multiPartMessageService.addToken(message, token);
@@ -134,15 +184,16 @@ public class IncomingDataAppResource {
 		// TODO: Send the Data to the Destination (end-point E on the ActiveMQ) (forward
 		// to the destination which is in the MultiPartMessage header)
 		org.apache.http.HttpEntity entity = multiPartMessageService.createMultipartMessage(messageStringWithToken, (String) payload);
-		communicationMessageService.sendData(forwardTo, entity);
+		String response = communicationMessageService.sendData(forwardTo, entity);
 		logger.info("data sent to destination "+forwardTo);
-		
-		
+		logger.info("response "+response);
+
+
 		// TODO: CH
-		clearingHouseService.registerTransaction(message);
-		
-		return ResponseEntity.ok().build();
+		//clearingHouseService.registerTransaction(message);
+
+		return ResponseEntity.ok(response);
 	}
-	
+
 
 }

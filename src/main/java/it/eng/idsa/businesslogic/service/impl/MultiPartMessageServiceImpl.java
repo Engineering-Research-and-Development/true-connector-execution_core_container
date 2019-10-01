@@ -4,6 +4,7 @@ package it.eng.idsa.businesslogic.service.impl;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.http.HttpEntity;
@@ -24,6 +25,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionMessageBuilder;
+import de.fraunhofer.iais.eis.RejectionReason;
+import de.fraunhofer.iais.eis.ResultMessageBuilder;
 import de.fraunhofer.iais.eis.Token;
 import de.fraunhofer.iais.eis.TokenBuilder;
 import de.fraunhofer.iais.eis.TokenFormat;
@@ -31,7 +35,10 @@ import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.service.MultiPartMessageService;
 import nl.tno.ids.common.multipart.MultiPart;
 import nl.tno.ids.common.multipart.MultiPartMessage;
+import nl.tno.ids.common.serialization.DateUtil;
 import nl.tno.ids.common.serialization.SerializationHelper;
+import static de.fraunhofer.iais.eis.util.Util.asList;
+
 
 /**
  * 
@@ -187,5 +194,64 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 
 
 
+	public Message createResultMessage(Message header) {
+		return new ResultMessageBuilder()
+				._issuerConnector_(whoIAm())
+				._issued_(DateUtil.now())
+				._modelVersion_("1.0.3")
+				._recipientConnectors_(asList(header.getIssuerConnector()))
+				._correlationMessage_(header.getId())
+				.build();
+	}
+
+	public Message createRejectionMessage(Message header) {
+		return new RejectionMessageBuilder()
+				._issuerConnector_(whoIAm())
+				._issued_(DateUtil.now())
+				._modelVersion_("1.0.3")
+				._recipientConnectors_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("auto-generated")))
+				._correlationMessage_(header!=null?header.getId():URI.create(""))
+				._rejectionReason_(RejectionReason.MALFORMED_MESSAGE)
+				.build();
+	}
+	
+	public Message createRejectionToken(Message header) {
+		return new RejectionMessageBuilder()
+				._issuerConnector_(whoIAm())
+				._issued_(DateUtil.now())
+				._modelVersion_("1.0.3")
+				._recipientConnectors_(asList(header.getIssuerConnector()))
+				._correlationMessage_(header.getId())
+				._rejectionReason_(RejectionReason.NOT_AUTHENTICATED)
+				.build();
+	}
+
+
+	private URI whoIAm() {
+		//TODO 
+		return URI.create("auto-generated");
+	}
+
+	public Message createRejectionMessageLocalIssues(Message header) {
+		return new RejectionMessageBuilder()
+				._issuerConnector_(URI.create("auto-generated"))
+				._issued_(DateUtil.now())
+				._modelVersion_("1.0.3")
+				//._recipientConnectors_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("auto-generated")))
+				._correlationMessage_(URI.create("auto-generated"))
+				._rejectionReason_(RejectionReason.MALFORMED_MESSAGE)
+				.build();
+	}
+	
+	public Message createRejectionTokenLocalIssues(Message header) {
+		return new RejectionMessageBuilder()
+				._issuerConnector_(header.getIssuerConnector())
+				._issued_(DateUtil.now())
+				._modelVersion_("1.0.3")
+				._recipientConnectors_(asList(header.getIssuerConnector()))
+				._correlationMessage_(header.getId())
+				._rejectionReason_(RejectionReason.NOT_AUTHENTICATED)
+				.build();
+	}
 
 }
