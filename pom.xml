@@ -127,23 +127,6 @@
 			<artifactId>okhttp</artifactId>
 			<version>4.0.1</version>
 		</dependency>
-		<dependency>
-			<groupId>com.nimbusds</groupId>
-			<artifactId>nimbus-jose-jwt</artifactId>
-			<version>7.5.1</version>
-		</dependency>
-
-		<!-- fraunhofer -->
-		<dependency>
-			<groupId>de.fraunhofer.iais.eis.ids.infomodel</groupId>
-			<artifactId>java</artifactId>
-			<version>1.0.3-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>de.fraunhofer.iais.eis.ids</groupId>
-			<artifactId>infomodel-serializer</artifactId>
-			<version>1.0.3-SNAPSHOT</version>
-		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/javax.validation/validation-api -->
 		<dependency>
@@ -191,17 +174,11 @@
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-configuration-processor</artifactId>
-			<optional>true</optional>
-		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-config -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-config</artifactId>
-			<version>5.1.6.RELEASE</version>
 		</dependency>
 		
 		<dependency>
