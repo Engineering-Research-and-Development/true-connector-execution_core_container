@@ -140,23 +140,18 @@ public class IncomingDataAppResource {
 		Message message=null;
 		try {
 			message=multiPartMessageService.getMessage(header);
-			logger.info("header1");
 
 		}catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
-			logger.info("header2");
 			return ResponseEntity.ok(multiPartMessageService.createRejectionMessageLocalIssues(message));
 			
 		}
-		logger.info("header3");
 		if (message==null) {
-			logger.info("header4");
 			return ResponseEntity.ok(multiPartMessageService.createRejectionMessageLocalIssues(message));
 
 		}
 		
-		logger.info("header5");
 
 		logger.info("header=" + header);
 		logger.info("payload=" +payload);
