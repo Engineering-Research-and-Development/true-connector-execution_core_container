@@ -21,8 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionMessageBuilder;
@@ -184,14 +182,30 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 		return multipartEntityBuilder.build();
 	}
 
+	/*
+	 * @Override public String getToken(String message) { JsonObject messageObject =
+	 * new JsonParser().parse(message).getAsJsonObject(); JsonObject
+	 * authorizationTokenObject =
+	 * messageObject.get("authorizationToken").getAsJsonObject(); String token =
+	 * authorizationTokenObject.get("tokenValue").getAsString(); return token; }
+	 */
+
+	
 	@Override
 	public String getToken(String message) {
-		JsonObject messageObject = new JsonParser().parse(message).getAsJsonObject();
-		JsonObject authorizationTokenObject = messageObject.get("authorizationToken").getAsJsonObject();
-		String token = authorizationTokenObject.get("tokenValue").getAsString();
+		String token = null;
+		try {
+			String msgSerialized = new Serializer().serializePlainJson(message);
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = (JSONObject) parser.parse(msgSerialized);
+			jsonObject=(JSONObject) jsonObject.get("authorizationToken");
+			token= (String) jsonObject.get("tokenValue");
+		} catch (JsonProcessingException | ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return token;
 	}
-
 
 
 	public Message createResultMessage(Message header) {
@@ -253,5 +267,18 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 				._rejectionReason_(RejectionReason.NOT_AUTHENTICATED)
 				.build();
 	}
+	
+	
+	public Message createRejectionCommunicationLocalIssues(Message header) {
+		return new RejectionMessageBuilder()
+				._issuerConnector_(header.getIssuerConnector())
+				._issued_(DateUtil.now())
+				._modelVersion_("1.0.3")
+				._recipientConnectors_(asList(header.getIssuerConnector()))
+				._correlationMessage_(header.getId())
+				._rejectionReason_(RejectionReason.NOT_FOUND)
+				.build();
+	}
+
 
 }

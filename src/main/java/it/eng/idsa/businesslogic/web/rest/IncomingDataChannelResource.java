@@ -4,7 +4,6 @@ import org.apache.http.HttpEntity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
-import it.eng.idsa.businesslogic.service.impl.ClearingHouseServiceImpl;
+//import it.eng.idsa.businesslogic.service.impl.ClearingHouseServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.DapsServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
@@ -46,8 +45,8 @@ public class IncomingDataChannelResource {
 	@Autowired
 	private CommunicationServiceImpl communicationServiceImpl;
 
-	@Autowired
-	private ClearingHouseServiceImpl clearingHouseService;
+	//@Autowired
+	//private ClearingHouseServiceImpl clearingHouseService;
 
 	// Post for the end-point F
 	@PostMapping("/message")
@@ -148,10 +147,18 @@ public class IncomingDataChannelResource {
 			//TODO 
 			//Send directly to the D endpoint (DataApp) configured into the properties file
 			//using MultiPart 
-			communicationServiceImpl.sendData("http://"+configuration.getActivemqAddress()+"/api/message/outcoming?type=queue", entity);
-			logger.info("data sent to destination DataApp");
+			String response = communicationServiceImpl.sendData("http://"+configuration.getActivemqAddress()+"/api/message/outcoming?type=queue", entity);
+			if (response==null) {
+				logger.info("...communication error");
+				return ResponseEntity.ok(multiPartMessageServiceImpl.createRejectionCommunicationLocalIssues(message));
+			}
+			else {
+				logger.info("data sent to Data App");
+				logger.info("response "+response);
+			}
+			
 			// TODO: CH
-			clearingHouseService.registerTransaction(message);
+			//clearingHouseService.registerTransaction(message);
 			return ResponseEntity.ok(multiPartMessageServiceImpl.createResultMessage(message));
 
 

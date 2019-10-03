@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
-import it.eng.idsa.businesslogic.service.impl.ClearingHouseServiceImpl;
+//import it.eng.idsa.businesslogic.service.impl.ClearingHouseServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.DapsServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
@@ -47,8 +47,8 @@ public class IncomingDataAppResource {
 	@Autowired
 	private DapsServiceImpl dapsServiceImpl;
 
-	@Autowired
-	private ClearingHouseServiceImpl clearingHouseService;
+	//@Autowired
+	//private ClearingHouseServiceImpl clearingHouseService;
 
 	@PostMapping(value="/JSONMessage", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> postMessage(@RequestHeader("Content-Type") String contentType,
@@ -80,12 +80,12 @@ public class IncomingDataAppResource {
 			// TODO: handle exception
 			e.printStackTrace();
 			return ResponseEntity.ok(multiPartMessageService.createRejectionMessageLocalIssues(message));
-			
+
 		}
 
 		//if (message==null)
-			//return ResponseEntity.ok(multiPartMessageService.createRejectionMessageLocalIssues(message));
-		
+		//return ResponseEntity.ok(multiPartMessageService.createRejectionMessageLocalIssues(message));
+
 		// TODO: Get the Token from the DAPS
 		String token="";
 		try {
@@ -145,16 +145,15 @@ public class IncomingDataAppResource {
 			// TODO: handle exception
 			e.printStackTrace();
 			return ResponseEntity.ok(multiPartMessageService.createRejectionMessageLocalIssues(message));
-			
+
 		}
 		if (message==null) {
 			return ResponseEntity.ok(multiPartMessageService.createRejectionMessageLocalIssues(message));
 
 		}
-		
 
-		logger.info("header=" + header);
-		logger.info("payload=" +payload);
+
+
 		logger.info("message id=" + message.getId());
 
 		// TODO: Get the Token from the DAPS
@@ -180,10 +179,14 @@ public class IncomingDataAppResource {
 		// to the destination which is in the MultiPartMessage header)
 		org.apache.http.HttpEntity entity = multiPartMessageService.createMultipartMessage(messageStringWithToken, (String) payload);
 		String response = communicationMessageService.sendData(forwardTo, entity);
-		logger.info("data sent to destination "+forwardTo);
-		logger.info("response "+response);
-
-
+		if (response==null) {
+			logger.info("...communication error");
+			return ResponseEntity.ok(multiPartMessageService.createRejectionCommunicationLocalIssues(message));
+		}
+		else {
+			logger.info("data sent to destination "+forwardTo);
+			logger.info("response "+response);
+		}
 		// TODO: CH
 		//clearingHouseService.registerTransaction(message);
 

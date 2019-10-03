@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Key;
 import java.security.KeyFactory;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -26,6 +27,13 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -84,6 +92,9 @@ public class DapsServiceImpl implements DapsService {
 	private PublicKey publicKey;
 	private String token = "";
 
+	
+	
+	
 	@Override
 	public String getJwtToken() {
 
@@ -110,8 +121,8 @@ public class DapsServiceImpl implements DapsService {
 			cert = store.getCertificate(keystoreAliasName);
 			// Get public key
 			publicKey = cert.getPublicKey();
-			byte[] encodedPublicKey = publicKey.getEncoded();
-			String b64PublicKey = Base64.getEncoder().encodeToString(encodedPublicKey);
+			//byte[] encodedPublicKey = publicKey.getEncoded();
+			//String b64PublicKey = Base64.getEncoder().encodeToString(encodedPublicKey);
 
 			// create signed JWT (JWS)
 			// Create expiry date one day (86400 seconds) from now
@@ -121,8 +132,11 @@ public class DapsServiceImpl implements DapsService {
 					.setAudience("https://api.localhost").setNotBefore(Date.from(Instant.now()));
 
 			String jws = jwtb.signWith(SignatureAlgorithm.RS256, privKey).compact();
-			String json = "{\"\": \"\"," + "\"\":\"urn:ietf:params:oauth:client-assertion-type:jwt-bearer\","
-					+ "\"\":\"" + jws + "\"," + "\"\":\"\"," + "}";
+			/*
+			 * String json = "{\"\": \"\"," +
+			 * "\"\":\"urn:ietf:params:oauth:client-assertion-type:jwt-bearer\"," +
+			 * "\"\":\"" + jws + "\"," + "\"\":\"\"," + "}";
+			 */
 
 			Authenticator proxyAuthenticator = new Authenticator() {
 				@Override
@@ -133,15 +147,57 @@ public class DapsServiceImpl implements DapsService {
 			};
 
 			OkHttpClient client = null;
+			final TrustManager[] trustAllCerts = new TrustManager[]{
+	                new X509TrustManager() {
+	                    @Override
+	                    public void checkClientTrusted(java.security.cert.X509Certificate[] chain,
+	                                                   String authType) throws CertificateException {
+	                    }
+
+	                    @Override
+	                    public void checkServerTrusted(java.security.cert.X509Certificate[] chain,
+	                                                   String authType) throws CertificateException {
+	                    }
+
+	                    @Override
+	                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+	                        return new java.security.cert.X509Certificate[0];
+	                    }
+	                }
+	        };
+
+	        // Install the all-trusting trust manager
+	        final SSLContext sslContext = SSLContext.getInstance("SSL");
+	        sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+	        // Create an ssl socket factory with our all-trusting manager
+	        final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+
+	      
+			
 			if (!proxyUser.equalsIgnoreCase("")) {
 				client = new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS)
 						.writeTimeout(60, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS)
 						.proxy(new Proxy(Proxy.Type.HTTP,
 								new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort))))
-						.proxyAuthenticator(proxyAuthenticator).build();
+						.proxyAuthenticator(proxyAuthenticator)
+						.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
+						.hostnameVerifier(new HostnameVerifier() {
+							@Override
+							public boolean verify(String hostname, SSLSession session) {
+								// TODO Auto-generated method stub
+								return true;
+							}
+		                }).build();
 			} else {
 				client = new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS)
-						.writeTimeout(60, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS).build();
+						.writeTimeout(60, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS)
+						.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
+						.hostnameVerifier(new HostnameVerifier() {
+		                    @Override
+		                    public boolean verify(String hostname, SSLSession session) {
+		                        return true;
+		                    }
+		                }).build();
 			}
 			RequestBody formBody = new FormBody.Builder().add("grant_type", "client_credentials")
 					.add("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
@@ -184,6 +240,9 @@ public class DapsServiceImpl implements DapsService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
+		} catch (KeyManagementException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		return token;
