@@ -195,12 +195,12 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 	public String getToken(String message) {
 		String token = null;
 		try {
-			String msgSerialized = new Serializer().serializePlainJson(message);
+			//String msgSerialized = new Serializer().serializePlainJson(message);
 			JSONParser parser = new JSONParser();
-			JSONObject jsonObject = (JSONObject) parser.parse(msgSerialized);
+			JSONObject jsonObject = (JSONObject) parser.parse(message);
 			jsonObject=(JSONObject) jsonObject.get("authorizationToken");
 			token= (String) jsonObject.get("tokenValue");
-		} catch (JsonProcessingException | ParseException e) {
+		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
