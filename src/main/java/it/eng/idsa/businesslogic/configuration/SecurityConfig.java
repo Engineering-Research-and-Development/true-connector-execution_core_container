@@ -23,7 +23,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		.requiresChannel()
         //.anyRequest().requiresInsecure()
 		.antMatchers("/incoming-data-channel/**").requiresSecure()
-		.antMatchers("/incoming-data-app/**").requiresInsecure()
+		.antMatchers("/incoming-data-app/**").requiresSecure()
 		.antMatchers("/outcoming-data-app/**").requiresInsecure();
 
         

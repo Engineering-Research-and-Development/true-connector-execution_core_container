@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.1.8.RELEASE</version>
+		<version>2.1.9.RELEASE</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>it.eng.idsa</groupId>
@@ -21,7 +21,7 @@
 		<start-class>it.eng.idsa.businesslogic.Application</start-class>
 	</properties>
 
-	<repositories>
+	<!-- <repositories>
 		<repository>
 			<id>nl.tno.ids</id>
 			<url>https://ci.ids.smart-connected.nl/nexus/repository/tno-ids/
@@ -32,7 +32,7 @@
 			<name>maven-snapshots</name>
 			<url>http://maven.iais.fraunhofer.de/artifactory/eis-ids-public</url>
 		</repository>
-	</repositories>
+	</repositories> -->
 	<dependencies>
 
 		<!-- Spring Boot - common dependencies -->
@@ -131,15 +131,13 @@
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
-			<version>2.0.1.Final</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpmime -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpmime</artifactId>
-			<version>4.5.9</version>
-		</dependency>
+			</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
 		<dependency>
