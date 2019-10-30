@@ -19,6 +19,8 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<start-class>it.eng.idsa.businesslogic.Application</start-class>
+		<camel.version>2.24.2</camel.version>
+		<tomcat.version>9.0.26</tomcat.version>
 	</properties>
 
 	<!-- <repositories>
@@ -111,6 +113,48 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-log4j2</artifactId>
+		</dependency>
+		
+		<!-- Camel -->
+ 	    <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-servlet-starter</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-jackson-starter</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-swagger-java-starter</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-spring-boot-starter</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
+        <dependency>
+    		<groupId>org.apache.camel</groupId>
+    		<artifactId>camel-http</artifactId>
+    		<version>${camel.version}</version>
+		</dependency>
+		<dependency>
+    		<groupId>org.apache.camel</groupId>
+    		<artifactId>camel-http4</artifactId>
+    		<version>${camel.version}</version>
+		</dependency>
+		<!-- <dependency>
+  			<groupId>org.apache.camel</groupId>
+  			<artifactId>camel-jetty</artifactId>
+  			<version>${camel.version}</version>
+		</dependency> -->
+		<dependency>
+  			<groupId>org.apache.camel</groupId>
+  			<artifactId>camel-jetty9-starter</artifactId>
+  			<version>${camel.version}</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt -->
