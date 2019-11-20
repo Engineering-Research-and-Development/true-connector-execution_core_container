@@ -29,6 +29,8 @@ public class ApplicationConfiguration {
 	private String uriAuthority;
 	private String uriConnector;
 	private String activemqAddress;
+	private String openDataAppReceiver;
+	private String camelConsumerAddress;
 	
 	public String getTargetDirectory() {
 		return targetDirectory;
@@ -125,6 +127,18 @@ public class ApplicationConfiguration {
 	}
 	public void setActivemqAddress(String activemqAddress) {
 		this.activemqAddress = activemqAddress;
+	}
+	public String getOpenDataAppReceiver() {
+		return openDataAppReceiver;
+	}
+	public void setOpenDataAppReceiver(String openDataAppReceiver) {
+		this.openDataAppReceiver = openDataAppReceiver;
+	}
+	public String getCamelConsumerAddress() {
+		return camelConsumerAddress;
+	}
+	public void setCamelConsumerAddress(String camelConsumerAddress) {
+		this.camelConsumerAddress = camelConsumerAddress;
 	}
 	
 }

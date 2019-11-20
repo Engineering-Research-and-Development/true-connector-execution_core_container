@@ -11,6 +11,12 @@ import org.springframework.stereotype.Component;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.impl.ClearingHouseServiceImpl;
 
+/**
+ * 
+ * @author Milan Karajovic and Gabriele De Luca
+ *
+ */
+
 @Component
 public class SendTransactionToCHProcessor implements Processor {
 

@@ -177,7 +177,7 @@ public class IncomingDataAppResource {
 
 		// TODO: Send the Data to the Destination (end-point E on the ActiveMQ) (forward
 		// to the destination which is in the MultiPartMessage header)
-		org.apache.http.HttpEntity entity = multiPartMessageService.createMultipartMessage(messageStringWithToken, (String) payload);
+		org.apache.http.HttpEntity entity = multiPartMessageService.createMultipartMessage(messageStringWithToken, String.valueOf(payload));
 		String response = communicationMessageService.sendData(forwardTo, entity);
 		if (response==null) {
 			logger.info("...communication error");

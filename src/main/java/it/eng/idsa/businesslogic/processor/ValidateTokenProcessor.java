@@ -14,6 +14,12 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.impl.DapsServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 
+/**
+ * 
+ * @author Milan Karajovic and Gabriele De Luca
+ *
+ */
+
 @Component
 public class ValidateTokenProcessor implements Processor {
 	

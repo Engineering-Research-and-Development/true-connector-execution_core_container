@@ -112,7 +112,7 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 	public Message getMessage(Object header) {
 		Message message = null;
 		try {
-			message = SerializationHelper.getInstance().fromJsonLD(((String) header), Message.class);
+			message = SerializationHelper.getInstance().fromJsonLD(String.valueOf(header), Message.class);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
