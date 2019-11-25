@@ -60,7 +60,7 @@ public class SendDataToDataAppProcessor implements Processor {
 		ContentBody cbPayload = convertToContentBody(payload, ContentType.DEFAULT_TEXT, "payload");
 		
 		// Send data to the endpoint F
-		forwardMessage("http://"+configuration.getOpenDataAppReceiver()+"/incoming-data-app/router", cbHeader, cbPayload);
+		forwardMessage("https://"+configuration.getOpenDataAppReceiver()+"/incoming-data-app/router", cbHeader, cbPayload);
 	}
 	
 	private int forwardMessage(String address, ContentBody cbHeader, ContentBody cbPayload) throws ClientProtocolException, IOException {
