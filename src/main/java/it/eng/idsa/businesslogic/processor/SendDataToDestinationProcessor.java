@@ -52,7 +52,7 @@ public class SendDataToDestinationProcessor implements Processor {
 			String payload = multipartMessageParts.get("payload").toString();
 			String headerWithoutToken=multiPartMessageServiceImpl.removeToken(message);
 			HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(headerWithoutToken,payload);
-			String response = communicationServiceImpl.sendData("http://"+configuration.getActivemqAddress()+"/api/message/outcoming?type=queue", entity);
+			String response = communicationServiceImpl.sendData("http://"+configuration.getActivemqAddress()+"/api/message/incoming?type=queue", entity);
 			if (response==null) {
 				logger.info("...communication error");
 				throw new ProcessorException("Communication error");

@@ -22,7 +22,7 @@
 		<camel.version>2.24.2</camel.version>
 		<camel.version.rc>3.0.0-RC3</camel.version.rc>
 		<jackson.version>2.10.1</jackson.version>
-		<tomcat.version>8.5.23</tomcat.version>
+		<tomcat.version>9.0.26</tomcat.version>
 	</properties>
 
 	<!-- <repositories>

@@ -54,11 +54,15 @@ public class CamelRoute extends RouteBuilder {
 		from("jetty://https4://"+configuration.getCamelConsumerAddress()+"/incoming-data-channel/receivedMessage")
 			.process(multiPartMessageProcessor)
 			.process(validateTokenProcessor)
-			// HTTP - Send data to the destination D
+			// HTTP - Send data to the destination D (in the queue:incoming )
 			.process(sendDataToDestinationProcessor)
 			.process(sendTransactionToCHProcessor);
 		
-		// Read from the ActiveMQ
+		// Send from the queue:incoming in the queue:outcoming
+		from("activemq:queue:incoming")
+			.to("activemq:queue:outcoming");
+		
+		// Read from the ActiveMQ (from the queue:outcoming)
 		from("activemq:queue:outcoming")
 			.process(multiPartMessageProcessor)
 			// HTTP - Send data to the endpoint F
