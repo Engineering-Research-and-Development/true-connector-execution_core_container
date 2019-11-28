@@ -31,6 +31,7 @@ public class ApplicationConfiguration {
 	private String activemqAddress;
 	private String openDataAppReceiver;
 	private String camelConsumerAddress;
+	private String camelProducerAddress;
 	
 	public String getTargetDirectory() {
 		return targetDirectory;
@@ -139,6 +140,12 @@ public class ApplicationConfiguration {
 	}
 	public void setCamelConsumerAddress(String camelConsumerAddress) {
 		this.camelConsumerAddress = camelConsumerAddress;
+	}
+	public String getCamelProducerAddress() {
+		return camelProducerAddress;
+	}
+	public void setCamelProducerAddress(String camelProducerAddress) {
+		this.camelProducerAddress = camelProducerAddress;
 	}
 	
 }

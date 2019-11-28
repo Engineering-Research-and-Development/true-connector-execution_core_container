@@ -1,4 +1,4 @@
-package it.eng.idsa.businesslogic.processor;
+package it.eng.idsa.businesslogic.processor.consumer;
 
 import java.util.HashMap;
 import java.util.Map;

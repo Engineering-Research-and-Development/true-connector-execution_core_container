@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.exception.ProcessorException;
-import it.eng.idsa.businesslogic.processor.MultiPartMessageProcessor;
-import it.eng.idsa.businesslogic.processor.SendDataToDataAppProcessor;
-import it.eng.idsa.businesslogic.processor.SendDataToDestinationProcessor;
-import it.eng.idsa.businesslogic.processor.SendTransactionToCHProcessor;
-import it.eng.idsa.businesslogic.processor.ValidateTokenProcessor;
+import it.eng.idsa.businesslogic.processor.consumer.MultiPartMessageProcessor;
+import it.eng.idsa.businesslogic.processor.consumer.SendDataToDataAppProcessor;
+import it.eng.idsa.businesslogic.processor.consumer.SendDataToDestinationProcessor;
+import it.eng.idsa.businesslogic.processor.consumer.SendTransactionToCHProcessorConsumer;
+import it.eng.idsa.businesslogic.processor.consumer.ValidateTokenProcessor;
 
 /**
  * 
@@ -22,9 +22,9 @@ import it.eng.idsa.businesslogic.processor.ValidateTokenProcessor;
  */
 
 @Component
-public class CamelRoute extends RouteBuilder {
+public class CamelRouteConsumer extends RouteBuilder {
 	
-	private static final Logger logger = LogManager.getLogger(CamelRoute.class);
+	private static final Logger logger = LogManager.getLogger(CamelRouteConsumer.class);
 	
 	@Autowired
 	private ApplicationConfiguration configuration;
@@ -42,7 +42,7 @@ public class CamelRoute extends RouteBuilder {
 	SendDataToDestinationProcessor sendDataToDestinationProcessor;
 	
 	@Autowired
-	SendTransactionToCHProcessor sendTransactionToCHProcessor;
+	SendTransactionToCHProcessorConsumer sendTransactionToCHProcessor;
 	
 	@Override
 	public void configure() throws Exception {
@@ -54,13 +54,9 @@ public class CamelRoute extends RouteBuilder {
 		from("jetty://https4://"+configuration.getCamelConsumerAddress()+"/incoming-data-channel/receivedMessage")
 			.process(multiPartMessageProcessor)
 			.process(validateTokenProcessor)
-			// HTTP - Send data to the destination D (in the queue:incoming )
+			// HTTP - Send data to the destination D (in the queue:outcoming)
 			.process(sendDataToDestinationProcessor)
 			.process(sendTransactionToCHProcessor);
-		
-		// Send from the queue:incoming in the queue:outcoming
-		from("activemq:queue:incoming")
-			.to("activemq:queue:outcoming");
 		
 		// Read from the ActiveMQ (from the queue:outcoming)
 		from("activemq:queue:outcoming")

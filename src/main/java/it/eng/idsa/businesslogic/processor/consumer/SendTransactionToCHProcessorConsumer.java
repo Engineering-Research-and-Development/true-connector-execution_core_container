@@ -1,4 +1,4 @@
-package it.eng.idsa.businesslogic.processor;
+package it.eng.idsa.businesslogic.processor.consumer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +18,7 @@ import it.eng.idsa.businesslogic.service.impl.ClearingHouseServiceImpl;
  */
 
 @Component
-public class SendTransactionToCHProcessor implements Processor {
+public class SendTransactionToCHProcessorConsumer implements Processor {
 
 	@Autowired
 	private ClearingHouseServiceImpl clearingHouseService;

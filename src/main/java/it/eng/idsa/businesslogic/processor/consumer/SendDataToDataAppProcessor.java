@@ -1,4 +1,4 @@
-package it.eng.idsa.businesslogic.processor;
+package it.eng.idsa.businesslogic.processor.consumer;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
