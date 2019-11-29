@@ -24,9 +24,9 @@ import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
  */
 
 @Component
-public class SendDataToDestinationProcessor implements Processor {
+public class ConsumerSendDataToDestinationProcessor implements Processor {
 
-	private static final Logger logger = LogManager.getLogger(SendDataToDestinationProcessor.class);
+	private static final Logger logger = LogManager.getLogger(ConsumerSendDataToDestinationProcessor.class);
 	
 	@Autowired
 	private ApplicationConfiguration configuration;
@@ -51,8 +51,8 @@ public class SendDataToDestinationProcessor implements Processor {
 			Message message = (Message) multipartMessageParts.get("message");
 			String payload = multipartMessageParts.get("payload").toString();
 			String headerWithoutToken=multiPartMessageServiceImpl.removeToken(message);
-			HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(headerWithoutToken,payload);
-			String response = communicationServiceImpl.sendData("http://"+configuration.getActivemqAddress()+"/api/message/incoming?type=queue", entity);
+			HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(headerWithoutToken,payload, null);
+			String response = communicationServiceImpl.sendData("http://"+configuration.getActivemqAddress()+"/api/message/outcoming?type=queue", entity);
 			if (response==null) {
 				logger.info("...communication error");
 				throw new ProcessorException("Communication error");

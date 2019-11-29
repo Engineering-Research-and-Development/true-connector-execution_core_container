@@ -22,9 +22,9 @@ import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
  */
 
 @Component
-public class GetTokenFromDapsProcessor implements Processor {
+public class ProducerGetTokenFromDapsProcessor implements Processor {
 	
-	private static final Logger logger = LogManager.getLogger(GetTokenFromDapsProcessor.class);
+	private static final Logger logger = LogManager.getLogger(ProducerGetTokenFromDapsProcessor.class);
 	
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageService;

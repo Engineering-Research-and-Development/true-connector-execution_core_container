@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
+import it.eng.idsa.businesslogic.processor.consumer.ConsumerValidateTokenProcessor;
 import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 
@@ -23,37 +24,41 @@ import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
  */
 
 @Component
-public class SenDataToDestinationProcessor implements Processor {
+public class ProducerSendDataToBusinessLogicConsumer implements Processor {
 
-	private static final Logger logger = LogManager.getLogger(SenDataToDestinationProcessor.class);
-
+	private static final Logger logger = LogManager.getLogger(ProducerSendDataToBusinessLogicConsumer.class);
+	
 	@Autowired
-	private MultiPartMessageServiceImpl multiPartMessageService;
+	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
 	
 	@Autowired
 	private CommunicationServiceImpl communicationMessageService;
-
+	
 	@Override
 	public void process(Exchange exchange) throws Exception {
-
-		Map<String, Object> headesParts = exchange.getIn().getHeaders();
+		
+		String header;
+		String payload;
+		String forwardTo;
+		Message message=null;
+		
+		// Get "multipartMessageParts" from the input "exchange"
 		Map<String, Object> multipartMessageParts = exchange.getIn().getBody(HashMap.class);
 		
-		String messageWithToken = multipartMessageParts.get("messageWithToken").toString();
-		String header = multipartMessageParts.get("header").toString();
-		String paylod = multipartMessageParts.get("payload").toString();
-		String forwardTo = headesParts.get("Forward-To").toString();
-		Message message = multiPartMessageService.getMessage(header);
-
-		HttpEntity entity = multiPartMessageService.createMultipartMessage(
-				messageWithToken,
-				paylod);
+		header = multipartMessageParts.get("header").toString();
+		payload = multipartMessageParts.get("payload").toString();
+		forwardTo = multipartMessageParts.get("frowardTo").toString();
+		
+		HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(
+				header,
+				payload,
+				null);
 
 		String response = communicationMessageService.sendData(forwardTo, entity);
 		
 		if (response==null) {
 			logger.info("...communication error");
-			multiPartMessageService.createRejectionCommunicationLocalIssues(message);
+			//multiPartMessageServiceImpl.createRejectionCommunicationLocalIssues(message);
 		}
 		else {
 			logger.info("data sent to destination "+forwardTo);

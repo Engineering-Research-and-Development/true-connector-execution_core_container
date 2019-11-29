@@ -9,10 +9,12 @@ import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.exception.ProcessorException;
-import it.eng.idsa.businesslogic.processor.producer.GetTokenFromDapsProcessor;
-import it.eng.idsa.businesslogic.processor.producer.ParseReceivedDataProcessor;
-import it.eng.idsa.businesslogic.processor.producer.SenDataToDestinationProcessor;
-import it.eng.idsa.businesslogic.processor.producer.SendTransactionToCHProcessorProducer;
+import it.eng.idsa.businesslogic.processor.producer.ProducerGetTokenFromDapsProcessor;
+import it.eng.idsa.businesslogic.processor.producer.ProducerMultiPartMessageProcessor;
+import it.eng.idsa.businesslogic.processor.producer.ProducerParseReceivedDataProcessor;
+import it.eng.idsa.businesslogic.processor.producer.ProducerSenDataToDestinationProcessor;
+import it.eng.idsa.businesslogic.processor.producer.ProducerSendDataToBusinessLogicConsumer;
+import it.eng.idsa.businesslogic.processor.producer.ProducerSendTransactionToCHProcessor;
 
 /**
  * 
@@ -29,16 +31,22 @@ public class CamelRouteProducer extends RouteBuilder {
 	private ApplicationConfiguration configuration;
 	
 	@Autowired
-	ParseReceivedDataProcessor receiveDataToDataAppProcessor;
+	ProducerParseReceivedDataProcessor receiveDataToDataAppProcessor;
 	
 	@Autowired
-	GetTokenFromDapsProcessor getTokenFromDapsProcessor;
+	ProducerGetTokenFromDapsProcessor getTokenFromDapsProcessor;
 	
 	@Autowired
-	SenDataToDestinationProcessor senDataToDestinationProcessor;
+	ProducerSenDataToDestinationProcessor senDataToDestinationProcessor;
 	
 	@Autowired
-	SendTransactionToCHProcessorProducer sendTransactionToCHProcessor;
+	ProducerSendTransactionToCHProcessor sendTransactionToCHProcessor;
+	
+	@Autowired
+	ProducerMultiPartMessageProcessor multiPartMessageProcessor;
+	
+	@Autowired
+	ProducerSendDataToBusinessLogicConsumer sendDataToBusinessLogicConsumer;
 	
 	@Override
 	public void configure() throws Exception {
@@ -50,9 +58,14 @@ public class CamelRouteProducer extends RouteBuilder {
 		from("jetty://https4://"+configuration.getCamelProducerAddress()+"/incoming-data-app/MultipartMessage")
 			.process(receiveDataToDataAppProcessor)
 			.process(getTokenFromDapsProcessor)
+			// HTTP - Send data to the destination B (in the queue:incoming)
 			.process(senDataToDestinationProcessor)
 			.process(sendTransactionToCHProcessor);
 		
+		// Read from the ActiveMQ (from the queue:incoming)
+		from("activemq:queue:incoming")
+			.process(multiPartMessageProcessor)
+			.process(sendDataToBusinessLogicConsumer);
 	}
 
 }

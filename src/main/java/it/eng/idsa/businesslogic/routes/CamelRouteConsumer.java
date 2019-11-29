@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.exception.ProcessorException;
-import it.eng.idsa.businesslogic.processor.consumer.MultiPartMessageProcessor;
-import it.eng.idsa.businesslogic.processor.consumer.SendDataToDataAppProcessor;
-import it.eng.idsa.businesslogic.processor.consumer.SendDataToDestinationProcessor;
-import it.eng.idsa.businesslogic.processor.consumer.SendTransactionToCHProcessorConsumer;
-import it.eng.idsa.businesslogic.processor.consumer.ValidateTokenProcessor;
+import it.eng.idsa.businesslogic.processor.consumer.ConsumerMultiPartMessageProcessor;
+import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendDataToDataAppProcessor;
+import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendDataToDestinationProcessor;
+import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendTransactionToCHProcessor;
+import it.eng.idsa.businesslogic.processor.consumer.ConsumerValidateTokenProcessor;
 
 /**
  * 
@@ -30,19 +30,19 @@ public class CamelRouteConsumer extends RouteBuilder {
 	private ApplicationConfiguration configuration;
 	
 	@Autowired
-	ValidateTokenProcessor validateTokenProcessor;
+	ConsumerValidateTokenProcessor validateTokenProcessor;
 	
 	@Autowired
-	MultiPartMessageProcessor multiPartMessageProcessor;
+	ConsumerMultiPartMessageProcessor multiPartMessageProcessor;
 	
 	@Autowired
-	SendDataToDataAppProcessor sendDataToDataAppProcessor;
+	ConsumerSendDataToDataAppProcessor sendDataToDataAppProcessor;
 	
 	@Autowired
-	SendDataToDestinationProcessor sendDataToDestinationProcessor;
+	ConsumerSendDataToDestinationProcessor sendDataToDestinationProcessor;
 	
 	@Autowired
-	SendTransactionToCHProcessorConsumer sendTransactionToCHProcessor;
+	ConsumerSendTransactionToCHProcessor sendTransactionToCHProcessor;
 	
 	@Override
 	public void configure() throws Exception {

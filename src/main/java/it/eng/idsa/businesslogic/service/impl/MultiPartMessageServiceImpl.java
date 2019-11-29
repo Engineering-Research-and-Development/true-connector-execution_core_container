@@ -12,6 +12,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.FormBodyPart;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.Header;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.json.simple.JSONObject;
@@ -69,7 +70,7 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 		MultiPartMessage deserializedMultipartMessage = MultiPart.parseString(body);
 		return deserializedMultipartMessage.getHeader();
 	}
-
+	
 	@Override
 	public String addToken(Message message, String token) {
 		String output = null;
@@ -121,30 +122,18 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 	}
 
 	@Override
-	public HttpEntity createMultipartMessage(String header, String payload/*, String boundary, String contentType*/) {
+	public HttpEntity createMultipartMessage(String header, String payload, String frowardTo) {
 		MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
 		multipartEntityBuilder.addTextBody("header", header);
 		multipartEntityBuilder.addTextBody("payload", payload);
-
-		// multipartEntityBuilder.setBoundary(boundary)
-		HttpEntity multipart = multipartEntityBuilder.build();
-
-		//return multipart;
-		InputStream streamHeader = new ByteArrayInputStream(header.getBytes(StandardCharsets.UTF_8));
-		InputStream streamPayload = new ByteArrayInputStream(payload.getBytes(StandardCharsets.UTF_8));
-
-
-
+		if(frowardTo!=null) {
+			multipartEntityBuilder.addTextBody("forwardTo", frowardTo);
+		}
 
 		multipartEntityBuilder = MultipartEntityBuilder.create().setMode(HttpMultipartMode.STRICT);
 		try {
 			FormBodyPart bodyHeaderPart;
 
-			/*
-			 * bodyHeaderPart = FormBodyPartBuilder.create() .addField("Content-Lenght",
-			 * ""+header.length()) .setName("header") .setBody(new StringBody(header))
-			 * .build();
-			 */
 			bodyHeaderPart = new FormBodyPart("header", new StringBody(header, ContentType.DEFAULT_TEXT)) {
 				@Override
 				protected void generateContentType(ContentBody body) {
@@ -166,30 +155,31 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 			};
 			bodyPayloadPart.addField("Content-Lenght", ""+payload.length());
 
-			/*
-			 * = FormBodyPartBuilder.create() .addField("Content-Lenght",
-			 * ""+payload.length()) .setName("payload") .setBody(new StringBody(payload))
-			 * .build();
-			 */
+			FormBodyPart headerForwardTo=null;
+			if(frowardTo!=null) {
+				headerForwardTo=new FormBodyPart("forwardTo", new StringBody(frowardTo, ContentType.DEFAULT_TEXT)) {
+					@Override
+					protected void generateContentType(ContentBody body) {
+					}
+					@Override
+					protected void generateTransferEncoding(ContentBody body){
+					}
+				};
+				headerForwardTo.addField("Content-Lenght", ""+frowardTo.length());
+			}
 
-
-			multipartEntityBuilder.addPart (bodyHeaderPart);
+			if(frowardTo!=null) {
+				multipartEntityBuilder.addPart(headerForwardTo);
+			}
+			multipartEntityBuilder.addPart(bodyHeaderPart);
 			multipartEntityBuilder.addPart(bodyPayloadPart);
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return multipartEntityBuilder.build();
 	}
-
-	/*
-	 * @Override public String getToken(String message) { JsonObject messageObject =
-	 * new JsonParser().parse(message).getAsJsonObject(); JsonObject
-	 * authorizationTokenObject =
-	 * messageObject.get("authorizationToken").getAsJsonObject(); String token =
-	 * authorizationTokenObject.get("tokenValue").getAsString(); return token; }
-	 */
-
 	
 	@Override
 	public String getToken(String message) {
@@ -279,6 +269,5 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 				._rejectionReason_(RejectionReason.NOT_FOUND)
 				.build();
 	}
-
 
 }

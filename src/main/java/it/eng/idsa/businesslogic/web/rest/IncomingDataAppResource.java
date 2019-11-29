@@ -152,14 +152,13 @@ public class IncomingDataAppResource {
 
 		}
 
-
-
 		logger.info("message id=" + message.getId());
 
 		// TODO: Get the Token from the DAPS
 		String token="";
 		try {
 			token=dapsServiceImpl.getJwtToken();
+			//token="123";
 		}catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
@@ -177,7 +176,7 @@ public class IncomingDataAppResource {
 
 		// TODO: Send the Data to the Destination (end-point E on the ActiveMQ) (forward
 		// to the destination which is in the MultiPartMessage header)
-		org.apache.http.HttpEntity entity = multiPartMessageService.createMultipartMessage(messageStringWithToken, String.valueOf(payload));
+		org.apache.http.HttpEntity entity = multiPartMessageService.createMultipartMessage(messageStringWithToken, String.valueOf(payload), null);
 		String response = communicationMessageService.sendData(forwardTo, entity);
 		if (response==null) {
 			logger.info("...communication error");

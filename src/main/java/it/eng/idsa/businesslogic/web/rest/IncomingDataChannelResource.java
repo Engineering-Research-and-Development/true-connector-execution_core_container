@@ -80,7 +80,7 @@ public class IncomingDataChannelResource {
 		if(isTokenValid) {
 			logger.info("token valid");
 			String headerWithoutToken=multiPartMessageServiceImpl.removeToken(message);
-			HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(headerWithoutToken,payload);
+			HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(headerWithoutToken,payload, null);
 
 
 			//TODO 
@@ -129,6 +129,7 @@ public class IncomingDataChannelResource {
 
 		// Validate the Token with the DAPS from the received MultiPartMessage
 		boolean isTokenValid = dapsServiceImpl.validateToken(token);
+		//boolean isTokenValid = true;
 		logger.info("isTokenValid="+isTokenValid);
 		// TODO: If the Token from the MultiPartMessage pass the DAPS validation, Send
 		// the customized received MultiPartMessage(in the MultiPartMessage remove the
@@ -141,7 +142,7 @@ public class IncomingDataChannelResource {
 			//return ResponseEntity.ok().build();
 
 			String headerWithoutToken=multiPartMessageServiceImpl.removeToken(message);
-			HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(headerWithoutToken,payload);
+			HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(headerWithoutToken,payload, null);
 
 
 			//TODO 

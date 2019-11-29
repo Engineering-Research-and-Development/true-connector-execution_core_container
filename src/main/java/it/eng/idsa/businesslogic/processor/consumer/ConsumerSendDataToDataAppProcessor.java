@@ -39,9 +39,9 @@ import nl.tno.ids.common.config.keystore.TruststoreConfig;
  */
 
 @Component
-public class SendDataToDataAppProcessor implements Processor {
+public class ConsumerSendDataToDataAppProcessor implements Processor {
 	
-	private static final Logger logger = LogManager.getLogger(SendDataToDataAppProcessor.class);
+	private static final Logger logger = LogManager.getLogger(ConsumerSendDataToDataAppProcessor.class);
 	
 	@Autowired
 	private ApplicationConfiguration configuration;

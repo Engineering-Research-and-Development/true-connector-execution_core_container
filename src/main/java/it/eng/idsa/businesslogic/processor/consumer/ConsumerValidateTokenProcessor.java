@@ -21,9 +21,9 @@ import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
  */
 
 @Component
-public class ValidateTokenProcessor implements Processor {
+public class ConsumerValidateTokenProcessor implements Processor {
 	
-	private static final Logger logger = LogManager.getLogger(ValidateTokenProcessor.class);
+	private static final Logger logger = LogManager.getLogger(ConsumerValidateTokenProcessor.class);
 	
 	@Autowired
 	DapsServiceImpl dapsServiceImpl;
