@@ -12,7 +12,7 @@ import it.eng.idsa.businesslogic.exception.ProcessorException;
 import it.eng.idsa.businesslogic.processor.producer.ProducerGetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.producer.ProducerMultiPartMessageProcessor;
 import it.eng.idsa.businesslogic.processor.producer.ProducerParseReceivedDataProcessor;
-import it.eng.idsa.businesslogic.processor.producer.ProducerSenDataToDestinationProcessor;
+import it.eng.idsa.businesslogic.processor.producer.ProducerSendDataToDestinationProcessor;
 import it.eng.idsa.businesslogic.processor.producer.ProducerSendDataToBusinessLogicConsumer;
 import it.eng.idsa.businesslogic.processor.producer.ProducerSendTransactionToCHProcessor;
 
@@ -37,7 +37,7 @@ public class CamelRouteProducer extends RouteBuilder {
 	ProducerGetTokenFromDapsProcessor getTokenFromDapsProcessor;
 	
 	@Autowired
-	ProducerSenDataToDestinationProcessor senDataToDestinationProcessor;
+	ProducerSendDataToDestinationProcessor sendDataToDestinationProcessor;
 	
 	@Autowired
 	ProducerSendTransactionToCHProcessor sendTransactionToCHProcessor;
@@ -59,7 +59,7 @@ public class CamelRouteProducer extends RouteBuilder {
 			.process(receiveDataToDataAppProcessor)
 			.process(getTokenFromDapsProcessor)
 			// HTTP - Send data to the destination B (in the queue:incoming)
-			.process(senDataToDestinationProcessor)
+			.process(sendDataToDestinationProcessor)
 			.process(sendTransactionToCHProcessor);
 		
 		// Read from the ActiveMQ (from the queue:incoming)

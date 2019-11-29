@@ -24,9 +24,9 @@ import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
  */
 
 @Component
-public class ProducerSenDataToDestinationProcessor implements Processor {
+public class ProducerSendDataToDestinationProcessor implements Processor {
 
-	private static final Logger logger = LogManager.getLogger(ProducerSenDataToDestinationProcessor.class);
+	private static final Logger logger = LogManager.getLogger(ProducerSendDataToDestinationProcessor.class);
 
 	@Autowired
 	private ApplicationConfiguration configuration;

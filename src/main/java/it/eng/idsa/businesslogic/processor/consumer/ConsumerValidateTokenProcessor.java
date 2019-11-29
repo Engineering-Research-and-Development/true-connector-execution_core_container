@@ -40,8 +40,8 @@ public class ConsumerValidateTokenProcessor implements Processor {
 		String token = multiPartMessageServiceImpl.getToken(multipartMessageParts.get("header").toString());
 		logger.info("token: ", token);
 		// Check is "token" valid
-		//boolean isTokenValid = dapsServiceImpl.validateToken(token);
-		boolean isTokenValid = true;
+		boolean isTokenValid = dapsServiceImpl.validateToken(token);
+//		boolean isTokenValid = true;
 		logger.info("is token valid: "+isTokenValid);
 		multipartMessageParts.put("isTokenValid", isTokenValid);
 		// Return multipartMessageParts
