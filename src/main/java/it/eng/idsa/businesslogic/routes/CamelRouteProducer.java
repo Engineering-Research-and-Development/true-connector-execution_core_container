@@ -10,10 +10,8 @@ import org.springframework.stereotype.Component;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.exception.ProcessorException;
 import it.eng.idsa.businesslogic.processor.producer.ProducerGetTokenFromDapsProcessor;
-import it.eng.idsa.businesslogic.processor.producer.ProducerMultiPartMessageProcessor;
 import it.eng.idsa.businesslogic.processor.producer.ProducerParseReceivedDataProcessor;
-import it.eng.idsa.businesslogic.processor.producer.ProducerSendDataToDestinationProcessor;
-import it.eng.idsa.businesslogic.processor.producer.ProducerSendDataToBusinessLogicConsumer;
+import it.eng.idsa.businesslogic.processor.producer.ProducerSendDataToBusinessLogicProcessor;
 import it.eng.idsa.businesslogic.processor.producer.ProducerSendTransactionToCHProcessor;
 
 /**
@@ -37,16 +35,10 @@ public class CamelRouteProducer extends RouteBuilder {
 	ProducerGetTokenFromDapsProcessor getTokenFromDapsProcessor;
 	
 	@Autowired
-	ProducerSendDataToDestinationProcessor sendDataToDestinationProcessor;
-	
-	@Autowired
 	ProducerSendTransactionToCHProcessor sendTransactionToCHProcessor;
 	
 	@Autowired
-	ProducerMultiPartMessageProcessor multiPartMessageProcessor;
-	
-	@Autowired
-	ProducerSendDataToBusinessLogicConsumer sendDataToBusinessLogicConsumer;
+	ProducerSendDataToBusinessLogicProcessor sendDataToBusinessLogicProcessor;
 	
 	@Override
 	public void configure() throws Exception {
@@ -54,18 +46,13 @@ public class CamelRouteProducer extends RouteBuilder {
 		onException(ProcessorException.class,RuntimeException.class)
 		.log(LoggingLevel.ERROR, "ProcessorException in the route ${body}");
 		
-		// Camel SSL - Endpoint: B		
+		// Camel SSL - Endpoint: A		
 		from("jetty://https4://"+configuration.getCamelProducerAddress()+"/incoming-data-app/MultipartMessage")
 			.process(receiveDataToDataAppProcessor)
 			.process(getTokenFromDapsProcessor)
-			// HTTP - Send data to the destination B (in the queue:incoming)
-			.process(sendDataToDestinationProcessor)
-			.process(sendTransactionToCHProcessor);
-		
-		// Read from the ActiveMQ (from the queue:incoming)
-		from("activemq:queue:incoming")
-			.process(multiPartMessageProcessor)
-			.process(sendDataToBusinessLogicConsumer);
+			// Send data to Endpoint B
+			.process(sendDataToBusinessLogicProcessor);
+//			.process(sendTransactionToCHProcessor);
 	}
 
 }

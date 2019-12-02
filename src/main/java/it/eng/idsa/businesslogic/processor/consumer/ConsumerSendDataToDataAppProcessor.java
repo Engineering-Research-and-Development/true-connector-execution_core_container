@@ -60,10 +60,19 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		ContentBody cbPayload = convertToContentBody(payload, ContentType.DEFAULT_TEXT, "payload");
 		
 		// Send data to the endpoint F
-		forwardMessage("https://"+configuration.getOpenDataAppReceiver()+"/incoming-data-app/router", cbHeader, cbPayload);
+		CloseableHttpResponse response = forwardMessage("https://"+configuration.getOpenDataAppReceiver()+"/incoming-data-app/router", cbHeader, cbPayload);
+		
+		// Handle the response
+		int statusCode = response.getStatusLine().getStatusCode();
+		if (statusCode > 300) {
+			handleTheBadResponse(statusCode, response);
+		}else {
+			logger.info("OK result: {} {}", statusCode, response.getEntity().getContent());
+		}
+		response.close();
 	}
 	
-	private int forwardMessage(String address, ContentBody cbHeader, ContentBody cbPayload) throws ClientProtocolException, IOException {
+	private CloseableHttpResponse forwardMessage(String address, ContentBody cbHeader, ContentBody cbPayload) throws ClientProtocolException, IOException {
 		logger.info("Forwarding Message");
 		
 		HttpPost httpPost = new HttpPost(address);
@@ -77,14 +86,7 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		
 		CloseableHttpResponse response = getHttpClient().execute(httpPost);
 		
-		int statusCode = response.getStatusLine().getStatusCode();
-		if (statusCode > 300) {
-			handleTheBadResponse(statusCode, response);
-		}else {
-			logger.info("OK result: {} {}", statusCode, response.getEntity().getContent());
-		}
-		response.close();
-	    return statusCode;
+		return response;
 	}
 	
 	private CloseableHttpClient getHttpClient() {

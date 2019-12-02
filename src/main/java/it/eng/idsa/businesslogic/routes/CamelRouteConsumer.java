@@ -39,9 +39,6 @@ public class CamelRouteConsumer extends RouteBuilder {
 	ConsumerSendDataToDataAppProcessor sendDataToDataAppProcessor;
 	
 	@Autowired
-	ConsumerSendDataToDestinationProcessor sendDataToDestinationProcessor;
-	
-	@Autowired
 	ConsumerSendTransactionToCHProcessor sendTransactionToCHProcessor;
 	
 	@Override
@@ -54,15 +51,9 @@ public class CamelRouteConsumer extends RouteBuilder {
 		from("jetty://https4://"+configuration.getCamelConsumerAddress()+"/incoming-data-channel/receivedMessage")
 			.process(multiPartMessageProcessor)
 			.process(validateTokenProcessor)
-			// HTTP - Send data to the destination D (in the queue:outcoming)
-			.process(sendDataToDestinationProcessor)
+			// Send to the Endpoint: F
+			.process(sendDataToDataAppProcessor)
 			.process(sendTransactionToCHProcessor);
-		
-		// Read from the ActiveMQ (from the queue:outcoming)
-		from("activemq:queue:outcoming")
-			.process(multiPartMessageProcessor)
-			// HTTP - Send data to the endpoint F
-			.process(sendDataToDataAppProcessor);
 		
 	}
 }
