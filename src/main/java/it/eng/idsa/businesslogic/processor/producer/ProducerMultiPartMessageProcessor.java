@@ -12,9 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.exception.ProcessorException;
-import it.eng.idsa.businesslogic.processor.consumer.ConsumerMultiPartMessageProcessor;
+import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import nl.tno.ids.common.serialization.SerializationHelper;
 
 /**
  * 
@@ -56,9 +56,9 @@ public class ProducerMultiPartMessageProcessor implements Processor {
 			// Return multipartMessageParts
 			exchange.getOut().setBody(multipartMessageParts);
 		} catch (Exception e) {
-			multiPartMessageServiceImpl.createRejectionMessage(message);
+			Message rejectionMessage = multiPartMessageServiceImpl.createRejectionMessage(message);
 			logger.error("Error parsing multipart message:" + e);
-			throw new ProcessorException("Error parsing multipart message: " + e);
+			throw new ExceptionForProcessor(SerializationHelper.getInstance().toJsonLD(rejectionMessage));
 		}
 	}
 	

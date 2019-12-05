@@ -129,7 +129,7 @@ public class IncomingDataChannelResource {
 
 		// Validate the Token with the DAPS from the received MultiPartMessage
 		boolean isTokenValid = dapsServiceImpl.validateToken(token);
-		//boolean isTokenValid = true;
+//		boolean isTokenValid = true;
 		logger.info("isTokenValid="+isTokenValid);
 		// TODO: If the Token from the MultiPartMessage pass the DAPS validation, Send
 		// the customized received MultiPartMessage(in the MultiPartMessage remove the

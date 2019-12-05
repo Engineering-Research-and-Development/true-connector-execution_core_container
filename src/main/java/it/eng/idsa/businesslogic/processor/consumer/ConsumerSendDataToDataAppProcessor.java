@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -26,11 +25,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.domain.json.HeaderBodyJson;
+import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import nl.tno.ids.common.communication.HttpClientGenerator;
 import nl.tno.ids.common.config.keystore.KeystoreConfigType;
 import nl.tno.ids.common.config.keystore.TruststoreConfig;
+import nl.tno.ids.common.serialization.SerializationHelper;
 
 /**
  * 
@@ -46,35 +48,37 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 	@Autowired
 	private ApplicationConfiguration configuration;
 	
+	@Autowired
+	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		
+				
 		Map<String, Object> multipartMessageParts = exchange.getIn().getBody(HashMap.class);
 		
-		// Get header and payload
+		// Get header, payload and message
 		String header = filterHeader(multipartMessageParts.get("header").toString());
 		String payload = multipartMessageParts.get("payload").toString();
+		Message message = (Message) multipartMessageParts.get("message");
+		
+		// Send data to the endpoint F
+		CloseableHttpResponse response =  forwardMessage("https://"+configuration.getOpenDataAppReceiver()+"/incoming-data-app/router", header, payload);
+		
+		// Handle response
+		handleResponse(exchange, message, response);
+		
+		response.close();	
+		
+	}
+	
+	private CloseableHttpResponse forwardMessage(String address, String header, String payload) throws ClientProtocolException, IOException {
+		logger.info("Forwarding Message");
 		
 		// Covert to ContentBody
 		ContentBody cbHeader = convertToContentBody(header, ContentType.APPLICATION_JSON, "header");
 		ContentBody cbPayload = convertToContentBody(payload, ContentType.DEFAULT_TEXT, "payload");
 		
-		// Send data to the endpoint F
-		CloseableHttpResponse response = forwardMessage("https://"+configuration.getOpenDataAppReceiver()+"/incoming-data-app/router", cbHeader, cbPayload);
-		
-		// Handle the response
-		int statusCode = response.getStatusLine().getStatusCode();
-		if (statusCode > 300) {
-			handleTheBadResponse(statusCode, response);
-		}else {
-			logger.info("OK result: {} {}", statusCode, response.getEntity().getContent());
-		}
-		response.close();
-	}
-	
-	private CloseableHttpResponse forwardMessage(String address, ContentBody cbHeader, ContentBody cbPayload) throws ClientProtocolException, IOException {
-		logger.info("Forwarding Message");
-		
+		// Set F address
 		HttpPost httpPost = new HttpPost(address);
 		
 		HttpEntity reqEntity = MultipartEntityBuilder.create()
@@ -110,11 +114,16 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		return cbValue;
 	}
 	
-	private void handleTheBadResponse(int statusCode, CloseableHttpResponse response) throws UnsupportedOperationException, IOException {
-		try (Scanner scanner = new Scanner(response.getEntity().getContent())) {
-			String body = scanner.useDelimiter("\\A").next();
-			response.getEntity().getContent();
-	        logger.error("Bad result: {} {}", statusCode, body);
+	private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response) throws UnsupportedOperationException, IOException {
+		int statusCode = response.getStatusLine().getStatusCode();
+		if (statusCode >= 300) {
+			Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionCommunicationLocalIssues(message);
+			exchange.getOut().setBody(SerializationHelper.getInstance().toJsonLD(rejectionCommunicationLocalIssues));
+			logger.info("Bad response: {} {}", statusCode, response.getEntity().getContent());
+		}else {
+			Message resultMessage = multiPartMessageServiceImpl.createResultMessage(message);
+			exchange.getOut().setBody(SerializationHelper.getInstance().toJsonLD(resultMessage));
+			logger.info("Good response: {} {}", statusCode, response.getEntity().getContent());
 		}
 	}
 	

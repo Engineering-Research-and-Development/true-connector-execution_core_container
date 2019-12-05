@@ -85,6 +85,7 @@ public class CommunicationServiceImpl implements CommunicationService {
 	        e.printStackTrace();
 	    }
 	}
+	
 	@Override
 	public String sendData(String endpoint, HttpEntity data) {
 		// TODO Auto-generated method stub

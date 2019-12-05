@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
-import it.eng.idsa.businesslogic.exception.ProcessorException;
+import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 
@@ -55,7 +55,7 @@ public class ConsumerSendDataToDestinationProcessor implements Processor {
 			String response = communicationServiceImpl.sendData("http://"+configuration.getActivemqAddress()+"/api/message/outcoming?type=queue", entity);
 			if (response==null) {
 				logger.info("...communication error");
-				throw new ProcessorException("Communication error");
+				throw new ExceptionForProcessor("Communication error");
 			}
 			logger.info("data sent to Data App");
 			logger.info("response "+response);
@@ -64,7 +64,7 @@ public class ConsumerSendDataToDestinationProcessor implements Processor {
 			exchange.getOut().setBody(multipartMessageParts);
 		} else {
 			logger.error("Token is not valid");
-			throw new ProcessorException("Token is not valid");
+			throw new ExceptionForProcessor("Token is not valid");
 		}
 	}
 }

@@ -10,9 +10,10 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import de.fraunhofer.iais.eis.Message;
-
+import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.DapsServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import nl.tno.ids.common.serialization.SerializationHelper;
 
 /**
  * 
@@ -34,14 +35,26 @@ public class ConsumerValidateTokenProcessor implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		
+		Message message = null;
+		
 		// Get "multipartMessageParts" from the input "exchange"
 		Map<String, Object> multipartMessageParts = exchange.getIn().getBody(HashMap.class);
+		message = multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
+		
 		// Get "token" from the input "multipartMessageParts"
 		String token = multiPartMessageServiceImpl.getToken(multipartMessageParts.get("header").toString());
 		logger.info("token: ", token);
+		
 		// Check is "token" valid
 		boolean isTokenValid = dapsServiceImpl.validateToken(token);
 //		boolean isTokenValid = true;
+		
+		if(isTokenValid==false) {
+			logger.error("Token is invalid");
+			Message rejectionToken = multiPartMessageServiceImpl.createRejectionToken(message);
+			throw new ExceptionForProcessor(SerializationHelper.getInstance().toJsonLD(rejectionToken));
+		}
+		
 		logger.info("is token valid: "+isTokenValid);
 		multipartMessageParts.put("isTokenValid", isTokenValid);
 		// Return multipartMessageParts

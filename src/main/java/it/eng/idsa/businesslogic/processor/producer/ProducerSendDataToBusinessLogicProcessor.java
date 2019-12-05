@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import nl.tno.ids.common.serialization.SerializationHelper;
 
 /**
  * 
@@ -49,11 +50,13 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		
 		if (response==null) {
 			logger.info("...communication error");
-			multiPartMessageServiceImpl.createRejectionCommunicationLocalIssues(message);
+			Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionCommunicationLocalIssues(message);
+			exchange.getOut().setBody(SerializationHelper.getInstance().toJsonLD(rejectionCommunicationLocalIssues));
 		}
 		else {
 			logger.info("data sent to destination "+forwardTo);
 			logger.info("response "+response);
+			exchange.getOut().setBody(response);
 		}
 		
 	}

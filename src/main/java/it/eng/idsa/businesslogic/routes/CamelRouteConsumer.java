@@ -8,12 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
-import it.eng.idsa.businesslogic.exception.ProcessorException;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerMultiPartMessageProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendDataToDataAppProcessor;
-import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendDataToDestinationProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerValidateTokenProcessor;
+import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
+import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessor;
 
 /**
  * 
@@ -41,19 +41,23 @@ public class CamelRouteConsumer extends RouteBuilder {
 	@Autowired
 	ConsumerSendTransactionToCHProcessor sendTransactionToCHProcessor;
 	
+	@Autowired
+	ExceptionProcessor processorException;
+	
 	@Override
 	public void configure() throws Exception {
 
-		onException(ProcessorException.class,RuntimeException.class)
-			.log(LoggingLevel.ERROR, "ProcessorException in the route ${body}");
+		onException(ExceptionForProcessor.class, RuntimeException.class)
+			.handled(true)
+			.process(processorException);
 
 		// Camel SSL - Endpoint: B		
 		from("jetty://https4://"+configuration.getCamelConsumerAddress()+"/incoming-data-channel/receivedMessage")
 			.process(multiPartMessageProcessor)
 			.process(validateTokenProcessor)
 			// Send to the Endpoint: F
-			.process(sendDataToDataAppProcessor)
-			.process(sendTransactionToCHProcessor);
+			.process(sendDataToDataAppProcessor);
+//			.process(sendTransactionToCHProcessor);
 		
 	}
 }
