@@ -28,6 +28,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PostConstruct;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
@@ -38,6 +39,7 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -91,24 +93,34 @@ public class DapsServiceImpl implements DapsService {
 	private Certificate cert;
 	private PublicKey publicKey;
 	private String token = "";
-
 	
-	
+	@Value("${application.targetDirectory}")
+	private Path targetDirectory;
+	@Value("${application.dapsUrl}")
+	private String dapsUrl;
+	@Value("${application.keyStoreName}")
+	private String keyStoreName;
+	@Value("${application.keyStorePassword}")
+	private String keyStorePassword;
+	@Value("${application.keystoreAliasName}")
+	private String keystoreAliasName;
+	@Value("${application.connectorUUID}")
+	private String connectorUUID;
+	@Value("${application.proxyUser}")
+	private String proxyUser;
+	@Value("${application.proxyPassword}")
+	private String proxyPassword;
+	@Value("${application.proxyHost}")
+	private String proxyHost;
+	@Value("${application.proxyPort}")
+	private String proxyPort;
+	@Value("${application.dapsJWKSUrl}")
+	private String dapsJWKSUrl;
 	
 	@Override
 	public String getJwtToken() {
 
 		logger.debug("Get properties");
-		Path targetDirectory = Paths.get(configuration.getTargetDirectory());
-		String dapsUrl = configuration.getDapsUrl();
-		String keyStoreName = configuration.getKeyStoreName();
-		String keyStorePassword = configuration.getKeyStorePassword();
-		String keystoreAliasName = configuration.getKeystoreAliasName();
-		String connectorUUID = configuration.getConnectorUUID();
-		String proxyUser = configuration.getProxyUser();
-		String proxyPassword = configuration.getProxyPassword();
-		String proxyHost = configuration.getProxyHost();
-		String proxyPort = configuration.getProxyPort();
 
 		try {
 			logger.debug("Started get JWT token");
@@ -253,7 +265,6 @@ public class DapsServiceImpl implements DapsService {
 		boolean isValid = false;
 		
 		logger.debug("Get properties");
-		String dapsJWKSUrl = configuration.getDapsJWKSUrl();
 
 		try {
 			// Set up a JWT processor to parse the tokens and then check their signature
