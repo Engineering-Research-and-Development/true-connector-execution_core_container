@@ -178,9 +178,11 @@ public class IncomingDataAppResource {
 		// to the destination which is in the MultiPartMessage header)
 		org.apache.http.HttpEntity entity = multiPartMessageService.createMultipartMessage(messageStringWithToken, String.valueOf(payload), null);
 		String response = communicationMessageService.sendData(forwardTo, entity);
+
 		if (response==null) {
 			logger.info("...communication error");
 			return ResponseEntity.ok(multiPartMessageService.createRejectionCommunicationLocalIssues(message));
+			
 		}
 		else {
 			logger.info("data sent to destination "+forwardTo);

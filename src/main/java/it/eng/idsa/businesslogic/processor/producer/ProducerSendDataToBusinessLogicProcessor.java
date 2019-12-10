@@ -50,8 +50,9 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		
 		if (response==null) {
 			logger.info("...communication error");
-			Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionCommunicationLocalIssues(message);
-			exchange.getOut().setBody(SerializationHelper.getInstance().toJsonLD(rejectionCommunicationLocalIssues));
+			Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionMessage(message);
+			String resp=SerializationHelper.getInstance().toJsonLD(rejectionCommunicationLocalIssues);
+			exchange.getOut().setBody(resp);
 		}
 		else {
 			logger.info("data sent to destination "+forwardTo);
