@@ -24,12 +24,9 @@ import nl.tno.ids.common.serialization.SerializationHelper;
  */
 
 @Component
-public class ProducerParseReceivedDataProcessor implements Processor {
+public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 
-	private static final Logger logger = LogManager.getLogger(ProducerParseReceivedDataProcessor.class);
-	
-	@Value("${application.openDataAppReceiverRouter}")
-	private String openDataAppReceiverRouter;
+	private static final Logger logger = LogManager.getLogger(ProducerParseReceivedDataProcessorBodyBinary.class);
 
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
@@ -48,10 +45,8 @@ public class ProducerParseReceivedDataProcessor implements Processor {
 
 		// Get from the input "exchange"
 		Map<String, Object> receivedDataHeader = exchange.getIn().getHeaders();
-		if(openDataAppReceiverRouter.equals("routerBodyBinary")) {
-			receivedDataBodyBinary = exchange.getIn().getBody(String.class);
-		}
-		if (openDataAppReceiverRouter.equals("routerBodyBinary") && receivedDataBodyBinary == null) {
+		receivedDataBodyBinary = exchange.getIn().getBody(String.class);
+		if (receivedDataBodyBinary == null) {
 			logger.error("Body of the received multipart message is null");
 			Message rejectionMessageLocalIssues = multiPartMessageServiceImpl
 					.createRejectionMessageLocalIssues(message);
@@ -65,19 +60,9 @@ public class ProducerParseReceivedDataProcessor implements Processor {
 			headesParts.put("Forward-To", forwardTo);
 
 			// Create multipart message parts
-			if(openDataAppReceiverRouter.equals("routerBodyBinary")) {
-				header = multiPartMessageServiceImpl.getHeader(receivedDataBodyBinary);
-			}
-			if(openDataAppReceiverRouter.equals("routerBodyFormData")) {
-				header = receivedDataHeader.get("header").toString();
-			}
+			header = multiPartMessageServiceImpl.getHeader(receivedDataBodyBinary);
 			multipartMessageParts.put("header", header);
-			if(openDataAppReceiverRouter.equals("routerBodyBinary")) {
-				payload = multiPartMessageServiceImpl.getPayload(receivedDataBodyBinary);
-			}
-			if(openDataAppReceiverRouter.equals("routerBodyFormData")) {
-				payload = receivedDataHeader.get("payload").toString();
-			}
+			payload = multiPartMessageServiceImpl.getPayload(receivedDataBodyBinary);
 			multipartMessageParts.put("payload", payload);
 			message = multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 			

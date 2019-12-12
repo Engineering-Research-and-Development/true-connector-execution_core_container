@@ -10,7 +10,8 @@ import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessor;
 import it.eng.idsa.businesslogic.processor.producer.ProducerGetTokenFromDapsProcessor;
-import it.eng.idsa.businesslogic.processor.producer.ProducerParseReceivedDataProcessor;
+import it.eng.idsa.businesslogic.processor.producer.ProducerParseReceivedDataProcessorBodyBinary;
+import it.eng.idsa.businesslogic.processor.producer.ProducerParseReceivedDataProcessorBodyFormData;
 import it.eng.idsa.businesslogic.processor.producer.ProducerSendDataToBusinessLogicProcessor;
 import it.eng.idsa.businesslogic.processor.producer.ProducerSendTransactionToCHProcessor;
 
@@ -29,7 +30,10 @@ public class CamelRouteProducer extends RouteBuilder {
 	private ApplicationConfiguration configuration;
 
 	@Autowired
-	ProducerParseReceivedDataProcessor receiveDataToDataAppProcessor;
+	ProducerParseReceivedDataProcessorBodyBinary parseReceivedDataProcessorBodyBinary;
+	
+	@Autowired
+	ProducerParseReceivedDataProcessorBodyFormData parseReceivedDataProcessorBodyFormData;
 
 	@Autowired
 	ProducerGetTokenFromDapsProcessor getTokenFromDapsProcessor;
@@ -50,13 +54,21 @@ public class CamelRouteProducer extends RouteBuilder {
 			.handled(true)
 			.process(processorException);
 
-		// Camel SSL - Endpoint: A
-		from("jetty://https4://" + configuration.getCamelProducerAddress() + "/incoming-data-app/MultipartMessage")
-				.process(receiveDataToDataAppProcessor)
+		// Camel SSL - Endpoint: A - Body binary
+		from("jetty://https4://" + configuration.getCamelProducerAddress() + "/incoming-data-app/multipartMessageBodyBinary")
+				.process(parseReceivedDataProcessorBodyBinary)
 				.process(getTokenFromDapsProcessor)
 				// Send data to Endpoint B
 				.process(sendDataToBusinessLogicProcessor);
-//			    .process(sendTransactionToCHProcessor);
+//				.process(sendTransactionToCHProcessor);
+				
+		// Camel SSL - Endpoint: A - Body form-data
+		from("jetty://https4://" + configuration.getCamelProducerAddress() + "/incoming-data-app/multipartMessageBodyFormData")
+				.process(parseReceivedDataProcessorBodyFormData)
+				.process(getTokenFromDapsProcessor)
+				// Send data to Endpoint B
+				.process(sendDataToBusinessLogicProcessor);
+//				.process(sendTransactionToCHProcessor);
 	}
 
 }
