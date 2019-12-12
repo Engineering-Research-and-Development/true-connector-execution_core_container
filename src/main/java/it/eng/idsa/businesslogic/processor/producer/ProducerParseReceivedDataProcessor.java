@@ -8,6 +8,7 @@ import org.apache.camel.Processor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
@@ -26,6 +27,9 @@ import nl.tno.ids.common.serialization.SerializationHelper;
 public class ProducerParseReceivedDataProcessor implements Processor {
 
 	private static final Logger logger = LogManager.getLogger(ProducerParseReceivedDataProcessor.class);
+	
+	@Value("${application.openDataAppReceiverRouter}")
+	private String openDataAppReceiverRouter;
 
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
@@ -35,16 +39,19 @@ public class ProducerParseReceivedDataProcessor implements Processor {
 
 		String contentType;
 		String forwardTo;
-		String header;
-		String payload;
+		String header = null;
+		String payload = null;
 		Message message = null;
 		Map<String, Object> headesParts = new HashMap();
 		Map<String, Object> multipartMessageParts = new HashMap();
+		String receivedDataBodyBinary = null;
 
 		// Get from the input "exchange"
 		Map<String, Object> receivedDataHeader = exchange.getIn().getHeaders();
-		String receivedDataBody = exchange.getIn().getBody(String.class);
-		if (receivedDataBody == null) {
+		if(openDataAppReceiverRouter.equals("routerBodyBinary")) {
+			receivedDataBodyBinary = exchange.getIn().getBody(String.class);
+		}
+		if (openDataAppReceiverRouter.equals("routerBodyBinary") && receivedDataBodyBinary == null) {
 			logger.error("Body of the received multipart message is null");
 			Message rejectionMessageLocalIssues = multiPartMessageServiceImpl
 					.createRejectionMessageLocalIssues(message);
@@ -58,9 +65,19 @@ public class ProducerParseReceivedDataProcessor implements Processor {
 			headesParts.put("Forward-To", forwardTo);
 
 			// Create multipart message parts
-			header = multiPartMessageServiceImpl.getHeader(receivedDataBody);
+			if(openDataAppReceiverRouter.equals("routerBodyBinary")) {
+				header = multiPartMessageServiceImpl.getHeader(receivedDataBodyBinary);
+			}
+			if(openDataAppReceiverRouter.equals("routerBodyFormData")) {
+				header = receivedDataHeader.get("header").toString();
+			}
 			multipartMessageParts.put("header", header);
-			payload = multiPartMessageServiceImpl.getPayload(receivedDataBody);
+			if(openDataAppReceiverRouter.equals("routerBodyBinary")) {
+				payload = multiPartMessageServiceImpl.getPayload(receivedDataBodyBinary);
+			}
+			if(openDataAppReceiverRouter.equals("routerBodyFormData")) {
+				payload = receivedDataHeader.get("payload").toString();
+			}
 			multipartMessageParts.put("payload", payload);
 			message = multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 			
