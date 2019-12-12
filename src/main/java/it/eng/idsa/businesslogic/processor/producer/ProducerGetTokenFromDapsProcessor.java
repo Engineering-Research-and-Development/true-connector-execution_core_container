@@ -64,13 +64,13 @@ public class ProducerGetTokenFromDapsProcessor implements Processor {
 			token=dapsServiceImpl.getJwtToken();
 //			token="123";
 		}catch (Exception e) {
-			logger.error("Can not get the toke from the DAPS server");
+			logger.error("Can not get the token from the DAPS server " + e);
 			Message rejectionTokenLocalIssues = multiPartMessageServiceImpl
 					.createRejectionTokenLocalIssues(message);
 			throw new ExceptionForProcessor(SerializationHelper.getInstance().toJsonLD(rejectionTokenLocalIssues));
 		}
 		if (token.isEmpty()) {
-			logger.error("The toke from the DAPS server is empty");
+			logger.error("The token from the DAPS server is empty");
 			Message rejectionTokenLocalIssues = multiPartMessageServiceImpl
 					.createRejectionTokenLocalIssues(message);
 			throw new ExceptionForProcessor(SerializationHelper.getInstance().toJsonLD(rejectionTokenLocalIssues));

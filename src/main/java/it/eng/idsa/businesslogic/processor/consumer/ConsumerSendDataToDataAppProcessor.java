@@ -19,6 +19,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -45,6 +46,9 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 	
 	private static final Logger logger = LogManager.getLogger(ConsumerSendDataToDataAppProcessor.class);
 	
+	@Value("${application.openDataAppReceiverRouter}")
+	private String openDataAppReceiverRouter;
+	
 	@Autowired
 	private ApplicationConfiguration configuration;
 	
@@ -61,8 +65,23 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		String payload = multipartMessageParts.get("payload").toString();
 		Message message = (Message) multipartMessageParts.get("message");
 		
-		// Send data to the endpoint F
-		CloseableHttpResponse response =  forwardMessage("https://"+configuration.getOpenDataAppReceiver()+"/incoming-data-app/router", header, payload);
+		// Send data to the endpoint F for the Open API Data App
+		CloseableHttpResponse response = null;
+		switch(openDataAppReceiverRouter) {
+			case "routerBodyBinary":
+			{
+				response =  forwardMessageFormData("https://"+configuration.getOpenDataAppReceiver()+"/incoming-data-app/routerBodyBinary", header, payload);
+				break;
+			}
+			case "routerBodyFormData":
+			{
+				response =  forwardMessageBinary("https://"+configuration.getOpenDataAppReceiver()+"/incoming-data-app/routerBodyFormData", header, payload);
+				break;
+			}
+			default:
+				logger.error("Applicaton property: application.openDataAppReceiverRouter is not properly set");
+				break;
+		}
 		
 		// Handle response
 		handleResponse(exchange, message, response);
@@ -71,8 +90,8 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		
 	}
 	
-	private CloseableHttpResponse forwardMessage(String address, String header, String payload) throws ClientProtocolException, IOException {
-		logger.info("Forwarding Message");
+	private CloseableHttpResponse forwardMessageFormData(String address, String header, String payload) throws ClientProtocolException, IOException {
+		logger.info("Forwarding Message: Body: form-data");
 		
 		// Covert to ContentBody
 		ContentBody cbHeader = convertToContentBody(header, ContentType.APPLICATION_JSON, "header");
@@ -90,6 +109,20 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		
 		CloseableHttpResponse response = getHttpClient().execute(httpPost);
 		
+		return response;
+	}
+	
+	private CloseableHttpResponse forwardMessageBinary(String address, String header, String payload) throws ClientProtocolException, IOException {
+		logger.info("Forwarding Message: Body: binary");
+		
+		// Set F address
+		HttpPost httpPost = new HttpPost(address);
+		
+		HttpEntity reqEntity = multiPartMessageServiceImpl.createMultipartMessage(header, payload, null);
+		httpPost.setEntity(reqEntity);
+		
+		CloseableHttpResponse response = getHttpClient().execute(httpPost);
+				
 		return response;
 	}
 	
