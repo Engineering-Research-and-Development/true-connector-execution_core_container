@@ -8,7 +8,6 @@ import java.net.Proxy;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyManagementException;
@@ -28,7 +27,6 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PostConstruct;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
@@ -56,12 +54,14 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
+import com.sforce.ws.ConnectorConfig;
 
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.DapsService;
+import it.eng.idsa.businesslogic.util.ProxyAuthenticator;
 import okhttp3.Authenticator;
 import okhttp3.Credentials;
 import okhttp3.FormBody;
@@ -279,7 +279,19 @@ public class DapsServiceImpl implements DapsService {
 					new URL(dapsJWKSUrl));
 
 			// Load JWK set from URL
-			JWKSet publicKeys = JWKSet.load(new URL(dapsJWKSUrl));
+						JWKSet publicKeys = null;
+						if (!proxyUser.equalsIgnoreCase("")) {			
+							System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+							System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
+							ProxyAuthenticator proxyAuthenticator = new ProxyAuthenticator(proxyUser, proxyPassword);
+							java.net.Authenticator.setDefault(proxyAuthenticator);
+							Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)));
+							ConnectorConfig connectorConfig = new ConnectorConfig();
+							connectorConfig.setProxy(proxy);
+							publicKeys = JWKSet.load(new URL(dapsJWKSUrl), 0, 0, 0, proxy);
+						} else {
+							publicKeys = JWKSet.load(new URL(dapsJWKSUrl));
+						}
 			RSAKey key = (RSAKey) publicKeys.getKeyByKeyId("default");
 
 			// The expected JWS algorithm of the access tokens (agreed out-of-band)

@@ -230,7 +230,12 @@
 			<version>1.8</version>
 		</dependency>
 
-
+		<!-- https://mvnrepository.com/artifact/com.force.api/force-wsc -->
+		<dependency>
+    		<groupId>com.force.api</groupId>
+    		<artifactId>force-wsc</artifactId>
+    		<version>48.0.0</version>
+		</dependency>
 
 		<!-- nimbusds-jso-jwt -->
 		<dependency>
