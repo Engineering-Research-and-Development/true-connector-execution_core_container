@@ -52,7 +52,7 @@ public class CamelRouteConsumer extends RouteBuilder {
 			.process(processorException);
 
 		// Camel SSL - Endpoint: B		
-		from("jetty://https4://"+configuration.getCamelConsumerAddress()+"/incoming-data-channel/receivedMessage")
+		from("jetty://https4://localhost:"+configuration.getCamelConsumerPort()+"/incoming-data-channel/receivedMessage")
 			.process(multiPartMessageProcessor)
 			.process(validateTokenProcessor)
 			// Send to the Endpoint: F

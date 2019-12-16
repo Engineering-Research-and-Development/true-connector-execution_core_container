@@ -30,8 +30,8 @@ public class ApplicationConfiguration {
 	private String uriConnector;
 	private String activemqAddress;
 	private String openDataAppReceiver;
-	private String camelConsumerAddress;
-	private String camelProducerAddress;
+	private String camelConsumerPort;
+	private String camelProducerPort;
 	
 	public String getTargetDirectory() {
 		return targetDirectory;
@@ -135,17 +135,17 @@ public class ApplicationConfiguration {
 	public void setOpenDataAppReceiver(String openDataAppReceiver) {
 		this.openDataAppReceiver = openDataAppReceiver;
 	}
-	public String getCamelConsumerAddress() {
-		return camelConsumerAddress;
+	public String getCamelProducerPort() {
+		return camelProducerPort;
 	}
-	public void setCamelConsumerAddress(String camelConsumerAddress) {
-		this.camelConsumerAddress = camelConsumerAddress;
+	public void setCamelProducerPort(String camelProducerPort) {
+		this.camelProducerPort = camelProducerPort;
 	}
-	public String getCamelProducerAddress() {
-		return camelProducerAddress;
+	public String getCamelConsumerPort() {
+		return camelConsumerPort;
 	}
-	public void setCamelProducerAddress(String camelProducerAddress) {
-		this.camelProducerAddress = camelProducerAddress;
+	public void setCamelConsumerPort(String camelConsumerPort) {
+		this.camelConsumerPort = camelConsumerPort;
 	}
 	
 }

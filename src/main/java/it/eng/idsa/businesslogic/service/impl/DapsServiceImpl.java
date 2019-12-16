@@ -279,19 +279,19 @@ public class DapsServiceImpl implements DapsService {
 					new URL(dapsJWKSUrl));
 
 			// Load JWK set from URL
-						JWKSet publicKeys = null;
-						if (!proxyUser.equalsIgnoreCase("")) {			
-							System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
-							System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
-							ProxyAuthenticator proxyAuthenticator = new ProxyAuthenticator(proxyUser, proxyPassword);
-							java.net.Authenticator.setDefault(proxyAuthenticator);
-							Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)));
-							ConnectorConfig connectorConfig = new ConnectorConfig();
-							connectorConfig.setProxy(proxy);
-							publicKeys = JWKSet.load(new URL(dapsJWKSUrl), 0, 0, 0, proxy);
-						} else {
-							publicKeys = JWKSet.load(new URL(dapsJWKSUrl));
-						}
+			JWKSet publicKeys = null;
+			if (!proxyUser.equalsIgnoreCase("")) {			
+				System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+				System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
+				ProxyAuthenticator proxyAuthenticator = new ProxyAuthenticator(proxyUser, proxyPassword);
+				java.net.Authenticator.setDefault(proxyAuthenticator);
+				Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)));
+				ConnectorConfig connectorConfig = new ConnectorConfig();
+				connectorConfig.setProxy(proxy);
+				publicKeys = JWKSet.load(new URL(dapsJWKSUrl), 0, 0, 0, proxy);
+			} else {
+				publicKeys = JWKSet.load(new URL(dapsJWKSUrl));
+			}
 			RSAKey key = (RSAKey) publicKeys.getKeyByKeyId("default");
 
 			// The expected JWS algorithm of the access tokens (agreed out-of-band)
