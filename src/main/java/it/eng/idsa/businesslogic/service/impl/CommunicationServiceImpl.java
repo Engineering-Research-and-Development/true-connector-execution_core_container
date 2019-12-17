@@ -94,19 +94,13 @@ public class CommunicationServiceImpl implements CommunicationService {
 		
 		String result;
 		try {
-			result = restTemplate.postForObject (endpoint, EntityUtils.toString(data), String.class);
-			return result;
-		} catch (RestClientException e) {
+			result = restTemplate.postForObject (endpoint, EntityUtils.toString(data), String.class); 
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return null;
 		}
-		return null;
+		return result;
 	}
 
 }

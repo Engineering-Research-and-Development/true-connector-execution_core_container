@@ -55,7 +55,7 @@ public class CamelRouteProducer extends RouteBuilder {
 			.process(processorException);
 
 		// Camel SSL - Endpoint: A - Body binary
-		from("jetty://https4://localhost:" + configuration.getCamelProducerPort() + "/incoming-data-app/multipartMessageBodyBinary")
+		from("jetty://https4://0.0.0.0:" + configuration.getCamelProducerPort() + "/incoming-data-app/multipartMessageBodyBinary")
 				.process(parseReceivedDataProcessorBodyBinary)
 				.process(getTokenFromDapsProcessor)
 				// Send data to Endpoint B
@@ -63,7 +63,7 @@ public class CamelRouteProducer extends RouteBuilder {
 //				.process(sendTransactionToCHProcessor);
 				
 		// Camel SSL - Endpoint: A - Body form-data
-		from("jetty://https4://localhost:" + configuration.getCamelProducerPort() + "/incoming-data-app/multipartMessageBodyFormData")
+		from("jetty://https4://0.0.0.0:" + configuration.getCamelProducerPort() + "/incoming-data-app/multipartMessageBodyFormData")
 				.process(parseReceivedDataProcessorBodyFormData)
 				.process(getTokenFromDapsProcessor)
 				// Send data to Endpoint B

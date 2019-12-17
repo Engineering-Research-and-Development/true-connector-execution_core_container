@@ -68,14 +68,14 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		// Send data to the endpoint F for the Open API Data App
 		CloseableHttpResponse response = null;
 		switch(openDataAppReceiverRouter) {
-			case "routerBodyBinary":
+			case "mixed":
 			{
-				response =  forwardMessageFormData("https://"+configuration.getOpenDataAppReceiver()+"/incoming-data-app/routerBodyBinary", header, payload);
+				response =  forwardMessageFormData(configuration.getOpenDataAppReceiver(), header, payload);
 				break;
 			}
-			case "routerBodyFormData":
+			case "form":
 			{
-				response =  forwardMessageBinary("https://"+configuration.getOpenDataAppReceiver()+"/incoming-data-app/routerBodyFormData", header, payload);
+				response =  forwardMessageBinary(configuration.getOpenDataAppReceiver(), header, payload);
 				break;
 			}
 			default:
