@@ -50,8 +50,7 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 			multipartMessageParts.put("header", header);
 			payload=multiPartMessageServiceImpl.getPayload(multipartMessage);
 			multipartMessageParts.put("payload", payload);
-			message=multiPartMessageServiceImpl.getMessage(multipartMessage);
-			multipartMessageParts.put("message", message);
+			message=multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 			
 			// Return multipartMessageParts
 			exchange.getOut().setBody(multipartMessageParts);

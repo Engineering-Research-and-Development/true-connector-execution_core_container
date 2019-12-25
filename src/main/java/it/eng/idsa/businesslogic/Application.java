@@ -8,6 +8,11 @@ import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactor
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.jms.annotation.EnableJms;
+import org.springframework.jms.config.JmsListenerContainerFactory;
+import javax.jms.ConnectionFactory;
+import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
+import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 
 /**
  * 
@@ -20,14 +25,19 @@ import org.springframework.context.annotation.Bean;
  */
 @EnableCaching
 @SpringBootApplication
+@EnableJms
 public class Application {
 	//HTTP port
 	@Value("${http.port}")
 	private int httpPort;
+	
+	public final static String QUEUE_INCOMING = "incoming";
+	public final static String QUEUE_OUTCOMING = "outcoming";
+	
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
-	// Let's configure additional connector to enable support for both HTTP and HTTPS
+		// Let's configure additional connector to enable support for both HTTP and HTTPS
 		@Bean
 		public ServletWebServerFactory servletContainer() {
 			TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory();
@@ -40,4 +50,13 @@ public class Application {
 			connector.setPort(httpPort);
 			return connector;
 		}
+		
+		@Bean
+	    public JmsListenerContainerFactory<?> jmsFactory(ConnectionFactory connectionFactory,
+	      DefaultJmsListenerContainerFactoryConfigurer configurer) {
+	        DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
+	        // This provides all boot's default to this factory, including the message converter
+	        configurer.configure(factory, connectionFactory);
+	        return factory;
+	    }
 }

@@ -9,7 +9,9 @@ import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerMultiPartMessageProcessor;
+import it.eng.idsa.businesslogic.processor.consumer.ConsumerReceiveFromActiveMQ;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendDataToDataAppProcessor;
+import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendToActiveMQ;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
@@ -31,6 +33,12 @@ public class CamelRouteConsumer extends RouteBuilder {
 	
 	@Autowired
 	ConsumerValidateTokenProcessor validateTokenProcessor;
+	
+	@Autowired
+	ConsumerSendToActiveMQ sendToActiveMQ;
+	
+	@Autowired
+	ConsumerReceiveFromActiveMQ receiveFromActiveMQ;
 	
 	@Autowired
 	ConsumerMultiPartMessageProcessor multiPartMessageProcessor;
@@ -55,6 +63,8 @@ public class CamelRouteConsumer extends RouteBuilder {
 		from("jetty://https4://0.0.0.0:"+configuration.getCamelConsumerPort()+"/incoming-data-channel/receivedMessage")
 			.process(multiPartMessageProcessor)
 			.process(validateTokenProcessor)
+			.process(sendToActiveMQ)
+			.process(receiveFromActiveMQ)
 			// Send to the Endpoint: F
 			.process(sendDataToDataAppProcessor);
 //			.process(sendTransactionToCHProcessor);

@@ -63,7 +63,7 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		// Get header, payload and message
 		String header = filterHeader(multipartMessageParts.get("header").toString());
 		String payload = multipartMessageParts.get("payload").toString();
-		Message message = (Message) multipartMessageParts.get("message");
+		Message message = multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 		
 		// Send data to the endpoint F for the Open API Data App
 		CloseableHttpResponse response = null;
