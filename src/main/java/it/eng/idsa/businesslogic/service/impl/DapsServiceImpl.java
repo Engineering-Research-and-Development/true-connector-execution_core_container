@@ -22,6 +22,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
+import java.text.ParseException;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
@@ -43,11 +44,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.RemoteJWKSet;
+import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
@@ -333,11 +336,20 @@ public class DapsServiceImpl implements DapsService {
 			} else {
 				// Process the token
 				SecurityContext ctx = null; // optional context parameter, not required here
-				JWTClaimsSet claimsSet = jwtProcessor.process(tokenValue, ctx);
-				
-				logger.debug("claimsSet = ", () -> claimsSet.toJSONObject());
-				
-				isValid = true;
+				try {
+					JWTClaimsSet claimsSet = jwtProcessor.process(tokenValue, ctx);
+					logger.debug("claimsSet = ", () -> claimsSet.toJSONObject());
+					isValid = true;
+				} catch(ParseException parseException) {
+					logger.error(": ParseException");
+					parseException.printStackTrace();
+				} catch(BadJOSEException badJOSEException) {
+					logger.error(": BadJOSEException");
+					badJOSEException.printStackTrace();
+				} catch(JOSEException joseException) {
+					logger.error(": JOSEException");
+					joseException.printStackTrace();
+				}
 			}
 			
 		} catch (Exception e) {
