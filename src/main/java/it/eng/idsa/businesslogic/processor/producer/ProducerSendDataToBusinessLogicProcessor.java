@@ -15,6 +15,8 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import nl.tno.ids.common.serialization.SerializationHelper;
+import nl.tno.ids.common.multipart.MultiPartMessage;
+import nl.tno.ids.common.multipart.MultiPart;
 
 /**
  * 
@@ -47,6 +49,9 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 
 		HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(messageWithToken, payload, null);
 		String response = communicationMessageService.sendData(forwardTo, entity);
+		MultiPartMessage multiPartMessage = MultiPart.parseString(response);
+		String multipartMessageString = MultiPart.toString(multiPartMessage, false);
+		String contentType = multiPartMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
 		
 		if (response==null) {
 			logger.info("...communication error");
@@ -57,7 +62,8 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		else {
 			logger.info("data sent to destination "+forwardTo);
 			logger.info("response "+response);
-			exchange.getOut().setBody(response);
+			exchange.getOut().setBody(multipartMessageString);
+			exchange.getOut().setHeader("Content-Type", contentType);
 		}
 		
 	}

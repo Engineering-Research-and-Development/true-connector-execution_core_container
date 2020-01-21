@@ -33,6 +33,9 @@ import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import nl.tno.ids.common.communication.HttpClientGenerator;
 import nl.tno.ids.common.config.keystore.KeystoreConfigType;
 import nl.tno.ids.common.config.keystore.TruststoreConfig;
+import nl.tno.ids.common.multipart.MultiPart;
+import nl.tno.ids.common.multipart.MultiPartMessage;
+import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
 import nl.tno.ids.common.serialization.SerializationHelper;
 
 /**
@@ -155,7 +158,12 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 			logger.info("Bad response: {} {}", statusCode, response.getEntity().getContent());
 		}else {
 			Message resultMessage = multiPartMessageServiceImpl.createResultMessage(message);
-			exchange.getOut().setBody(SerializationHelper.getInstance().toJsonLD(resultMessage));
+			Builder builder = new MultiPartMessage.Builder();
+			builder.setHeader(resultMessage);
+			MultiPartMessage builtMessage = builder.build();
+			String stringMessage = MultiPart.toString(builtMessage, false); 
+			exchange.getOut().setBody(stringMessage);
+			exchange.getOut().setHeader("Content-Type", builtMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed"));
 			logger.info("Good response: {} {}", statusCode, response.getEntity().getContent());
 		}
 	}
