@@ -152,9 +152,14 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 	
 	private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response) throws UnsupportedOperationException, IOException {
 		int statusCode = response.getStatusLine().getStatusCode();
-		if (statusCode >= 300) {
+		if (statusCode >= 300) {			
 			Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionCommunicationLocalIssues(message);
-			exchange.getOut().setBody(SerializationHelper.getInstance().toJsonLD(rejectionCommunicationLocalIssues));
+			Builder builder = new MultiPartMessage.Builder();
+			builder.setHeader(rejectionCommunicationLocalIssues);
+			MultiPartMessage builtMessage = builder.build();
+			String stringMessage = MultiPart.toString(builtMessage, false);
+			exchange.getOut().setBody(stringMessage);
+			exchange.getOut().setHeader("Content-Type", builtMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed"));
 			logger.info("Bad response: {} {}", statusCode, response.getEntity().getContent());
 		}else {
 			Message resultMessage = multiPartMessageServiceImpl.createResultMessage(message);

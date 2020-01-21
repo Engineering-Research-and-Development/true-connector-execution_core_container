@@ -16,6 +16,7 @@ import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import nl.tno.ids.common.serialization.SerializationHelper;
 import nl.tno.ids.common.multipart.MultiPartMessage;
+import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
 import nl.tno.ids.common.multipart.MultiPart;
 
 /**
@@ -56,8 +57,12 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		if (response==null) {
 			logger.info("...communication error");
 			Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionMessage(message);
-			String resp=SerializationHelper.getInstance().toJsonLD(rejectionCommunicationLocalIssues);
-			exchange.getOut().setBody(resp);
+			Builder builder = new MultiPartMessage.Builder();
+			builder.setHeader(rejectionCommunicationLocalIssues);
+			MultiPartMessage builtMessage = builder.build();
+			String stringMessage = MultiPart.toString(builtMessage, false);
+			exchange.getOut().setBody(stringMessage);
+			exchange.getOut().setHeader("Content-Type", builtMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed"));
 		}
 		else {
 			logger.info("data sent to destination "+forwardTo);

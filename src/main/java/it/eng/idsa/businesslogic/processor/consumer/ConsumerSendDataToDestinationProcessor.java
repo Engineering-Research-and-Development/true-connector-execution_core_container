@@ -16,6 +16,9 @@ import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import nl.tno.ids.common.multipart.MultiPart;
+import nl.tno.ids.common.multipart.MultiPartMessage;
+import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
 
 /**
  * 
@@ -46,16 +49,23 @@ public class ConsumerSendDataToDestinationProcessor implements Processor {
 		Boolean isTokenValid = Boolean.valueOf(multipartMessageParts.get("isTokenValid").toString());
 		logger.info("isTokenValid="+isTokenValid);
 		
+		Message message = null;
 		if(isTokenValid) {
 			logger.info("token is valid");
-			Message message = (Message) multipartMessageParts.get("message");
+			message = (Message) multipartMessageParts.get("message");
 			String payload = multipartMessageParts.get("payload").toString();
 			String headerWithoutToken=multiPartMessageServiceImpl.removeToken(message);
 			HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(headerWithoutToken,payload, null);
 			String response = communicationServiceImpl.sendData("http://"+configuration.getActivemqAddress()+"/api/message/outcoming?type=queue", entity);
 			if (response==null) {
 				logger.info("...communication error");
-				throw new ExceptionForProcessor("Communication error");
+				Message rejectionMessageLocalIssues = multiPartMessageServiceImpl
+						.createRejectionMessageLocalIssues(message);
+				Builder builder = new MultiPartMessage.Builder();
+				builder.setHeader(rejectionMessageLocalIssues);
+				MultiPartMessage builtMessage = builder.build();
+				String stringMessage = MultiPart.toString(builtMessage, false);
+				throw new ExceptionForProcessor(stringMessage);
 			}
 			logger.info("data sent to Data App");
 			logger.info("response "+response);
@@ -64,7 +74,13 @@ public class ConsumerSendDataToDestinationProcessor implements Processor {
 			exchange.getOut().setBody(multipartMessageParts);
 		} else {
 			logger.error("Token is not valid");
-			throw new ExceptionForProcessor("Token is not valid");
+			Message rejectionMessageToken = multiPartMessageServiceImpl
+					.createRejectionToken(message);
+			Builder builder = new MultiPartMessage.Builder();
+			builder.setHeader(rejectionMessageToken);
+			MultiPartMessage builtMessage = builder.build();
+			String stringMessage = MultiPart.toString(builtMessage, false);
+			throw new ExceptionForProcessor(stringMessage);
 		}
 	}
 }

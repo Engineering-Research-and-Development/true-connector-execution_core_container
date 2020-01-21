@@ -203,7 +203,7 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 				._issuerConnector_(whoIAm())
 				._issued_(DateUtil.now())
 				._modelVersion_("1.0.3")
-				._recipientConnector_(asList(header.getIssuerConnector()))
+				._recipientConnectors_(asList(header.getIssuerConnector()))
 				._correlationMessage_(header.getId())
 				.build();
 	}
@@ -213,7 +213,7 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 				._issuerConnector_(whoIAm())
 				._issued_(DateUtil.now())
 				._modelVersion_("1.0.3")
-				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("auto-generated")))
+				._recipientConnectors_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("auto-generated")))
 				._correlationMessage_(header!=null?header.getId():URI.create(""))
 				._rejectionReason_(RejectionReason.MALFORMED_MESSAGE)
 				.build();
@@ -224,7 +224,7 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 				._issuerConnector_(whoIAm())
 				._issued_(DateUtil.now())
 				._modelVersion_("1.0.3")
-				._recipientConnector_(asList(header.getIssuerConnector()))
+				._recipientConnectors_(asList(header.getIssuerConnector()))
 				._correlationMessage_(header.getId())
 				._rejectionReason_(RejectionReason.NOT_AUTHENTICATED)
 				.build();
@@ -252,7 +252,7 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 				._issuerConnector_(header.getIssuerConnector())
 				._issued_(DateUtil.now())
 				._modelVersion_("1.0.3")
-				._recipientConnector_(asList(header.getIssuerConnector()))
+				._recipientConnectors_(asList(header.getIssuerConnector()))
 				._correlationMessage_(header.getId())
 				._rejectionReason_(RejectionReason.NOT_AUTHENTICATED)
 				.build();
@@ -264,7 +264,7 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 				._issuerConnector_(header.getIssuerConnector())
 				._issued_(DateUtil.now())
 				._modelVersion_("1.0.3")
-				._recipientConnector_(asList(header.getIssuerConnector()))
+				._recipientConnectors_(asList(header.getIssuerConnector()))
 				._correlationMessage_(header.getId())
 				._rejectionReason_(RejectionReason.NOT_FOUND)
 				.build();

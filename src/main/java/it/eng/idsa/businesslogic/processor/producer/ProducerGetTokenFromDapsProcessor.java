@@ -14,6 +14,9 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.DapsServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import nl.tno.ids.common.multipart.MultiPart;
+import nl.tno.ids.common.multipart.MultiPartMessage;
+import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
 import nl.tno.ids.common.serialization.SerializationHelper;
 
 /**
@@ -48,14 +51,21 @@ public class ProducerGetTokenFromDapsProcessor implements Processor {
 			logger.error("Error parsing multipart message:" + e);
 			Message rejectionMessageLocalIssues = multiPartMessageServiceImpl
 					.createRejectionMessageLocalIssues(message);
-			throw new ExceptionForProcessor(SerializationHelper.getInstance().toJsonLD(rejectionMessageLocalIssues));
-
+			Builder builder = new MultiPartMessage.Builder();
+			builder.setHeader(rejectionMessageLocalIssues);
+			MultiPartMessage builtMessage = builder.build();
+			String stringMessage = MultiPart.toString(builtMessage, false);
+			throw new ExceptionForProcessor(stringMessage);
 		}
 		if (message==null) {
 			logger.error("Parsed multipart message is null");
 			Message rejectionMessageLocalIssues = multiPartMessageServiceImpl
 					.createRejectionMessageLocalIssues(message);
-			throw new ExceptionForProcessor(SerializationHelper.getInstance().toJsonLD(rejectionMessageLocalIssues));
+			Builder builder = new MultiPartMessage.Builder();
+			builder.setHeader(rejectionMessageLocalIssues);
+			MultiPartMessage builtMessage = builder.build();
+			String stringMessage = MultiPart.toString(builtMessage, false);
+			throw new ExceptionForProcessor(stringMessage);
 		}
 		
 		// Get the Token from the DAPS
@@ -67,13 +77,21 @@ public class ProducerGetTokenFromDapsProcessor implements Processor {
 			logger.error("Can not get the token from the DAPS server " + e);
 			Message rejectionTokenLocalIssues = multiPartMessageServiceImpl
 					.createRejectionTokenLocalIssues(message);
-			throw new ExceptionForProcessor(SerializationHelper.getInstance().toJsonLD(rejectionTokenLocalIssues));
+			Builder builder = new MultiPartMessage.Builder();
+			builder.setHeader(rejectionTokenLocalIssues);
+			MultiPartMessage builtMessage = builder.build();
+			String stringMessage = MultiPart.toString(builtMessage, false);
+			throw new ExceptionForProcessor(stringMessage);
 		}
 		if (token.isEmpty()) {
 			logger.error("The token from the DAPS server is empty");
 			Message rejectionTokenLocalIssues = multiPartMessageServiceImpl
 					.createRejectionTokenLocalIssues(message);
-			throw new ExceptionForProcessor(SerializationHelper.getInstance().toJsonLD(rejectionTokenLocalIssues));
+			Builder builder = new MultiPartMessage.Builder();
+			builder.setHeader(rejectionTokenLocalIssues);
+			MultiPartMessage builtMessage = builder.build();
+			String stringMessage = MultiPart.toString(builtMessage, false);
+			throw new ExceptionForProcessor(stringMessage);
 		}
 		
 		logger.info("token=" + token);

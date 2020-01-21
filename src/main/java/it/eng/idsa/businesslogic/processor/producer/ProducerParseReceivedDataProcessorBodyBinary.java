@@ -15,6 +15,9 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import nl.tno.ids.common.multipart.MultiPart;
+import nl.tno.ids.common.multipart.MultiPartMessage;
+import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
 import nl.tno.ids.common.serialization.SerializationHelper;
 
 /**
@@ -46,11 +49,15 @@ public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 		// Get from the input "exchange"
 		Map<String, Object> receivedDataHeader = exchange.getIn().getHeaders();
 		receivedDataBodyBinary = exchange.getIn().getBody(String.class);
-		if (receivedDataBodyBinary == null) {
+		if (receivedDataBodyBinary == null) {			
 			logger.error("Body of the received multipart message is null");
 			Message rejectionMessageLocalIssues = multiPartMessageServiceImpl
 					.createRejectionMessageLocalIssues(message);
-			throw new ExceptionForProcessor(SerializationHelper.getInstance().toJsonLD(rejectionMessageLocalIssues));
+			Builder builder = new MultiPartMessage.Builder();
+			builder.setHeader(rejectionMessageLocalIssues);
+			MultiPartMessage builtMessage = builder.build();
+			String stringMessage = MultiPart.toString(builtMessage, false);
+			throw new ExceptionForProcessor(stringMessage);
 		}
 		try {
 			// Create headers parts
@@ -74,7 +81,11 @@ public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 			logger.error("Error parsing multipart message:" + e);
 			Message rejectionMessageLocalIssues = multiPartMessageServiceImpl
 					.createRejectionMessageLocalIssues(message);
-			throw new ExceptionForProcessor(SerializationHelper.getInstance().toJsonLD(rejectionMessageLocalIssues));
+			Builder builder = new MultiPartMessage.Builder();
+			builder.setHeader(rejectionMessageLocalIssues);
+			MultiPartMessage builtMessage = builder.build();
+			String stringMessage = MultiPart.toString(builtMessage, false);
+			throw new ExceptionForProcessor(stringMessage);
 		}
 
 	}

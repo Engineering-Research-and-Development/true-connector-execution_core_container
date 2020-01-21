@@ -13,6 +13,9 @@ import org.springframework.stereotype.Component;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import nl.tno.ids.common.multipart.MultiPart;
+import nl.tno.ids.common.multipart.MultiPartMessage;
+import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
 import nl.tno.ids.common.serialization.SerializationHelper;
 
 /**
@@ -42,7 +45,11 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 		if(multipartMessage == null) {
 			logger.error("Multipart message is null");
 			Message rejectionMessage = multiPartMessageServiceImpl.createRejectionMessage(message);
-			throw new ExceptionForProcessor(SerializationHelper.getInstance().toJsonLD(rejectionMessage));
+			Builder builder = new MultiPartMessage.Builder();
+			builder.setHeader(rejectionMessage);
+			MultiPartMessage builtMessage = builder.build();
+			String stringMessage = MultiPart.toString(builtMessage, false);
+			throw new ExceptionForProcessor(stringMessage);
 		}
 		try {
 			// Create multipart message parts
@@ -58,7 +65,12 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);
 			Message rejectionMessage = multiPartMessageServiceImpl.createRejectionMessage(message);
-			throw new ExceptionForProcessor(SerializationHelper.getInstance().toJsonLD(rejectionMessage));
+			Builder builder = new MultiPartMessage.Builder();
+			builder.setHeader(rejectionMessage);
+			MultiPartMessage builtMessage = builder.build();
+			String stringMessage = MultiPart.toString(builtMessage, false);
+			throw new ExceptionForProcessor(stringMessage);
+			
 		}
 	}
 	
