@@ -164,9 +164,14 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		//     - Check if response is multipart
 		//     - Get new token and put the token in the message
 		//     - Validate the token on the producer side.
-		//     - Update Data Aplication for the testing the new version regarding to the this implementation
-		exchange.getOut().setBody(response.getEntity().getContent());
-		exchange.getOut().setHeader("Content-Type", response.getFirstHeader("Content-Type"));
+		//     - Update Data Aplication for the testing the new version regarding to the this implementation 
+		String responseString=new String(response.getEntity().getContent().readAllBytes());
+		logger.info("content type response received from the DataAPP="+response.getFirstHeader("Content-Type"));
+		logger.info("response received from the DataAPP="+responseString);
+		exchange.getOut().setBody(responseString);
+		exchange.getOut().setHeader("Content-Type", response.getFirstHeader("Content-Type"));  
+			 
+
 	}
 	
 }
