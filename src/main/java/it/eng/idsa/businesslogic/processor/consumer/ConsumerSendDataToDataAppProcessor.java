@@ -82,9 +82,9 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 				break;
 			}
 			default:
-				Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionMessageLocalIssues(message);
+				Message rejectionMessageLocalIssues = multiPartMessageServiceImpl.createRejectionMessageLocalIssues(message);
 				Builder builder = new MultiPartMessage.Builder();
-				builder.setHeader(rejectionCommunicationLocalIssues);
+				builder.setHeader(rejectionMessageLocalIssues);
 				MultiPartMessage builtMessage = builder.build();
 				String stringMessage = MultiPart.toString(builtMessage, false);
 				exchange.getOut().setBody(stringMessage);
@@ -159,25 +159,14 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 	
 	private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response) throws UnsupportedOperationException, IOException {
 		int statusCode = response.getStatusLine().getStatusCode();
-		if (statusCode >= 300) {			
-			Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionCommunicationLocalIssues(message);
-			Builder builder = new MultiPartMessage.Builder();
-			builder.setHeader(rejectionCommunicationLocalIssues);
-			MultiPartMessage builtMessage = builder.build();
-			String stringMessage = MultiPart.toString(builtMessage, false);
-			exchange.getOut().setBody(stringMessage);
-			exchange.getOut().setHeader("Content-Type", builtMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed"));
-			logger.info("Bad response: {} {}", statusCode, response.getEntity().getContent());
-		}else {
-			Message resultMessage = multiPartMessageServiceImpl.createResultMessage(message);
-			Builder builder = new MultiPartMessage.Builder();
-			builder.setHeader(resultMessage);
-			MultiPartMessage builtMessage = builder.build();
-			String stringMessage = MultiPart.toString(builtMessage, false); 
-			exchange.getOut().setBody(stringMessage);
-			exchange.getOut().setHeader("Content-Type", builtMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed"));
-			logger.info("Good response: {} {}", statusCode, response.getEntity().getContent());
-		}
+		
+		// TODO: 
+		//     - Check if response is multipart
+		//     - Get new token and put the token in the message
+		//     - Validate the token on the producer side.
+		//     - Update Data Aplication for the testing the new version regarding to the this implementation
+		exchange.getOut().setBody(response.getEntity().getContent());
+		exchange.getOut().setHeader("Content-Type", response.getFirstHeader("Content-Type"));
 	}
 	
 }
