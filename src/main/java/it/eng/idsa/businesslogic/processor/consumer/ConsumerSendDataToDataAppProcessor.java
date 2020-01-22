@@ -82,6 +82,13 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 				break;
 			}
 			default:
+				Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionMessageLocalIssues(message);
+				Builder builder = new MultiPartMessage.Builder();
+				builder.setHeader(rejectionCommunicationLocalIssues);
+				MultiPartMessage builtMessage = builder.build();
+				String stringMessage = MultiPart.toString(builtMessage, false);
+				exchange.getOut().setBody(stringMessage);
+				exchange.getOut().setHeader("Content-Type", builtMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed"));
 				logger.error("Applicaton property: application.openDataAppReceiverRouter is not properly set");
 				break;
 		}
