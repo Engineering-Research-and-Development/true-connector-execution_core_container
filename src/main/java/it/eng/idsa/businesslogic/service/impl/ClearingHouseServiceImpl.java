@@ -75,9 +75,9 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 					._issued_(xgcal)
 					._correlationMessage_(correlatedMessage.getId())
 					._issuerConnector_(connectorURI)
-					._recipientConnectors_(recipientConnectors)
+					._recipientConnector_(recipientConnectors)
 					._senderAgent_(null)
-					._recipientAgents_(null)
+					._recipientAgent_(null)
 					._transferContract_(null)
 					.build();
 
