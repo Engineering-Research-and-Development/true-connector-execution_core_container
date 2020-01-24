@@ -73,12 +73,12 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		switch(openDataAppReceiverRouter) {
 		case "mixed":
 		{
-			response =  forwardMessageFormData(configuration.getOpenDataAppReceiver(), header, payload);
+			response =  forwardMessageBinary(configuration.getOpenDataAppReceiver(), header, payload);
 			break;
 		}
 		case "form":
 		{
-			response =  forwardMessageBinary(configuration.getOpenDataAppReceiver(), header, payload);
+			response =  forwardMessageFormData(configuration.getOpenDataAppReceiver(), header, payload);
 			break;
 		}
 		default:
@@ -100,7 +100,7 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 
 	}
 
-	private CloseableHttpResponse forwardMessageFormData(String address, String header, String payload) throws ClientProtocolException, IOException {
+	private CloseableHttpResponse forwardMessageBinary(String address, String header, String payload) throws ClientProtocolException, IOException {
 		logger.info("Forwarding Message: Body: form-data");
 
 		// Covert to ContentBody
@@ -122,7 +122,7 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		return response;
 	}
 
-	private CloseableHttpResponse forwardMessageBinary(String address, String header, String payload) throws ClientProtocolException, IOException {
+	private CloseableHttpResponse forwardMessageFormData(String address, String header, String payload) throws ClientProtocolException, IOException {
 		logger.info("Forwarding Message: Body: binary");
 
 		// Set F address
