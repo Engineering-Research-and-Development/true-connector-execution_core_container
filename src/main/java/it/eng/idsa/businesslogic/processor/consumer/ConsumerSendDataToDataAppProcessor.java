@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.domain.json.HeaderBodyJson;
+import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import nl.tno.ids.common.communication.HttpClientGenerator;
 import nl.tno.ids.common.config.keystore.AcceptAllTruststoreConfig;
@@ -162,31 +163,21 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		String responseString=new String(response.getEntity().getContent().readAllBytes());
 		logger.info("content type response received from the DataAPP="+response.getFirstHeader("Content-Type"));
 		logger.info("response received from the DataAPP="+responseString);
-		exchange.getOut().setBody(responseString);
-		exchange.getOut().setHeader("Content-Type", response.getFirstHeader("Content-Type").getValue()); 
-		/*
-		 * int statusCode = response.getStatusLine().getStatusCode(); if (statusCode >=
-		 * 300) { Message rejectionCommunicationLocalIssues =
-		 * multiPartMessageServiceImpl.createRejectionCommunicationLocalIssues(message);
-		 * Builder builder = new MultiPartMessage.Builder();
-		 * builder.setHeader(rejectionCommunicationLocalIssues); MultiPartMessage
-		 * builtMessage = builder.build(); String stringMessage =
-		 * MultiPart.toString(builtMessage, false);
-		 * exchange.getOut().setBody(stringMessage);
-		 * exchange.getOut().setHeader("Content-Type",
-		 * builtMessage.getHttpHeaders().getOrDefault("Content-Type",
-		 * "multipart/mixed")); logger.info("Bad response: {} {}", statusCode,
-		 * response.getEntity().getContent()); }else { Message resultMessage =
-		 * multiPartMessageServiceImpl.createResultMessage(message); Builder builder =
-		 * new MultiPartMessage.Builder(); builder.setHeader(resultMessage);
-		 * MultiPartMessage builtMessage = builder.build(); String stringMessage =
-		 * MultiPart.toString(builtMessage, false);
-		 * exchange.getOut().setBody(stringMessage);
-		 * exchange.getOut().setHeader("Content-Type",
-		 * builtMessage.getHttpHeaders().getOrDefault("Content-Type",
-		 * "multipart/mixed")); logger.info("Good response: {} {}", statusCode,
-		 * response.getEntity().getContent()); }
-		 */
+		
+		int statusCode = response.getStatusLine().getStatusCode();
+		logger.info("status code of the response message is: " + statusCode);
+		if (statusCode >=300) { 
+			Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionMessage(message);
+			Builder builder = new MultiPartMessage.Builder();
+			builder.setHeader(rejectionCommunicationLocalIssues); 
+			MultiPartMessage builtMessage = builder.build(); 
+			String stringMessage = MultiPart.toString(builtMessage, false);
+			throw new ExceptionForProcessor(stringMessage);
+		}else { 
+			exchange.getOut().setBody(responseString);
+			exchange.getOut().setHeader("Content-Type", response.getFirstHeader("Content-Type").getValue());
+		}
+		 
 	}
 
 }

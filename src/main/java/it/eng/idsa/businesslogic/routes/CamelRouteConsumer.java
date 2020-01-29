@@ -1,6 +1,5 @@
 package it.eng.idsa.businesslogic.routes;
 
-import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import it.eng.idsa.businesslogic.processor.consumer.ConsumerGetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerMultiPartMessageProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerReceiveFromActiveMQ;
+import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendDataToBusinessLogicProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendDataToDataAppProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendToActiveMQ;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendTransactionToCHProcessor;
@@ -52,6 +53,12 @@ public class CamelRouteConsumer extends RouteBuilder {
 	@Autowired
 	ExceptionProcessor processorException;
 	
+	@Autowired
+	ConsumerGetTokenFromDapsProcessor getTokenFromDapsProcessor;
+	
+	@Autowired
+	ConsumerSendDataToBusinessLogicProcessor sendDataToBusinessLogicProcessor;
+	
 	@Override
 	public void configure() throws Exception {
 
@@ -63,10 +70,13 @@ public class CamelRouteConsumer extends RouteBuilder {
 		from("jetty://https4://0.0.0.0:"+configuration.getCamelConsumerPort()+"/incoming-data-channel/receivedMessage")
 			.process(multiPartMessageProcessor)
 			.process(validateTokenProcessor)
-			.process(sendToActiveMQ)
-			.process(receiveFromActiveMQ)
+//			.process(sendToActiveMQ)
+//			.process(receiveFromActiveMQ)
 			// Send to the Endpoint: F
-			.process(sendDataToDataAppProcessor);
+			.process(sendDataToDataAppProcessor)
+			.process(multiPartMessageProcessor)
+			.process(getTokenFromDapsProcessor)
+			.process(sendDataToBusinessLogicProcessor);
 //			.process(sendTransactionToCHProcessor);
 		
 	}

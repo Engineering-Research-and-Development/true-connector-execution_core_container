@@ -12,10 +12,13 @@ import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessor;
 import it.eng.idsa.businesslogic.processor.producer.ProducerGetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.producer.ProducerParseReceivedDataProcessorBodyBinary;
 import it.eng.idsa.businesslogic.processor.producer.ProducerParseReceivedDataProcessorBodyFormData;
+import it.eng.idsa.businesslogic.processor.producer.ProducerParseReceivedResponseMessage;
 import it.eng.idsa.businesslogic.processor.producer.ProducerReceiveFromActiveMQ;
 import it.eng.idsa.businesslogic.processor.producer.ProducerSendDataToBusinessLogicProcessor;
+import it.eng.idsa.businesslogic.processor.producer.ProducerSendResponseToDataAppProcessor;
 import it.eng.idsa.businesslogic.processor.producer.ProducerSendToActiveMQ;
 import it.eng.idsa.businesslogic.processor.producer.ProducerSendTransactionToCHProcessor;
+import it.eng.idsa.businesslogic.processor.producer.ProducerValidateTokenProcessor;
 
 /**
  * 
@@ -51,6 +54,15 @@ public class CamelRouteProducer extends RouteBuilder {
 
 	@Autowired
 	ProducerSendDataToBusinessLogicProcessor sendDataToBusinessLogicProcessor;
+	
+	@Autowired
+	ProducerParseReceivedResponseMessage parseReceivedResponseMessage;
+	
+	@Autowired
+	ProducerValidateTokenProcessor validateTokenProcessor;
+	
+	@Autowired
+	ProducerSendResponseToDataAppProcessor sendResponseToDataAppProcessor;
 
 	@Autowired
 	ExceptionProcessor processorException;
@@ -66,20 +78,26 @@ public class CamelRouteProducer extends RouteBuilder {
 		from("jetty://https4://0.0.0.0:" + configuration.getCamelProducerPort() + "/incoming-data-app/multipartMessageBodyBinary")
 				.process(parseReceivedDataProcessorBodyBinary)
 				.process(getTokenFromDapsProcessor)
-				.process(sendToActiveMQ)
-				.process(receiveFromActiveMQ)
+//				.process(sendToActiveMQ)
+//				.process(receiveFromActiveMQ)
 				// Send data to Endpoint B
-				.process(sendDataToBusinessLogicProcessor);
+				.process(sendDataToBusinessLogicProcessor)
+				.process(parseReceivedResponseMessage)
+				.process(validateTokenProcessor)
+		        .process(sendResponseToDataAppProcessor);
 //				.process(sendTransactionToCHProcessor);
 				
 		// Camel SSL - Endpoint: A - Body form-data
 		from("jetty://https4://0.0.0.0:" + configuration.getCamelProducerPort() + "/incoming-data-app/multipartMessageBodyFormData")
 				.process(parseReceivedDataProcessorBodyFormData)
 				.process(getTokenFromDapsProcessor)
-				.process(sendToActiveMQ)
-				.process(receiveFromActiveMQ)
+//				.process(sendToActiveMQ)
+//				.process(receiveFromActiveMQ)
 				// Send data to Endpoint B
-				.process(sendDataToBusinessLogicProcessor);
+				.process(sendDataToBusinessLogicProcessor)
+				.process(parseReceivedResponseMessage)
+				.process(validateTokenProcessor)
+				.process(sendResponseToDataAppProcessor);
 //				.process(sendTransactionToCHProcessor);
 	}
 
