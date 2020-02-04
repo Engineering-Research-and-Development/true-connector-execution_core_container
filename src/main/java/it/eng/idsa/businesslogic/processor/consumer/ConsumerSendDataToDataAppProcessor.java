@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
-import it.eng.idsa.businesslogic.domain.json.HeaderBodyJson;
+import it.eng.idsa.businesslogic.domain.json.HeaderBodyForOpenApiObject;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import nl.tno.ids.common.communication.HttpClientGenerator;
@@ -148,8 +148,8 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 
 	private String filterHeader(String header) throws JsonMappingException, JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper();
-		HeaderBodyJson headerBodyJson = mapper.readValue(header, HeaderBodyJson.class);
-		return mapper.writeValueAsString(headerBodyJson);
+		HeaderBodyForOpenApiObject headerBodyForOpenApiObject = mapper.readValue(header, HeaderBodyForOpenApiObject.class);
+		return mapper.writeValueAsString(headerBodyForOpenApiObject);
 	}
 
 	private ContentBody convertToContentBody(String value, ContentType contentType, String valueName) throws UnsupportedEncodingException {
@@ -174,8 +174,11 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 			String stringMessage = MultiPart.toString(builtMessage, false);
 			throw new ExceptionForProcessor(stringMessage);
 		}else { 
-			exchange.getOut().setBody(responseString);
-			exchange.getOut().setHeader("Content-Type", response.getFirstHeader("Content-Type").getValue());
+			// Convert message to the JSON object multipart message
+			String	header = multiPartMessageServiceImpl.getHeader(responseString);
+			String payload = multiPartMessageServiceImpl.getPayload(responseString);
+			String multipartMessageJsonString = multiPartMessageServiceImpl.createMultipartMessageJson(header, payload);
+			exchange.getOut().setBody(multipartMessageJsonString);
 		}
 		 
 	}

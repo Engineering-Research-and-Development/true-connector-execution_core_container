@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.http.HttpEntity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +13,9 @@ import org.springframework.stereotype.Component;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
-import nl.tno.ids.common.serialization.SerializationHelper;
+import nl.tno.ids.common.multipart.MultiPart;
 import nl.tno.ids.common.multipart.MultiPartMessage;
 import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
-import nl.tno.ids.common.multipart.MultiPart;
 
 /**
  * 
@@ -45,11 +43,13 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		String messageWithToken = multipartMessageParts.get("messageWithToken").toString();
 		String header = multipartMessageParts.get("header").toString();
 		String payload = multipartMessageParts.get("payload").toString();
+		
+		String multipartMessageJsonString = multiPartMessageServiceImpl.createMultipartMessageJson(messageWithToken, payload);
+		
 		String forwardTo = headesParts.get("Forward-To").toString();
 		Message message = multiPartMessageServiceImpl.getMessage(header);
-
-		HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(messageWithToken, payload, null);
-		String response = communicationMessageService.sendData(forwardTo, entity);
+		
+		String response = communicationMessageService.sendData(forwardTo, multipartMessageJsonString);
 		
 		if (response==null) {
 			logger.info("...communication error");

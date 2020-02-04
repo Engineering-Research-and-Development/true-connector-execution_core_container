@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.domain.json.HeaderBodyJson;
+import it.eng.idsa.businesslogic.domain.json.HeaderBodyForOpenApiObject;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import nl.tno.ids.common.multipart.MultiPart;
 import nl.tno.ids.common.multipart.MultiPartMessage;

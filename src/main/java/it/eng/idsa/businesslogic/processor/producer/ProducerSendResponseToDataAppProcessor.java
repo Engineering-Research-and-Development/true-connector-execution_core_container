@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import it.eng.idsa.businesslogic.domain.json.HeaderBodyJson;
+import it.eng.idsa.businesslogic.domain.json.HeaderBodyForOpenApiObject;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import nl.tno.ids.common.multipart.MultiPart;
 import nl.tno.ids.common.multipart.MultiPartMessage;
@@ -54,8 +54,8 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 
 	private String filterHeader(String header) throws JsonMappingException, JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper();
-		HeaderBodyJson headerBodyJson = mapper.readValue(header, HeaderBodyJson.class);
-		return mapper.writeValueAsString(headerBodyJson);
+		HeaderBodyForOpenApiObject headerBodyForOpenApiObject = mapper.readValue(header, HeaderBodyForOpenApiObject.class);
+		return mapper.writeValueAsString(headerBodyForOpenApiObject);
 	}
 	
 }

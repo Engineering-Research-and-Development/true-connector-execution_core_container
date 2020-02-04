@@ -10,7 +10,12 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import de.fraunhofer.iais.eis.Message;
+import it.eng.idsa.businesslogic.domain.json.HeaderBodyObject;
+import it.eng.idsa.businesslogic.domain.json.MultipartMessageObject;
+import it.eng.idsa.businesslogic.domain.json.PayloadBodyObject;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import nl.tno.ids.common.multipart.MultiPart;
@@ -52,10 +57,15 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 			throw new ExceptionForProcessor(stringMessage);
 		}
 		try {
-			// Create multipart message parts
-			header=multiPartMessageServiceImpl.getHeader(multipartMessage);
+
+			// Create multipart message from the JSON
+			ObjectMapper mapper = new ObjectMapper();
+			MultipartMessageObject multipartMessageObject = mapper.readValue(multipartMessage, MultipartMessageObject.class);
+			HeaderBodyObject headerBodyObject = multipartMessageObject.getHeader();
+			PayloadBodyObject payloadBodyObject = multipartMessageObject.getPayload();
+			header = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(headerBodyObject);
 			multipartMessageParts.put("header", header);
-			payload=multiPartMessageServiceImpl.getPayload(multipartMessage);
+			payload = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(payloadBodyObject);
 			multipartMessageParts.put("payload", payload);
 			message=multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 			

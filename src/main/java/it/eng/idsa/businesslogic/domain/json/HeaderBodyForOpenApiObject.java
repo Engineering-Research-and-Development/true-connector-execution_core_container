@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class HeaderBodyJson implements Serializable{
+public class HeaderBodyForOpenApiObject implements Serializable{
 	
 	private static final long serialVersionUID = 6874679256752471560L;
 

@@ -20,6 +20,10 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
 import org.apache.http.util.EntityUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
@@ -85,16 +89,32 @@ public class CommunicationServiceImpl implements CommunicationService {
 	        e.printStackTrace();
 	    }
 	}
-	
+
 	@Override
+	@Deprecated
 	public String sendData(String endpoint, HttpEntity data) {
 		// TODO Auto-generated method stub
 		RestTemplate restTemplate = new RestTemplate();
 		
+		String result;
+		try {
+			result = restTemplate.postForObject (endpoint, data, String.class); 
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		return result;
+	}
+	
+	@Override
+	public String sendData(String endpoint, String data) {
+		// TODO Auto-generated method stub
+		RestTemplate restTemplate = new RestTemplate();
 		
 		String result;
 		try {
-			result = restTemplate.postForObject (endpoint, EntityUtils.toString(data), String.class); 
+			result = restTemplate.postForObject (endpoint, data, String.class); 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
