@@ -1,18 +1,16 @@
 package it.eng.idsa.businesslogic.service.impl;
 
 
-import java.io.ByteArrayInputStream;
+import static de.fraunhofer.iais.eis.util.Util.asList;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.FormBodyPart;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.Header;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.json.simple.JSONObject;
@@ -22,8 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionMessageBuilder;
@@ -33,15 +29,11 @@ import de.fraunhofer.iais.eis.Token;
 import de.fraunhofer.iais.eis.TokenBuilder;
 import de.fraunhofer.iais.eis.TokenFormat;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
-import it.eng.idsa.businesslogic.domain.json.HeaderBodyObject;
-import it.eng.idsa.businesslogic.domain.json.MultipartMessageObject;
-import it.eng.idsa.businesslogic.domain.json.PayloadBodyObject;
 import it.eng.idsa.businesslogic.service.MultiPartMessageService;
 import nl.tno.ids.common.multipart.MultiPart;
 import nl.tno.ids.common.multipart.MultiPartMessage;
 import nl.tno.ids.common.serialization.DateUtil;
 import nl.tno.ids.common.serialization.SerializationHelper;
-import static de.fraunhofer.iais.eis.util.Util.asList;
 
 
 /**
@@ -124,35 +116,6 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 		}
 		return message;
 
-	}
-
-	@Override
-	public String createMultipartMessageJson(String messageWithToken, String payload) throws JsonMappingException, JsonProcessingException{
-		MultipartMessageObject multipartMessageObject = createMultipartMessageObject(messageWithToken, payload);
-		ObjectMapper mapper = new ObjectMapper();
-		String multipartMessageJsonString = mapper.writeValueAsString(multipartMessageObject);
-		return multipartMessageJsonString;
-	}
-	
-	private HeaderBodyObject convertHeaderToObject(String stringJson) throws JsonMappingException, JsonProcessingException {
-		ObjectMapper mapper = new ObjectMapper();
-		HeaderBodyObject headerBody = mapper.readValue(stringJson, HeaderBodyObject.class);
-		return headerBody;
-	}
-	
-	private PayloadBodyObject convertPayloadToObject(String stringJson) throws JsonMappingException, JsonProcessingException {
-		ObjectMapper mapper = new ObjectMapper();
-		PayloadBodyObject payloadBodyObject = mapper.readValue(stringJson, PayloadBodyObject.class);
-		return payloadBodyObject;
-	}
-	
-	private MultipartMessageObject createMultipartMessageObject(String header, String payload) throws JsonMappingException, JsonProcessingException {
-		HeaderBodyObject headerBodyObject = this.convertHeaderToObject(header);
-		PayloadBodyObject payloadBodyObject = this.convertPayloadToObject(payload);
-		MultipartMessageObject multipartMessageObject = new MultipartMessageObject();
-		multipartMessageObject.setHeader(headerBodyObject);
-		multipartMessageObject.setPayload(payloadBodyObject);
-		return multipartMessageObject;
 	}
 	
 	@Override

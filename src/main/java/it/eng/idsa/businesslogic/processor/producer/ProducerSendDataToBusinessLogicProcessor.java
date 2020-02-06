@@ -1,18 +1,32 @@
 package it.eng.idsa.businesslogic.processor.producer;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.ContentBody;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
+import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import nl.tno.ids.common.communication.HttpClientGenerator;
+import nl.tno.ids.common.config.keystore.AcceptAllTruststoreConfig;
 import nl.tno.ids.common.multipart.MultiPart;
 import nl.tno.ids.common.multipart.MultiPartMessage;
 import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
@@ -44,33 +58,99 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		String header = multipartMessageParts.get("header").toString();
 		String payload = multipartMessageParts.get("payload").toString();
 		
-		String multipartMessageJsonString = multiPartMessageServiceImpl.createMultipartMessageJson(messageWithToken, payload);
+//		String multipartMessageJsonString = multiPartMessageServiceImpl.createMultipartMessageJson(messageWithToken, payload);
 		
 		String forwardTo = headesParts.get("Forward-To").toString();
 		Message message = multiPartMessageServiceImpl.getMessage(header);
 		
-		String response = communicationMessageService.sendData(forwardTo, multipartMessageJsonString);
+//		String response = communicationMessageService.sendData(forwardTo, multipartMessageJsonString);
 		
-		if (response==null) {
-			logger.info("...communication error");
-			Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionMessage(message);
-			Builder builder = new MultiPartMessage.Builder();
-			builder.setHeader(rejectionCommunicationLocalIssues);
-			MultiPartMessage builtMessage = builder.build();
-			String stringMessage = MultiPart.toString(builtMessage, false);
-			exchange.getOut().setBody(stringMessage);
-			exchange.getOut().setHeader("Content-Type", builtMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed"));
-		}
-		else {
-			logger.info("data sent to destination "+forwardTo);
-			logger.info("response "+response);
-			MultiPartMessage multiPartMessage = MultiPart.parseString(response);
-			String multipartMessageString = MultiPart.toString(multiPartMessage, false);
-			String contentType = multiPartMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
-			exchange.getOut().setBody(multipartMessageString);
-			exchange.getOut().setHeader("Content-Type", contentType);
-		}
+		CloseableHttpResponse response = forwardMessageBinary(forwardTo, messageWithToken, payload);
+		
+		// Handle response
+		handleResponse(exchange, message, response);
+		
+		response.close();
+		
+//		if (response==null) {
+//			logger.info("...communication error");
+//			Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionMessage(message);
+//			Builder builder = new MultiPartMessage.Builder();
+//			builder.setHeader(rejectionCommunicationLocalIssues);
+//			MultiPartMessage builtMessage = builder.build();
+//			String stringMessage = MultiPart.toString(builtMessage, false);
+//			exchange.getOut().setBody(stringMessage);
+//			exchange.getOut().setHeader("Content-Type", builtMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed"));
+//		}
+//		else {
+//			logger.info("data sent to destination "+forwardTo);
+//			logger.info("response "+response);
+//			MultiPartMessage multiPartMessage = MultiPart.parseString(response);
+//			String multipartMessageString = MultiPart.toString(multiPartMessage, false);
+//			String contentType = multiPartMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
+//			exchange.getOut().setBody(multipartMessageString);
+//			exchange.getOut().setHeader("Content-Type", contentType);
+//		}
 		
 	}
+	
+	private CloseableHttpResponse forwardMessageBinary(String address, String header, String payload) throws ClientProtocolException, IOException {
+		logger.info("Forwarding Message: Body: form-data");
+
+		// Covert to ContentBody
+		ContentBody cbHeader = convertToContentBody(header, ContentType.DEFAULT_TEXT, "header");
+		ContentBody cbPayload = convertToContentBody(payload, ContentType.DEFAULT_TEXT, "payload");
+
+		// Set F address
+		HttpPost httpPost = new HttpPost(address);
+
+		HttpEntity reqEntity = MultipartEntityBuilder.create()
+				.addPart("header", cbHeader)
+				.addPart("payload", cbPayload)
+				.build();
+
+		httpPost.setEntity(reqEntity);
+
+		CloseableHttpResponse response = getHttpClient().execute(httpPost);
+
+		return response;
+	}
+	
+	private ContentBody convertToContentBody(String value, ContentType contentType, String valueName) throws UnsupportedEncodingException {
+		byte[] valueBiteArray = value.getBytes("utf-8");
+		ContentBody cbValue = new ByteArrayBody(valueBiteArray, contentType, valueName);
+		return cbValue;
+	}
+	
+	private CloseableHttpClient getHttpClient() {
+		AcceptAllTruststoreConfig config=new AcceptAllTruststoreConfig();
+
+		CloseableHttpClient httpClient = HttpClientGenerator.get(config);
+		logger.warn("Created Accept-All Http Client");
+
+		return httpClient;
+	}
+	
+	private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response) throws UnsupportedOperationException, IOException {
+		// TODO: Check if response is multipart
+		String responseString=new String(response.getEntity().getContent().readAllBytes());
+		logger.info("content type response received from the DataAPP="+response.getFirstHeader("Content-Type"));
+		logger.info("response received from the DataAPP="+responseString);
+		
+		int statusCode = response.getStatusLine().getStatusCode();
+		logger.info("status code of the response message is: " + statusCode);
+		if (statusCode >=300) { 
+			Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionMessage(message);
+			Builder builder = new MultiPartMessage.Builder();
+			builder.setHeader(rejectionCommunicationLocalIssues); 
+			MultiPartMessage builtMessage = builder.build(); 
+			String stringMessage = MultiPart.toString(builtMessage, false);
+			throw new ExceptionForProcessor(stringMessage);
+		}else { 
+			exchange.getOut().setBody(responseString);
+		}
+		 
+	}
+
 
 }

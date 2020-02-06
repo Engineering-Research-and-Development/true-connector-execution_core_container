@@ -174,11 +174,10 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 			String stringMessage = MultiPart.toString(builtMessage, false);
 			throw new ExceptionForProcessor(stringMessage);
 		}else { 
-			// Convert message to the JSON object multipart message
 			String	header = multiPartMessageServiceImpl.getHeader(responseString);
 			String payload = multiPartMessageServiceImpl.getPayload(responseString);
-			String multipartMessageJsonString = multiPartMessageServiceImpl.createMultipartMessageJson(header, payload);
-			exchange.getOut().setBody(multipartMessageJsonString);
+			exchange.getOut().setHeader("header", header);
+			exchange.getOut().setHeader("payload", payload);
 		}
 		 
 	}

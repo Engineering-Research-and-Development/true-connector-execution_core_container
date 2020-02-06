@@ -10,18 +10,12 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.domain.json.HeaderBodyObject;
-import it.eng.idsa.businesslogic.domain.json.MultipartMessageObject;
-import it.eng.idsa.businesslogic.domain.json.PayloadBodyObject;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import nl.tno.ids.common.multipart.MultiPart;
 import nl.tno.ids.common.multipart.MultiPartMessage;
 import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
-import nl.tno.ids.common.serialization.SerializationHelper;
 
 /**
  * 
@@ -45,10 +39,12 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 		Message message=null;
 		Map<String, Object> multipartMessageParts = new HashMap();
 		
-		// Get multipart message from the input "exchange"
-		String multipartMessage = exchange.getIn().getBody(String.class);
-		if(multipartMessage == null) {
-			logger.error("Multipart message is null");
+		if(
+			exchange.getIn().getHeaders().containsKey("header")==false || 
+			exchange.getIn().getHeaders().containsKey("payload")==false 
+			)
+		{
+			logger.error("Multipart message header or/and payload is null");
 			Message rejectionMessage = multiPartMessageServiceImpl.createRejectionMessage(message);
 			Builder builder = new MultiPartMessage.Builder();
 			builder.setHeader(rejectionMessage);
@@ -58,17 +54,13 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 		}
 		try {
 
-			// Create multipart message from the JSON
-			ObjectMapper mapper = new ObjectMapper();
-			MultipartMessageObject multipartMessageObject = mapper.readValue(multipartMessage, MultipartMessageObject.class);
-			HeaderBodyObject headerBodyObject = multipartMessageObject.getHeader();
-			PayloadBodyObject payloadBodyObject = multipartMessageObject.getPayload();
-			header = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(headerBodyObject);
+			// Create multipart message
+			header=exchange.getIn().getHeader("header").toString();
 			multipartMessageParts.put("header", header);
-			payload = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(payloadBodyObject);
+			payload=exchange.getIn().getHeader("payload").toString();
 			multipartMessageParts.put("payload", payload);
 			message=multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
-			
+						
 			// Return multipartMessageParts
 			exchange.getOut().setBody(multipartMessageParts);
 			
