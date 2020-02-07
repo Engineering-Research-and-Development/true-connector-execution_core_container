@@ -54,43 +54,28 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		Map<String, Object> headesParts = exchange.getIn().getHeaders();
 		Map<String, Object> multipartMessageParts = exchange.getIn().getBody(HashMap.class);
 		
-		String messageWithToken = multipartMessageParts.get("messageWithToken").toString();
+		String messageWithToken = null;
+		
+		if(Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
+			messageWithToken = multipartMessageParts.get("messageWithToken").toString();
+		}
 		String header = multipartMessageParts.get("header").toString();
 		String payload = multipartMessageParts.get("payload").toString();
-		
-//		String multipartMessageJsonString = multiPartMessageServiceImpl.createMultipartMessageJson(messageWithToken, payload);
 		
 		String forwardTo = headesParts.get("Forward-To").toString();
 		Message message = multiPartMessageServiceImpl.getMessage(header);
 		
-//		String response = communicationMessageService.sendData(forwardTo, multipartMessageJsonString);
-		
-		CloseableHttpResponse response = forwardMessageBinary(forwardTo, messageWithToken, payload);
+		CloseableHttpResponse response = null;
+		if(Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
+			response = forwardMessageBinary(forwardTo, messageWithToken, payload);
+		} else {
+			response = forwardMessageBinary(forwardTo, header, payload);
+		}
 		
 		// Handle response
 		handleResponse(exchange, message, response);
 		
 		response.close();
-		
-//		if (response==null) {
-//			logger.info("...communication error");
-//			Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionMessage(message);
-//			Builder builder = new MultiPartMessage.Builder();
-//			builder.setHeader(rejectionCommunicationLocalIssues);
-//			MultiPartMessage builtMessage = builder.build();
-//			String stringMessage = MultiPart.toString(builtMessage, false);
-//			exchange.getOut().setBody(stringMessage);
-//			exchange.getOut().setHeader("Content-Type", builtMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed"));
-//		}
-//		else {
-//			logger.info("data sent to destination "+forwardTo);
-//			logger.info("response "+response);
-//			MultiPartMessage multiPartMessage = MultiPart.parseString(response);
-//			String multipartMessageString = MultiPart.toString(multiPartMessage, false);
-//			String contentType = multiPartMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
-//			exchange.getOut().setBody(multipartMessageString);
-//			exchange.getOut().setHeader("Content-Type", contentType);
-//		}
 		
 	}
 	

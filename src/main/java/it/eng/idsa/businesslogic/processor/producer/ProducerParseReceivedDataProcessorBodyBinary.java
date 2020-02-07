@@ -30,6 +30,9 @@ import nl.tno.ids.common.serialization.SerializationHelper;
 public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 
 	private static final Logger logger = LogManager.getLogger(ProducerParseReceivedDataProcessorBodyBinary.class);
+	
+	@Value("${application.isEnabledDapsInteraction}")
+	private boolean isEnabledDapsInteraction;
 
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
@@ -61,6 +64,8 @@ public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 		}
 		try {
 			// Create headers parts
+			// Put in the header value of the application.property: application.isEnabledDapsInteraction
+			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
 			contentType = receivedDataHeader.get("Content-Type").toString();
 			headesParts.put("Content-Type", contentType);
 			forwardTo = receivedDataHeader.get("Forward-To").toString();

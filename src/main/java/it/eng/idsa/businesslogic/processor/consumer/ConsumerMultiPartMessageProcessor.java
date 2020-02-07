@@ -8,6 +8,7 @@ import org.apache.camel.Processor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
@@ -27,6 +28,9 @@ import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
 public class ConsumerMultiPartMessageProcessor implements Processor {
 	
 	private static final Logger logger = LogManager.getLogger(ConsumerMultiPartMessageProcessor.class);
+	
+	@Value("${application.isEnabledDapsInteraction}")
+	private boolean isEnabledDapsInteraction;
 
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
@@ -37,6 +41,7 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 		String header;
 		String payload;
 		Message message=null;
+		Map<String, Object> headesParts = new HashMap();
 		Map<String, Object> multipartMessageParts = new HashMap();
 		
 		if(
@@ -53,6 +58,10 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 			throw new ExceptionForProcessor(stringMessage);
 		}
 		try {
+			
+			// Create headers parts
+			// Put in the header value of the application.property: application.isEnabledDapsInteraction
+			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
 
 			// Create multipart message
 			header=exchange.getIn().getHeader("header").toString();
@@ -61,7 +70,8 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 			multipartMessageParts.put("payload", payload);
 			message=multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 						
-			// Return multipartMessageParts
+			// Return exchange
+			exchange.getOut().setHeaders(headesParts);
 			exchange.getOut().setBody(multipartMessageParts);
 			
 		} catch (Exception e) {

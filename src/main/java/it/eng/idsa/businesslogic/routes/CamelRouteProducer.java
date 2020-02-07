@@ -1,9 +1,12 @@
 package it.eng.idsa.businesslogic.routes;
 
+import java.nio.file.Path;
+
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
@@ -77,28 +80,62 @@ public class CamelRouteProducer extends RouteBuilder {
 		// Camel SSL - Endpoint: A - Body binary
 		from("jetty://https4://0.0.0.0:" + configuration.getCamelProducerPort() + "/incoming-data-app/multipartMessageBodyBinary")
 				.process(parseReceivedDataProcessorBodyBinary)
-				.process(getTokenFromDapsProcessor)
-//				.process(sendToActiveMQ)
-//				.process(receiveFromActiveMQ)
-				// Send data to Endpoint B
-				.process(sendDataToBusinessLogicProcessor)
-				.process(parseReceivedResponseMessage)
-				.process(validateTokenProcessor)
-		        .process(sendResponseToDataAppProcessor);
-//				.process(sendTransactionToCHProcessor);
+				.choice()
+					.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
+						.process(getTokenFromDapsProcessor)
+//						.process(sendToActiveMQ)
+//						.process(receiveFromActiveMQ)
+						// Send data to Endpoint B
+						.process(sendDataToBusinessLogicProcessor)
+						.process(parseReceivedResponseMessage)
+						.process(validateTokenProcessor)
+				        .process(sendResponseToDataAppProcessor)
+				        .choice()
+				        	.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
+							.process(sendTransactionToCHProcessor)
+						.endChoice()
+					.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
+//						.process(sendToActiveMQ)
+//						.process(receiveFromActiveMQ)
+						// Send data to Endpoint B
+						.process(sendDataToBusinessLogicProcessor)
+						.process(parseReceivedResponseMessage)
+						.process(sendResponseToDataAppProcessor)
+						.choice()
+							.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
+								.process(sendTransactionToCHProcessor)
+						.endChoice()
+				.endChoice();
 				
 		// Camel SSL - Endpoint: A - Body form-data
 		from("jetty://https4://0.0.0.0:" + configuration.getCamelProducerPort() + "/incoming-data-app/multipartMessageBodyFormData")
 				.process(parseReceivedDataProcessorBodyFormData)
-				.process(getTokenFromDapsProcessor)
-//				.process(sendToActiveMQ)
-//				.process(receiveFromActiveMQ)
-				// Send data to Endpoint B
-				.process(sendDataToBusinessLogicProcessor)
-				.process(parseReceivedResponseMessage)
-				.process(validateTokenProcessor)
-				.process(sendResponseToDataAppProcessor);
-//				.process(sendTransactionToCHProcessor);
+				.choice()
+					.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
+						.process(getTokenFromDapsProcessor)
+//						.process(sendToActiveMQ)
+//						.process(receiveFromActiveMQ)
+						// Send data to Endpoint B
+						.process(sendDataToBusinessLogicProcessor)
+						.process(parseReceivedResponseMessage)
+						.process(validateTokenProcessor)
+						.process(sendResponseToDataAppProcessor)
+						.choice()
+							.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
+								.process(sendTransactionToCHProcessor)
+						.endChoice()
+					.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
+	//					.process(sendToActiveMQ)
+	//					.process(receiveFromActiveMQ)
+						// Send data to Endpoint B
+						.process(sendDataToBusinessLogicProcessor)
+						.process(parseReceivedResponseMessage)
+						.process(sendResponseToDataAppProcessor)
+						.choice()
+							.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
+								.process(sendTransactionToCHProcessor)
+						.endChoice()
+				.endChoice();
 	}
 
 }

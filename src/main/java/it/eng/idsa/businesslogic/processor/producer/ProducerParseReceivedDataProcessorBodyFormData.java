@@ -8,6 +8,7 @@ import org.apache.camel.Processor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
@@ -29,6 +30,9 @@ public class ProducerParseReceivedDataProcessorBodyFormData implements Processor
 	
 	private static final Logger logger = LogManager.getLogger(ProducerParseReceivedDataProcessorBodyFormData.class);
 	
+	@Value("${application.isEnabledDapsInteraction}")
+	private boolean isEnabledDapsInteraction;
+	
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
 
@@ -48,6 +52,8 @@ public class ProducerParseReceivedDataProcessorBodyFormData implements Processor
 		
 		try {
 			// Create headers parts
+			// Put in the header value of the application.property: application.isEnabledDapsInteraction
+			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
 			contentType = receivedDataHeader.get("Content-Type").toString();
 			headesParts.put("Content-Type", contentType);
 			forwardTo = receivedDataHeader.get("Forward-To").toString();
