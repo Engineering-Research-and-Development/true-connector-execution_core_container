@@ -135,11 +135,10 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 	private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response, String forwardTo) throws UnsupportedOperationException, IOException {
 		if (response==null) {
 			logger.info("...communication error");
-			// Should use multiPartMessageServiceImpl: multiPartMessageServiceImpl.createRejectionCommunicationLocalIssues(message);
-			Message rejectionMessageLocalIssues = multiPartMessageServiceImpl
-					.createRejectionMessageLocalIssues(message);
+			Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl
+					.createRejectionCommunicationLocalIssues(message);
 			Builder builder = new MultiPartMessage.Builder();
-			builder.setHeader(rejectionMessageLocalIssues);
+			builder.setHeader(rejectionCommunicationLocalIssues);
 			MultiPartMessage builtMessage = builder.build();
 			String stringMessage = MultiPart.toString(builtMessage, false);
 			throw new ExceptionForProcessor(stringMessage);
@@ -161,7 +160,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 				throw new ExceptionForProcessor(stringMessage);
 			}else {
 				logger.info("data sent to destination "+forwardTo);
-				logger.info("Successful response: "+ new String(response.getEntity().getContent().readAllBytes()));
+				logger.info("Successful response: "+ responseString);
 				exchange.getOut().setBody(responseString);
 			}
 		}

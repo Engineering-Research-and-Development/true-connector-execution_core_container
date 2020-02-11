@@ -61,12 +61,19 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 		MultiPartMessage deserializedMultipartMessage = MultiPart.parseString(body);
 		return deserializedMultipartMessage.getPayload();
 	}
-
+	
 	@Override
-	public Message getMessage(String body) {
-		MultiPartMessage deserializedMultipartMessage = MultiPart.parseString(body);
-		return deserializedMultipartMessage.getHeader();
-	}
+	public Message getMessage(String header) {
+		Message message = null;
+		try {
+			message = SerializationHelper.getInstance().fromJsonLD(header, Message.class);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return message;
+	} 
+	 
+
 	
 	@Override
 	public String addToken(Message message, String token) {
