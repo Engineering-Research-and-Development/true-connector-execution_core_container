@@ -55,8 +55,10 @@ public class ProducerParseReceivedResponseMessage implements Processor {
 			// Create multipart message parts
 			header=multiPartMessageServiceImpl.getHeader(multipartMessage);
 			multipartMessageParts.put("header", header);
-			payload=multiPartMessageServiceImpl.getPayload(multipartMessage);
-			multipartMessageParts.put("payload", payload);
+			if(multiPartMessageServiceImpl.getPayload(multipartMessage)!=null) {
+				payload=multiPartMessageServiceImpl.getPayload(multipartMessage);
+				multipartMessageParts.put("payload", payload);
+			}
 			message=multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 			
 			// Return multipartMessageParts

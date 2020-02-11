@@ -129,7 +129,9 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 	public HttpEntity createMultipartMessage(String header, String payload, String frowardTo) {
 		MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
 		multipartEntityBuilder.addTextBody("header", header);
-		multipartEntityBuilder.addTextBody("payload", payload);
+		if(payload != null) {
+			multipartEntityBuilder.addTextBody("payload", payload);
+		}
 		if(frowardTo!=null) {
 			multipartEntityBuilder.addTextBody("forwardTo", frowardTo);
 		}
@@ -148,16 +150,18 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 			};
 			bodyHeaderPart.addField("Content-Lenght", ""+header.length());
 
-			FormBodyPart bodyPayloadPart;
-			bodyPayloadPart=new FormBodyPart("payload", new StringBody(payload, ContentType.DEFAULT_TEXT)) {
-				@Override
-				protected void generateContentType(ContentBody body) {
-				}
-				@Override
-				protected void generateTransferEncoding(ContentBody body){
-				}
-			};
-			bodyPayloadPart.addField("Content-Lenght", ""+payload.length());
+			FormBodyPart bodyPayloadPart=null;
+			if(payload != null) {
+				bodyPayloadPart=new FormBodyPart("payload", new StringBody(payload, ContentType.DEFAULT_TEXT)) {
+					@Override
+					protected void generateContentType(ContentBody body) {
+					}
+					@Override
+					protected void generateTransferEncoding(ContentBody body){
+					}
+				};
+				bodyPayloadPart.addField("Content-Lenght", ""+payload.length());
+			}
 
 			FormBodyPart headerForwardTo=null;
 			if(frowardTo!=null) {
@@ -176,7 +180,9 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 				multipartEntityBuilder.addPart(headerForwardTo);
 			}
 			multipartEntityBuilder.addPart(bodyHeaderPart);
-			multipartEntityBuilder.addPart(bodyPayloadPart);
+			if(payload != null) {
+				multipartEntityBuilder.addPart(bodyPayloadPart);
+			}
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -200,7 +206,6 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 		}
 		return token;
 	}
-
 
 	public Message createResultMessage(Message header) {
 		return new ResultMessageBuilder()

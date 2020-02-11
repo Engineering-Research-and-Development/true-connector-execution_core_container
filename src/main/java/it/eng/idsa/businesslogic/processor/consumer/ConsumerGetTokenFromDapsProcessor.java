@@ -54,7 +54,8 @@ private static final Logger logger = LogManager.getLogger(ProducerGetTokenFromDa
 			builder.setHeader(rejectionMessageLocalIssues);
 			MultiPartMessage builtMessage = builder.build();
 			String stringMessage = MultiPart.toString(builtMessage, false);
-			throw new ExceptionForProcessor(stringMessage);
+			exchange.getOut().setHeader("header", stringMessage);
+			exchange.getOut().setHeader("payload", "RejectionMessage");
 		}
 		if (message==null) {
 			logger.error("Parsed multipart message is null");
@@ -64,7 +65,8 @@ private static final Logger logger = LogManager.getLogger(ProducerGetTokenFromDa
 			builder.setHeader(rejectionMessageLocalIssues);
 			MultiPartMessage builtMessage = builder.build();
 			String stringMessage = MultiPart.toString(builtMessage, false);
-			throw new ExceptionForProcessor(stringMessage);
+			exchange.getOut().setHeader("header", stringMessage);
+			exchange.getOut().setHeader("payload", "RejectionMessage");
 		}
 		
 		// Get the Token from the DAPS
@@ -80,7 +82,8 @@ private static final Logger logger = LogManager.getLogger(ProducerGetTokenFromDa
 			builder.setHeader(rejectionTokenLocalIssues);
 			MultiPartMessage builtMessage = builder.build();
 			String stringMessage = MultiPart.toString(builtMessage, false);
-			throw new ExceptionForProcessor(stringMessage);
+			exchange.getOut().setHeader("header", stringMessage);
+			exchange.getOut().setHeader("payload", "RejectionMessage");
 		}
 		if (token.isEmpty()) {
 			logger.error("The token from the DAPS server is empty");
@@ -90,7 +93,8 @@ private static final Logger logger = LogManager.getLogger(ProducerGetTokenFromDa
 			builder.setHeader(rejectionTokenLocalIssues);
 			MultiPartMessage builtMessage = builder.build();
 			String stringMessage = MultiPart.toString(builtMessage, false);
-			throw new ExceptionForProcessor(stringMessage);
+			exchange.getOut().setHeader("header", stringMessage);
+			exchange.getOut().setHeader("payload", "RejectionMessage");
 		}
 		
 		logger.info("token=" + token);

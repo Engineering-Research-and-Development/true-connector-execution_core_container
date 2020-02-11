@@ -88,16 +88,18 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 			builder.setHeader(rejectionCommunicationLocalIssues);
 			MultiPartMessage builtMessage = builder.build();
 			String stringMessage = MultiPart.toString(builtMessage, false);
-			exchange.getOut().setBody(stringMessage);
-			exchange.getOut().setHeader("Content-Type", builtMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed"));
+			exchange.getOut().setHeader("header", stringMessage);
+			exchange.getOut().setHeader("payload", "RejectionMessage");
 			logger.error("Applicaton property: application.openDataAppReceiverRouter is not properly set");
 			break;
 		}
 
 		// Handle response
-		handleResponse(exchange, message, response);
+		handleResponse(exchange, message, response, configuration.getOpenDataAppReceiver());
 
-		response.close();	
+		if(response!=null) {
+			response.close();
+		}	
 
 	}
 
@@ -118,7 +120,19 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 
 		httpPost.setEntity(reqEntity);
 
-		CloseableHttpResponse response = getHttpClient().execute(httpPost);
+		CloseableHttpResponse response;
+		
+		try {
+			response = getHttpClient().execute(httpPost);
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 
 		return response;
 	}
@@ -132,7 +146,19 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		HttpEntity reqEntity = multiPartMessageServiceImpl.createMultipartMessage(header, payload, null);
 		httpPost.setEntity(reqEntity);
 
-		CloseableHttpResponse response = getHttpClient().execute(httpPost);
+		CloseableHttpResponse response;
+		
+		try {
+			response = getHttpClient().execute(httpPost);
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 
 		return response;
 	}
@@ -158,28 +184,42 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		return cbValue;
 	}
 
-	private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response) throws UnsupportedOperationException, IOException {
-		// TODO: Check if response is multipart
-		String responseString=new String(response.getEntity().getContent().readAllBytes());
-		logger.info("content type response received from the DataAPP="+response.getFirstHeader("Content-Type"));
-		logger.info("response received from the DataAPP="+responseString);
-		
-		int statusCode = response.getStatusLine().getStatusCode();
-		logger.info("status code of the response message is: " + statusCode);
-		if (statusCode >=300) { 
-			Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionMessage(message);
+	private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response, String openApiDataAppAddress) throws UnsupportedOperationException, IOException {
+		if (response==null) {
+			logger.info("...communication error with: " + openApiDataAppAddress);
+			Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl
+					.createRejectionCommunicationLocalIssues(message);
 			Builder builder = new MultiPartMessage.Builder();
-			builder.setHeader(rejectionCommunicationLocalIssues); 
-			MultiPartMessage builtMessage = builder.build(); 
+			builder.setHeader(rejectionCommunicationLocalIssues);
+			MultiPartMessage builtMessage = builder.build();
 			String stringMessage = MultiPart.toString(builtMessage, false);
-			throw new ExceptionForProcessor(stringMessage);
-		}else { 
-			String	header = multiPartMessageServiceImpl.getHeader(responseString);
-			String payload = multiPartMessageServiceImpl.getPayload(responseString);
-			exchange.getOut().setHeader("header", header);
-			exchange.getOut().setHeader("payload", payload);
+			exchange.getOut().setHeader("header", stringMessage);
+			exchange.getOut().setHeader("payload", "RejectionMessage");
+		} else {
+			String responseString=new String(response.getEntity().getContent().readAllBytes());
+			logger.info("content type response received from the DataAPP="+response.getFirstHeader("Content-Type"));
+			logger.info("response received from the DataAPP="+responseString);
+
+			int statusCode = response.getStatusLine().getStatusCode();
+			logger.info("status code of the response message is: " + statusCode);
+			if (statusCode >=300) { 
+				logger.info("data sent to destination: "+openApiDataAppAddress);
+				Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionMessage(message);
+				Builder builder = new MultiPartMessage.Builder();
+				builder.setHeader(rejectionCommunicationLocalIssues); 
+				MultiPartMessage builtMessage = builder.build(); 
+				String stringMessage = MultiPart.toString(builtMessage, false);
+				exchange.getOut().setHeader("header", stringMessage);
+				exchange.getOut().setHeader("payload", "RejectionMessage");
+			}else { 
+				logger.info("data sent to destination: "+openApiDataAppAddress);
+				logger.info("Successful response: "+ responseString);
+				String	header = multiPartMessageServiceImpl.getHeader(responseString);
+				String payload = multiPartMessageServiceImpl.getPayload(responseString);
+				exchange.getOut().setHeader("header", header);
+				exchange.getOut().setHeader("payload", payload);
+			}
 		}
-		 
 	}
 
 }

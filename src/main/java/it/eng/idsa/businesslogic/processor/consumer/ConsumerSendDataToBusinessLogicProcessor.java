@@ -48,7 +48,10 @@ public class ConsumerSendDataToBusinessLogicProcessor implements Processor {
 		
 		// Get header, payload and message
 		String header = multipartMessagePartsReceived.get("header").toString();
-		String payload = multipartMessagePartsReceived.get("payload").toString();
+		String payload = null;
+		if(multipartMessagePartsReceived.containsKey("payload")) {
+			payload = multipartMessagePartsReceived.get("payload").toString();
+		}
 		
 		// Prepare multipart message as string
 		HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(header, payload, null);

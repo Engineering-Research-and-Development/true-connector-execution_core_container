@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.eng.idsa.businesslogic.domain.json.HeaderBodyForOpenApiObject;
+import it.eng.idsa.businesslogic.domain.json.HeaderBodyForOpenApiRejectMessageObject;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import nl.tno.ids.common.multipart.MultiPart;
 import nl.tno.ids.common.multipart.MultiPartMessage;
@@ -45,9 +46,14 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 		// Put in the header value of the application.property: application.isEnabledClearingHouse
 		headesParts.put("Is-Enabled-Clearing-House", isEnabledClearingHouse);
 		
-		// Get header, payload and message
-		String header = this.filterHeader(multipartMessagePartsReceived.get("header").toString());
-		String payload = multipartMessagePartsReceived.get("payload").toString();
+		String payload = null;
+		String header = null;
+		if(multipartMessagePartsReceived.get("payload")!=null) {
+			header = this.filterHeader(multipartMessagePartsReceived.get("header").toString());
+			payload = multipartMessagePartsReceived.get("payload").toString();
+		} else {
+			header = this.filterRejectionMessageHeader(multipartMessagePartsReceived.get("header").toString());
+		}
 		
 		// Prepare multipart message as string
 		HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(header, payload, null);
@@ -66,6 +72,12 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 	private String filterHeader(String header) throws JsonMappingException, JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper();
 		HeaderBodyForOpenApiObject headerBodyForOpenApiObject = mapper.readValue(header, HeaderBodyForOpenApiObject.class);
+		return mapper.writeValueAsString(headerBodyForOpenApiObject);
+	}
+	
+	private String filterRejectionMessageHeader(String header) throws JsonMappingException, JsonProcessingException {
+		ObjectMapper mapper = new ObjectMapper();
+		HeaderBodyForOpenApiRejectMessageObject headerBodyForOpenApiObject = mapper.readValue(header, HeaderBodyForOpenApiRejectMessageObject.class);
 		return mapper.writeValueAsString(headerBodyForOpenApiObject);
 	}
 	

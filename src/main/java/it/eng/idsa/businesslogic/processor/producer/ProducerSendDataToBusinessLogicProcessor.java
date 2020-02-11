@@ -151,7 +151,6 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 			logger.info("status code of the response message is: " + statusCode);
 			if (statusCode >=300) { 
 				logger.info("data sent to destination "+forwardTo);
-				logger.info("Bad response: "+ new String(response.getEntity().getContent().readAllBytes()));
 				Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionMessage(message);
 				Builder builder = new MultiPartMessage.Builder();
 				builder.setHeader(rejectionCommunicationLocalIssues); 
@@ -159,6 +158,8 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 				String stringMessage = MultiPart.toString(builtMessage, false);
 				throw new ExceptionForProcessor(stringMessage);
 			}else {
+				
+				
 				logger.info("data sent to destination "+forwardTo);
 				logger.info("Successful response: "+ responseString);
 				exchange.getOut().setBody(responseString);

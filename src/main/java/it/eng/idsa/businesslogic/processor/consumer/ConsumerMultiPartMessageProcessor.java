@@ -55,7 +55,8 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 			builder.setHeader(rejectionMessage);
 			MultiPartMessage builtMessage = builder.build();
 			String stringMessage = MultiPart.toString(builtMessage, false);
-			throw new ExceptionForProcessor(stringMessage);
+			exchange.getOut().setHeader("header", stringMessage);
+			exchange.getOut().setHeader("payload", "RejectionMessage");
 		}
 		try {
 			
@@ -63,12 +64,19 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 			// Put in the header value of the application.property: application.isEnabledDapsInteraction
 			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
 
-			// Create multipart message
-			header=exchange.getIn().getHeader("header").toString();
-			multipartMessageParts.put("header", header);
 			payload=exchange.getIn().getHeader("payload").toString();
-			multipartMessageParts.put("payload", payload);
-			message=multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
+			if(payload.equals("RejectionMessage")) {
+				// Create multipart message
+				header= multiPartMessageServiceImpl.getHeader(exchange.getIn().getHeader("header").toString());
+				multipartMessageParts.put("header", header);
+			} else {
+				// Create multipart message
+				header=exchange.getIn().getHeader("header").toString();
+				multipartMessageParts.put("header", header);
+				payload=exchange.getIn().getHeader("payload").toString();
+				multipartMessageParts.put("payload", payload);
+				message=multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
+			}
 						
 			// Return exchange
 			exchange.getOut().setHeaders(headesParts);
@@ -81,7 +89,8 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 			builder.setHeader(rejectionMessage);
 			MultiPartMessage builtMessage = builder.build();
 			String stringMessage = MultiPart.toString(builtMessage, false);
-			throw new ExceptionForProcessor(stringMessage);
+			exchange.getOut().setHeader("header", stringMessage);
+			exchange.getOut().setHeader("payload", "RejectionMessage");
 			
 		}
 	}
