@@ -12,9 +12,12 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.FormBodyPart;
+import org.apache.http.entity.mime.FormBodyPartBuilder;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.ContentBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -73,15 +76,17 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		}
 		
 		// Handle response
-		handleResponse(exchange, message, response);
+		handleResponse(exchange, message, response, forwardTo);
 		
-		response.close();
+		if(response!=null) {
+			response.close();
+		}
 		
 	}
 	
-	private CloseableHttpResponse forwardMessageBinary(String address, String header, String payload) throws ClientProtocolException, IOException {
+	private CloseableHttpResponse forwardMessageBinary(String address, String header, String payload) throws UnsupportedEncodingException {
 		logger.info("Forwarding Message: Body: form-data");
-
+		
 		// Covert to ContentBody
 		ContentBody cbHeader = convertToContentBody(header, ContentType.DEFAULT_TEXT, "header");
 		ContentBody cbPayload = convertToContentBody(payload, ContentType.DEFAULT_TEXT, "payload");
@@ -96,7 +101,18 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 
 		httpPost.setEntity(reqEntity);
 
-		CloseableHttpResponse response = getHttpClient().execute(httpPost);
+		CloseableHttpResponse response;
+		try {
+			response = getHttpClient().execute(httpPost);
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 
 		return response;
 	}
@@ -116,25 +132,39 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		return httpClient;
 	}
 	
-	private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response) throws UnsupportedOperationException, IOException {
-		// TODO: Check if response is multipart
-		String responseString=new String(response.getEntity().getContent().readAllBytes());
-		logger.info("content type response received from the DataAPP="+response.getFirstHeader("Content-Type"));
-		logger.info("response received from the DataAPP="+responseString);
-		
-		int statusCode = response.getStatusLine().getStatusCode();
-		logger.info("status code of the response message is: " + statusCode);
-		if (statusCode >=300) { 
-			Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionMessage(message);
+	private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response, String forwardTo) throws UnsupportedOperationException, IOException {
+		if (response==null) {
+			logger.info("...communication error");
+			// Should use multiPartMessageServiceImpl: multiPartMessageServiceImpl.createRejectionCommunicationLocalIssues(message);
+			Message rejectionMessageLocalIssues = multiPartMessageServiceImpl
+					.createRejectionMessageLocalIssues(message);
 			Builder builder = new MultiPartMessage.Builder();
-			builder.setHeader(rejectionCommunicationLocalIssues); 
-			MultiPartMessage builtMessage = builder.build(); 
+			builder.setHeader(rejectionMessageLocalIssues);
+			MultiPartMessage builtMessage = builder.build();
 			String stringMessage = MultiPart.toString(builtMessage, false);
 			throw new ExceptionForProcessor(stringMessage);
-		}else { 
-			exchange.getOut().setBody(responseString);
+		} else {
+			String responseString=new String(response.getEntity().getContent().readAllBytes());
+			logger.info("content type response received from the DataAPP="+response.getFirstHeader("Content-Type"));
+			logger.info("response received from the DataAPP="+responseString);
+			
+			int statusCode = response.getStatusLine().getStatusCode();
+			logger.info("status code of the response message is: " + statusCode);
+			if (statusCode >=300) { 
+				logger.info("data sent to destination "+forwardTo);
+				logger.info("Bad response: "+ new String(response.getEntity().getContent().readAllBytes()));
+				Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionMessage(message);
+				Builder builder = new MultiPartMessage.Builder();
+				builder.setHeader(rejectionCommunicationLocalIssues); 
+				MultiPartMessage builtMessage = builder.build(); 
+				String stringMessage = MultiPart.toString(builtMessage, false);
+				throw new ExceptionForProcessor(stringMessage);
+			}else {
+				logger.info("data sent to destination "+forwardTo);
+				logger.info("Successful response: "+ new String(response.getEntity().getContent().readAllBytes()));
+				exchange.getOut().setBody(responseString);
+			}
 		}
-		 
 	}
 
 
