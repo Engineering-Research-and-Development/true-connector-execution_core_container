@@ -1,6 +1,7 @@
 package it.eng.idsa.businesslogic.domain.json;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -31,8 +32,8 @@ public class HeaderBodyForOpenApiRejectMessageObject implements Serializable {
 	@JsonProperty("modelVersion")
 	public String modelVersion;
 	
-//	@JsonProperty("recipientConnector")
-//	public String recipientConnector;
+	@JsonProperty("recipientConnector")
+	public ArrayList<String> recipientConnector;
 	
 	@JsonProperty("correlationMessage")
 	public String correlationMessage;
