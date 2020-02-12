@@ -85,6 +85,18 @@ private static final Logger logger = LogManager.getLogger(ProducerGetTokenFromDa
 			exchange.getOut().setHeader("header", stringMessage);
 			exchange.getOut().setHeader("payload", "RejectionMessage");
 		}
+		
+		if(token==null) {
+			logger.error("Can not get the token from the DAPS server");
+			Message rejectionTokenLocalIssues = multiPartMessageServiceImpl
+					.createRejectionCommunicationLocalIssues(message);
+			Builder builder = new MultiPartMessage.Builder();
+			builder.setHeader(rejectionTokenLocalIssues);
+			MultiPartMessage builtMessage = builder.build();
+			String stringMessage = MultiPart.toString(builtMessage, false);
+			throw new ExceptionForProcessor(stringMessage);
+		}
+		
 		if (token.isEmpty()) {
 			logger.error("The token from the DAPS server is empty");
 			Message rejectionTokenLocalIssues = multiPartMessageServiceImpl
