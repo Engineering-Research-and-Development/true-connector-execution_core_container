@@ -88,10 +88,8 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 			builder.setHeader(rejectionCommunicationLocalIssues);
 			MultiPartMessage builtMessage = builder.build();
 			String stringMessage = MultiPart.toString(builtMessage, false);
-			exchange.getOut().setHeader("header", stringMessage);
-			exchange.getOut().setHeader("payload", "RejectionMessage");
 			logger.error("Applicaton property: application.openDataAppReceiverRouter is not properly set");
-			break;
+			throw new ExceptionForProcessor(stringMessage);
 		}
 
 		// Handle response
@@ -193,8 +191,7 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 			builder.setHeader(rejectionCommunicationLocalIssues);
 			MultiPartMessage builtMessage = builder.build();
 			String stringMessage = MultiPart.toString(builtMessage, false);
-			exchange.getOut().setHeader("header", stringMessage);
-			exchange.getOut().setHeader("payload", "RejectionMessage");
+			throw new ExceptionForProcessor(stringMessage);
 		} else {
 			String responseString=new String(response.getEntity().getContent().readAllBytes());
 			logger.info("content type response received from the DataAPP="+response.getFirstHeader("Content-Type"));
@@ -209,8 +206,7 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 				builder.setHeader(rejectionCommunicationLocalIssues); 
 				MultiPartMessage builtMessage = builder.build(); 
 				String stringMessage = MultiPart.toString(builtMessage, false);
-				exchange.getOut().setHeader("header", stringMessage);
-				exchange.getOut().setHeader("payload", "RejectionMessage");
+				throw new ExceptionForProcessor(stringMessage);
 			}else { 
 				logger.info("data sent to destination: "+openApiDataAppAddress);
 				logger.info("Successful response: "+ responseString);

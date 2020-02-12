@@ -47,7 +47,9 @@ public class HeaderBodyForOpenApiRejectMessageObject implements Serializable {
 	@Override
 	public String toString() {
 		return "HeaderBodyForOpenApiRejectMessageObject [context=" + context + ", type=" + type + ", issuerConnector="
-				+ issuerConnector + ", issued=" + issued + ", modelVersion=" + modelVersion + ", correlationMessage="
-				+ correlationMessage + ", id=" + id + ", rejectionReason=" + rejectionReason + "]";
+				+ issuerConnector + ", issued=" + issued + ", modelVersion=" + modelVersion + ", recipientConnector="
+				+ recipientConnector + ", correlationMessage=" + correlationMessage + ", id=" + id
+				+ ", rejectionReason=" + rejectionReason + "]";
 	}
+
 }

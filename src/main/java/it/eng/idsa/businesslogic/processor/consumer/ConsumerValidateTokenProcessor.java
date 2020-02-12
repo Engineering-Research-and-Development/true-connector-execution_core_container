@@ -59,8 +59,7 @@ public class ConsumerValidateTokenProcessor implements Processor {
 			builder.setHeader(rejectionToken);
 			MultiPartMessage builtMessage = builder.build();
 			String stringMessage = MultiPart.toString(builtMessage, false);
-			exchange.getOut().setHeader("header", stringMessage);
-			exchange.getOut().setHeader("payload", "RejectionMessage");
+			throw new ExceptionForProcessor(stringMessage);
 		}
 		
 		logger.info("is token valid: "+isTokenValid);

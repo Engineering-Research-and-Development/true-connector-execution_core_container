@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
-import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessor;
+import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorProducer;
 import it.eng.idsa.businesslogic.processor.producer.ProducerGetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.producer.ProducerParseReceivedDataProcessorBodyBinary;
 import it.eng.idsa.businesslogic.processor.producer.ProducerParseReceivedDataProcessorBodyFormData;
@@ -68,7 +68,7 @@ public class CamelRouteProducer extends RouteBuilder {
 	ProducerSendResponseToDataAppProcessor sendResponseToDataAppProcessor;
 
 	@Autowired
-	ExceptionProcessor processorException;
+	ExceptionProcessorProducer processorException;
 
 	@Override
 	public void configure() throws Exception {

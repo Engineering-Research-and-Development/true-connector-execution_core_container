@@ -16,7 +16,7 @@ import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
  */
 
 @Component
-public class ExceptionProcessor implements Processor {
+public class ExceptionProcessorProducer implements Processor {
 
 	@Override
 	public void process(Exchange exchange) throws Exception {

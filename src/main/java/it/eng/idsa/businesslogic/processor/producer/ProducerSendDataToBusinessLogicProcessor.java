@@ -144,7 +144,6 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 			throw new ExceptionForProcessor(stringMessage);
 		} else {
 			String responseString=new String(response.getEntity().getContent().readAllBytes());
-			logger.info("content type response received from the DataAPP="+response.getFirstHeader("Content-Type"));
 			logger.info("response received from the DataAPP="+responseString);
 			
 			int statusCode = response.getStatusLine().getStatusCode();
@@ -158,8 +157,6 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 				String stringMessage = MultiPart.toString(builtMessage, false);
 				throw new ExceptionForProcessor(stringMessage);
 			}else {
-				
-				
 				logger.info("data sent to destination "+forwardTo);
 				logger.info("Successful response: "+ responseString);
 				exchange.getOut().setBody(responseString);

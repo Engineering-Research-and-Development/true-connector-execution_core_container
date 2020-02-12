@@ -49,10 +49,16 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 		String payload = null;
 		String header = null;
 		if(multipartMessagePartsReceived.get("payload")!=null) {
-			header = this.filterHeader(multipartMessagePartsReceived.get("header").toString());
 			payload = multipartMessagePartsReceived.get("payload").toString();
+			if(payload.equals("RejectionMessage\n")) {
+				header = this.filterRejectionMessageHeader(multipartMessagePartsReceived.get("header").toString());
+				payload = null;
+			}else {
+				header = this.filterHeader(multipartMessagePartsReceived.get("header").toString());
+				payload = multipartMessagePartsReceived.get("payload").toString();
+			}
 		} else {
-			header = this.filterRejectionMessageHeader(multipartMessagePartsReceived.get("header").toString());
+			header = this.filterHeader(multipartMessagePartsReceived.get("header").toString());
 		}
 		
 		// Prepare multipart message as string

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import it.eng.idsa.businesslogic.processor.consumer.ConsumerExceptionMultiPartMessageProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerGetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerMultiPartMessageProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerReceiveFromActiveMQ;
@@ -16,7 +17,8 @@ import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendToActiveMQ;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
-import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessor;
+import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorProducer;
+import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorConsumer;
 
 /**
  * 
@@ -51,7 +53,7 @@ public class CamelRouteConsumer extends RouteBuilder {
 	ConsumerSendTransactionToCHProcessor sendTransactionToCHProcessor;
 	
 	@Autowired
-	ExceptionProcessor processorException;
+	ExceptionProcessorConsumer exceptionProcessorConsumer;
 	
 	@Autowired
 	ConsumerGetTokenFromDapsProcessor getTokenFromDapsProcessor;
@@ -59,12 +61,31 @@ public class CamelRouteConsumer extends RouteBuilder {
 	@Autowired
 	ConsumerSendDataToBusinessLogicProcessor sendDataToBusinessLogicProcessor;
 	
+	@Autowired
+	ConsumerExceptionMultiPartMessageProcessor exceptionMultiPartMessageProcessor;
+	
 	@Override
 	public void configure() throws Exception {
 
 		onException(ExceptionForProcessor.class, RuntimeException.class)
 			.handled(true)
-			.process(processorException);
+			.process(exceptionProcessorConsumer)
+			.process(exceptionMultiPartMessageProcessor)
+			.choice()
+				.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
+					.process(getTokenFromDapsProcessor)
+					.process(sendDataToBusinessLogicProcessor)
+					.choice()
+						.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
+						.process(sendTransactionToCHProcessor)
+					.endChoice()
+				.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
+					.process(sendDataToBusinessLogicProcessor)
+					.choice()
+						.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
+						.process(sendTransactionToCHProcessor)
+					.endChoice()
+			.endChoice();
 
 		// Camel SSL - Endpoint: B		
 		from("jetty://https4://0.0.0.0:"+configuration.getCamelConsumerPort()+"/incoming-data-channel/receivedMessage")

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
+import it.eng.idsa.businesslogic.processor.consumer.ConsumerMultiPartMessageProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import nl.tno.ids.common.multipart.MultiPart;
@@ -25,19 +26,19 @@ import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
  */
 
 @Component
-public class ConsumerMultiPartMessageProcessor implements Processor {
-	
-	private static final Logger logger = LogManager.getLogger(ConsumerMultiPartMessageProcessor.class);
+public class ConsumerExceptionMultiPartMessageProcessor implements Processor {
+
+	private static final Logger logger = LogManager.getLogger(ConsumerExceptionMultiPartMessageProcessor.class);
 	
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean isEnabledDapsInteraction;
-
+	
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		
+
 		String header;
 		String payload;
 		Message message=null;
@@ -45,8 +46,7 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 		Map<String, Object> multipartMessageParts = new HashMap();
 		
 		if(
-			exchange.getIn().getHeaders().containsKey("header")==false || 
-			exchange.getIn().getHeaders().containsKey("payload")==false 
+			exchange.getIn().getHeaders().containsKey("header")==false
 			)
 		{
 			logger.error("Multipart message header or/and payload is null");
@@ -57,26 +57,19 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 			String stringMessage = MultiPart.toString(builtMessage, false);
 			throw new ExceptionForProcessor(stringMessage);
 		}
+		
 		try {
 			
 			// Create headers parts
 			// Put in the header value of the application.property: application.isEnabledDapsInteraction
 			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
-
+			
+			header= multiPartMessageServiceImpl.getHeader(exchange.getIn().getHeader("header").toString());
+			multipartMessageParts.put("header", header);
 			payload=exchange.getIn().getHeader("payload").toString();
-			if(payload.equals("RejectionMessage")) {
-				// Create multipart message
-				header= multiPartMessageServiceImpl.getHeader(exchange.getIn().getHeader("header").toString());
-				multipartMessageParts.put("header", header);
-			} else {
-				// Create multipart message
-				header=exchange.getIn().getHeader("header").toString();
-				multipartMessageParts.put("header", header);
-				payload=exchange.getIn().getHeader("payload").toString();
-				multipartMessageParts.put("payload", payload);
-				message=multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
-			}
-						
+			multipartMessageParts.put("payload", payload);
+			message=multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
+			
 			// Return exchange
 			exchange.getOut().setHeaders(headesParts);
 			exchange.getOut().setBody(multipartMessageParts);
@@ -89,8 +82,7 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 			MultiPartMessage builtMessage = builder.build();
 			String stringMessage = MultiPart.toString(builtMessage, false);
 			throw new ExceptionForProcessor(stringMessage);
-			
 		}
 	}
-	
+
 }
