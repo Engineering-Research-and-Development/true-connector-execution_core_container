@@ -103,10 +103,6 @@ public class IncomingDataChannelResource {
 		//return ResponseEntity.ok().build();
 	}
 
-
-
-
-
 	// Alternative solution
 	@PostMapping("/receivedMessage")
 	public ResponseEntity<?> postReceivedMessage(@RequestBody String data){

@@ -16,6 +16,8 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
  * 
@@ -31,11 +33,11 @@ public class ProducerSendDataToDestinationProcessor implements Processor {
 	@Autowired
 	private ApplicationConfiguration configuration;
 	
-//	@Autowired
-//	private CommunicationServiceImpl communicationMessageService;
-	
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	
+	@Autowired
+	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
 	
 	@Autowired
 	private CommunicationServiceImpl communicationServiceImpl;
@@ -57,7 +59,9 @@ public class ProducerSendDataToDestinationProcessor implements Processor {
 		
 		if (response==null) {
 			logger.info("...communication error");
-			multiPartMessageServiceImpl.createRejectionCommunicationLocalIssues(message);
+			rejectionMessageServiceImpl.sendRejectionMessage(
+					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, 
+					message);
 		}
 		else {
 			logger.info("data sent to destination "+forwardTo);

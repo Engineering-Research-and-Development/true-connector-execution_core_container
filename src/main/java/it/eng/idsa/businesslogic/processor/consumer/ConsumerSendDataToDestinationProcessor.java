@@ -16,6 +16,8 @@ import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import nl.tno.ids.common.multipart.MultiPart;
 import nl.tno.ids.common.multipart.MultiPartMessage;
 import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
@@ -36,6 +38,9 @@ public class ConsumerSendDataToDestinationProcessor implements Processor {
 	
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	
+	@Autowired
+	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
 	
 	@Autowired
 	private CommunicationServiceImpl communicationServiceImpl;
@@ -59,13 +64,9 @@ public class ConsumerSendDataToDestinationProcessor implements Processor {
 			String response = communicationServiceImpl.sendData("http://"+configuration.getActivemqAddress()+"/api/message/outcoming?type=queue", entity);
 			if (response==null) {
 				logger.info("...communication error");
-				Message rejectionMessageLocalIssues = multiPartMessageServiceImpl
-						.createRejectionMessageLocalIssues(message);
-				Builder builder = new MultiPartMessage.Builder();
-				builder.setHeader(rejectionMessageLocalIssues);
-				MultiPartMessage builtMessage = builder.build();
-				String stringMessage = MultiPart.toString(builtMessage, false);
-				throw new ExceptionForProcessor(stringMessage);
+				rejectionMessageServiceImpl.sendRejectionMessage(
+						RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, 
+						message);
 			}
 			logger.info("data sent to Data App");
 			logger.info("response "+response);
@@ -74,13 +75,9 @@ public class ConsumerSendDataToDestinationProcessor implements Processor {
 			exchange.getOut().setBody(multipartMessageParts);
 		} else {
 			logger.error("Token is not valid");
-			Message rejectionMessageToken = multiPartMessageServiceImpl
-					.createRejectionToken(message);
-			Builder builder = new MultiPartMessage.Builder();
-			builder.setHeader(rejectionMessageToken);
-			MultiPartMessage builtMessage = builder.build();
-			String stringMessage = MultiPart.toString(builtMessage, false);
-			throw new ExceptionForProcessor(stringMessage);
+			rejectionMessageServiceImpl.sendRejectionMessage(
+					RejectionMessageType.REJECTION_TOKEN, 
+					message);
 		}
 	}
 }

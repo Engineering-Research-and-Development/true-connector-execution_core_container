@@ -28,6 +28,8 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import nl.tno.ids.common.communication.HttpClientGenerator;
 import nl.tno.ids.common.config.keystore.AcceptAllTruststoreConfig;
 import nl.tno.ids.common.multipart.MultiPart;
@@ -47,6 +49,9 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 	
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	
+	@Autowired
+	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
 	
 	@Autowired
 	private CommunicationServiceImpl communicationMessageService;
@@ -135,13 +140,9 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 	private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response, String forwardTo) throws UnsupportedOperationException, IOException {
 		if (response==null) {
 			logger.info("...communication error");
-			Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl
-					.createRejectionCommunicationLocalIssues(message);
-			Builder builder = new MultiPartMessage.Builder();
-			builder.setHeader(rejectionCommunicationLocalIssues);
-			MultiPartMessage builtMessage = builder.build();
-			String stringMessage = MultiPart.toString(builtMessage, false);
-			throw new ExceptionForProcessor(stringMessage);
+			rejectionMessageServiceImpl.sendRejectionMessage(
+					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, 
+					message);
 		} else {
 			String responseString=new String(response.getEntity().getContent().readAllBytes());
 			logger.info("response received from the DataAPP="+responseString);
@@ -150,12 +151,9 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 			logger.info("status code of the response message is: " + statusCode);
 			if (statusCode >=300) { 
 				logger.info("data sent to destination "+forwardTo);
-				Message rejectionCommunicationLocalIssues = multiPartMessageServiceImpl.createRejectionMessage(message);
-				Builder builder = new MultiPartMessage.Builder();
-				builder.setHeader(rejectionCommunicationLocalIssues); 
-				MultiPartMessage builtMessage = builder.build(); 
-				String stringMessage = MultiPart.toString(builtMessage, false);
-				throw new ExceptionForProcessor(stringMessage);
+				rejectionMessageServiceImpl.sendRejectionMessage(
+						RejectionMessageType.REJECTION_MESSAGE_COMMON, 
+						message);
 			}else {
 				logger.info("data sent to destination "+forwardTo);
 				logger.info("Successful response: "+ responseString);

@@ -14,6 +14,8 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.DapsServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import nl.tno.ids.common.multipart.MultiPart;
 import nl.tno.ids.common.multipart.MultiPartMessage;
 import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
@@ -34,6 +36,9 @@ public class ProducerGetTokenFromDapsProcessor implements Processor {
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
 	
 	@Autowired
+	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
+	
+	@Autowired
 	private DapsServiceImpl dapsServiceImpl;
 
 	@Override
@@ -49,23 +54,15 @@ public class ProducerGetTokenFromDapsProcessor implements Processor {
 			logger.info("message id=" + message.getId());
 		}catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);
-			Message rejectionMessageLocalIssues = multiPartMessageServiceImpl
-					.createRejectionMessageLocalIssues(message);
-			Builder builder = new MultiPartMessage.Builder();
-			builder.setHeader(rejectionMessageLocalIssues);
-			MultiPartMessage builtMessage = builder.build();
-			String stringMessage = MultiPart.toString(builtMessage, false);
-			throw new ExceptionForProcessor(stringMessage);
+			rejectionMessageServiceImpl.sendRejectionMessage(
+					RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, 
+					message);
 		}
 		if (message==null) {
 			logger.error("Parsed multipart message is null");
-			Message rejectionMessageLocalIssues = multiPartMessageServiceImpl
-					.createRejectionMessageLocalIssues(message);
-			Builder builder = new MultiPartMessage.Builder();
-			builder.setHeader(rejectionMessageLocalIssues);
-			MultiPartMessage builtMessage = builder.build();
-			String stringMessage = MultiPart.toString(builtMessage, false);
-			throw new ExceptionForProcessor(stringMessage);
+			rejectionMessageServiceImpl.sendRejectionMessage(
+					RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, 
+					message);
 		}
 		
 		// Get the Token from the DAPS
@@ -75,35 +72,23 @@ public class ProducerGetTokenFromDapsProcessor implements Processor {
 //			token="123";
 		}catch (Exception e) {
 			logger.error("Can not get the token from the DAPS server " + e);
-			Message rejectionTokenLocalIssues = multiPartMessageServiceImpl
-					.createRejectionTokenLocalIssues(message);
-			Builder builder = new MultiPartMessage.Builder();
-			builder.setHeader(rejectionTokenLocalIssues);
-			MultiPartMessage builtMessage = builder.build();
-			String stringMessage = MultiPart.toString(builtMessage, false);
-			throw new ExceptionForProcessor(stringMessage);
+			rejectionMessageServiceImpl.sendRejectionMessage(
+					RejectionMessageType.REJECTION_TOKEN_LOCAL_ISSUES, 
+					message);
 		}
 		
 		if(token==null) {
 			logger.error("Can not get the token from the DAPS server");
-			Message rejectionTokenLocalIssues = multiPartMessageServiceImpl
-					.createRejectionCommunicationLocalIssues(message);
-			Builder builder = new MultiPartMessage.Builder();
-			builder.setHeader(rejectionTokenLocalIssues);
-			MultiPartMessage builtMessage = builder.build();
-			String stringMessage = MultiPart.toString(builtMessage, false);
-			throw new ExceptionForProcessor(stringMessage);
+			rejectionMessageServiceImpl.sendRejectionMessage(
+					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, 
+					message);
 		}
 		
 		if (token.isEmpty()) {
 			logger.error("The token from the DAPS server is empty");
-			Message rejectionTokenLocalIssues = multiPartMessageServiceImpl
-					.createRejectionTokenLocalIssues(message);
-			Builder builder = new MultiPartMessage.Builder();
-			builder.setHeader(rejectionTokenLocalIssues);
-			MultiPartMessage builtMessage = builder.build();
-			String stringMessage = MultiPart.toString(builtMessage, false);
-			throw new ExceptionForProcessor(stringMessage);
+			rejectionMessageServiceImpl.sendRejectionMessage(
+					RejectionMessageType.REJECTION_TOKEN_LOCAL_ISSUES, 
+					message);
 		}
 		
 		logger.info("token=" + token);

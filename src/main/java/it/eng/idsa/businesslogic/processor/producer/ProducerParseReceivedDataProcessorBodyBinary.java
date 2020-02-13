@@ -15,6 +15,8 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import nl.tno.ids.common.multipart.MultiPart;
 import nl.tno.ids.common.multipart.MultiPartMessage;
 import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
@@ -36,6 +38,9 @@ public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	
+	@Autowired
+	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -54,13 +59,9 @@ public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 		receivedDataBodyBinary = exchange.getIn().getBody(String.class);
 		if (receivedDataBodyBinary == null) {			
 			logger.error("Body of the received multipart message is null");
-			Message rejectionMessageLocalIssues = multiPartMessageServiceImpl
-					.createRejectionMessageLocalIssues(message);
-			Builder builder = new MultiPartMessage.Builder();
-			builder.setHeader(rejectionMessageLocalIssues);
-			MultiPartMessage builtMessage = builder.build();
-			String stringMessage = MultiPart.toString(builtMessage, false);
-			throw new ExceptionForProcessor(stringMessage);
+			rejectionMessageServiceImpl.sendRejectionMessage(
+					RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, 
+					message);
 		}
 		try {
 			// Create headers parts
@@ -84,13 +85,9 @@ public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);
-			Message rejectionMessageLocalIssues = multiPartMessageServiceImpl
-					.createRejectionMessageLocalIssues(message);
-			Builder builder = new MultiPartMessage.Builder();
-			builder.setHeader(rejectionMessageLocalIssues);
-			MultiPartMessage builtMessage = builder.build();
-			String stringMessage = MultiPart.toString(builtMessage, false);
-			throw new ExceptionForProcessor(stringMessage);
+			rejectionMessageServiceImpl.sendRejectionMessage(
+					RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, 
+					message);
 		}
 
 	}

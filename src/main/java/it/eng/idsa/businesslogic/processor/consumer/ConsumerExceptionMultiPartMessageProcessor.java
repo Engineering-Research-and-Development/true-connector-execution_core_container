@@ -15,6 +15,8 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerMultiPartMessageProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import nl.tno.ids.common.multipart.MultiPart;
 import nl.tno.ids.common.multipart.MultiPartMessage;
 import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
@@ -36,6 +38,9 @@ public class ConsumerExceptionMultiPartMessageProcessor implements Processor {
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
 	
+	@Autowired
+	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
+	
 	@Override
 	public void process(Exchange exchange) throws Exception {
 
@@ -50,12 +55,9 @@ public class ConsumerExceptionMultiPartMessageProcessor implements Processor {
 			)
 		{
 			logger.error("Multipart message header or/and payload is null");
-			Message rejectionMessage = multiPartMessageServiceImpl.createRejectionMessage(message);
-			Builder builder = new MultiPartMessage.Builder();
-			builder.setHeader(rejectionMessage);
-			MultiPartMessage builtMessage = builder.build();
-			String stringMessage = MultiPart.toString(builtMessage, false);
-			throw new ExceptionForProcessor(stringMessage);
+			rejectionMessageServiceImpl.sendRejectionMessage(
+					RejectionMessageType.REJECTION_MESSAGE_COMMON, 
+					message);
 		}
 		
 		try {
@@ -76,12 +78,9 @@ public class ConsumerExceptionMultiPartMessageProcessor implements Processor {
 			
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);
-			Message rejectionMessage = multiPartMessageServiceImpl.createRejectionMessage(message);
-			Builder builder = new MultiPartMessage.Builder();
-			builder.setHeader(rejectionMessage);
-			MultiPartMessage builtMessage = builder.build();
-			String stringMessage = MultiPart.toString(builtMessage, false);
-			throw new ExceptionForProcessor(stringMessage);
+			rejectionMessageServiceImpl.sendRejectionMessage(
+					RejectionMessageType.REJECTION_MESSAGE_COMMON, 
+					message);
 		}
 	}
 

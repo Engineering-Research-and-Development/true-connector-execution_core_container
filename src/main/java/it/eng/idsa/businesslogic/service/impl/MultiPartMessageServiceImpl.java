@@ -207,6 +207,11 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 		return token;
 	}
 
+	// ============================================================================================================================
+	// SHOULD BE DELETED - Should use RejectionMessageServiceImpl.java
+	// ============================================================================================================================
+	// === START ==================================================================================================================
+	@Deprecated
 	public Message createResultMessage(Message header) {
 		return new ResultMessageBuilder()
 				._issuerConnector_(whoIAm())
@@ -217,6 +222,7 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 				.build();
 	}
 
+	@Deprecated
 	public Message createRejectionMessage(Message header) {
 		return new RejectionMessageBuilder()
 				._issuerConnector_(whoIAm())
@@ -228,6 +234,7 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 				.build();
 	}
 	
+	@Deprecated
 	public Message createRejectionToken(Message header) {
 		return new RejectionMessageBuilder()
 				._issuerConnector_(whoIAm())
@@ -239,12 +246,13 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 				.build();
 	}
 
-
+	@Deprecated
 	private URI whoIAm() {
 		//TODO 
 		return URI.create("auto-generated");
 	}
 
+	@Deprecated
 	public Message createRejectionMessageLocalIssues(Message header) {
 		return new RejectionMessageBuilder()
 				._issuerConnector_(URI.create("auto-generated"))
@@ -256,6 +264,7 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 				.build();
 	}
 	
+	@Deprecated
 	public Message createRejectionTokenLocalIssues(Message header) {
 		return new RejectionMessageBuilder()
 				._issuerConnector_(header.getIssuerConnector())
@@ -267,7 +276,7 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 				.build();
 	}
 	
-	
+	@Deprecated
 	public Message createRejectionCommunicationLocalIssues(Message header) {
 		return new RejectionMessageBuilder()
 				._issuerConnector_(header.getIssuerConnector())
@@ -278,5 +287,7 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 				._rejectionReason_(RejectionReason.NOT_FOUND)
 				.build();
 	}
+	
+	// === END ================================================================================================================
 
 }
