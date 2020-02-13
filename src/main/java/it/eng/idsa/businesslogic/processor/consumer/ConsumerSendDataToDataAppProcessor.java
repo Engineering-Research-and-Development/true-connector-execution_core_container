@@ -27,8 +27,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.MessageImpl;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
-import it.eng.idsa.businesslogic.domain.json.HeaderBodyForOpenApiObject;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
@@ -173,9 +173,8 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 	}
 
 	private String filterHeader(String header) throws JsonMappingException, JsonProcessingException {
-		ObjectMapper mapper = new ObjectMapper();
-		HeaderBodyForOpenApiObject headerBodyForOpenApiObject = mapper.readValue(header, HeaderBodyForOpenApiObject.class);
-		return mapper.writeValueAsString(headerBodyForOpenApiObject);
+		Message message = multiPartMessageServiceImpl.getMessage(header);
+		return multiPartMessageServiceImpl.removeToken(message);
 	}
 
 	private ContentBody convertToContentBody(String value, ContentType contentType, String valueName) throws UnsupportedEncodingException {
