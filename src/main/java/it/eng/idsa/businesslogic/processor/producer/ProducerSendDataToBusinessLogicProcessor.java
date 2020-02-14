@@ -68,7 +68,10 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 			messageWithToken = multipartMessageParts.get("messageWithToken").toString();
 		}
 		String header = multipartMessageParts.get("header").toString();
-		String payload = multipartMessageParts.get("payload").toString();
+		String payload = null;
+		if(multipartMessageParts.containsKey("payload")) {
+			payload = multipartMessageParts.get("payload").toString();
+		}
 		
 		String forwardTo = headesParts.get("Forward-To").toString();
 		Message message = multiPartMessageServiceImpl.getMessage(header);
@@ -94,12 +97,20 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		
 		// Covert to ContentBody
 		ContentBody cbHeader = convertToContentBody(header, ContentType.DEFAULT_TEXT, "header");
-		ContentBody cbPayload = convertToContentBody(payload, ContentType.DEFAULT_TEXT, "payload");
+		ContentBody cbPayload = null;
+		if(payload!=null) {
+			cbPayload = convertToContentBody(payload, ContentType.DEFAULT_TEXT, "payload");
+		}
 
 		// Set F address
 		HttpPost httpPost = new HttpPost(address);
 
-		HttpEntity reqEntity = MultipartEntityBuilder.create()
+		HttpEntity reqEntity = payload==null ?
+			MultipartEntityBuilder.create()
+				.addPart("header", cbHeader)
+				.build()	
+				:
+			MultipartEntityBuilder.create()
 				.addPart("header", cbHeader)
 				.addPart("payload", cbPayload)
 				.build();

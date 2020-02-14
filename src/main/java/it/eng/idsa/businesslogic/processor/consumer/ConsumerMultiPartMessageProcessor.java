@@ -49,12 +49,9 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 		Map<String, Object> headesParts = new HashMap();
 		Map<String, Object> multipartMessageParts = new HashMap();
 		
-		if(
-			exchange.getIn().getHeaders().containsKey("header")==false || 
-			exchange.getIn().getHeaders().containsKey("payload")==false 
-			)
+		if(!exchange.getIn().getHeaders().containsKey("header"))
 		{
-			logger.error("Multipart message header or/and payload is null");
+			logger.error("Multipart message header is null");
 			rejectionMessageServiceImpl.sendRejectionMessage(
 					RejectionMessageType.REJECTION_MESSAGE_COMMON, 
 					message);
@@ -65,17 +62,24 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 			// Put in the header value of the application.property: application.isEnabledDapsInteraction
 			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
 
-			payload=exchange.getIn().getHeader("payload").toString();
-			if(payload.equals("RejectionMessage")) {
-				// Create multipart message
-				header= multiPartMessageServiceImpl.getHeader(exchange.getIn().getHeader("header").toString());
-				multipartMessageParts.put("header", header);
-			} else {
-				// Create multipart message
+			if(exchange.getIn().getHeaders().containsKey("payload")) {
+				payload=exchange.getIn().getHeader("payload").toString();
+				if(payload.equals("RejectionMessage")) {
+					// Create multipart message for the RejectionMessage
+					header= multiPartMessageServiceImpl.getHeader(exchange.getIn().getHeader("header").toString());
+					multipartMessageParts.put("header", header);
+				} else {
+					// Create multipart message with payload
+					header=exchange.getIn().getHeader("header").toString();
+					multipartMessageParts.put("header", header);
+					payload=exchange.getIn().getHeader("payload").toString();
+					multipartMessageParts.put("payload", payload);
+					message=multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
+				}
+			}else {
+				// Create multipart message without payload
 				header=exchange.getIn().getHeader("header").toString();
 				multipartMessageParts.put("header", header);
-				payload=exchange.getIn().getHeader("payload").toString();
-				multipartMessageParts.put("payload", payload);
 				message=multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 			}
 						

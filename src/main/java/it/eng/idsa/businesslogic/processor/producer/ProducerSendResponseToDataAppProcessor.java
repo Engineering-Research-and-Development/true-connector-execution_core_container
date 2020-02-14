@@ -45,8 +45,8 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 		// Put in the header value of the application.property: application.isEnabledClearingHouse
 		headesParts.put("Is-Enabled-Clearing-House", isEnabledClearingHouse);
 		
-		String payload = null;
 		String header = null;
+		String payload = null;
 		if(multipartMessagePartsReceived.get("payload")!=null) {
 			payload = multipartMessagePartsReceived.get("payload").toString();
 			if(payload.equals("RejectionMessage\n")) {

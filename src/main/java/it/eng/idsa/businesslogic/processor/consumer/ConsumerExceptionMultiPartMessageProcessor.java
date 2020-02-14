@@ -68,8 +68,10 @@ public class ConsumerExceptionMultiPartMessageProcessor implements Processor {
 			
 			header= multiPartMessageServiceImpl.getHeader(exchange.getIn().getHeader("header").toString());
 			multipartMessageParts.put("header", header);
-			payload=exchange.getIn().getHeader("payload").toString();
-			multipartMessageParts.put("payload", payload);
+			if(exchange.getIn().getHeaders().containsKey("payload")) {
+				payload=exchange.getIn().getHeader("payload").toString();
+				multipartMessageParts.put("payload", payload);
+			}
 			message=multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 			
 			// Return exchange

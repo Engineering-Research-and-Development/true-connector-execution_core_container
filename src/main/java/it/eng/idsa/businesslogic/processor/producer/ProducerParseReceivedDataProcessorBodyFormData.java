@@ -67,8 +67,10 @@ public class ProducerParseReceivedDataProcessorBodyFormData implements Processor
 			// Create multipart message parts
 			header = receivedDataHeader.get("header").toString();
 			multipartMessageParts.put("header", header);
-			payload = receivedDataHeader.get("payload").toString();
-			multipartMessageParts.put("payload", payload);
+			if(receivedDataHeader.containsKey("payload")) {
+				payload = receivedDataHeader.get("payload").toString();
+				multipartMessageParts.put("payload", payload);
+			}
 			message = multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 			
 			// Return exchange

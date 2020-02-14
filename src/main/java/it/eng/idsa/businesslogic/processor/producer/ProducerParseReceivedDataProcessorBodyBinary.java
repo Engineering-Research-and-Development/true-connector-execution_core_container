@@ -2,6 +2,7 @@ package it.eng.idsa.businesslogic.processor.producer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -12,15 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
-import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
-import nl.tno.ids.common.multipart.MultiPart;
-import nl.tno.ids.common.multipart.MultiPartMessage;
-import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
-import nl.tno.ids.common.serialization.SerializationHelper;
 
 /**
  * 
@@ -76,7 +71,9 @@ public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 			header = multiPartMessageServiceImpl.getHeader(receivedDataBodyBinary);
 			multipartMessageParts.put("header", header);
 			payload = multiPartMessageServiceImpl.getPayload(receivedDataBodyBinary);
-			multipartMessageParts.put("payload", payload);
+			if(payload!=null) {
+				multipartMessageParts.put("payload", payload);
+			}
 			message = multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 			
 			// Return exchange

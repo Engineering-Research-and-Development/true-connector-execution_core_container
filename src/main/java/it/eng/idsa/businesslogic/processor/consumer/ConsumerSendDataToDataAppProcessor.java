@@ -71,7 +71,10 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 
 		// Get header, payload and message
 		String header = filterHeader(multipartMessageParts.get("header").toString());
-		String payload = multipartMessageParts.get("payload").toString();
+		String payload = null;
+		if(multipartMessageParts.containsKey("payload")) {
+			payload = multipartMessageParts.get("payload").toString();
+		}
 		Message message = multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 
 		// Send data to the endpoint F for the Open API Data App
@@ -108,12 +111,20 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 
 		// Covert to ContentBody
 		ContentBody cbHeader = convertToContentBody(header, ContentType.APPLICATION_JSON, "header");
-		ContentBody cbPayload = convertToContentBody(payload, ContentType.DEFAULT_TEXT, "payload");
+		ContentBody cbPayload = null;
+		if(payload!=null) {
+			cbPayload = convertToContentBody(payload, ContentType.DEFAULT_TEXT, "payload");
+		}
 
 		// Set F address
 		HttpPost httpPost = new HttpPost(address);
 
-		HttpEntity reqEntity = MultipartEntityBuilder.create()
+		HttpEntity reqEntity = payload==null ?
+			MultipartEntityBuilder.create()
+				.addPart("header", cbHeader)
+				.build()	
+				:
+			MultipartEntityBuilder.create()
 				.addPart("header", cbHeader)
 				.addPart("payload", cbPayload)
 				.build();
@@ -207,7 +218,9 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 				String	header = multiPartMessageServiceImpl.getHeader(responseString);
 				String payload = multiPartMessageServiceImpl.getPayload(responseString);
 				exchange.getOut().setHeader("header", header);
-				exchange.getOut().setHeader("payload", payload);
+				if(payload!=null) {
+					exchange.getOut().setHeader("payload", payload);
+				}
 			}
 		}
 	}
