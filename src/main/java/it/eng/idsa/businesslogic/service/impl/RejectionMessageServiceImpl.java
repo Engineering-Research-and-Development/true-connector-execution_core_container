@@ -2,8 +2,11 @@ package it.eng.idsa.businesslogic.service.impl;
 
 import static de.fraunhofer.iais.eis.util.Util.asList;
 
+import java.io.FileReader;
 import java.net.URI;
 
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +32,8 @@ import nl.tno.ids.common.serialization.DateUtil;
 @Service
 @Transactional
 public class RejectionMessageServiceImpl implements RejectionMessageService{
+	
+    private final static String informationModelVersion = getInformationModelVersion();
 	
 	@Autowired
 	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
@@ -77,12 +82,34 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		}
 		return rejectionMessage;
 	}
+	
+	private static String getInformationModelVersion() {
+		String currnetInformationModelVersion = null;
+		try {
+			MavenXpp3Reader reader = new MavenXpp3Reader();
+			Model model = reader.read(new FileReader("pom.xml"));
+	
+			for (int i = 0; i < model.getDependencies().size(); i++) {
+				if (model.getDependencies().get(i).getGroupId().equalsIgnoreCase("de.fraunhofer.iais.eis.ids.infomodel")){
+					String version=model.getDependencies().get(i).getVersion();
+					// If we want, we can delete "-SNAPSHOT" from the version
+//					if (version.contains("-SNAPSHOT")) {
+//						version=version.substring(0,version.indexOf("-SNAPSHOT"));
+//					}
+					currnetInformationModelVersion=version;
+				}
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return currnetInformationModelVersion;
+	}
 
 	private Message createResultMessage(Message header) {
 		return new ResultMessageBuilder()
 				._issuerConnector_(whoIAm())
 				._issued_(DateUtil.now())
-				._modelVersion_("1.0.3")
+                ._modelVersion_(informationModelVersion)
 				._recipientConnector_(asList(header.getIssuerConnector()))
 				._correlationMessage_(header.getId())
 				.build();
@@ -92,7 +119,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		return new RejectionMessageBuilder()
 				._issuerConnector_(whoIAm())
 				._issued_(DateUtil.now())
-				._modelVersion_("1.0.3")
+                ._modelVersion_(informationModelVersion)
 				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("auto-generated")))
 				._correlationMessage_(header!=null?header.getId():URI.create(""))
 				._rejectionReason_(RejectionReason.MALFORMED_MESSAGE)
@@ -103,7 +130,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		return new RejectionMessageBuilder()
 				._issuerConnector_(whoIAm())
 				._issued_(DateUtil.now())
-				._modelVersion_("1.0.3")
+                ._modelVersion_(informationModelVersion)
 				._recipientConnector_(asList(header.getIssuerConnector()))
 				._correlationMessage_(header.getId())
 				._rejectionReason_(RejectionReason.NOT_AUTHENTICATED)
@@ -120,7 +147,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		return new RejectionMessageBuilder()
 				._issuerConnector_(URI.create("auto-generated"))
 				._issued_(DateUtil.now())
-				._modelVersion_("1.0.3")
+                ._modelVersion_(informationModelVersion)
 				//._recipientConnectors_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("auto-generated")))
 				._correlationMessage_(URI.create("auto-generated"))
 				._rejectionReason_(RejectionReason.MALFORMED_MESSAGE)
@@ -131,7 +158,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		return new RejectionMessageBuilder()
 				._issuerConnector_(header.getIssuerConnector())
 				._issued_(DateUtil.now())
-				._modelVersion_("1.0.3")
+                ._modelVersion_(informationModelVersion)
 				._recipientConnector_(asList(header.getIssuerConnector()))
 				._correlationMessage_(header.getId())
 				._rejectionReason_(RejectionReason.NOT_AUTHENTICATED)
@@ -142,7 +169,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		return new RejectionMessageBuilder()
 				._issuerConnector_(header.getIssuerConnector())
 				._issued_(DateUtil.now())
-				._modelVersion_("1.0.3")
+                ._modelVersion_(informationModelVersion)
 				._recipientConnector_(asList(header.getIssuerConnector()))
 				._correlationMessage_(header.getId())
 				._rejectionReason_(RejectionReason.NOT_FOUND)

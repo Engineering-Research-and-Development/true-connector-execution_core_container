@@ -1,10 +1,7 @@
 package it.eng.idsa.businesslogic.service.impl;
 
 
-import static de.fraunhofer.iais.eis.util.Util.asList;
-
 import java.io.IOException;
-import java.net.URI;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
@@ -22,9 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import de.fraunhofer.iais.eis.Message;
-import de.fraunhofer.iais.eis.RejectionMessageBuilder;
-import de.fraunhofer.iais.eis.RejectionReason;
-import de.fraunhofer.iais.eis.ResultMessageBuilder;
 import de.fraunhofer.iais.eis.Token;
 import de.fraunhofer.iais.eis.TokenBuilder;
 import de.fraunhofer.iais.eis.TokenFormat;
@@ -32,7 +26,6 @@ import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.service.MultiPartMessageService;
 import nl.tno.ids.common.multipart.MultiPart;
 import nl.tno.ids.common.multipart.MultiPartMessage;
-import nl.tno.ids.common.serialization.DateUtil;
 import nl.tno.ids.common.serialization.SerializationHelper;
 
 
@@ -49,7 +42,7 @@ import nl.tno.ids.common.serialization.SerializationHelper;
 @Service
 @Transactional
 public class MultiPartMessageServiceImpl implements MultiPartMessageService {
-
+	
 	@Override
 	public String getHeader(String body) {
 		MultiPartMessage deserializedMultipartMessage = MultiPart.parseString(body);
