@@ -3,6 +3,7 @@ package it.eng.idsa.businesslogic.service.impl;
 import static de.fraunhofer.iais.eis.util.Util.asList;
 
 import java.io.FileReader;
+import java.io.InputStream;
 import java.net.URI;
 
 import org.apache.maven.model.Model;
@@ -86,8 +87,10 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 	private static String getInformationModelVersion() {
 		String currnetInformationModelVersion = null;
 		try {
+			
+			InputStream is = RejectionMessageServiceImpl.class.getClassLoader().getResourceAsStream("META-INF/maven/it.eng.idsa/market4.0-execution_core_container_business_logic/pom.xml");
 			MavenXpp3Reader reader = new MavenXpp3Reader();
-			Model model = reader.read(new FileReader("pom.xml"));
+			Model model = reader.read(is);
 	
 			for (int i = 0; i < model.getDependencies().size(); i++) {
 				if (model.getDependencies().get(i).getGroupId().equalsIgnoreCase("de.fraunhofer.iais.eis.ids.infomodel")){
