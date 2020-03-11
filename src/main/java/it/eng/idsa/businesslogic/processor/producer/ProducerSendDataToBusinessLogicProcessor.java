@@ -2,40 +2,41 @@ package it.eng.idsa.businesslogic.processor.producer;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.http.HttpEntity;
+import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.FormBodyPart;
-import org.apache.http.entity.mime.FormBodyPartBuilder;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import de.fhg.aisec.ids.comm.client.IdscpClient;
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
-import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
+import it.eng.idsa.businesslogic.configuration.WebSocketConfiguration;
+import it.eng.idsa.businesslogic.processor.producer.websocket.client.FileStreamingBean;
+import it.eng.idsa.businesslogic.processor.producer.websocket.client.IdscpClientBean;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import nl.tno.ids.common.communication.HttpClientGenerator;
 import nl.tno.ids.common.config.keystore.AcceptAllTruststoreConfig;
-import nl.tno.ids.common.multipart.MultiPart;
-import nl.tno.ids.common.multipart.MultiPartMessage;
-import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
 
 /**
  * 
@@ -50,6 +51,10 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 	
 	@Value("${application.isEnabledIdscp}")
 	private boolean isEnabledIdscp;
+	@Value("${application.isEnabledIdscp.server.ip}")
+	private String serverIP;
+	@Value("${application.isEnabledIdscp.server.port}")
+	private int serverPort;
 	
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
@@ -58,7 +63,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
 	
 	@Autowired
-	private CommunicationServiceImpl communicationMessageService;
+	private WebSocketConfiguration webSocketConfiguration;
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -82,9 +87,8 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		
 		CloseableHttpResponse response = null;
 		if(isEnabledIdscp) {
-			// -- Send data using IDSCP - (Client)
-			//TODO: Implement WebSocket communication
-			
+			// -- Send data using IDSCP - (Client) - WebSocket
+			sendMultipartMessageWebSocket(header, payload);
 		}else {
 			// -- Send message using HTTPS
 			if(Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
@@ -184,5 +188,15 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		}
 	}
 
-
+	private void sendMultipartMessageWebSocket(String header, String payload) throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
+		// Create idscpClient
+		IdscpClientBean idscpClientBean = webSocketConfiguration.idscpClientServiceSinelton();
+		IdscpClient idscpClient = idscpClientBean.getClient();
+		// Create multipartMessage as a String
+		HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(header, payload, null);
+		String multipartMessage = EntityUtils.toString(entity, "UTF-8");
+		// Send multipartMessage as a Frames
+		FileStreamingBean fileStreamingBean = webSocketConfiguration.fileStreamingBeanWebSocket();
+		fileStreamingBean.sendMultipartMessage(idscpClient, multipartMessage, serverIP, serverPort);
+	}
 }
