@@ -51,10 +51,6 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 	
 	@Value("${application.isEnabledIdscp}")
 	private boolean isEnabledIdscp;
-	@Value("${application.isEnabledIdscp.server.ip}")
-	private String serverIP;
-	@Value("${application.isEnabledIdscp.server.port}")
-	private int serverPort;
 	
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
@@ -88,7 +84,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		CloseableHttpResponse response = null;
 		if(isEnabledIdscp) {
 			// -- Send data using IDSCP - (Client) - WebSocket
-			sendMultipartMessageWebSocket(header, payload);
+			sendMultipartMessageWebSocket(header, payload, forwardTo);
 		}else {
 			// -- Send message using HTTPS
 			if(Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
@@ -188,7 +184,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		}
 	}
 
-	private void sendMultipartMessageWebSocket(String header, String payload) throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
+	private void sendMultipartMessageWebSocket(String header, String payload, String forwardTo) throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
 		// Create idscpClient
 		IdscpClientBean idscpClientBean = webSocketConfiguration.idscpClientServiceSinelton();
 		IdscpClient idscpClient = idscpClientBean.getClient();
@@ -197,6 +193,10 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		String multipartMessage = EntityUtils.toString(entity, "UTF-8");
 		// Send multipartMessage as a Frames
 		FileStreamingBean fileStreamingBean = webSocketConfiguration.fileStreamingBeanWebSocket();
-		fileStreamingBean.sendMultipartMessage(idscpClient, multipartMessage, serverIP, serverPort);
+		// Extract IP and Port from the Forward-To (idscp://localhost:8081)
+		String serverIp = forwardTo.substring(8, forwardTo.indexOf(":", 8)); 
+		int serverPort = Integer.parseInt(forwardTo.substring(forwardTo.indexOf(":", 8)+1));
+		// Send multipartmessage as frames
+		fileStreamingBean.sendMultipartMessage(idscpClient, multipartMessage, serverIp, serverPort);
 	}
 }
