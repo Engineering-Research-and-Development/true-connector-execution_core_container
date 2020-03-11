@@ -44,8 +44,6 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	
 	private static URI connectorURI;
 
-	
-	
 	@Override
 	public boolean registerTransaction(Message correlatedMessage) {
 		// TODO Auto-generated method stub

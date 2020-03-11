@@ -22,6 +22,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
@@ -46,6 +47,9 @@ import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
 public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 
 	private static final Logger logger = LogManager.getLogger(ProducerSendDataToBusinessLogicProcessor.class);
+	
+	@Value("${application.isEnabledIdscp}")
+	private boolean isEnabledIdscp;
 	
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
@@ -77,10 +81,17 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		Message message = multiPartMessageServiceImpl.getMessage(header);
 		
 		CloseableHttpResponse response = null;
-		if(Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
-			response = forwardMessageBinary(forwardTo, messageWithToken, payload);
-		} else {
-			response = forwardMessageBinary(forwardTo, header, payload);
+		if(isEnabledIdscp) {
+			// -- Send data using IDSCP - (Client)
+			//TODO: Implement WebSocket communication
+			
+		}else {
+			// -- Send message using HTTPS
+			if(Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
+				response = forwardMessageBinary(forwardTo, messageWithToken, payload);
+			} else {
+				response = forwardMessageBinary(forwardTo, header, payload);
+			}
 		}
 		
 		// Handle response
