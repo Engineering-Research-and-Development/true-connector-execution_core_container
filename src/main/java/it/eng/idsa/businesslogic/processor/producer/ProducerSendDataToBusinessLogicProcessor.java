@@ -193,10 +193,15 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		String multipartMessage = EntityUtils.toString(entity, "UTF-8");
 		// Send multipartMessage as a Frames
 		FileStreamingBean fileStreamingBean = webSocketConfiguration.fileStreamingBeanWebSocket();
-		// Extract IP and Port from the Forward-To (idscp://localhost:8081)
-		String serverIp = forwardTo.substring(8, forwardTo.indexOf(":", 8)); 
-		int serverPort = Integer.parseInt(forwardTo.substring(forwardTo.indexOf(":", 8)+1));
 		// Send multipartmessage as frames
-		fileStreamingBean.sendMultipartMessage(idscpClient, multipartMessage, serverIp, serverPort);
+		fileStreamingBean.sendMultipartMessage(idscpClient, multipartMessage, this.extractWebSocketIP(forwardTo), this.extractWebSocketPort(forwardTo));
+	}
+	
+	private String extractWebSocketIP(String forwardTo) {
+		return forwardTo.substring(8, forwardTo.indexOf(":", 8));
+	}
+	
+	private int extractWebSocketPort(String forwardTo) {
+		return Integer.parseInt(forwardTo.substring(forwardTo.indexOf(":", 8)+1));
 	}
 }
