@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerExceptionMultiPartMessageProcessor;
+import it.eng.idsa.businesslogic.processor.consumer.ConsumerFileRecreatorProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerGetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerMultiPartMessageProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerReceiveFromActiveMQ;
@@ -64,6 +65,9 @@ public class CamelRouteConsumer extends RouteBuilder {
 	@Autowired
 	ConsumerExceptionMultiPartMessageProcessor exceptionMultiPartMessageProcessor;
 	
+	@Autowired
+	ConsumerFileRecreatorProcessor fileRecreatorProcessor;
+	
 	@Override
 	public void configure() throws Exception {
 
@@ -115,5 +119,11 @@ public class CamelRouteConsumer extends RouteBuilder {
 					.endChoice()
 			.endChoice();
 		
+		// TODO: Improve this initialization
+		// Camel WebSocket - Endpoint B
+		boolean startupRoute = true;
+		from("timer://simpleTimer?delay=2s&repeatCount=1")
+			.process(fileRecreatorProcessor)
+			.log("======= Started-Web-Socket=========");			
 	}
 }

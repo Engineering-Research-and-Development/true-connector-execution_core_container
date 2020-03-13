@@ -49,7 +49,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 
 	private static final Logger logger = LogManager.getLogger(ProducerSendDataToBusinessLogicProcessor.class);
 	
-	@Value("${application.isEnabledIdscp}")
+	@Value("${application.idscp.isEnabled}")
 	private boolean isEnabledIdscp;
 	
 	@Autowired
@@ -186,14 +186,13 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 
 	private void sendMultipartMessageWebSocket(String header, String payload, String forwardTo) throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
 		// Create idscpClient
-		IdscpClientBean idscpClientBean = webSocketConfiguration.idscpClientServiceSinelton();
+		IdscpClientBean idscpClientBean = webSocketConfiguration.idscpClientServiceWebSocket();
 		IdscpClient idscpClient = idscpClientBean.getClient();
 		// Create multipartMessage as a String
 		HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(header, payload, null);
 		String multipartMessage = EntityUtils.toString(entity, "UTF-8");
-		// Send multipartMessage as a Frames
-		FileStreamingBean fileStreamingBean = webSocketConfiguration.fileStreamingBeanWebSocket();
-		// Send multipartmessage as frames
+		// Send multipartMessage as a frames
+		FileStreamingBean fileStreamingBean = webSocketConfiguration.fileStreamingWebSocket();
 		fileStreamingBean.sendMultipartMessage(idscpClient, multipartMessage, this.extractWebSocketIP(forwardTo), this.extractWebSocketPort(forwardTo));
 	}
 	
