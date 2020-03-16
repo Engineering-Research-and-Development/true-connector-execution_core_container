@@ -3,15 +3,23 @@ package it.eng.idsa.businesslogic.processor.producer.websocket.client;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.asynchttpclient.ws.WebSocket;
 
 import de.fhg.aisec.ids.comm.client.IdscpClient;
+import it.eng.idsa.businesslogic.processor.producer.ProducerParseReceivedDataProcessorBodyBinary;
 
 public class FileStreamingBean {
+	
+	private static final Logger logger = LogManager.getLogger(FileStreamingBean.class);
+	
+	private WebSocket wsClient = null;
 
 	private static final int DEFAULT_STREAM_BUFFER_SIZE = 127;
 	
@@ -25,7 +33,8 @@ public class FileStreamingBean {
 		InputStream multipartMessageStream = new ByteArrayInputStream(multipartMessage.getBytes());
 		
 		// Try to connect to the Server. Wait until you are not connected to the server.
-		WebSocket wsClient = client.connect(serverIP, serverPort);
+		
+		wsClient = client.connect(serverIP, serverPort);
 		
 		if(wsClient.isOpen()) {
 			try {
@@ -41,9 +50,10 @@ public class FileStreamingBean {
 		    }
 		}
 		
-		// Send the frame 200 (OK), "Shutdown"
+		// Send the close frame 200 (OK), "Shutdown"; in this method we also close the wsClient.
 		try {
 		   wsClient.sendCloseFrame(200, "Shutdown");
+		   logger.info("Sent close frame: 200, Shutdown");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -62,9 +72,13 @@ public class FileStreamingBean {
 	    
 	    // Send content of the inputStream using the Frames
 	    byte[] tempwritebuf=new byte[streamBufferSize];
+	    int counterPUSH = 0;
 		while ((rn = in.read(readbuf, 0, readbuf.length)) != -1) {
 			if (wn > 0) {
 				tempwritebuf=writebuf.clone();
+//				System.out.println("============================");
+//				System.out.println("The message PUSH (number " + ++counterPUSH + "): " + new String(tempwritebuf, StandardCharsets.UTF_8));
+//				System.out.println("============================");
 				webSocket.sendContinuationFrame(tempwritebuf, false, 0);
 			}
 			System.arraycopy(readbuf, 0, writebuf, 0, rn);
@@ -82,6 +96,7 @@ public class FileStreamingBean {
 		// Send the last frame frame of the inputStream
 		tempwritebuf=writebuf.clone();
 		webSocket.sendContinuationFrame(tempwritebuf, true, 0);
+		logger.info("Sent the last frame");
 	  }	
 	
 }

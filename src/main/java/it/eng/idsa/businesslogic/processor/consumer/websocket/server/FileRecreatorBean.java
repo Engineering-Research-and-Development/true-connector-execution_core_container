@@ -1,11 +1,6 @@
 package it.eng.idsa.businesslogic.processor.consumer.websocket.server;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -14,12 +9,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import de.fhg.aisec.ids.comm.server.IdscpServer;
 import it.eng.idsa.businesslogic.configuration.WebSocketConfiguration;
@@ -31,6 +23,8 @@ import it.eng.idsa.businesslogic.configuration.WebSocketConfiguration;
  */
 
 public class FileRecreatorBean implements Runnable {
+	
+	private static final Logger logger = LogManager.getLogger(FileRecreatorBean.class);
 	
 	private static final int DEFAULT_STREAM_BUFFER_SIZE = 127;
 	// TODO: should fix these paths and file name
@@ -66,6 +60,19 @@ public class FileRecreatorBean implements Runnable {
 
 	@Override
 	public void run() {
+		receiveAllFrames();
+		recreateMultipartMessageFromReceivedFrames();
+
+//		// TODO: Adapt this for the multipart message
+//		// Close the server
+//	    try {
+//	    	server.getServer().stop();
+//	    } catch (Exception e) {
+//	    	e.printStackTrace();
+//		}
+	}
+
+	private void receiveAllFrames() {
 		boolean allFramesReceived = false;
 		
 		while(!allFramesReceived) {
@@ -74,7 +81,7 @@ public class FileRecreatorBean implements Runnable {
 			try {
 				if((new String(receivedFrame, StandardCharsets.UTF_8)).equals("�normal closure")) {
 					allFramesReceived = true;
-					System.out.println("Received the last frames");
+					logger.info("Received the last frames: �normal closure");
 				} else {
 					this.fileByteArray.add(receivedFrame.clone());
 				} 
@@ -82,27 +89,6 @@ public class FileRecreatorBean implements Runnable {
 				receivedFrame = null;
 			}
 		}
-		
-//		// TODO: Adapt this for the multipart message
-//		// Convert byte[] to the File
-//		try {
-//			System.out.println("Started the proccess of the recreation the file from the received frames.");
-//			recreateTheFile(this.fileByteArray);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			System.out.println("Error on the process of recreation the file from the received frames.");
-//		}
-//		
-//		System.out.println("The file is recreated from the received frames.");
-//		
-//		// TODO: Adapt this for the multipart message
-//		// Close the server
-//	    try {
-//	    	server.getServer().stop();
-//	    } catch (Exception e) {
-//	    	e.printStackTrace();
-//		}
 	}
 	
 	private byte[] getAllFrames(ArrayList<byte[]> fileByteArray) {
@@ -113,17 +99,23 @@ public class FileRecreatorBean implements Runnable {
 		}
 		return byteBuffer.array();
 	}
+
+	private void recreateMultipartMessageFromReceivedFrames() {
+		try {
+			logger.info("Started process: Recreate the Multipart message from the received frames");
+			String multipartMessage = recreateMultipartMessage(this.fileByteArray);
+			logger.info("Recreated the Multipart message from the received frames:\n" + multipartMessage);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("Error on the process of recreation the file from the received frames.");
+		}
+	}
 	
-	private void recreateTheFile(ArrayList<byte[]> fileByteArray) throws IOException {
+	private String recreateMultipartMessage(ArrayList<byte[]> fileByteArray) throws IOException {
 		byte[] allFrames = getAllFrames(fileByteArray);
-		
-		InputStream fileInputStream = new ByteArrayInputStream(allFrames);
-		byte[] buffer = new byte[fileInputStream.available()];
-		fileInputStream.read(buffer);
-		
-		File targetFile = new File(FILE_PATH + FILE_NAME);
-		OutputStream outStream = new FileOutputStream(targetFile);
-		outStream.write(allFrames);
+		String multipartMessage = new String(allFrames, StandardCharsets.UTF_8);
+		return multipartMessage;
 	}
 
 }
