@@ -40,12 +40,15 @@ public class FileRecreatorBean implements Runnable {
 	private IdscpServer server;
 	private ArrayList<byte[]> fileByteArray = new ArrayList<byte[]>();
 	private ByteBuffer byteBuffer = null;
+	private RecreatedMultipartMessageBean recreatedmultipartMessage;
 	
 	public FileRecreatorBean() {
+		
 	}
-	
+
 	public void setup() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, URISyntaxException {
 		this.frameBuffer = webSocketConfiguration.frameBufferWebSocket();
+		this.recreatedmultipartMessage = webSocketConfiguration.recreatedMultipartMessageBeanWebSocket();
 		this.inputStreamSocketListener = webSocketConfiguration.inputStreamSocketListenerWebSocket();
 		this.inputStreamSocketListener.setFrameBuffer(this.frameBuffer);
 		this.idscpServer = webSocketConfiguration.idscpServerWebSocket();
@@ -53,15 +56,11 @@ public class FileRecreatorBean implements Runnable {
 		this.server = this.idscpServer.createIdscpServer();
 	}
 	
-	public void start() {
-		new Thread(this, "FileRecreator").start();
-	}
-	
 
 	@Override
 	public void run() {
 		receiveAllFrames();
-		recreateMultipartMessageFromReceivedFrames();
+		recreatedmultipartMessage.set(recreateMultipartMessageFromReceivedFrames());
 
 //		// TODO: Adapt this for the multipart message
 //		// Close the server
@@ -100,16 +99,18 @@ public class FileRecreatorBean implements Runnable {
 		return byteBuffer.array();
 	}
 
-	private void recreateMultipartMessageFromReceivedFrames() {
+	private String recreateMultipartMessageFromReceivedFrames() {
+		String multipartMessage = null;
 		try {
 			logger.info("Started process: Recreate the Multipart message from the received frames");
-			String multipartMessage = recreateMultipartMessage(this.fileByteArray);
+			multipartMessage = recreateMultipartMessage(this.fileByteArray);
 			logger.info("Recreated the Multipart message from the received frames:\n" + multipartMessage);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			System.out.println("Error on the process of recreation the file from the received frames.");
 		}
+		return multipartMessage;
 	}
 	
 	private String recreateMultipartMessage(ArrayList<byte[]> fileByteArray) throws IOException {

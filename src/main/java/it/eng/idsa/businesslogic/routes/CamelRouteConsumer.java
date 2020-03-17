@@ -124,6 +124,30 @@ public class CamelRouteConsumer extends RouteBuilder {
 		boolean startupRoute = true;
 		from("timer://simpleTimer?delay=2s&repeatCount=1")
 			.process(fileRecreatorProcessor)
-			.log("======= Started-Web-Socket=========");			
+			.process(multiPartMessageProcessor)
+			.choice()
+				.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
+					.process(validateTokenProcessor)
+//					.process(sendToActiveMQ)
+//					.process(receiveFromActiveMQ)
+					// Send to the Endpoint: F
+					.process(sendDataToDataAppProcessor)
+					.process(multiPartMessageProcessor)
+					.process(getTokenFromDapsProcessor)
+					.process(sendDataToBusinessLogicProcessor)
+					.choice()
+						.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
+							.process(sendTransactionToCHProcessor)
+					.endChoice()
+				.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
+					// Send to the Endpoint: F
+					.process(sendDataToDataAppProcessor)
+					.process(multiPartMessageProcessor)
+					.process(sendDataToBusinessLogicProcessor)
+					.choice()
+						.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
+							.process(sendTransactionToCHProcessor)
+					.endChoice()
+			.endChoice();			
 	}
 }

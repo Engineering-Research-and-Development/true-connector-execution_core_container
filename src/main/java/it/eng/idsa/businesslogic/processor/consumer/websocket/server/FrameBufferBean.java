@@ -34,10 +34,10 @@ public class FrameBufferBean {
 		}
 		
 		frameIsReceived = false;
-		notify();
 		try {
 			return frame;
 		}finally{
+			notify();
 			frame = null;
 		}
 	}

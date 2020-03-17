@@ -9,6 +9,7 @@ import it.eng.idsa.businesslogic.processor.consumer.websocket.server.FileRecreat
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.FrameBufferBean;
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.IdscpServerBean;
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.InputStreamSocketListener;
+import it.eng.idsa.businesslogic.processor.consumer.websocket.server.RecreatedMultipartMessageBean;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.FileStreamingBean;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.IdscpClientBean;
 
@@ -57,5 +58,9 @@ public class WebSocketConfiguration {
 		return new FileRecreatorBean();
 	}
 
-	
+	@Bean
+	@Scope("singleton")
+	public RecreatedMultipartMessageBean recreatedMultipartMessageBeanWebSocket() {
+		return new RecreatedMultipartMessageBean();
+	}
 }

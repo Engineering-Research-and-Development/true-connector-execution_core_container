@@ -69,6 +69,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		
 		String messageWithToken = null;
 		
+		// Get parts of the Multipart message
 		if(Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
 			messageWithToken = multipartMessageParts.get("messageWithToken").toString();
 		}
@@ -77,22 +78,17 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		if(multipartMessageParts.containsKey("payload")) {
 			payload = multipartMessageParts.get("payload").toString();
 		}
-		
 		String forwardTo = headesParts.get("Forward-To").toString();
 		Message message = multiPartMessageServiceImpl.getMessage(header);
 		
-		CloseableHttpResponse response = null;
-		if(isEnabledIdscp) {
-			// -- Send data using IDSCP - (Client) - WebSocket
-			sendMultipartMessageWebSocket(header, payload, forwardTo);
-		}else {
-			// -- Send message using HTTPS
-			if(Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
-				response = forwardMessageBinary(forwardTo, messageWithToken, payload);
-			} else {
-				response = forwardMessageBinary(forwardTo, header, payload);
-			}
-		}
+		// Send MultipartMessage
+		CloseableHttpResponse response = sendMultipartMessage(
+				headesParts, 
+				messageWithToken, 
+				header, 
+				payload,
+				forwardTo
+				);
 		
 		// Handle response
 		handleResponse(exchange, message, response, forwardTo);
@@ -101,6 +97,32 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 			response.close();
 		}
 		
+	}
+
+	private CloseableHttpResponse sendMultipartMessage(
+			Map<String, Object> headesParts, 
+			String messageWithToken,
+			String header, 
+			String payload, 
+			String forwardTo) throws IOException, KeyManagementException,
+			NoSuchAlgorithmException, InterruptedException, ExecutionException, UnsupportedEncodingException {
+		CloseableHttpResponse response = null;
+		if(isEnabledIdscp) {
+			// -- Send data using IDSCP - (Client) - WebSocket
+			if(Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
+				sendMultipartMessageWebSocket(messageWithToken, payload, forwardTo);
+			} else {
+				sendMultipartMessageWebSocket(header, payload, forwardTo);
+			}
+		}else {
+			// -- Send message using HTTPS
+			if(Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
+				response = forwardMessageBinary(forwardTo, messageWithToken, payload);
+			} else {
+				response = forwardMessageBinary(forwardTo, header, payload);
+			}
+		}
+		return response;
 	}
 	
 	private CloseableHttpResponse forwardMessageBinary(String address, String header, String payload) throws UnsupportedEncodingException {
