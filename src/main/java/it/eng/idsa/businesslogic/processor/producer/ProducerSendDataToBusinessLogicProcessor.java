@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 
 import de.fhg.aisec.ids.comm.client.IdscpClient;
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.configuration.WebSocketConfiguration;
+import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.FileStreamingBean;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.IdscpClientBean;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
@@ -59,7 +59,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
 	
 	@Autowired
-	private WebSocketConfiguration webSocketConfiguration;
+	private WebSocketClientConfiguration webSocketClientConfiguration;
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -81,6 +81,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		String forwardTo = headesParts.get("Forward-To").toString();
 		Message message = multiPartMessageServiceImpl.getMessage(header);
 		
+		//TODO: Also response shoud be received fromo the WebSocket
 		// Send MultipartMessage
 		CloseableHttpResponse response = sendMultipartMessage(
 				headesParts, 
@@ -110,9 +111,9 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		if(isEnabledIdscp) {
 			// -- Send data using IDSCP - (Client) - WebSocket
 			if(Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
-				sendMultipartMessageWebSocket(messageWithToken, payload, forwardTo);
+				/*response =*/ sendMultipartMessageWebSocket(messageWithToken, payload, forwardTo);
 			} else {
-				sendMultipartMessageWebSocket(header, payload, forwardTo);
+				/*response =*/ sendMultipartMessageWebSocket(header, payload, forwardTo);
 			}
 		}else {
 			// -- Send message using HTTPS
@@ -206,16 +207,22 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		}
 	}
 
-	private void sendMultipartMessageWebSocket(String header, String payload, String forwardTo) throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
+	// TODO: This method should have response from the WebSocket or we should create new WebSocket.
+	private void /*CloseableHttpResponse*/ sendMultipartMessageWebSocket(String header, String payload, String forwardTo) throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
 		// Create idscpClient
-		IdscpClientBean idscpClientBean = webSocketConfiguration.idscpClientServiceWebSocket();
+		IdscpClientBean idscpClientBean = webSocketClientConfiguration.idscpClientServiceWebSocket();
 		IdscpClient idscpClient = idscpClientBean.getClient();
 		// Create multipartMessage as a String
 		HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(header, payload, null);
 		String multipartMessage = EntityUtils.toString(entity, "UTF-8");
 		// Send multipartMessage as a frames
-		FileStreamingBean fileStreamingBean = webSocketConfiguration.fileStreamingWebSocket();
+		FileStreamingBean fileStreamingBean = webSocketClientConfiguration.fileStreamingWebSocket();
 		fileStreamingBean.sendMultipartMessage(idscpClient, multipartMessage, this.extractWebSocketIP(forwardTo), this.extractWebSocketPort(forwardTo));
+		
+		//TODO: Receive the response from the Server ECC
+//		CloseableHttpResponse response = null;
+//		
+//		return response;
 	}
 	
 	private String extractWebSocketIP(String forwardTo) {

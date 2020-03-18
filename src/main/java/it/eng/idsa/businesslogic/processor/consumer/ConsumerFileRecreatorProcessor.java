@@ -8,15 +8,12 @@ import org.apache.camel.Processor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.configuration.WebSocketConfiguration;
-import it.eng.idsa.businesslogic.processor.consumer.websocket.server.FileRecreatorBean;
-import it.eng.idsa.businesslogic.processor.producer.ProducerParseReceivedDataProcessorBodyBinary;
+import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
+import it.eng.idsa.businesslogic.processor.consumer.websocket.server.FileRecreatorBeanServer;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
  * 
@@ -30,7 +27,7 @@ public class ConsumerFileRecreatorProcessor implements Processor {
 	private static final Logger logger = LogManager.getLogger(ConsumerFileRecreatorProcessor.class);
 	
 	@Autowired
-	private WebSocketConfiguration webSocketConfiguration;
+	private WebSocketServerConfiguration webSocketServerConfiguration;
 	
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
@@ -45,11 +42,11 @@ public class ConsumerFileRecreatorProcessor implements Processor {
 		Map<String, Object> multipartMessageParts = new HashMap();
 		
 		//  Receive and recreate Multipart message
-		FileRecreatorBean fileRecreatorBean = webSocketConfiguration.fileRecreatorBeanWebSocket();
+		FileRecreatorBeanServer fileRecreatorBean = webSocketServerConfiguration.fileRecreatorBeanWebSocket();
 		fileRecreatorBean.setup();
 		Thread fileRecreatorBeanThread = new Thread(fileRecreatorBean, "FileRecreator");
 		fileRecreatorBeanThread.start();
-		String recreatedMultipartMessage = webSocketConfiguration.recreatedMultipartMessageBeanWebSocket().remove();
+		String recreatedMultipartMessage = webSocketServerConfiguration.recreatedMultipartMessageBeanWebSocket().remove();
 		
 		// Extract header and payload from the multipart message
 		try {

@@ -3,7 +3,6 @@ package it.eng.idsa.businesslogic.processor.producer.websocket.client;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ExecutionException;
@@ -11,9 +10,10 @@ import java.util.concurrent.ExecutionException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.asynchttpclient.ws.WebSocket;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import de.fhg.aisec.ids.comm.client.IdscpClient;
-import it.eng.idsa.businesslogic.processor.producer.ProducerParseReceivedDataProcessorBodyBinary;
+import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
 
 public class FileStreamingBean {
 	
@@ -25,6 +25,9 @@ public class FileStreamingBean {
 	
 	private int streamBufferSize = DEFAULT_STREAM_BUFFER_SIZE;
 	
+	@Autowired
+	private WebSocketClientConfiguration webSocketClientConfiguration;
+	
 	public FileStreamingBean() {	
 	}
 	
@@ -35,6 +38,7 @@ public class FileStreamingBean {
 		// Try to connect to the Server. Wait until you are not connected to the server.
 		
 		wsClient = client.connect(serverIP, serverPort);
+		wsClient.addWebSocketListener(webSocketClientConfiguration.inputStreamSocketListenerWebSocketClient());
 		
 		if(wsClient.isOpen()) {
 			try {
@@ -72,7 +76,7 @@ public class FileStreamingBean {
 	    
 	    // Send content of the inputStream using the Frames
 	    byte[] tempwritebuf=new byte[streamBufferSize];
-	    int counterPUSH = 0;
+//	    int counterPUSH = 0;
 		while ((rn = in.read(readbuf, 0, readbuf.length)) != -1) {
 			if (wn > 0) {
 				tempwritebuf=writebuf.clone();

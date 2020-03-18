@@ -30,7 +30,7 @@ public class IdscpServerBean {
 
 	private IdscpServer server;
 	
-	InputStreamSocketListener socketListener;
+	InputStreamSocketListenerServer socketListener;
 	
 	public IdscpServerBean() {
 	}
@@ -58,11 +58,11 @@ public class IdscpServerBean {
 		return server;
 	}
 
-	public InputStreamSocketListener getSocketListener() {
+	public InputStreamSocketListenerServer getSocketListener() {
 		return socketListener;
 	}
 
-	public void setSocketListener(InputStreamSocketListener socketListener) {
+	public void setSocketListener(InputStreamSocketListenerServer socketListener) {
 		this.socketListener = socketListener;
 	}
 		

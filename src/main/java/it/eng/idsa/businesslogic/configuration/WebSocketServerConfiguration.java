@@ -5,13 +5,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 
-import it.eng.idsa.businesslogic.processor.consumer.websocket.server.FileRecreatorBean;
+import it.eng.idsa.businesslogic.processor.consumer.websocket.server.FileRecreatorBeanServer;
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.FrameBufferBean;
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.IdscpServerBean;
-import it.eng.idsa.businesslogic.processor.consumer.websocket.server.InputStreamSocketListener;
+import it.eng.idsa.businesslogic.processor.consumer.websocket.server.InputStreamSocketListenerServer;
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.RecreatedMultipartMessageBean;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.FileStreamingBean;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.IdscpClientBean;
+import it.eng.idsa.businesslogic.processor.producer.websocket.client.InputStreamSocketListenerClient;
 
 /**
  * 
@@ -20,47 +21,41 @@ import it.eng.idsa.businesslogic.processor.producer.websocket.client.IdscpClient
  */
 
 @Configuration
-public class WebSocketConfiguration {
+public class WebSocketServerConfiguration {
 	
-	@Bean
-	@Scope("singleton")
-	public IdscpClientBean idscpClientServiceWebSocket() {
-		return new IdscpClientBean();
-	}
-	
-	@Bean
-	@Scope("singleton")
-	public FileStreamingBean fileStreamingWebSocket() {
-		return new FileStreamingBean();
-	}
-	
+	// Server
 	@Bean
 	@Scope("singleton")
 	public FrameBufferBean frameBufferWebSocket() {
 		return new FrameBufferBean();
 	}
 	
+	// Server
 	@Bean
 	@Scope("singleton")
-	public InputStreamSocketListener inputStreamSocketListenerWebSocket() {
-		return new InputStreamSocketListener();
+	public InputStreamSocketListenerServer inputStreamSocketListenerWebSocketServer() {
+		return new InputStreamSocketListenerServer();
 	}
 	
+	// Server
 	@Bean
 	@Scope("singleton")
 	public IdscpServerBean idscpServerWebSocket() {
 		return new IdscpServerBean();
 	}
 	
+	// Server
 	@Bean
 	@Scope("singleton")
-	public FileRecreatorBean fileRecreatorBeanWebSocket() {
-		return new FileRecreatorBean();
+	public FileRecreatorBeanServer fileRecreatorBeanWebSocket() {
+		return new FileRecreatorBeanServer();
 	}
 
+	// Server
 	@Bean
 	@Scope("singleton")
 	public RecreatedMultipartMessageBean recreatedMultipartMessageBeanWebSocket() {
 		return new RecreatedMultipartMessageBean();
 	}
+
 }

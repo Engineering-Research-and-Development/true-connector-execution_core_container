@@ -14,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import de.fhg.aisec.ids.comm.server.IdscpServer;
-import it.eng.idsa.businesslogic.configuration.WebSocketConfiguration;
+import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 
 /**
  * 
@@ -22,36 +22,37 @@ import it.eng.idsa.businesslogic.configuration.WebSocketConfiguration;
  *
  */
 
-public class FileRecreatorBean implements Runnable {
+public class FileRecreatorBeanServer implements Runnable {
 	
-	private static final Logger logger = LogManager.getLogger(FileRecreatorBean.class);
+	private static final Logger logger = LogManager.getLogger(FileRecreatorBeanServer.class);
 	
 	private static final int DEFAULT_STREAM_BUFFER_SIZE = 127;
 	// TODO: should fix these paths and file name
 	private static final String FILE_PATH = "src\\main\\resources\\received-fiels\\";
 	private static final String FILE_NAME = "Engineering-COPY.pdf";
+	private static final String CLOSURE_FRAME = "�normal closure";
 	
 	@Autowired
-	private WebSocketConfiguration webSocketConfiguration;
+	private WebSocketServerConfiguration webSocketServerConfiguration;
 	
 	private FrameBufferBean frameBuffer;
-	private InputStreamSocketListener inputStreamSocketListener;
+	private InputStreamSocketListenerServer inputStreamSocketListener;
 	private IdscpServerBean idscpServer;
 	private IdscpServer server;
 	private ArrayList<byte[]> fileByteArray = new ArrayList<byte[]>();
 	private ByteBuffer byteBuffer = null;
 	private RecreatedMultipartMessageBean recreatedmultipartMessage;
 	
-	public FileRecreatorBean() {
+	public FileRecreatorBeanServer() {
 		
 	}
 
 	public void setup() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, URISyntaxException {
-		this.frameBuffer = webSocketConfiguration.frameBufferWebSocket();
-		this.recreatedmultipartMessage = webSocketConfiguration.recreatedMultipartMessageBeanWebSocket();
-		this.inputStreamSocketListener = webSocketConfiguration.inputStreamSocketListenerWebSocket();
+		this.frameBuffer = webSocketServerConfiguration.frameBufferWebSocket();
+		this.recreatedmultipartMessage = webSocketServerConfiguration.recreatedMultipartMessageBeanWebSocket();
+		this.inputStreamSocketListener = webSocketServerConfiguration.inputStreamSocketListenerWebSocketServer();
 		this.inputStreamSocketListener.setFrameBuffer(this.frameBuffer);
-		this.idscpServer = webSocketConfiguration.idscpServerWebSocket();
+		this.idscpServer = webSocketServerConfiguration.idscpServerWebSocket();
 		this.idscpServer.setSocketListener(this.inputStreamSocketListener);
 		this.server = this.idscpServer.createIdscpServer();
 	}
@@ -78,9 +79,9 @@ public class FileRecreatorBean implements Runnable {
 			byte[] receivedFrame = this.frameBuffer.remove();
 			
 			try {
-				if((new String(receivedFrame, StandardCharsets.UTF_8)).equals("�normal closure")) {
+				if((new String(receivedFrame, StandardCharsets.UTF_8)).equals(CLOSURE_FRAME)) {
 					allFramesReceived = true;
-					logger.info("Received the last frames: �normal closure");
+					logger.info("Received the last frames: " + CLOSURE_FRAME);
 				} else {
 					this.fileByteArray.add(receivedFrame.clone());
 				} 
