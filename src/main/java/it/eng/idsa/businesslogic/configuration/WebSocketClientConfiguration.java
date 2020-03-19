@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Scope;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.FileStreamingBean;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.IdscpClientBean;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.InputStreamSocketListenerClient;
+import it.eng.idsa.businesslogic.processor.producer.websocket.client.ResponseMessageBufferClient;
+import it.eng.idsa.businesslogic.processor.producer.websocket.client.ResponseMessageReceiverClient;
 
 /**
  * 
@@ -17,24 +19,34 @@ import it.eng.idsa.businesslogic.processor.producer.websocket.client.InputStream
 @Configuration
 public class WebSocketClientConfiguration {
 
-	// Client
 	@Bean
 	@Scope("singleton")
 	public IdscpClientBean idscpClientServiceWebSocket() {
 		return new IdscpClientBean();
 	}
 	
-	// Client
 	@Bean
 	@Scope("singleton")
 	public FileStreamingBean fileStreamingWebSocket() {
 		return new FileStreamingBean();
 	}
 	
-	// Client
 	@Bean
 	@Scope("singleton")
 	public InputStreamSocketListenerClient inputStreamSocketListenerWebSocketClient() {
 		return new InputStreamSocketListenerClient();
 	}
+	
+	@Bean
+	@Scope("singleton")
+	public ResponseMessageBufferClient responseMessageBufferWebSocketClient() {
+		return new ResponseMessageBufferClient();
+	}
+	
+	@Bean
+	@Scope("singleton")
+	public ResponseMessageReceiverClient responseMessageReceiverWebSocketClient() {
+		return new ResponseMessageReceiverClient();
+	}
+	
 }

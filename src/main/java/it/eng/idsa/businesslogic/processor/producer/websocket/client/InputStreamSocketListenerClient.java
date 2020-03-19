@@ -2,6 +2,9 @@ package it.eng.idsa.businesslogic.processor.producer.websocket.client;
 
 import org.asynchttpclient.ws.WebSocket;
 import org.asynchttpclient.ws.WebSocketListener;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
 
 /**
  * 
@@ -11,6 +14,9 @@ import org.asynchttpclient.ws.WebSocketListener;
 
 public class InputStreamSocketListenerClient implements WebSocketListener {
 
+	@Autowired
+	private WebSocketClientConfiguration webSocketClientConfiguration;
+	
 	@Override
 	public void onOpen(WebSocket websocket) {
 		// TODO Auto-generated method stub
@@ -30,9 +36,7 @@ public class InputStreamSocketListenerClient implements WebSocketListener {
 	}
 	
 	@Override
-    public void onTextFrame(String payload, boolean finalFragment, int rsv) {
-		//TODO: There should handle the 
-      	System.out.println(payload);
-    }
-	
+	public void onBinaryFrame(byte[] payload, boolean finalFragment, int rsv) {
+		webSocketClientConfiguration.responseMessageBufferWebSocketClient().add(payload);
+	  }
 }

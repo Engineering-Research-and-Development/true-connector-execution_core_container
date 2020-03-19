@@ -30,7 +30,8 @@ public class FileRecreatorBeanServer implements Runnable {
 	// TODO: should fix these paths and file name
 	private static final String FILE_PATH = "src\\main\\resources\\received-fiels\\";
 	private static final String FILE_NAME = "Engineering-COPY.pdf";
-	private static final String CLOSURE_FRAME = "�normal closure";
+//	private static final String CLOSURE_FRAME = "�normal closure";
+	private static final String END_BINARY_FRAME_SEPARATOR = "�normal-IDS-ENG-SEPARATOR the-last-frame";
 	
 	@Autowired
 	private WebSocketServerConfiguration webSocketServerConfiguration;
@@ -79,9 +80,9 @@ public class FileRecreatorBeanServer implements Runnable {
 			byte[] receivedFrame = this.frameBuffer.remove();
 			
 			try {
-				if((new String(receivedFrame, StandardCharsets.UTF_8)).equals(CLOSURE_FRAME)) {
+				if((new String(receivedFrame, StandardCharsets.UTF_8)).equals(END_BINARY_FRAME_SEPARATOR)) {
 					allFramesReceived = true;
-					logger.info("Received the last frames: " + CLOSURE_FRAME);
+					logger.info("Received the last frames: " + END_BINARY_FRAME_SEPARATOR);
 				} else {
 					this.fileByteArray.add(receivedFrame.clone());
 				} 

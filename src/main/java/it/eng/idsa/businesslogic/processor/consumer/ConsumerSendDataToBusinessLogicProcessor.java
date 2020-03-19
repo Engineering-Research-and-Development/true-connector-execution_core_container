@@ -16,6 +16,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.fraunhofer.iais.eis.Message;
+import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
+import it.eng.idsa.businesslogic.processor.consumer.websocket.server.ResponseMessageBufferBean;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import nl.tno.ids.common.multipart.MultiPart;
 import nl.tno.ids.common.multipart.MultiPartMessage;
@@ -32,8 +34,14 @@ public class ConsumerSendDataToBusinessLogicProcessor implements Processor {
 	@Value("${application.isEnabledClearingHouse}")
 	private boolean isEnabledClearingHouse;
 	
+	@Value("${application.idscp.isEnabled}")
+	private boolean isEnabledIdscp;
+	
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	
+	@Autowired
+	private WebSocketServerConfiguration webSocketServerConfiguration;
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -61,6 +69,12 @@ public class ConsumerSendDataToBusinessLogicProcessor implements Processor {
 		String multipartMessageString = MultiPart.toString(multiPartMessage, false);
 		String contentType = multiPartMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
 		headesParts.put("Content-Type", contentType);
+		
+		// TODO: Send The MultipartMessage message to the WebaSocket
+		if(isEnabledIdscp) {
+			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration.responseMessageBufferWebSocket();
+			responseMessageServerBean.add(multipartMessageString.getBytes());
+		}
 		
 		exchange.getOut().setHeaders(headesParts);
 		exchange.getOut().setBody(multipartMessageString);

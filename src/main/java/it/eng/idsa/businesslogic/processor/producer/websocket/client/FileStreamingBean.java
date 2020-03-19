@@ -17,9 +17,15 @@ import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
 
 public class FileStreamingBean {
 	
+	private static final String START_BINARY_FRAME_SEPARATOR = "�normal-IDS-ENG-SEPARATOR the-first-rame";
+	
+	private static final String END_BINARY_FRAME_SEPARATOR = "�normal-IDS-ENG-SEPARATOR the-last-frame";
+
 	private static final Logger logger = LogManager.getLogger(FileStreamingBean.class);
 	
 	private WebSocket wsClient = null;
+	private String serverIP;
+	private int serverPort;
 
 	private static final int DEFAULT_STREAM_BUFFER_SIZE = 127;
 	
@@ -31,14 +37,13 @@ public class FileStreamingBean {
 	public FileStreamingBean() {	
 	}
 	
-	public void sendMultipartMessage(IdscpClient client, String multipartMessage, String serverIP, int serverPort) throws KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException, IOException {
+	public void setup(WebSocket wsClient) {
+		this.wsClient = wsClient;
+	}
+	
+	public void sendMultipartMessage(String multipartMessage) throws KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException, IOException {
 		// Convert multipartMessage to the InputStream
 		InputStream multipartMessageStream = new ByteArrayInputStream(multipartMessage.getBytes());
-		
-		// Try to connect to the Server. Wait until you are not connected to the server.
-		
-		wsClient = client.connect(serverIP, serverPort);
-		wsClient.addWebSocketListener(webSocketClientConfiguration.inputStreamSocketListenerWebSocketClient());
 		
 		if(wsClient.isOpen()) {
 			try {
@@ -54,13 +59,16 @@ public class FileStreamingBean {
 		    }
 		}
 		
-		// Send the close frame 200 (OK), "Shutdown"; in this method we also close the wsClient.
-		try {
-		   wsClient.sendCloseFrame(200, "Shutdown");
-		   logger.info("Sent close frame: 200, Shutdown");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		ResponseMessageReceiverClient responseMessageReceiverClient = webSocketClientConfiguration.responseMessageReceiverWebSocketClient();
+		Thread responseMessageReceiverClientThread = new Thread(responseMessageReceiverClient, "ResponseMssageReceiverClientThread");
+		
+//		// Send the close frame 200 (OK), "Shutdown"; in this method we also close the wsClient.
+//		try {
+//		   wsClient.sendCloseFrame(200, "Shutdown");
+//		   logger.info("Sent close frame: 200, Shutdown");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 
 	}
 	
@@ -72,7 +80,7 @@ public class FileStreamingBean {
 	    int wn = 0;
 	    
 	    // The first Frame should be BinaryFrame
-	    webSocket.sendBinaryFrame("The initila Binary Frame.".getBytes(), false, 0);
+	    webSocket.sendBinaryFrame(START_BINARY_FRAME_SEPARATOR.getBytes(), false, 0);
 	    
 	    // Send content of the inputStream using the Frames
 	    byte[] tempwritebuf=new byte[streamBufferSize];
@@ -100,7 +108,9 @@ public class FileStreamingBean {
 		// Send the last frame frame of the inputStream
 		tempwritebuf=writebuf.clone();
 		webSocket.sendContinuationFrame(tempwritebuf, true, 0);
-		logger.info("Sent the last frame");
+		logger.info("Sent the last frame from the large message");
+		webSocket.sendBinaryFrame(END_BINARY_FRAME_SEPARATOR.getBytes(), false, 0);
+		logger.info("Sent the the-end-binary-frame-separator");
 	  }	
 	
 }

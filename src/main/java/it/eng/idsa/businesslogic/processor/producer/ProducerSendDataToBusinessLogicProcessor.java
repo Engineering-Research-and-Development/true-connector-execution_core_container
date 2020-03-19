@@ -23,6 +23,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.asynchttpclient.ws.WebSocket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -81,21 +82,34 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		String forwardTo = headesParts.get("Forward-To").toString();
 		Message message = multiPartMessageServiceImpl.getMessage(header);
 		
-		//TODO: Also response shoud be received fromo the WebSocket
-		// Send MultipartMessage
-		CloseableHttpResponse response = sendMultipartMessage(
-				headesParts, 
-				messageWithToken, 
-				header, 
-				payload,
-				forwardTo
-				);
 		
-		// Handle response
-		handleResponse(exchange, message, response, forwardTo);
-		
-		if(response!=null) {
-			response.close();
+		if(isEnabledIdscp) {
+			// -- Send data using IDSCP - (Client) - WebSocket
+			String response;
+			if(Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
+				response = sendMultipartMessageWebSocket(messageWithToken, payload, forwardTo);
+			} else {
+				response = sendMultipartMessageWebSocket(header, payload, forwardTo);
+			}
+			
+			// Handle response
+			handleResponseWebSocket(exchange, message, response, forwardTo);
+		} else {
+			// Send MultipartMessage HTTPS
+			CloseableHttpResponse response = sendMultipartMessage(
+					headesParts, 
+					messageWithToken, 
+					header, 
+					payload,
+					forwardTo
+					);
+			
+			// Handle response
+			handleResponse(exchange, message, response, forwardTo);
+			
+			if(response!=null) {
+				response.close();
+			}
 		}
 		
 	}
@@ -108,20 +122,11 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 			String forwardTo) throws IOException, KeyManagementException,
 			NoSuchAlgorithmException, InterruptedException, ExecutionException, UnsupportedEncodingException {
 		CloseableHttpResponse response = null;
-		if(isEnabledIdscp) {
-			// -- Send data using IDSCP - (Client) - WebSocket
-			if(Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
-				/*response =*/ sendMultipartMessageWebSocket(messageWithToken, payload, forwardTo);
-			} else {
-				/*response =*/ sendMultipartMessageWebSocket(header, payload, forwardTo);
-			}
-		}else {
-			// -- Send message using HTTPS
-			if(Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
-				response = forwardMessageBinary(forwardTo, messageWithToken, payload);
-			} else {
-				response = forwardMessageBinary(forwardTo, header, payload);
-			}
+		// -- Send message using HTTPS
+		if(Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
+			response = forwardMessageBinary(forwardTo, messageWithToken, payload);
+		} else {
+			response = forwardMessageBinary(forwardTo, header, payload);
 		}
 		return response;
 	}
@@ -206,9 +211,23 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 			}
 		}
 	}
+	
+	private void handleResponseWebSocket(Exchange exchange, Message message, String responseString, String forwardTo) {
+		if (responseString==null) {
+			logger.info("...communication error");
+			rejectionMessageServiceImpl.sendRejectionMessage(
+					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, 
+					message);
+		} else {
+			logger.info("response received from the DataAPP="+responseString);
+			logger.info("data sent to destination "+forwardTo);
+			logger.info("Successful response: "+ responseString);
+			exchange.getOut().setBody(responseString);
+		}
+	}
 
 	// TODO: This method should have response from the WebSocket or we should create new WebSocket.
-	private void /*CloseableHttpResponse*/ sendMultipartMessageWebSocket(String header, String payload, String forwardTo) throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
+	private String sendMultipartMessageWebSocket(String header, String payload, String forwardTo) throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
 		// Create idscpClient
 		IdscpClientBean idscpClientBean = webSocketClientConfiguration.idscpClientServiceWebSocket();
 		IdscpClient idscpClient = idscpClientBean.getClient();
@@ -217,12 +236,17 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		String multipartMessage = EntityUtils.toString(entity, "UTF-8");
 		// Send multipartMessage as a frames
 		FileStreamingBean fileStreamingBean = webSocketClientConfiguration.fileStreamingWebSocket();
-		fileStreamingBean.sendMultipartMessage(idscpClient, multipartMessage, this.extractWebSocketIP(forwardTo), this.extractWebSocketPort(forwardTo));
+		WebSocket wsClient = idscpClient.connect(this.extractWebSocketIP(forwardTo), this.extractWebSocketPort(forwardTo));
+		// Try to connect to the Server. Wait until you are not connected to the server.
+		wsClient.addWebSocketListener(webSocketClientConfiguration.inputStreamSocketListenerWebSocketClient());
+		fileStreamingBean.setup(wsClient);
+		fileStreamingBean.sendMultipartMessage(multipartMessage);
+		// We don't have status of the response (is it 200 OK or not). We have only the content of the response.
+		String responseMessage = new String(webSocketClientConfiguration.responseMessageBufferWebSocketClient().remove());
+		closeWSClient(wsClient);
+		logger.info("received response: " + responseMessage);
 		
-		//TODO: Receive the response from the Server ECC
-//		CloseableHttpResponse response = null;
-//		
-//		return response;
+		return responseMessage;
 	}
 	
 	private String extractWebSocketIP(String forwardTo) {
@@ -231,5 +255,17 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 	
 	private int extractWebSocketPort(String forwardTo) {
 		return Integer.parseInt(forwardTo.substring(forwardTo.indexOf(":", 8)+1));
+	}
+	
+	private void closeWSClient(WebSocket wsClient) {
+		// Send the close frame 200 (OK), "Shutdown"; in this method we also close the wsClient.
+		try
+		{
+			wsClient.sendCloseFrame(200, "Shutdown");
+		}catch(Exception e)
+		{
+			//TODO: Handle rejection message
+			e.printStackTrace();
+		}
 	}
 }
