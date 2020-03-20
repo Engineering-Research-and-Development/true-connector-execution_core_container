@@ -20,7 +20,6 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.asynchttpclient.ws.WebSocket;
@@ -38,6 +37,7 @@ import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import nl.tno.ids.common.communication.HttpClientGenerator;
 import nl.tno.ids.common.config.keystore.AcceptAllTruststoreConfig;
+import nl.tno.ids.common.multipart.MultiPartMessage;
 
 /**
  * 
@@ -232,15 +232,23 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		IdscpClientBean idscpClientBean = webSocketClientConfiguration.idscpClientServiceWebSocket();
 		IdscpClient idscpClient = idscpClientBean.getClient();
 		// Create multipartMessage as a String
-		HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(header, payload, null);
-		String multipartMessage = EntityUtils.toString(entity, "UTF-8");
+		//HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(header, payload, null);
+		//String multipartMessage = EntityUtils.toString(entity, "UTF-8");
+		MultiPartMessage message=new MultiPartMessage.Builder()
+				.setHeader(header)
+				.setPayload(payload)
+				.build();
+		
+		//System.out.println("GAB multipartMessage="+message.toString());
+
 		// Send multipartMessage as a frames
 		FileStreamingBean fileStreamingBean = webSocketClientConfiguration.fileStreamingWebSocket();
 		WebSocket wsClient = idscpClient.connect(this.extractWebSocketIP(forwardTo), this.extractWebSocketPort(forwardTo));
 		// Try to connect to the Server. Wait until you are not connected to the server.
 		wsClient.addWebSocketListener(webSocketClientConfiguration.inputStreamSocketListenerWebSocketClient());
 		fileStreamingBean.setup(wsClient);
-		fileStreamingBean.sendMultipartMessage(multipartMessage);
+		fileStreamingBean.sendMultipartMessage(message.toString());
+		//fileStreamingBean.sendMultipartMessage(multipartMessage);
 		// We don't have status of the response (is it 200 OK or not). We have only the content of the response.
 		String responseMessage = new String(webSocketClientConfiguration.responseMessageBufferWebSocketClient().remove());
 		closeWSClient(wsClient);
