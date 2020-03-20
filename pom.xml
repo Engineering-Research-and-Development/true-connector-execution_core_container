@@ -23,6 +23,7 @@
 		<camel.version.rc>3.0.0-RC3</camel.version.rc>
 		<jackson.version>2.10.1</jackson.version>
 		<tomcat.version>9.0.24</tomcat.version>
+		<information.model.version>2.1.0-SNAPSHOT</information.model.version>
 	</properties>
 
 	<repositories> <repository> <id>nl.tno.ids</id> <url>https://ci.ids.smart-connected.nl/nexus/repository/tno-ids/ 
@@ -90,12 +91,12 @@
 		<dependency>
 			<groupId>de.fraunhofer.iais.eis.ids.infomodel</groupId>
 			<artifactId>java</artifactId>
-			<version>2.1.0-SNAPSHOT</version>
+			<version>${information.model.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>de.fraunhofer.iais.eis.ids</groupId>
 			<artifactId>infomodel-serializer</artifactId>
-			<version>2.1.0-SNAPSHOT</version>
+			<version>${information.model.version}</version>
 		</dependency>
 
 		<!-- Camel -->
@@ -164,7 +165,7 @@
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/de.fhg.aisec.ids/ids-api -->
   		<dependency>
-		    <groupId>de.fhg.aisec.ids</groupId>
+		    <groupId>de.fraunhofer.aisec.ids</groupId>
 		    <artifactId>ids-api</artifactId>
 		    <version>2.1.0</version>
 		</dependency>
