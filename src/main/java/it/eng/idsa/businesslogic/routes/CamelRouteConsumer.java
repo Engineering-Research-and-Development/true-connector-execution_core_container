@@ -122,7 +122,7 @@ public class CamelRouteConsumer extends RouteBuilder {
 		// TODO: Improve this initialization
 		// Camel WebSocket - Endpoint B
 		boolean startupRoute = true;
-		from("timer://simpleTimer?delay=2s&repeatCount=1")
+		from("timer://simpleTimer?repeatCount=-1")
 			.process(fileRecreatorProcessor)
 			.process(multiPartMessageProcessor)
 			.choice()
