@@ -9,7 +9,6 @@ import java.net.URI;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,8 +33,7 @@ import nl.tno.ids.common.serialization.DateUtil;
 @Service
 @Transactional
 public class RejectionMessageServiceImpl implements RejectionMessageService{
-
-	@Value("${information.model.version}")
+	
     private final static String informationModelVersion = getInformationModelVersion();
 	
 	@Autowired
@@ -85,9 +83,9 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		}
 		return rejectionMessage;
 	}
-
+	
 	private static String getInformationModelVersion() {
-		/*String currnetInformationModelVersion = null;
+		String currnetInformationModelVersion = null;
 		try {
 			
 			InputStream is = RejectionMessageServiceImpl.class.getClassLoader().getResourceAsStream("META-INF/maven/it.eng.idsa/market4.0-execution_core_container_business_logic/pom.xml");
@@ -107,8 +105,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		 */
-		return informationModelVersion;
+		return currnetInformationModelVersion;
 	}
 
 	private Message createResultMessage(Message header) {
