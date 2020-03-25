@@ -12,7 +12,6 @@ import org.apache.logging.log4j.Logger;
 import org.asynchttpclient.ws.WebSocket;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import de.fhg.aisec.ids.comm.client.IdscpClient;
 import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
 
 public class FileStreamingBean {

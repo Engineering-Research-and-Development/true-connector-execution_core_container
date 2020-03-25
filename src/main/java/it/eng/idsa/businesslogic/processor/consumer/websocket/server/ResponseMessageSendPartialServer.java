@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 
-import org.eclipse.jetty.websocket.api.Session;
-
 /**
  * 
  * @author Milan Karajovic and Gabriele De Luca
