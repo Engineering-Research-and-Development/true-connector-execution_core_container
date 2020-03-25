@@ -226,20 +226,15 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		}
 	}
 
-	// TODO: This method should have response from the WebSocket or we should create new WebSocket.
 	private String sendMultipartMessageWebSocket(String header, String payload, String forwardTo) throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
 		// Create idscpClient
 		IdscpClientBean idscpClientBean = webSocketClientConfiguration.idscpClientServiceWebSocket();
 		IdscpClient idscpClient = idscpClientBean.getClient();
 		// Create multipartMessage as a String
-		//HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(header, payload, null);
-		//String multipartMessage = EntityUtils.toString(entity, "UTF-8");
 		MultiPartMessage message=new MultiPartMessage.Builder()
 				.setHeader(header)
 				.setPayload(payload)
 				.build();
-		
-		//System.out.println("GAB multipartMessage="+message.toString());
 
 		// Send multipartMessage as a frames
 		FileStreamingBean fileStreamingBean = webSocketClientConfiguration.fileStreamingWebSocket();
@@ -248,7 +243,6 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		wsClient.addWebSocketListener(webSocketClientConfiguration.inputStreamSocketListenerWebSocketClient());
 		fileStreamingBean.setup(wsClient);
 		fileStreamingBean.sendMultipartMessage(message.toString());
-		//fileStreamingBean.sendMultipartMessage(multipartMessage);
 		// We don't have status of the response (is it 200 OK or not). We have only the content of the response.
 		String responseMessage = new String(webSocketClientConfiguration.responseMessageBufferWebSocketClient().remove());
 		closeWSClient(wsClient);

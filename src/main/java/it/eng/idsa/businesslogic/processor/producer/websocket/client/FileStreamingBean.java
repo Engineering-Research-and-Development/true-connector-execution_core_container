@@ -61,14 +61,6 @@ public class FileStreamingBean {
 		
 		ResponseMessageReceiverClient responseMessageReceiverClient = webSocketClientConfiguration.responseMessageReceiverWebSocketClient();
 		Thread responseMessageReceiverClientThread = new Thread(responseMessageReceiverClient, "ResponseMssageReceiverClientThread");
-		
-//		// Send the close frame 200 (OK), "Shutdown"; in this method we also close the wsClient.
-//		try {
-//		   wsClient.sendCloseFrame(200, "Shutdown");
-//		   logger.info("Sent close frame: 200, Shutdown");
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
 
 	}
 	
