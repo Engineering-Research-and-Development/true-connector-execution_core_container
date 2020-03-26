@@ -33,7 +33,7 @@ import static org.asynchttpclient.Dsl.asyncHttpClient;
 
 /**
  * @author Antonio Scatoloni
- * 
+ *
  */
 
 @Component
@@ -60,20 +60,6 @@ public class MessageWebSocketOverHttpSender {
             throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
         return doSendMultipartMessageWebSocketOverHttps(header, payload, forwardTo, message);
     }
-
-    /**
-     * @param header
-     * @param payload
-     * @param forwardTo
-     * @return
-     * @throws ParseException
-     * @throws IOException
-     * @throws KeyManagementException
-     * @throws NoSuchAlgorithmException
-     * @throws InterruptedException
-     * @throws ExecutionException
-     * @author Antonio Scatoloni
-     */
 
     private String doSendMultipartMessageWebSocketOverHttps(String header, String payload, String forwardTo, Message message)
             throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
