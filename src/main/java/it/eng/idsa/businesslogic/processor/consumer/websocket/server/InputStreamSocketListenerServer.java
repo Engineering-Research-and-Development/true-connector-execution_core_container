@@ -31,29 +31,6 @@ public class InputStreamSocketListenerServer implements SocketListener {
 
 	@Override
 	public void onMessage(Session session, byte[] message) {
-
-//		RemoteEndpoint remote = session.getRemote();
-//		// TODO: Wait while don't receive the response from the
-//		String receivedMessage = new String(message, StandardCharsets.UTF_8);
-//		// Blocking Send of a BINARY message to remote endpoint
-//		// Part 1
-//		ByteBuffer buf1 = ByteBuffer.wrap("djoka".getBytes());
-//		// Part 2 (last part)
-//		ByteBuffer buf2 = ByteBuffer.wrap(" iz potoka".getBytes());
-//		if (receivedMessage.equals(CLOSURE_FRAME)) {
-//			try {
-//				remote.sendPartialBytes(buf1,false);
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		    try {
-//				remote.sendPartialBytes(buf2,true);// isLast is true
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
 		
 		String receivedMessage = new String(message, StandardCharsets.UTF_8);
 		if(receivedMessage.equals(CLOSURE_FRAME)) {
