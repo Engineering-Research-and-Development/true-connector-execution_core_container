@@ -34,6 +34,7 @@ import it.eng.idsa.businesslogic.service.ClearingHouseService;
  * @author Milan Karajovic and Gabriele De Luca
  *
  */
+
 @Service
 @Transactional
 public class ClearingHouseServiceImpl implements ClearingHouseService {

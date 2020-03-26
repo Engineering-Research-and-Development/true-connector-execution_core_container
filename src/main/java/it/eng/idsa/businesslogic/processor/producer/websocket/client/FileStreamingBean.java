@@ -12,7 +12,6 @@ import org.apache.logging.log4j.Logger;
 import org.asynchttpclient.ws.WebSocket;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import de.fhg.aisec.ids.comm.client.IdscpClient;
 import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
 
 public class FileStreamingBean {
@@ -61,14 +60,6 @@ public class FileStreamingBean {
 		
 		ResponseMessageReceiverClient responseMessageReceiverClient = webSocketClientConfiguration.responseMessageReceiverWebSocketClient();
 		Thread responseMessageReceiverClientThread = new Thread(responseMessageReceiverClient, "ResponseMssageReceiverClientThread");
-		
-//		// Send the close frame 200 (OK), "Shutdown"; in this method we also close the wsClient.
-//		try {
-//		   wsClient.sendCloseFrame(200, "Shutdown");
-//		   logger.info("Sent close frame: 200, Shutdown");
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
 
 	}
 	
