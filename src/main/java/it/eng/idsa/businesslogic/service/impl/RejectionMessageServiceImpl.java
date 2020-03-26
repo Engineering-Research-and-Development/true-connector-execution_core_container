@@ -36,10 +36,11 @@ import nl.tno.ids.common.serialization.DateUtil;
 public class RejectionMessageServiceImpl implements RejectionMessageService{
 
 	@Value("${information.model.version}")
-    private final static String informationModelVersion = getInformationModelVersion();
+    private String informationModelVersion;
+			//= getInformationModelVersion();
 	
-	@Autowired
-	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
+	//@Autowired
+	//private RejectionMessageServiceImpl rejectionMessageServiceImpl;
 	
 	@Override 
 	public void sendRejectionMessage(RejectionMessageType rejectionMessageType, Message message) {
@@ -55,39 +56,32 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		Message rejectionMessage = null;
 		switch(rejectionMessageType) {
 			case "RESULT_MESSAGE":
-				rejectionMessage = rejectionMessageServiceImpl
-					.createResultMessage(message);
+				rejectionMessage = createResultMessage(message);
 				break;
 			case "REJECTION_MESSAGE_COMMON":
-				rejectionMessage = rejectionMessageServiceImpl
-					.createRejectionMessageCommon(message);
+				rejectionMessage = createRejectionMessageCommon(message);
 				break;
 			case "REJECTION_TOKEN":
-				rejectionMessage = rejectionMessageServiceImpl
-					.createRejectionToken(message);
+				rejectionMessage = createRejectionToken(message);
 				break;
 			case "REJECTION_MESSAGE_LOCAL_ISSUES":
-				rejectionMessage = rejectionMessageServiceImpl
-					.createRejectionMessageLocalIssues(message);
+				rejectionMessage = createRejectionMessageLocalIssues(message);
 				break;
 			case "REJECTION_TOKEN_LOCAL_ISSUES":
-				rejectionMessage = rejectionMessageServiceImpl
-					.createRejectionTokenLocalIssues(message);
+				rejectionMessage = createRejectionTokenLocalIssues(message);
 				break;
 			case "REJECTION_COMMUNICATION_LOCAL_ISSUES":
-				rejectionMessage = rejectionMessageServiceImpl
-					.createRejectionCommunicationLocalIssues(message);
+				rejectionMessage = createRejectionCommunicationLocalIssues(message);
 				break;	
 			default:
-				rejectionMessage = rejectionMessageServiceImpl
-					.createResultMessage(message);
+				rejectionMessage = createResultMessage(message);
 				break;
 		}
 		return rejectionMessage;
 	}
 
-	private static String getInformationModelVersion() {
-		/*String currnetInformationModelVersion = null;
+	/*private String getInformationModelVersion() {
+		String currnetInformationModelVersion = null;
 		try {
 			
 			InputStream is = RejectionMessageServiceImpl.class.getClassLoader().getResourceAsStream("META-INF/maven/it.eng.idsa/market4.0-execution_core_container_business_logic/pom.xml");
@@ -107,8 +101,16 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		 */
+
 		return informationModelVersion;
+	}*/
+
+	public String getInformationModelVersion() {
+		return informationModelVersion;
+	}
+
+	public void setInformationModelVersion(String informationModelVersion) {
+		this.informationModelVersion = informationModelVersion;
 	}
 
 	private Message createResultMessage(Message header) {
