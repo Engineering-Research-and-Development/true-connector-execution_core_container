@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import it.eng.idsa.businesslogic.processor.producer.websocket.client.MessageWebSocketOverHttpSender;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.http.HttpEntity;
@@ -24,7 +26,13 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.asynchttpclient.DefaultAsyncHttpClientConfig;
+import org.asynchttpclient.SslEngineFactory;
+import org.asynchttpclient.netty.ssl.JsseSslEngineFactory;
 import org.asynchttpclient.ws.WebSocket;
+import org.asynchttpclient.ws.WebSocketListener;
+import org.asynchttpclient.ws.WebSocketUpgradeHandler;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -40,6 +48,12 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import nl.tno.ids.common.communication.HttpClientGenerator;
 import nl.tno.ids.common.config.keystore.AcceptAllTruststoreConfig;
 import nl.tno.ids.common.multipart.MultiPartMessage;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import static org.asynchttpclient.Dsl.asyncHttpClient;
 
 /**
  * 
@@ -65,6 +79,9 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 	
 	@Autowired
 	private WebSocketClientConfiguration webSocketClientConfiguration;
+
+	@Autowired
+	private MessageWebSocketOverHttpSender messageWebSocketOverHttpSender;
 	
 	private String webSocketIp;
 	private Integer webSocketPort;
@@ -112,6 +129,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 			handleResponseWebSocket(exchange, message, response, forwardTo);
 		} else {
 			// Send MultipartMessage HTTPS
+			/*
 			CloseableHttpResponse response = sendMultipartMessage(
 					headesParts, 
 					messageWithToken, 
@@ -125,9 +143,10 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 			
 			if(response!=null) {
 				response.close();
-			}
+			}*/
+			String response = messageWebSocketOverHttpSender.sendMultipartMessageWebSocketOverHttps(header, payload, forwardTo);
+			handleResponseWebSocket(exchange, message, response, forwardTo);
 		}
-		
 	}
 
 	private CloseableHttpResponse sendMultipartMessage(
@@ -303,4 +322,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 			e.printStackTrace();
 		}
 	}
+
+
+
 }

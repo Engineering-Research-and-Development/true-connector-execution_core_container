@@ -43,7 +43,7 @@ public class HttpWebSocketMessagingLogic {
                 Thread fileRecreatorBeanThread = new Thread(responseMessageSendPartialServer, "ResponseMessageSendPartialServer");
                 fileRecreatorBeanThread.start();
             }
-           logger.info(HttpWebSocketMessagingLogic.class.getSimpleName() +" DATA DEQUEUED FROM SOCKET -> " + receivedMessage);
+           logger.info(HttpWebSocketMessagingLogic.class.getSimpleName() +" DATA RECEIVED FROM SOCKET -> " + receivedMessage);
 
        }
     }
