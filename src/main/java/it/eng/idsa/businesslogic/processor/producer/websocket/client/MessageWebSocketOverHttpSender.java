@@ -31,6 +31,11 @@ import java.util.concurrent.ExecutionException;
 
 import static org.asynchttpclient.Dsl.asyncHttpClient;
 
+/**
+ * @author Antonio Scatoloni
+ * 
+ */
+
 @Component
 public class MessageWebSocketOverHttpSender {
     private static final Logger logger = LogManager.getLogger(ProducerSendDataToBusinessLogicProcessor.class);
