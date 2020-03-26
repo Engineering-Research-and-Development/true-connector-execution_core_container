@@ -2,6 +2,7 @@ package it.eng.idsa.businesslogic.processor.producer.websocket.client;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
+import it.eng.idsa.businesslogic.processor.consumer.websocket.server.HttpWebSocketServerBean;
 import it.eng.idsa.businesslogic.processor.producer.ProducerSendDataToBusinessLogicProcessor;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
@@ -49,7 +50,7 @@ public class MessageWebSocketOverHttpSender {
     @Value("${application.idscp.server.port}")
     private int idscpServerPort;
 
-    private String WS_URI = "wss://0.0.0.0:" + idscpServerPort + "/incoming-received-data-ws";  //TODO from Configuration
+    private String WS_URL = "wss://0.0.0.0:" + idscpServerPort + HttpWebSocketServerBean.WS_URL;  //TODO from Configuration
 
     public String sendMultipartMessageWebSocketOverHttps(String header, String payload, String forwardTo)
             throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
@@ -114,7 +115,7 @@ public class MessageWebSocketOverHttpSender {
                         }
                     }).build();
             wsClient = asyncHttpClient(clientConfig)
-                    .prepareGet(WS_URI)
+                    .prepareGet(WS_URL)
                     .execute(wsHandler)
                     .get();
             wsClient.addWebSocketListener(webSocketClientConfiguration.inputStreamSocketListenerWebSocketClient());

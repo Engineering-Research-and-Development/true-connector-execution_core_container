@@ -19,7 +19,7 @@ import java.nio.file.Path;
  */
 public class HttpWebSocketServerBean {
     private static final Logger logger = LogManager.getLogger(HttpWebSocketServerBean.class);
-    public static final String WS_URI = "/incoming-received-data-ws";
+    public static final String WS_URL = "/incoming-received-data-ws";
     public static final int SECURE_PORT = 8891;
 
     @Value("${application.idscp.server.port}")
@@ -58,7 +58,7 @@ public class HttpWebSocketServerBean {
 
         ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
         handler.setContextPath("/");
-        handler.addServlet(HttpWebSocketMessagingServlet.class, WS_URI);
+        handler.addServlet(HttpWebSocketMessagingServlet.class, WS_URL);
         server.setHandler(handler);
     }
 
