@@ -30,7 +30,7 @@ public class HttpWebSocketServerBean {
     public Server createServer() {
         if (null == server) {
             setup();
-            run();
+            start();
             return server;
         }
         return null;
@@ -62,7 +62,7 @@ public class HttpWebSocketServerBean {
         server.setHandler(handler);
     }
 
-    public void run() {
+    public void start() {
         try {
             server.start();
             //server.join();
