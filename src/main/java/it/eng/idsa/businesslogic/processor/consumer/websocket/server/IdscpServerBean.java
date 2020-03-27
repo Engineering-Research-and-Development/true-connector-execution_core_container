@@ -36,12 +36,12 @@ public class IdscpServerBean {
 	}
 
 	public IdscpServer createIdscpServer() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, URISyntaxException {
-		
+		try {
 		// Prepare keystore
-	    final Path jssePath = FileSystems.getDefault().getPath("src/main/resources/jsse");
+	    final Path jssePath = FileSystems.getDefault().getPath("src/main/resources");
 	    final KeyStore ks = KeyStore.getInstance("JKS");
 	    ks.load(
-	        Files.newInputStream(jssePath.resolve("server-keystore.jks")), "password".toCharArray());
+	        Files.newInputStream(jssePath.resolve("ssl-server.jks")), "changeit".toCharArray());
 		
 		// prepare server
 		IdscpServer server =
@@ -51,11 +51,18 @@ public class IdscpServerBean {
 		                    .port(idscpServerPort)
 		                    .attestationType(IdsAttestationType.BASIC)
 		                    .setKeyStore(ks)
+		                    .setKeyPassword("changeit")
 		                    .ttpUrl(new URI("https://localhost/nonexistingdummy_ttp"))
 		                    .build())
 		            .setSocketListener(socketListener).start();
 		
 		return server;
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public InputStreamSocketListenerServer getSocketListener() {
