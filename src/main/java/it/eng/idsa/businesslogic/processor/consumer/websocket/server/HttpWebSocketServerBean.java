@@ -1,6 +1,5 @@
 package it.eng.idsa.businesslogic.processor.consumer.websocket.server;
 
-import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.http.HttpVersion;
@@ -10,10 +9,14 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.BindException;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Jetty Server instantiation with WebSocket over SSL
@@ -24,25 +27,37 @@ public class HttpWebSocketServerBean {
     private static final Logger logger = LogManager.getLogger(HttpWebSocketServerBean.class);
     public static final String WS_URL = "/incoming-data-channel-received-message";
 
-    @Autowired
-    private ApplicationConfiguration configuration;
-
     @Value("${application.idscp.server.port}")
     private int idscpServerPort;
 
+    @Value("${server.ssl.key-store}")
+    private String keyStoreLocation;
+
+    @Value("${server.ssl.key-password}")
+    private String keyStorePassword;
+
     private Server server;
 
-    public void createServer() {
-        if (null == server ||  !server.isStarted() || !server.isRunning()) {
-            setup();
-            start();
+    @Autowired
+    private ResourceLoader resourceLoader;
+
+    public Server createServer() {
+        if (null == server || !server.isStarted() || !server.isRunning()) {
+            try {
+                setup();
+                start();
+            } catch (Exception e) {
+                logger.error("Error on starting JETTY Server with stack: " + e.getMessage());
+            }
         }
+        return server;
     }
 
-    public void setup() {
-        final Path jssePath = FileSystems.getDefault().getPath("src/main/resources"); //TODO
-        Path keystorePath = jssePath.resolve("ssl-server.jks"); //TODO from configuration
-        String password = configuration.getKeyStorePassword();
+    public void setup() throws IOException {
+        Resource resourceKeyStore = resourceLoader.getResource(keyStoreLocation);
+        String keyStore = resourceKeyStore.getFile().getAbsolutePath();
+        Path keystorePath = Paths.get(keyStore);
+        String password = keyStorePassword;
 
         int port = idscpServerPort; //SECURE_PORT;
 
