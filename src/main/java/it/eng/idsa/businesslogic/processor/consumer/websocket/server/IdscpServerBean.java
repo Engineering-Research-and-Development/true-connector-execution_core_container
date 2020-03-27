@@ -11,11 +11,16 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import de.fhg.aisec.ids.comm.server.IdscpServer;
 import de.fhg.aisec.ids.comm.server.ServerConfiguration;
 import de.fhg.aisec.ids.messages.AttestationProtos.IdsAttestationType;
+
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import java.io.InputStream;
 
 /**
  * 
@@ -27,50 +32,59 @@ public class IdscpServerBean {
 	
 	@Value("${application.idscp.server.port}")
 	private int idscpServerPort;
+	
+	@Value("${server.ssl.key-store-type}")
+	private String keyStoreType;
+	
+	@Value("${server.ssl.key-store}")
+	private String keyStoreLoation;
+	
+	@Value("${server.ssl.key-password}")
+	private String keyStorePassword;
+	
+	@Value("${application.idscp.server.ttpUri}")
+	private String ttpUrl;
+	
+	@Autowired
+    ResourceLoader resourceLoader;
 
-	private IdscpServer server;
+	private IdscpServer idscpServer;
 	
 	InputStreamSocketListenerServer socketListener;
 	
 	public IdscpServerBean() {
 	}
 
-	public IdscpServer createIdscpServer() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, URISyntaxException {
-		try {
-		// Prepare keystore
-	    final Path jssePath = FileSystems.getDefault().getPath("src/main/resources");
-	    final KeyStore ks = KeyStore.getInstance("JKS");
-	    ks.load(
-	        Files.newInputStream(jssePath.resolve("ssl-server.jks")), "changeit".toCharArray());
+	public void createIdscpServer() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, URISyntaxException {
 		
-		// prepare server
-		IdscpServer server =
-		        new IdscpServer()
-		            .config(
-		                new ServerConfiguration.Builder()
-		                    .port(idscpServerPort)
-		                    .attestationType(IdsAttestationType.BASIC)
-		                    .setKeyStore(ks)
-		                    .setKeyPassword("changeit")
-		                    .ttpUrl(new URI("https://localhost/nonexistingdummy_ttp"))
-		                    .build())
-		            .setSocketListener(socketListener).start();
-		
-		return server;
+		if(idscpServer==null) {
+			// Prepare keystore
+			Resource resourceKeyStore = resourceLoader.getResource(keyStoreLoation);
+			InputStream keyStore = resourceKeyStore.getInputStream();
+			final KeyStore ks = KeyStore.getInstance(keyStoreType);
+			ks.load(keyStore, keyStorePassword.toCharArray());
+				
+			// prepare server
+			idscpServer =
+			        new IdscpServer()
+			            .config(
+			                new ServerConfiguration.Builder()
+			                    .port(idscpServerPort)
+			                    .attestationType(IdsAttestationType.BASIC)
+			                    .setKeyStore(ks)
+			                    .setKeyPassword(keyStorePassword)
+			                    .ttpUrl(new URI(ttpUrl))
+			                    .build())
+			            .setSocketListener(socketListener).start();
 		}
-		catch (Exception e) {
-			// TODO: handle exception
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public InputStreamSocketListenerServer getSocketListener() {
-		return socketListener;
 	}
 
 	public void setSocketListener(InputStreamSocketListenerServer socketListener) {
 		this.socketListener = socketListener;
+	}
+	
+	public IdscpServer getIdscpServer() {
+		return this.idscpServer;
 	}
 		
 }

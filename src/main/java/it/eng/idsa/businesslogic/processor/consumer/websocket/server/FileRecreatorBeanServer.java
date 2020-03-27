@@ -15,120 +15,105 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import de.fhg.aisec.ids.comm.server.IdscpServer;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
-import org.springframework.beans.factory.annotation.Value;
+import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
+ * 
  * @author Milan Karajovic and Gabriele De Luca
+ *
  */
 
 public class FileRecreatorBeanServer implements Runnable {
+	
+	private static final Logger logger = LogManager.getLogger(FileRecreatorBeanServer.class);
+	
+	private static final int DEFAULT_STREAM_BUFFER_SIZE = 127;
+	// TODO: should fix these paths and file name
+	private static final String FILE_PATH = "src\\main\\resources\\received-fiels\\";
+	private static final String FILE_NAME = "Engineering-COPY.pdf";
+//	private static final String CLOSURE_FRAME = "�normal closure";
+	private static final String END_BINARY_FRAME_SEPARATOR = "�normal-IDS-ENG-SEPARATOR the-last-frame";
+	
+	@Autowired
+	private WebSocketServerConfiguration webSocketServerConfiguration;
+	
+	private FrameBufferBean frameBuffer;
+	private InputStreamSocketListenerServer inputStreamSocketListener;
+	private IdscpServerBean idscpServer;
+	private IdscpServer server;
+	private ArrayList<byte[]> fileByteArray = new ArrayList<byte[]>();
+	private ByteBuffer byteBuffer = null;
+	private RecreatedMultipartMessageBean recreatedmultipartMessage;
+	
+	public FileRecreatorBeanServer() {
+		
+	}
 
-    private static final Logger logger = LogManager.getLogger(FileRecreatorBeanServer.class);
+	public void setup() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, URISyntaxException {
+		this.frameBuffer = webSocketServerConfiguration.frameBufferWebSocket();
+		this.recreatedmultipartMessage = webSocketServerConfiguration.recreatedMultipartMessageBeanWebSocket();
+		this.inputStreamSocketListener = webSocketServerConfiguration.inputStreamSocketListenerWebSocketServer();
+		this.inputStreamSocketListener.setFrameBuffer(this.frameBuffer);
+		this.idscpServer = webSocketServerConfiguration.idscpServerWebSocket();
+		this.idscpServer.setSocketListener(this.inputStreamSocketListener);
+		this.idscpServer.createIdscpServer();
+		this.server = this.idscpServer.getIdscpServer();
+	}
+	
 
-    private static final int DEFAULT_STREAM_BUFFER_SIZE = 127;
-    // TODO: should fix these paths and file name
-    private static final String FILE_PATH = "src\\main\\resources\\received-fiels\\";
-    private static final String FILE_NAME = "Engineering-COPY.pdf";
-    //	private static final String CLOSURE_FRAME = "�normal closure";
-    private static final String END_BINARY_FRAME_SEPARATOR = "�normal-IDS-ENG-SEPARATOR the-last-frame";
+	@Override
+	public void run() {
+		receiveAllFrames();
+		recreatedmultipartMessage.set(recreateMultipartMessageFromReceivedFrames());
+	}
 
-    @Autowired
-    private WebSocketServerConfiguration webSocketServerConfiguration;
+	private void receiveAllFrames() {
+		boolean allFramesReceived = false;
+		
+		while(!allFramesReceived) {
+			byte[] receivedFrame = this.frameBuffer.remove();
+			
+			try {
+				if((new String(receivedFrame, StandardCharsets.UTF_8)).equals(END_BINARY_FRAME_SEPARATOR)) {
+					allFramesReceived = true;
+					logger.info("Received the last frames: " + END_BINARY_FRAME_SEPARATOR);
+				} else {
+					this.fileByteArray.add(receivedFrame.clone());
+				} 
+			} finally {
+				receivedFrame = null;
+			}
+		}
+	}
+	
+	private byte[] getAllFrames(ArrayList<byte[]> fileByteArray) {
+		ByteBuffer byteBuffer = ByteBuffer.allocate(DEFAULT_STREAM_BUFFER_SIZE * fileByteArray.size());
+		// fileByteArray(0) is our header of the File, which should not be included in the byte[] of file
+		for(int i=1; i<fileByteArray.size(); i++){
+			byteBuffer.put(fileByteArray.get(i));
+		}
+		return byteBuffer.array();
+	}
 
-    private FrameBufferBean frameBuffer;
-    private InputStreamSocketListenerServer inputStreamSocketListener;
-    private IdscpServerBean idscpServer;
-    private IdscpServer server;
-    private ArrayList<byte[]> fileByteArray = new ArrayList<byte[]>();
-    private ByteBuffer byteBuffer = null;
-    private RecreatedMultipartMessageBean recreatedmultipartMessage;
-
-    private HttpWebSocketServerBean httpWebSocketServerBean;
-
-    @Value("${application.idscp.isEnabled}")
-    private boolean isEnabledIdscp;
-
-
-    public FileRecreatorBeanServer() {
-
-    }
-
-    public void setup() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, URISyntaxException {
-        this.frameBuffer = webSocketServerConfiguration.frameBufferWebSocket();
-        this.recreatedmultipartMessage = webSocketServerConfiguration.recreatedMultipartMessageBeanWebSocket();
-        if (isEnabledIdscp) {
-            this.inputStreamSocketListener = webSocketServerConfiguration.inputStreamSocketListenerWebSocketServer();
-            this.inputStreamSocketListener.setFrameBuffer(this.frameBuffer);
-            this.idscpServer = webSocketServerConfiguration.idscpServerWebSocket();
-            this.idscpServer.setSocketListener(this.inputStreamSocketListener);
-            this.server = this.idscpServer.createIdscpServer();
-        } else {
-            httpWebSocketServerBean = webSocketServerConfiguration.httpsServerWebSocket();
-            httpWebSocketServerBean.createServer();
-        }
-    }
-
-
-    @Override
-    public void run() {
-        receiveAllFrames();
-        recreatedmultipartMessage.set(recreateMultipartMessageFromReceivedFrames());
-
-//		// TODO: Adapt this for the multipart message
-//		// Close the server
-//	    try {
-//	    	server.getServer().stop();
-//	    } catch (Exception e) {
-//	    	e.printStackTrace();
-//		}
-    }
-
-    private void receiveAllFrames() {
-        boolean allFramesReceived = false;
-
-        while (!allFramesReceived) {
-            byte[] receivedFrame = this.frameBuffer.remove();
-
-            try {
-                if ((new String(receivedFrame, StandardCharsets.UTF_8)).equals(END_BINARY_FRAME_SEPARATOR)) {
-                    allFramesReceived = true;
-                    logger.info("Received the last frames: " + END_BINARY_FRAME_SEPARATOR);
-                } else {
-                    this.fileByteArray.add(receivedFrame.clone());
-                }
-            } finally {
-                receivedFrame = null;
-            }
-        }
-    }
-
-    private byte[] getAllFrames(ArrayList<byte[]> fileByteArray) {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(DEFAULT_STREAM_BUFFER_SIZE * fileByteArray.size());
-        // fileByteArray(0) is our header of the File, which should not be included in the byte[] of file
-        for (int i = 1; i < fileByteArray.size(); i++) {
-            byteBuffer.put(fileByteArray.get(i));
-        }
-        return byteBuffer.array();
-    }
-
-    private String recreateMultipartMessageFromReceivedFrames() {
-        String multipartMessage = null;
-        try {
-            logger.info("Started process: Recreate the Multipart message from the received frames");
-            multipartMessage = recreateMultipartMessage(this.fileByteArray);
-            logger.info("Recreated the Multipart message from the received frames: lenght=" + multipartMessage.length());
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            System.out.println("Error on the process of recreation the file from the received frames.");
-        }
-        return multipartMessage;
-    }
-
-    private String recreateMultipartMessage(ArrayList<byte[]> fileByteArray) throws IOException {
-        byte[] allFrames = getAllFrames(fileByteArray);
-        String multipartMessage = new String(allFrames, StandardCharsets.UTF_8);
-        return multipartMessage;
-    }
+	private String recreateMultipartMessageFromReceivedFrames() {
+		String multipartMessage = null;
+		try {
+			logger.info("Started process: Recreate the Multipart message from the received frames");
+			multipartMessage = recreateMultipartMessage(this.fileByteArray);
+			logger.info("Recreated the Multipart message from the received frames: lenght=" + multipartMessage.length());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("Error on the process of recreation the file from the received frames.");
+		}
+		return multipartMessage;
+	}
+	
+	private String recreateMultipartMessage(ArrayList<byte[]> fileByteArray) throws IOException {
+		byte[] allFrames = getAllFrames(fileByteArray);
+		String multipartMessage = new String(allFrames, StandardCharsets.UTF_8);
+		return multipartMessage;
+	}
 
 }
