@@ -51,7 +51,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 
     private static final Logger logger = LogManager.getLogger(ProducerSendDataToBusinessLogicProcessor.class);
     // example for the webSocketURL: idscp://localhost:8099
-    private static final String REGEX_IDSCP = "(idscp://)([^:^/]*)(:)(\\d*)";
+    public static final String REGEX_IDSCP = "(idscp://)([^:^/]*)(:)(\\d*)";
 
     @Value("${application.idscp.isEnabled}")
     private boolean isEnabledIdscp;
