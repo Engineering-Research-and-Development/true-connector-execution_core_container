@@ -23,7 +23,6 @@ import java.nio.file.Path;
 public class HttpWebSocketServerBean {
     private static final Logger logger = LogManager.getLogger(HttpWebSocketServerBean.class);
     public static final String WS_URL = "/incoming-data-channel-received-message";
-    public static final int SECURE_PORT = 8891;
 
     @Autowired
     private ApplicationConfiguration configuration;
