@@ -24,22 +24,14 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.fraunhofer.iais.eis.Message;
-import de.fraunhofer.iais.eis.MessageImpl;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
-import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import nl.tno.ids.common.communication.HttpClientGenerator;
 import nl.tno.ids.common.config.keystore.AcceptAllTruststoreConfig;
-import nl.tno.ids.common.config.keystore.TruststoreConfig;
-import nl.tno.ids.common.multipart.MultiPart;
-import nl.tno.ids.common.multipart.MultiPartMessage;
-import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
-import nl.tno.ids.common.serialization.SerializationHelper;
 
 /**
  * 
