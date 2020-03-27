@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -26,13 +25,7 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.asynchttpclient.DefaultAsyncHttpClientConfig;
-import org.asynchttpclient.SslEngineFactory;
-import org.asynchttpclient.netty.ssl.JsseSslEngineFactory;
 import org.asynchttpclient.ws.WebSocket;
-import org.asynchttpclient.ws.WebSocketListener;
-import org.asynchttpclient.ws.WebSocketUpgradeHandler;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -49,12 +42,6 @@ import nl.tno.ids.common.communication.HttpClientGenerator;
 import nl.tno.ids.common.config.keystore.AcceptAllTruststoreConfig;
 import nl.tno.ids.common.multipart.MultiPartMessage;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
-import static org.asynchttpclient.Dsl.asyncHttpClient;
-
 /**
  * @author Milan Karajovic and Gabriele De Luca
  */
@@ -64,7 +51,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 
     private static final Logger logger = LogManager.getLogger(ProducerSendDataToBusinessLogicProcessor.class);
     // example for the webSocketURL: idscp://localhost:8099
-    public static final String REGEX_IDSCP = "(idscp://)([^:^/]*)(:)(\\d*)";
+    private static final String REGEX_IDSCP = "(idscp://)([^:^/]*)(:)(\\d*)";
 
     @Value("${application.idscp.isEnabled}")
     private boolean isEnabledIdscp;
@@ -121,24 +108,24 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
             // -- Send data using IDSCP - (Client) - WebSocket
             String response;
             if (Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
-                response = sendMultipartMessageWebSocket(messageWithToken, payload, forwardTo, message);
+                response = this.sendMultipartMessageWebSocket(messageWithToken, payload, forwardTo, message);
             } else {
                 response = sendMultipartMessageWebSocket(header, payload, forwardTo, message);
             }
 
             // Handle response
-            handleResponseWebSocket(exchange, message, response, forwardTo);
+            this.handleResponseWebSocket(exchange, message, response, forwardTo);
         } else if (isEnabledWebSocket) {
-			String response;
-			if (Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
-				response = messageWebSocketOverHttpSender.sendMultipartMessageWebSocketOverHttps(messageWithToken, payload, forwardTo, message);
-			} else {
-				response = messageWebSocketOverHttpSender.sendMultipartMessageWebSocketOverHttps(header, payload, forwardTo, message);
-			}
+            String response;
+            if (Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
+                response = messageWebSocketOverHttpSender.sendMultipartMessageWebSocketOverHttps(messageWithToken, payload, forwardTo, message);
+            } else {
+                response = messageWebSocketOverHttpSender.sendMultipartMessageWebSocketOverHttps(header, payload, forwardTo, message);
+            }
             handleResponseWebSocket(exchange, message, response, forwardTo);
         } else {
             // Send MultipartMessage HTTPS
-            CloseableHttpResponse response = sendMultipartMessage(
+            CloseableHttpResponse response = this.sendMultipartMessage(
                     headesParts,
                     messageWithToken,
                     header,
@@ -147,12 +134,13 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
             );
 
             // Handle response
-            handleResponse(exchange, message, response, forwardTo);
+            this.handleResponse(exchange, message, response, forwardTo);
 
             if (response != null) {
                 response.close();
             }
         }
+
     }
 
     private CloseableHttpResponse sendMultipartMessage(
@@ -165,7 +153,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
         CloseableHttpResponse response = null;
         // -- Send message using HTTPS
         if (Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
-            response = forwardMessageBinary(forwardTo, messageWithToken, payload);
+            response = this.forwardMessageBinary(forwardTo, messageWithToken, payload);
         } else {
             response = forwardMessageBinary(forwardTo, header, payload);
         }
@@ -176,7 +164,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
         logger.info("Forwarding Message: Body: form-data");
 
         // Covert to ContentBody
-        ContentBody cbHeader = convertToContentBody(header, ContentType.DEFAULT_TEXT, "header");
+        ContentBody cbHeader = this.convertToContentBody(header, ContentType.DEFAULT_TEXT, "header");
         ContentBody cbPayload = null;
         if (payload != null) {
             cbPayload = convertToContentBody(payload, ContentType.DEFAULT_TEXT, "payload");
@@ -276,6 +264,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
     private String sendMultipartMessageWebSocket(String header, String payload, String forwardTo, Message message) throws Exception, ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
         // Create idscpClient
         IdscpClientBean idscpClientBean = webSocketClientConfiguration.idscpClientServiceWebSocket();
+        this.initializeIdscpClient(message, idscpClientBean);
         IdscpClient idscpClient = idscpClientBean.getClient();
         // Create multipartMessage as a String
         MultiPartMessage multipartMessage = new MultiPartMessage.Builder()
@@ -285,17 +274,28 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 
         // Send multipartMessage as a frames
         FileStreamingBean fileStreamingBean = webSocketClientConfiguration.fileStreamingWebSocket();
-        WebSocket wsClient = createWebSocketConnection(idscpClient, message);
+        WebSocket wsClient = this.createWebSocketConnection(idscpClient, message);
         // Try to connect to the Server. Wait until you are not connected to the server.
         wsClient.addWebSocketListener(webSocketClientConfiguration.inputStreamSocketListenerWebSocketClient());
         fileStreamingBean.setup(wsClient);
         fileStreamingBean.sendMultipartMessage(multipartMessage.toString());
         // We don't have status of the response (is it 200 OK or not). We have only the content of the response.
         String responseMessage = new String(webSocketClientConfiguration.responseMessageBufferWebSocketClient().remove());
-        closeWSClient(wsClient);
+        this.closeWSClient(wsClient);
         logger.info("received response: " + responseMessage);
 
         return responseMessage;
+    }
+
+    private void initializeIdscpClient(Message message, IdscpClientBean idscpClientBean) {
+        try {
+            idscpClientBean.createIdscpClient();
+        } catch (Exception e) {
+            logger.info("... can not initilize the IdscpClient");
+            rejectionMessageServiceImpl.sendRejectionMessage(
+                    RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
+                    message);
+        }
     }
 
     private WebSocket createWebSocketConnection(IdscpClient idscpClient, Message message) {
@@ -332,6 +332,4 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
             e.printStackTrace();
         }
     }
-
-
 }
