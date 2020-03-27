@@ -103,27 +103,12 @@ public class MessageWebSocketOverHttpSender {
             WebSocketUpgradeHandler.Builder upgradeHandlerBuilder
                     = new WebSocketUpgradeHandler.Builder();
             WebSocketUpgradeHandler wsHandler = upgradeHandlerBuilder
-                    .addWebSocketListener(new WebSocketListener() {
-                        @Override
-                        public void onOpen(WebSocket websocket) {
-                            // WebSocket connection opened
-                        }
-
-                        @Override
-                        public void onClose(WebSocket websocket, int code, String reason) {
-                            // WebSocket connection closed
-                        }
-
-                        @Override
-                        public void onError(Throwable t) {
-                            // WebSocket connection error
-                        }
-                    }).build();
+                    .addWebSocketListener(webSocketClientConfiguration.inputStreamSocketListenerWebSocketClient()).build();
             wsClient = asyncHttpClient(clientConfig)
                     .prepareGet(WS_URL)
                     .execute(wsHandler)
                     .get();
-            wsClient.addWebSocketListener(webSocketClientConfiguration.inputStreamSocketListenerWebSocketClient());
+            //wsClient.addWebSocketListener(webSocketClientConfiguration.inputStreamSocketListenerWebSocketClient());
             return wsClient;
         } catch (Exception e) {
             logger.info("... can not create the WebSocket connection");
@@ -163,9 +148,9 @@ public class MessageWebSocketOverHttpSender {
 
 
     private void closeWSClient(WebSocket wsClient, Message message) {
-        // Send the close frame 200 (OK), "Shutdown"; in this method we also close the wsClient.
+        // Send the close frame 1000 (CLOSE), "Shutdown"; in this method we also close the wsClient.
         try {
-            wsClient.sendCloseFrame(200, "Shutdown");
+            wsClient.sendCloseFrame(1000, "Shutdown");
         } catch (Exception e) {
             logger.error("Problems encountered during Client Shutdown with error: " + e.getMessage());
             if (null != message)

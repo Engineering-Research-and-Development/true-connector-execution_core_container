@@ -36,6 +36,9 @@ public class ConsumerSendDataToBusinessLogicProcessor implements Processor {
 	
 	@Value("${application.idscp.isEnabled}")
 	private boolean isEnabledIdscp;
+
+	@Value("${application.websocket.isEnabled}")
+	private boolean isEnabledWebSocket;
 	
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
@@ -71,7 +74,7 @@ public class ConsumerSendDataToBusinessLogicProcessor implements Processor {
 		headesParts.put("Content-Type", contentType);
 		
 		// TODO: Send The MultipartMessage message to the WebaSocket
-		if(isEnabledIdscp) {
+		if(isEnabledIdscp || isEnabledWebSocket) {
 			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration.responseMessageBufferWebSocket();
 			responseMessageServerBean.add(multipartMessageString.getBytes());
 		}

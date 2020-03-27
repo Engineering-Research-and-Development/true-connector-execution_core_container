@@ -17,9 +17,7 @@ public class WebSocketServerConfiguration {
     @Bean
     @Scope("singleton")
     public FrameBufferBean frameBufferWebSocket() {
-        if (null == frameBufferBean)
-            frameBufferBean = new FrameBufferBean();
-        return frameBufferBean;
+       return new FrameBufferBean();
     }
 
     @Bean

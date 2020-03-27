@@ -33,13 +33,11 @@ public class HttpWebSocketServerBean {
 
     private Server server;
 
-    public Server createServer() {
+    public void createServer() {
         if (null == server) {
             setup();
             start();
-            return server;
         }
-        return null;
     }
 
     public void setup() {
