@@ -53,7 +53,6 @@ public class MessageWebSocketOverHttpSender {
     @Value("${application.idscp.server.port}")
     private int idscpServerPort;
 
-    //https://localhost:8889/incoming-data-channel/receivedMessage
     private int webSocketPort;
     private String webSocketHost;
 
@@ -177,15 +176,19 @@ public class MessageWebSocketOverHttpSender {
     }
 
     private void extractWebSocketIPAndPort(String forwardTo) {
+        //Example of URL : https://localhost:8889/incoming-data-channel/receivedMessage
         URL senderURL = null;
         try {
             senderURL = new URL(forwardTo);
             webSocketPort = senderURL.getPort();
             webSocketHost = senderURL.getHost();
         } catch (MalformedURLException e) {
-            logger.error(e.getMessage());
-            webSocketPort = idscpServerPort; //TODO Choose default
-            webSocketHost = "0.0.0.0";
+            logger.info("Use IDSCP port for WS over https!");
+            Pattern pattern = Pattern.compile(ProducerSendDataToBusinessLogicProcessor.REGEX_IDSCP);
+            Matcher matcher = pattern.matcher(forwardTo);
+            matcher.find();
+            this.webSocketHost = matcher.group(2);
+            this.webSocketPort = Integer.parseInt(matcher.group(4));
         }
     }
 

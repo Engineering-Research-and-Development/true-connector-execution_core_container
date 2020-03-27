@@ -17,6 +17,7 @@ import java.nio.file.Path;
 
 /**
  * Jetty Server instantiation with WebSocket over SSL
+ *
  * @author Antonio Scatoloni
  */
 public class HttpWebSocketServerBean {
@@ -30,6 +31,7 @@ public class HttpWebSocketServerBean {
     @Value("${application.idscp.server.port}")
     private int idscpServerPort;
 
+
     private Server server;
 
     public Server createServer() {
@@ -41,16 +43,15 @@ public class HttpWebSocketServerBean {
         return null;
     }
 
-    public void setup()  {
-        final Path jssePath = FileSystems.getDefault().getPath("src/main/resources/jsse");
-        Path keystorePath = jssePath.resolve("server-keystore.jks");
-        Path trustStorePath = jssePath.resolve("server-truststore.jks");
-        String password = "password";
+    public void setup() {
+        final Path jssePath = FileSystems.getDefault().getPath("src/main/resources"); //TODO
+        Path keystorePath = jssePath.resolve("ssl-server.jks"); //TODO from configuration
+        String password = configuration.getKeyStorePassword();
 
-        int port =  Integer.parseInt(configuration.getCamelConsumerPort()); //idscpServerPort; //SECURE_PORT;
+        int port = idscpServerPort; //SECURE_PORT;
 
         HttpConfiguration http_config = getHttpConfiguration(port);
-        SslContextFactory sslContextFactory = getSslContextFactory(keystorePath, trustStorePath, password);
+        SslContextFactory sslContextFactory = getSslContextFactory(keystorePath, password);
         HttpConfiguration https_config = new HttpConfiguration(http_config);
 
         server = new Server();
@@ -72,6 +73,7 @@ public class HttpWebSocketServerBean {
             server.start();
             //server.join();
         } catch (BindException e) {
+            logger.warn("IDSCP Server should be 'OFF' in order to use WS over HTTPS!");
             logger.warn(e.getMessage());
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -86,13 +88,11 @@ public class HttpWebSocketServerBean {
     }
 
     @NotNull
-    private SslContextFactory getSslContextFactory(Path keystorePath, Path trustStorePath, String password) {
+    private SslContextFactory getSslContextFactory(Path keystorePath, String password) {
         SslContextFactory sslContextFactory = new SslContextFactory.Server();
         sslContextFactory.setKeyStorePath(keystorePath.toAbsolutePath().toString());
         sslContextFactory.setKeyStorePassword(password);
         sslContextFactory.setKeyManagerPassword(password);
-        sslContextFactory.setTrustStorePath(trustStorePath.toAbsolutePath().toString());
-        sslContextFactory.setTrustStorePassword(password);
         return sslContextFactory;
     }
 
