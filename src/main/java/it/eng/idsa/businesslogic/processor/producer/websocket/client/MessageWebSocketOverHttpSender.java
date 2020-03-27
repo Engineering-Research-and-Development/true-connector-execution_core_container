@@ -25,16 +25,19 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.asynchttpclient.Dsl.asyncHttpClient;
 
 /**
  * @author Antonio Scatoloni
- *
  */
 
 @Component
@@ -50,7 +53,9 @@ public class MessageWebSocketOverHttpSender {
     @Value("${application.idscp.server.port}")
     private int idscpServerPort;
 
-    private String WS_URL = "wss://0.0.0.0:" + idscpServerPort + HttpWebSocketServerBean.WS_URL;  //TODO from Configuration
+    //https://localhost:8889/incoming-data-channel/receivedMessage
+    private int webSocketPort;
+    private String webSocketHost;
 
     public String sendMultipartMessageWebSocketOverHttps(String header, String payload, String forwardTo)
             throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
@@ -68,7 +73,7 @@ public class MessageWebSocketOverHttpSender {
                 .setHeader(header)
                 .setPayload(payload)
                 .build();
-
+        extractWebSocketIPAndPort(forwardTo);
         FileStreamingBean fileStreamingBean = webSocketClientConfiguration.fileStreamingWebSocket();
         WebSocket wsClient = createWebSocketClient(message);
         // Try to connect to the Server. Wait until you are not connected to the server.
@@ -85,6 +90,7 @@ public class MessageWebSocketOverHttpSender {
 
     @NotNull
     private WebSocket createWebSocketClient(Message message) {
+        String WS_URL = "wss://" + webSocketHost + ":" + webSocketPort + HttpWebSocketServerBean.WS_URL;
         WebSocket wsClient = null;
         try {
             final SslEngineFactory ssl = getSslEngineFactory();
@@ -167,6 +173,19 @@ public class MessageWebSocketOverHttpSender {
                 rejectionMessageServiceImpl.sendRejectionMessage(
                         RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
                         message);
+        }
+    }
+
+    private void extractWebSocketIPAndPort(String forwardTo) {
+        URL senderURL = null;
+        try {
+            senderURL = new URL(forwardTo);
+            webSocketPort = senderURL.getPort();
+            webSocketHost = senderURL.getHost();
+        } catch (MalformedURLException e) {
+            logger.error(e.getMessage());
+            webSocketPort = idscpServerPort; //TODO Choose default
+            webSocketHost = "0.0.0.0";
         }
     }
 

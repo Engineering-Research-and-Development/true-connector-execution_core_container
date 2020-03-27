@@ -1,5 +1,6 @@
 package it.eng.idsa.businesslogic.processor.consumer.websocket.server;
 
+import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.http.HttpVersion;
@@ -7,6 +8,7 @@ import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.net.BindException;
@@ -19,8 +21,11 @@ import java.nio.file.Path;
  */
 public class HttpWebSocketServerBean {
     private static final Logger logger = LogManager.getLogger(HttpWebSocketServerBean.class);
-    public static final String WS_URL = "/incoming-received-data-ws";
+    public static final String WS_URL = "/incoming-data-channel-received-message";
     public static final int SECURE_PORT = 8891;
+
+    @Autowired
+    private ApplicationConfiguration configuration;
 
     @Value("${application.idscp.server.port}")
     private int idscpServerPort;
@@ -42,7 +47,7 @@ public class HttpWebSocketServerBean {
         Path trustStorePath = jssePath.resolve("server-truststore.jks");
         String password = "password";
 
-        int port = idscpServerPort; //SECURE_PORT;
+        int port =  Integer.parseInt(configuration.getCamelConsumerPort()); //idscpServerPort; //SECURE_PORT;
 
         HttpConfiguration http_config = getHttpConfiguration(port);
         SslContextFactory sslContextFactory = getSslContextFactory(keystorePath, trustStorePath, password);
