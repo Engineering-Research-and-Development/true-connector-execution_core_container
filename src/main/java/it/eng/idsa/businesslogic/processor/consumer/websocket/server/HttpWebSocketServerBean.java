@@ -30,7 +30,6 @@ public class HttpWebSocketServerBean {
     @Value("${application.idscp.server.port}")
     private int idscpServerPort;
 
-
     private Server server;
 
     public void createServer() {

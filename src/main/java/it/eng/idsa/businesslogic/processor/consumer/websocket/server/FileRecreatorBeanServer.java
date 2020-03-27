@@ -48,6 +48,7 @@ public class FileRecreatorBeanServer implements Runnable {
     @Value("${application.idscp.isEnabled}")
     private boolean isEnabledIdscp;
 
+
     public FileRecreatorBeanServer() {
 
     }

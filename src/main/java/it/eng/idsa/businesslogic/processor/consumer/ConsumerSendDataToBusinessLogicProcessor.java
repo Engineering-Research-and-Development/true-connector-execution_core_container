@@ -74,7 +74,7 @@ public class ConsumerSendDataToBusinessLogicProcessor implements Processor {
 		headesParts.put("Content-Type", contentType);
 		
 		// TODO: Send The MultipartMessage message to the WebaSocket
-		if(isEnabledIdscp || isEnabledWebSocket) {
+		if(isEnabledIdscp || isEnabledWebSocket) { //TODO Try to remove this config property
 			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration.responseMessageBufferWebSocket();
 			responseMessageServerBean.add(multipartMessageString.getBytes());
 		}
