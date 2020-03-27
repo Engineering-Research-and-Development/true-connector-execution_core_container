@@ -103,16 +103,16 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 			// -- Send data using IDSCP - (Client) - WebSocket
 			String response;
 			if(Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
-				response = sendMultipartMessageWebSocket(messageWithToken, payload, forwardTo, message);
+				response = this.sendMultipartMessageWebSocket(messageWithToken, payload, forwardTo, message);
 			} else {
 				response = sendMultipartMessageWebSocket(header, payload, forwardTo, message);
 			}
 			
 			// Handle response
-			handleResponseWebSocket(exchange, message, response, forwardTo);
+			this.handleResponseWebSocket(exchange, message, response, forwardTo);
 		} else {
 			// Send MultipartMessage HTTPS
-			CloseableHttpResponse response = sendMultipartMessage(
+			CloseableHttpResponse response = this.sendMultipartMessage(
 					headesParts, 
 					messageWithToken, 
 					header, 
@@ -121,7 +121,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 					);
 			
 			// Handle response
-			handleResponse(exchange, message, response, forwardTo);
+			this.handleResponse(exchange, message, response, forwardTo);
 			
 			if(response!=null) {
 				response.close();
@@ -140,7 +140,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		CloseableHttpResponse response = null;
 		// -- Send message using HTTPS
 		if(Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
-			response = forwardMessageBinary(forwardTo, messageWithToken, payload);
+			response = this.forwardMessageBinary(forwardTo, messageWithToken, payload);
 		} else {
 			response = forwardMessageBinary(forwardTo, header, payload);
 		}
@@ -151,7 +151,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		logger.info("Forwarding Message: Body: form-data");
 		
 		// Covert to ContentBody
-		ContentBody cbHeader = convertToContentBody(header, ContentType.DEFAULT_TEXT, "header");
+		ContentBody cbHeader = this.convertToContentBody(header, ContentType.DEFAULT_TEXT, "header");
 		ContentBody cbPayload = null;
 		if(payload!=null) {
 			cbPayload = convertToContentBody(payload, ContentType.DEFAULT_TEXT, "payload");
@@ -251,6 +251,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 	private String sendMultipartMessageWebSocket(String header, String payload, String forwardTo, Message message) throws Exception, ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
 		// Create idscpClient
 		IdscpClientBean idscpClientBean = webSocketClientConfiguration.idscpClientServiceWebSocket();
+		this.initializeIdscpClient(message, idscpClientBean);
 		IdscpClient idscpClient = idscpClientBean.getClient();
 		// Create multipartMessage as a String
 		MultiPartMessage multipartMessage=new MultiPartMessage.Builder()
@@ -260,17 +261,28 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 
 		// Send multipartMessage as a frames
 		FileStreamingBean fileStreamingBean = webSocketClientConfiguration.fileStreamingWebSocket();
-		WebSocket wsClient = createWebSocketConnection(idscpClient, message);
+		WebSocket wsClient = this.createWebSocketConnection(idscpClient, message);
 		// Try to connect to the Server. Wait until you are not connected to the server.
 		wsClient.addWebSocketListener(webSocketClientConfiguration.inputStreamSocketListenerWebSocketClient());
 		fileStreamingBean.setup(wsClient);
 		fileStreamingBean.sendMultipartMessage(multipartMessage.toString());
 		// We don't have status of the response (is it 200 OK or not). We have only the content of the response.
 		String responseMessage = new String(webSocketClientConfiguration.responseMessageBufferWebSocketClient().remove());
-		closeWSClient(wsClient);
+		this.closeWSClient(wsClient);
 		logger.info("received response: " + responseMessage);
 		
 		return responseMessage;
+	}
+
+	private void initializeIdscpClient(Message message, IdscpClientBean idscpClientBean) {
+		try {
+			idscpClientBean.createIdscpClient();
+		} catch (Exception e) {
+			logger.info("... can not create the WebSocket connection");
+			rejectionMessageServiceImpl.sendRejectionMessage(
+					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, 
+					message);
+		}
 	}
 
 	private WebSocket createWebSocketConnection(IdscpClient idscpClient, Message message) {
