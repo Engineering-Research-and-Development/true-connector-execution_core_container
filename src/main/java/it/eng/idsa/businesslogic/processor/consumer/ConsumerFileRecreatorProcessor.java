@@ -14,6 +14,8 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.FileRecreatorBeanServer;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
  * 
@@ -31,6 +33,9 @@ public class ConsumerFileRecreatorProcessor implements Processor {
 	
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	
+	@Autowired
+	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -43,7 +48,7 @@ public class ConsumerFileRecreatorProcessor implements Processor {
 		
 		//  Receive and recreate Multipart message
 		FileRecreatorBeanServer fileRecreatorBean = webSocketServerConfiguration.fileRecreatorBeanWebSocket();
-		fileRecreatorBean.setup();
+		this.initializeIdscpServer(message, fileRecreatorBean);
 		Thread fileRecreatorBeanThread = new Thread(fileRecreatorBean, "FileRecreator");
 		fileRecreatorBeanThread.start();
 		String recreatedMultipartMessage = webSocketServerConfiguration.recreatedMultipartMessageBeanWebSocket().remove();
@@ -64,6 +69,17 @@ public class ConsumerFileRecreatorProcessor implements Processor {
 		
 		// Return exchange
 		exchange.getOut().setHeaders(multipartMessageParts);
+	}
+
+	private void initializeIdscpServer(Message message, FileRecreatorBeanServer fileRecreatorBean) {
+		try {
+			fileRecreatorBean.setup();
+		} catch(Exception e) {
+			logger.info("... can not initilize the IdscpServer");
+			rejectionMessageServiceImpl.sendRejectionMessage(
+					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, 
+					message);
+		}
 	}
 
 }
