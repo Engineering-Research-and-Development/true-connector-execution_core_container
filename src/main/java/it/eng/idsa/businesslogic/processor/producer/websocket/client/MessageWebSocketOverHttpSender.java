@@ -108,7 +108,6 @@ public class MessageWebSocketOverHttpSender {
                     .prepareGet(WS_URL)
                     .execute(wsHandler)
                     .get();
-            //wsClient.addWebSocketListener(webSocketClientConfiguration.inputStreamSocketListenerWebSocketClient());
             return wsClient;
         } catch (Exception e) {
             logger.info("... can not create the WebSocket connection");

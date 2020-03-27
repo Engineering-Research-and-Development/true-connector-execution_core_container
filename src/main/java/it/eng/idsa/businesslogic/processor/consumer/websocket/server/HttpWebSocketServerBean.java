@@ -33,7 +33,7 @@ public class HttpWebSocketServerBean {
     private Server server;
 
     public void createServer() {
-        if (null == server) {
+        if (null == server ||  !server.isStarted() || !server.isRunning()) {
             setup();
             start();
         }
@@ -77,7 +77,7 @@ public class HttpWebSocketServerBean {
     }
 
     public void stop() throws Exception {
-        if (null != server && (server.isRunning() || server.isStarted())) {
+        if (null != server && (server.isStarted() || server.isRunning())) {
             server.stop();
             server = null;
         }
