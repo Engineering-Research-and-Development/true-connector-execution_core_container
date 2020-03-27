@@ -278,7 +278,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		try {
 			idscpClientBean.createIdscpClient();
 		} catch (Exception e) {
-			logger.info("... can not create the WebSocket connection");
+			logger.info("... can not initilize the IdscpClient");
 			rejectionMessageServiceImpl.sendRejectionMessage(
 					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, 
 					message);
