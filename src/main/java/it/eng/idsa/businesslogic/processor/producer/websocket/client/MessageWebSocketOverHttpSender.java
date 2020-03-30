@@ -43,6 +43,8 @@ import static org.asynchttpclient.Dsl.asyncHttpClient;
 @Component
 public class MessageWebSocketOverHttpSender {
     private static final Logger logger = LogManager.getLogger(ProducerSendDataToBusinessLogicProcessor.class);
+    public static final String REGEX_WSS = "(wss://)([^:^/]*)(:)(\\d*)";
+
 
     @Autowired
     private WebSocketClientConfiguration webSocketClientConfiguration;
@@ -160,15 +162,16 @@ public class MessageWebSocketOverHttpSender {
     }
 
     private void extractWebSocketIPAndPort(String forwardTo) {
-        //Example of URL : https://localhost:8889/incoming-data-channel/receivedMessage
+        //Example of Forward-to : https://localhost:8889/incoming-data-channel/receivedMessage
         URL senderURL = null;
         try {
             senderURL = new URL(forwardTo);
             webSocketPort = senderURL.getPort();
             webSocketHost = senderURL.getHost();
         } catch (MalformedURLException e) {
+            //Example of Forward-to : wss://localhost:8086
             logger.info("Use IDSCP port for WS over https!");
-            Pattern pattern = Pattern.compile(ProducerSendDataToBusinessLogicProcessor.REGEX_IDSCP);
+            Pattern pattern = Pattern.compile(REGEX_WSS);
             Matcher matcher = pattern.matcher(forwardTo);
             matcher.find();
             this.webSocketHost = matcher.group(2);
