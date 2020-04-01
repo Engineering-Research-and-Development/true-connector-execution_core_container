@@ -12,8 +12,6 @@ import org.springframework.context.annotation.Scope;
 @Configuration
 public class WebSocketServerConfiguration {
 
-    private FrameBufferBean frameBufferBean;
-
     @Bean
     @Scope("singleton")
     public FrameBufferBean frameBufferWebSocket() {

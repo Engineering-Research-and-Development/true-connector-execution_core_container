@@ -303,7 +303,8 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
         try {
             wsClient = idscpClient.connect(this.webSocketIp, this.webSocketPort);
         } catch (Exception e) {
-            logger.info("... can not create the WebSocket connection");
+        	e.printStackTrace();
+            logger.info("... can not create the WebSocket connection IDSCP");
             rejectionMessageServiceImpl.sendRejectionMessage(
                     RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
                     message);

@@ -37,10 +37,6 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 
 	@Value("${information.model.version}")
     private String informationModelVersion;
-			//= getInformationModelVersion();
-	
-	//@Autowired
-	//private RejectionMessageServiceImpl rejectionMessageServiceImpl;
 	
 	@Override 
 	public void sendRejectionMessage(RejectionMessageType rejectionMessageType, Message message) {

@@ -28,10 +28,6 @@ public class FileRecreatorBeanServer implements Runnable {
     private static final Logger logger = LogManager.getLogger(FileRecreatorBeanServer.class);
 
     private static final int DEFAULT_STREAM_BUFFER_SIZE = 127;
-    // TODO: should fix these paths and file name
-    private static final String FILE_PATH = "src\\main\\resources\\received-fiels\\";
-    private static final String FILE_NAME = "Engineering-COPY.pdf";
-    //	private static final String CLOSURE_FRAME = "�normal closure";
     private static final String END_BINARY_FRAME_SEPARATOR = "�normal-IDS-ENG-SEPARATOR the-last-frame";
 
     @Autowired
@@ -56,7 +52,7 @@ public class FileRecreatorBeanServer implements Runnable {
 
     }
 
-    public void setup() {
+    public void setup() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, URISyntaxException {
         this.frameBuffer = webSocketServerConfiguration.frameBufferWebSocket();
         this.recreatedmultipartMessage = webSocketServerConfiguration.recreatedMultipartMessageBeanWebSocket();
         if (isEnabledIdscp) {
@@ -64,6 +60,7 @@ public class FileRecreatorBeanServer implements Runnable {
             this.inputStreamSocketListener.setFrameBuffer(this.frameBuffer);
             this.idscpServer = webSocketServerConfiguration.idscpServerWebSocket();
             this.idscpServer.setSocketListener(this.inputStreamSocketListener);
+            this.idscpServer.createIdscpServer();
             this.server = this.idscpServer.getIdscpServer();
         } else if (isEnabledWebSocket) {
             HttpWebSocketServerBean httpWebSocketServerBean = webSocketServerConfiguration.httpsServerWebSocket();

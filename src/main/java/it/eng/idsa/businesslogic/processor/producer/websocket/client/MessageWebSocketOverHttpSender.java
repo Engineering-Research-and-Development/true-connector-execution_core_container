@@ -112,7 +112,7 @@ public class MessageWebSocketOverHttpSender {
                     .get();
             return wsClient;
         } catch (Exception e) {
-            logger.info("... can not create the WebSocket connection");
+            logger.info("... can not create the WebSocket connection HTTP");
             if (null != message)
                 rejectionMessageServiceImpl.sendRejectionMessage(
                         RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
