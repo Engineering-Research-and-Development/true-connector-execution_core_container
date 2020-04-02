@@ -9,6 +9,7 @@ import java.net.URI;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,11 +34,9 @@ import nl.tno.ids.common.serialization.DateUtil;
 @Service
 @Transactional
 public class RejectionMessageServiceImpl implements RejectionMessageService{
-	
-    private final static String informationModelVersion = getInformationModelVersion();
-	
-	@Autowired
-	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
+
+	@Value("${information.model.version}")
+    private String informationModelVersion;
 	
 	@Override 
 	public void sendRejectionMessage(RejectionMessageType rejectionMessageType, Message message) {
@@ -53,38 +52,31 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		Message rejectionMessage = null;
 		switch(rejectionMessageType) {
 			case "RESULT_MESSAGE":
-				rejectionMessage = rejectionMessageServiceImpl
-					.createResultMessage(message);
+				rejectionMessage = createResultMessage(message);
 				break;
 			case "REJECTION_MESSAGE_COMMON":
-				rejectionMessage = rejectionMessageServiceImpl
-					.createRejectionMessageCommon(message);
+				rejectionMessage = createRejectionMessageCommon(message);
 				break;
 			case "REJECTION_TOKEN":
-				rejectionMessage = rejectionMessageServiceImpl
-					.createRejectionToken(message);
+				rejectionMessage = createRejectionToken(message);
 				break;
 			case "REJECTION_MESSAGE_LOCAL_ISSUES":
-				rejectionMessage = rejectionMessageServiceImpl
-					.createRejectionMessageLocalIssues(message);
+				rejectionMessage = createRejectionMessageLocalIssues(message);
 				break;
 			case "REJECTION_TOKEN_LOCAL_ISSUES":
-				rejectionMessage = rejectionMessageServiceImpl
-					.createRejectionTokenLocalIssues(message);
+				rejectionMessage = createRejectionTokenLocalIssues(message);
 				break;
 			case "REJECTION_COMMUNICATION_LOCAL_ISSUES":
-				rejectionMessage = rejectionMessageServiceImpl
-					.createRejectionCommunicationLocalIssues(message);
+				rejectionMessage = createRejectionCommunicationLocalIssues(message);
 				break;	
 			default:
-				rejectionMessage = rejectionMessageServiceImpl
-					.createResultMessage(message);
+				rejectionMessage = createResultMessage(message);
 				break;
 		}
 		return rejectionMessage;
 	}
-	
-	private static String getInformationModelVersion() {
+
+	/*private String getInformationModelVersion() {
 		String currnetInformationModelVersion = null;
 		try {
 			
@@ -105,7 +97,16 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		return currnetInformationModelVersion;
+
+		return informationModelVersion;
+	}*/
+
+	public String getInformationModelVersion() {
+		return informationModelVersion;
+	}
+
+	public void setInformationModelVersion(String informationModelVersion) {
+		this.informationModelVersion = informationModelVersion;
 	}
 
 	private Message createResultMessage(Message header) {

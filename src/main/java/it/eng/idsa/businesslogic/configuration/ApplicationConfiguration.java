@@ -32,6 +32,8 @@ public class ApplicationConfiguration {
 	private String openDataAppReceiver;
 	private String camelConsumerPort;
 	private String camelProducerPort;
+
+	private String basedir;
 	
 	public String getTargetDirectory() {
 		return targetDirectory;
@@ -147,5 +149,14 @@ public class ApplicationConfiguration {
 	public void setCamelConsumerPort(String camelConsumerPort) {
 		this.camelConsumerPort = camelConsumerPort;
 	}
-	
+
+	public String getBasedir() {
+		return basedir;
+	}
+
+	public void setBasedir(String basedir) {
+		this.basedir = basedir;
+	}
+
+
 }

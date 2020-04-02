@@ -8,6 +8,7 @@ import java.net.Proxy;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyManagementException;
@@ -71,9 +72,7 @@ import okhttp3.Response;
 import okhttp3.Route;
 
 /**
- * 
  * @author Milan Karajovic and Gabriele De Luca
- *
  */
 
 /**
@@ -83,307 +82,306 @@ import okhttp3.Route;
 @Transactional
 public class DapsServiceImpl implements DapsService {
 
-	private static final Logger logger = LogManager.getLogger(DapsServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(DapsServiceImpl.class);
 
-	@Autowired
-	private ApplicationConfiguration configuration;
+    @Autowired
+    private ApplicationConfiguration configuration;
 
-	private Key privKey;
-	private Certificate cert;
-	private PublicKey publicKey;
-	private String token = "";
-	
-	@Value("${application.targetDirectory}")
-	private Path targetDirectory;
-	@Value("${application.dapsUrl}")
-	private String dapsUrl;
-	@Value("${application.keyStoreName}")
-	private String keyStoreName;
-	@Value("${application.keyStorePassword}")
-	private String keyStorePassword;
-	@Value("${application.keystoreAliasName}")
-	private String keystoreAliasName;
-	@Value("${application.connectorUUID}")
-	private String connectorUUID;
-	@Value("${application.proxyUser}")
-	private String proxyUser;
-	@Value("${application.proxyPassword}")
-	private String proxyPassword;
-	@Value("${application.proxyHost}")
-	private String proxyHost;
-	@Value("${application.proxyPort}")
-	private String proxyPort;
-	@Value("${application.dapsJWKSUrl}")
-	private String dapsJWKSUrl;
-	
-	@Override
-	public String getJwtToken() {
+    private Key privKey;
+    private Certificate cert;
+    private PublicKey publicKey;
+    private String token = "";
 
-		logger.debug("Get properties");
+    @Value("${application.targetDirectory}")
+    private Path targetDirectory;
+    @Value("${application.dapsUrl}")
+    private String dapsUrl;
+    @Value("${application.keyStoreName}")
+    private String keyStoreName;
+    @Value("${application.keyStorePassword}")
+    private String keyStorePassword;
+    @Value("${application.keystoreAliasName}")
+    private String keystoreAliasName;
+    @Value("${application.connectorUUID}")
+    private String connectorUUID;
+    @Value("${application.proxyUser}")
+    private String proxyUser;
+    @Value("${application.proxyPassword}")
+    private String proxyPassword;
+    @Value("${application.proxyHost}")
+    private String proxyHost;
+    @Value("${application.proxyPort}")
+    private String proxyPort;
+    @Value("${application.dapsJWKSUrl}")
+    private String dapsJWKSUrl;
 
-		try {
-			logger.debug("Started get JWT token");
-			InputStream jksInputStream = Files.newInputStream(targetDirectory.resolve(keyStoreName));
-			KeyStore store = KeyStore.getInstance("JKS");
-			store.load(jksInputStream, keyStorePassword.toCharArray());
-			// get private key
-			privKey = (PrivateKey) store.getKey(keystoreAliasName, keyStorePassword.toCharArray());
-			// Get certificate of public key
-			cert = store.getCertificate(keystoreAliasName);
-			// Get public key
-			publicKey = cert.getPublicKey();
-			//byte[] encodedPublicKey = publicKey.getEncoded();
-			//String b64PublicKey = Base64.getEncoder().encodeToString(encodedPublicKey);
+    @Override
+    public String getJwtToken() {
 
-			// create signed JWT (JWS)
-			// Create expiry date one day (86400 seconds) from now
-			Date expiryDate = Date.from(Instant.now().plusSeconds(86400));
-			JwtBuilder jwtb = Jwts.builder().setIssuer(connectorUUID).setSubject(connectorUUID)
-					.setExpiration(expiryDate).setIssuedAt(Date.from(Instant.now()))
-					.setAudience("https://api.localhost").setNotBefore(Date.from(Instant.now()));
+        logger.debug("Get properties");
 
-			String jws = jwtb.signWith(SignatureAlgorithm.RS256, privKey).compact();
-			/*
-			 * String json = "{\"\": \"\"," +
-			 * "\"\":\"urn:ietf:params:oauth:client-assertion-type:jwt-bearer\"," +
-			 * "\"\":\"" + jws + "\"," + "\"\":\"\"," + "}";
-			 */
+        try {
+            logger.debug("Started get JWT token");
+            InputStream jksInputStream = Files.newInputStream(Paths.get(configuration.getBasedir(), targetDirectory.toString()).resolve(keyStoreName));
+            KeyStore store = KeyStore.getInstance("JKS");
+            store.load(jksInputStream, keyStorePassword.toCharArray());
+            // get private key
+            privKey = (PrivateKey) store.getKey(keystoreAliasName, keyStorePassword.toCharArray());
+            // Get certificate of public key
+            cert = store.getCertificate(keystoreAliasName);
+            // Get public key
+            publicKey = cert.getPublicKey();
+            //byte[] encodedPublicKey = publicKey.getEncoded();
+            //String b64PublicKey = Base64.getEncoder().encodeToString(encodedPublicKey);
 
-			Authenticator proxyAuthenticator = new Authenticator() {
-				@Override
-				public Request authenticate(Route route, Response response) throws IOException {
-					String credential = Credentials.basic(proxyUser, proxyPassword);
-					return response.request().newBuilder().header("Proxy-Authorization", credential).build();
-				}
-			};
+            // create signed JWT (JWS)
+            // Create expiry date one day (86400 seconds) from now
+            Date expiryDate = Date.from(Instant.now().plusSeconds(86400));
+            JwtBuilder jwtb = Jwts.builder().setIssuer(connectorUUID).setSubject(connectorUUID)
+                    .setExpiration(expiryDate).setIssuedAt(Date.from(Instant.now()))
+                    .setAudience("https://api.localhost").setNotBefore(Date.from(Instant.now()));
 
-			OkHttpClient client = null;
-			final TrustManager[] trustAllCerts = new TrustManager[]{
-	                new X509TrustManager() {
-	                    @Override
-	                    public void checkClientTrusted(java.security.cert.X509Certificate[] chain,
-	                                                   String authType) throws CertificateException {
-	                    }
+            String jws = jwtb.signWith(SignatureAlgorithm.RS256, privKey).compact();
+            /*
+             * String json = "{\"\": \"\"," +
+             * "\"\":\"urn:ietf:params:oauth:client-assertion-type:jwt-bearer\"," +
+             * "\"\":\"" + jws + "\"," + "\"\":\"\"," + "}";
+             */
 
-	                    @Override
-	                    public void checkServerTrusted(java.security.cert.X509Certificate[] chain,
-	                                                   String authType) throws CertificateException {
-	                    }
+            Authenticator proxyAuthenticator = new Authenticator() {
+                @Override
+                public Request authenticate(Route route, Response response) throws IOException {
+                    String credential = Credentials.basic(proxyUser, proxyPassword);
+                    return response.request().newBuilder().header("Proxy-Authorization", credential).build();
+                }
+            };
 
-	                    @Override
-	                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-	                        return new java.security.cert.X509Certificate[0];
-	                    }
-	                }
-	        };
+            OkHttpClient client = null;
+            final TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        @Override
+                        public void checkClientTrusted(java.security.cert.X509Certificate[] chain,
+                                                       String authType) throws CertificateException {
+                        }
 
-	        // Install the all-trusting trust manager
-	        final SSLContext sslContext = SSLContext.getInstance("SSL");
-	        sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-	        // Create an ssl socket factory with our all-trusting manager
-	        final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+                        @Override
+                        public void checkServerTrusted(java.security.cert.X509Certificate[] chain,
+                                                       String authType) throws CertificateException {
+                        }
 
-	      
-			
-			if (!proxyUser.equalsIgnoreCase("")) {
-				client = new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS)
-						.writeTimeout(60, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS)
-						.proxy(new Proxy(Proxy.Type.HTTP,
-								new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort))))
-						.proxyAuthenticator(proxyAuthenticator)
-						.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
-						.hostnameVerifier(new HostnameVerifier() {
-							@Override
-							public boolean verify(String hostname, SSLSession session) {
-								// TODO Auto-generated method stub
-								return true;
-							}
-		                }).build();
-			} else {
-				client = new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS)
-						.writeTimeout(60, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS)
-						.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
-						.hostnameVerifier(new HostnameVerifier() {
-		                    @Override
-		                    public boolean verify(String hostname, SSLSession session) {
-		                        return true;
-		                    }
-		                }).build();
-			}
-			RequestBody formBody = new FormBody.Builder().add("grant_type", "client_credentials")
-					.add("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
-					.add("client_assertion", jws).build();
+                        @Override
+                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                            return new java.security.cert.X509Certificate[0];
+                        }
+                    }
+            };
 
-			Request requestDaps = new Request.Builder().url(dapsUrl).post(formBody).build();
-			Response responseDaps = client.newCall(requestDaps).execute();
+            // Install the all-trusting trust manager
+            final SSLContext sslContext = SSLContext.getInstance("SSL");
+            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+            // Create an ssl socket factory with our all-trusting manager
+            final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
-			String body = responseDaps.body().string();
-			ObjectNode node = new ObjectMapper().readValue(body, ObjectNode.class);
 
-			if (node.has("access_token")) {
-				token = node.get("access_token").asText();
-				logger.info("access_token: {}", () -> token.toString());
-			}
-			logger.info("access_token: {}", () -> responseDaps.toString());
-			logger.info("access_token: {}", () -> body);
-			logger.info("access_token: {}", () -> responseDaps.message());
+            if (!proxyUser.equalsIgnoreCase("")) {
+                client = new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS)
+                        .writeTimeout(60, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS)
+                        .proxy(new Proxy(Proxy.Type.HTTP,
+                                new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort))))
+                        .proxyAuthenticator(proxyAuthenticator)
+                        .sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
+                        .hostnameVerifier(new HostnameVerifier() {
+                            @Override
+                            public boolean verify(String hostname, SSLSession session) {
+                                // TODO Auto-generated method stub
+                                return true;
+                            }
+                        }).build();
+            } else {
+                client = new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS)
+                        .writeTimeout(60, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS)
+                        .sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
+                        .hostnameVerifier(new HostnameVerifier() {
+                            @Override
+                            public boolean verify(String hostname, SSLSession session) {
+                                return true;
+                            }
+                        }).build();
+            }
+            RequestBody formBody = new FormBody.Builder().add("grant_type", "client_credentials")
+                    .add("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+                    .add("client_assertion", jws).build();
 
-			if (!responseDaps.isSuccessful())
-				throw new IOException("Unexpected code " + responseDaps);
+            Request requestDaps = new Request.Builder().url(dapsUrl).post(formBody).build();
+            Response responseDaps = client.newCall(requestDaps).execute();
 
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		} catch (KeyStoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		} catch (CertificateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		} catch (UnrecoverableKeyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		} catch (KeyManagementException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+            String body = responseDaps.body().string();
+            ObjectNode node = new ObjectMapper().readValue(body, ObjectNode.class);
 
-		return token;
-	}
+            if (node.has("access_token")) {
+                token = node.get("access_token").asText();
+                logger.info("access_token: {}", () -> token.toString());
+            }
+            logger.info("access_token: {}", () -> responseDaps.toString());
+            logger.info("access_token: {}", () -> body);
+            logger.info("access_token: {}", () -> responseDaps.message());
 
-	@Override
-	public boolean validateToken(String tokenValue) {
-		boolean isValid = false;
-		
-		logger.debug("Get properties");
+            if (!responseDaps.isSuccessful())
+                throw new IOException("Unexpected code " + responseDaps);
 
-		try {
-			// Set up a JWT processor to parse the tokens and then check their signature
-			// and validity time window (bounded by the "iat", "nbf" and "exp" claims)
-			ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<SecurityContext>();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return null;
+        } catch (KeyStoreException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return null;
+        } catch (NoSuchAlgorithmException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return null;
+        } catch (CertificateException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return null;
+        } catch (UnrecoverableKeyException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return null;
+        } catch (KeyManagementException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-			// The public RSA keys to validate the signatures will be sourced from the
-			// OAuth 2.0 server's JWK set, published at a well-known URL. The RemoteJWKSet
-			// object caches the retrieved keys to speed up subsequent look-ups and can
-			// also gracefully handle key-rollover
-			JWKSource<SecurityContext> keySource = new RemoteJWKSet<SecurityContext>(
-					new URL(dapsJWKSUrl));
+        return token;
+    }
 
-			// Load JWK set from URL
-			JWKSet publicKeys = null;
-			if (!proxyUser.equalsIgnoreCase("")) {			
-				System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
-				System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
-				ProxyAuthenticator proxyAuthenticator = new ProxyAuthenticator(proxyUser, proxyPassword);
-				java.net.Authenticator.setDefault(proxyAuthenticator);
-				Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)));
-				publicKeys = JWKSet.load(new URL(dapsJWKSUrl), 0, 0, 0, proxy);
-			} else {
-				publicKeys = JWKSet.load(new URL(dapsJWKSUrl));
-			}
-			RSAKey key = (RSAKey) publicKeys.getKeyByKeyId("default");
+    @Override
+    public boolean validateToken(String tokenValue) {
+        boolean isValid = false;
 
-			// The expected JWS algorithm of the access tokens (agreed out-of-band)
-			JWSAlgorithm expectedJWSAlg = JWSAlgorithm.RS256;
+        logger.debug("Get properties");
 
-			// Configure the JWT processor with a key selector to feed matching public
-			// RSA keys sourced from the JWK set URL
-			JWSKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<SecurityContext>(
-					expectedJWSAlg, keySource);
-			jwtProcessor.setJWSKeySelector(keySelector);
+        try {
+            // Set up a JWT processor to parse the tokens and then check their signature
+            // and validity time window (bounded by the "iat", "nbf" and "exp" claims)
+            ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<SecurityContext>();
 
-			// Validate signature
-			String exponentB64u = key.getPublicExponent().toString();
-			String modulusB64u = key.getModulus().toString();
+            // The public RSA keys to validate the signatures will be sourced from the
+            // OAuth 2.0 server's JWK set, published at a well-known URL. The RemoteJWKSet
+            // object caches the retrieved keys to speed up subsequent look-ups and can
+            // also gracefully handle key-rollover
+            JWKSource<SecurityContext> keySource = new RemoteJWKSet<SecurityContext>(
+                    new URL(dapsJWKSUrl));
 
-			// Build the public key from modulus and exponent
-			PublicKey publicKey = getPublicKey(modulusB64u, exponentB64u);
+            // Load JWK set from URL
+            JWKSet publicKeys = null;
+            if (!proxyUser.equalsIgnoreCase("")) {
+                System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+                System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
+                ProxyAuthenticator proxyAuthenticator = new ProxyAuthenticator(proxyUser, proxyPassword);
+                java.net.Authenticator.setDefault(proxyAuthenticator);
+                Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)));
+                publicKeys = JWKSet.load(new URL(dapsJWKSUrl), 0, 0, 0, proxy);
+            } else {
+                publicKeys = JWKSet.load(new URL(dapsJWKSUrl));
+            }
+            RSAKey key = (RSAKey) publicKeys.getKeyByKeyId("default");
 
-			// print key as PEM (base64 and headers)
-			String publicKeyPEM = "-----BEGIN PUBLIC KEY-----\n"
-					+ Base64.getEncoder().encodeToString(publicKey.getEncoded()) + "\n" + "-----END PUBLIC KEY-----";
-			
-			logger.debug("publicKeyPEM: {}", () -> publicKeyPEM);
-			
-			//get signed data and signature from JWT
-			String signedData = tokenValue.substring(0, tokenValue.lastIndexOf("."));
-			String signatureB64u = tokenValue.substring(tokenValue.lastIndexOf(".")+1,tokenValue.length());
-			byte signature[] = Base64.getUrlDecoder().decode(signatureB64u);
-			
-			//verify Signature
-			Signature sig = Signature.getInstance("SHA256withRSA");
-			sig.initVerify(publicKey);
-			sig.update(signedData.getBytes());
-			boolean v = sig.verify(signature);
-			logger.debug("result_validation_signature = ", () -> v);
+            // The expected JWS algorithm of the access tokens (agreed out-of-band)
+            JWSAlgorithm expectedJWSAlg = JWSAlgorithm.RS256;
 
-			if (v==false) {
-				isValid = false;
-			} else {
-				// Process the token
-				SecurityContext ctx = null; // optional context parameter, not required here
-				JWTClaimsSet claimsSet = jwtProcessor.process(tokenValue, ctx);
-				
-				logger.debug("claimsSet = ", () -> claimsSet.toJSONObject());
-				
-				isValid = true;
-			}
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+            // Configure the JWT processor with a key selector to feed matching public
+            // RSA keys sourced from the JWK set URL
+            JWSKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<SecurityContext>(
+                    expectedJWSAlg, keySource);
+            jwtProcessor.setJWSKeySelector(keySelector);
 
-		return isValid;
-	}
+            // Validate signature
+            String exponentB64u = key.getPublicExponent().toString();
+            String modulusB64u = key.getModulus().toString();
 
-	// Build the public key from modulus and exponent
-	public static PublicKey getPublicKey(String modulusB64u, String exponentB64u)
-			throws NoSuchAlgorithmException, InvalidKeySpecException {
-		// conversion to BigInteger. I have transformed to Hex because new
-		// BigDecimal(byte) does not work for me
-		byte exponentB[] = Base64.getUrlDecoder().decode(exponentB64u);
-		byte modulusB[] = Base64.getUrlDecoder().decode(modulusB64u);
-		BigInteger exponent = new BigInteger(toHexFromBytes(exponentB), 16);
-		BigInteger modulus = new BigInteger(toHexFromBytes(modulusB), 16);
+            // Build the public key from modulus and exponent
+            PublicKey publicKey = getPublicKey(modulusB64u, exponentB64u);
 
-		// Build the public key
-		RSAPublicKeySpec spec = new RSAPublicKeySpec(modulus, exponent);
-		KeyFactory factory = KeyFactory.getInstance("RSA");
-		PublicKey pub = factory.generatePublic(spec);
+            // print key as PEM (base64 and headers)
+            String publicKeyPEM = "-----BEGIN PUBLIC KEY-----\n"
+                    + Base64.getEncoder().encodeToString(publicKey.getEncoded()) + "\n" + "-----END PUBLIC KEY-----";
 
-		return pub;
-	}
+            logger.debug("publicKeyPEM: {}", () -> publicKeyPEM);
 
-	private static String toHexFromBytes(byte[] bytes) {
-		StringBuffer rc = new StringBuffer(bytes.length * 2);
-		for (int i = 0; i < bytes.length; i++) {
-			rc.append(HEX_TABLE[0xFF & bytes[i]]);
-		}
-		return rc.toString();
-	}
+            //get signed data and signature from JWT
+            String signedData = tokenValue.substring(0, tokenValue.lastIndexOf("."));
+            String signatureB64u = tokenValue.substring(tokenValue.lastIndexOf(".") + 1, tokenValue.length());
+            byte signature[] = Base64.getUrlDecoder().decode(signatureB64u);
 
-	private static final String[] HEX_TABLE = new String[] { "00", "01", "02", "03", "04", "05", "06", "07", "08", "09",
-			"0a", "0b", "0c", "0d", "0e", "0f", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "1a", "1b",
-			"1c", "1d", "1e", "1f", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "2a", "2b", "2c", "2d",
-			"2e", "2f", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "3a", "3b", "3c", "3d", "3e", "3f",
-			"40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "4a", "4b", "4c", "4d", "4e", "4f", "50", "51",
-			"52", "53", "54", "55", "56", "57", "58", "59", "5a", "5b", "5c", "5d", "5e", "5f", "60", "61", "62", "63",
-			"64", "65", "66", "67", "68", "69", "6a", "6b", "6c", "6d", "6e", "6f", "70", "71", "72", "73", "74", "75",
-			"76", "77", "78", "79", "7a", "7b", "7c", "7d", "7e", "7f", "80", "81", "82", "83", "84", "85", "86", "87",
-			"88", "89", "8a", "8b", "8c", "8d", "8e", "8f", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99",
-			"9a", "9b", "9c", "9d", "9e", "9f", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "aa", "ab",
-			"ac", "ad", "ae", "af", "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8", "b9", "ba", "bb", "bc", "bd",
-			"be", "bf", "c0", "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "ca", "cb", "cc", "cd", "ce", "cf",
-			"d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9", "da", "db", "dc", "dd", "de", "df", "e0", "e1",
-			"e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", "ea", "eb", "ec", "ed", "ee", "ef", "f0", "f1", "f2", "f3",
-			"f4", "f5", "f6", "f7", "f8", "f9", "fa", "fb", "fc", "fd", "fe", "ff", };
+            //verify Signature
+            Signature sig = Signature.getInstance("SHA256withRSA");
+            sig.initVerify(publicKey);
+            sig.update(signedData.getBytes());
+            boolean v = sig.verify(signature);
+            logger.debug("result_validation_signature = ", () -> v);
+
+            if (v == false) {
+                isValid = false;
+            } else {
+                // Process the token
+                SecurityContext ctx = null; // optional context parameter, not required here
+                JWTClaimsSet claimsSet = jwtProcessor.process(tokenValue, ctx);
+
+                logger.debug("claimsSet = ", () -> claimsSet.toJSONObject());
+
+                isValid = true;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return isValid;
+    }
+
+    // Build the public key from modulus and exponent
+    public static PublicKey getPublicKey(String modulusB64u, String exponentB64u)
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
+        // conversion to BigInteger. I have transformed to Hex because new
+        // BigDecimal(byte) does not work for me
+        byte exponentB[] = Base64.getUrlDecoder().decode(exponentB64u);
+        byte modulusB[] = Base64.getUrlDecoder().decode(modulusB64u);
+        BigInteger exponent = new BigInteger(toHexFromBytes(exponentB), 16);
+        BigInteger modulus = new BigInteger(toHexFromBytes(modulusB), 16);
+
+        // Build the public key
+        RSAPublicKeySpec spec = new RSAPublicKeySpec(modulus, exponent);
+        KeyFactory factory = KeyFactory.getInstance("RSA");
+        PublicKey pub = factory.generatePublic(spec);
+
+        return pub;
+    }
+
+    private static String toHexFromBytes(byte[] bytes) {
+        StringBuffer rc = new StringBuffer(bytes.length * 2);
+        for (int i = 0; i < bytes.length; i++) {
+            rc.append(HEX_TABLE[0xFF & bytes[i]]);
+        }
+        return rc.toString();
+    }
+
+    private static final String[] HEX_TABLE = new String[]{"00", "01", "02", "03", "04", "05", "06", "07", "08", "09",
+            "0a", "0b", "0c", "0d", "0e", "0f", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "1a", "1b",
+            "1c", "1d", "1e", "1f", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "2a", "2b", "2c", "2d",
+            "2e", "2f", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "3a", "3b", "3c", "3d", "3e", "3f",
+            "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "4a", "4b", "4c", "4d", "4e", "4f", "50", "51",
+            "52", "53", "54", "55", "56", "57", "58", "59", "5a", "5b", "5c", "5d", "5e", "5f", "60", "61", "62", "63",
+            "64", "65", "66", "67", "68", "69", "6a", "6b", "6c", "6d", "6e", "6f", "70", "71", "72", "73", "74", "75",
+            "76", "77", "78", "79", "7a", "7b", "7c", "7d", "7e", "7f", "80", "81", "82", "83", "84", "85", "86", "87",
+            "88", "89", "8a", "8b", "8c", "8d", "8e", "8f", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99",
+            "9a", "9b", "9c", "9d", "9e", "9f", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "aa", "ab",
+            "ac", "ad", "ae", "af", "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8", "b9", "ba", "bb", "bc", "bd",
+            "be", "bf", "c0", "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "ca", "cb", "cc", "cd", "ce", "cf",
+            "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9", "da", "db", "dc", "dd", "de", "df", "e0", "e1",
+            "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", "ea", "eb", "ec", "ed", "ee", "ef", "f0", "f1", "f2", "f3",
+            "f4", "f5", "f6", "f7", "f8", "f9", "fa", "fb", "fc", "fd", "fe", "ff",};
 
 }

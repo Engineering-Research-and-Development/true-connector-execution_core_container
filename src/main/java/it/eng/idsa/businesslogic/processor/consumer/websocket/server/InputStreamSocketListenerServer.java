@@ -17,8 +17,8 @@ import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 
 public class InputStreamSocketListenerServer implements SocketListener {
 	
-	private static final String CLOSURE_FRAME = "�normal closure";
-	private static final String END_BINARY_FRAME_SEPARATOR = "�normal-IDS-ENG-SEPARATOR the-last-frame";
+	public static final String CLOSURE_FRAME = "�normal closure";
+	public static final String END_BINARY_FRAME_SEPARATOR = "�normal-IDS-ENG-SEPARATOR the-last-frame";
 	
 	private FrameBufferBean frameBuffer;
 	
