@@ -1,5 +1,6 @@
 package it.eng.idsa.businesslogic.routes;
 
+import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -67,9 +68,14 @@ public class CamelRouteProducer extends RouteBuilder {
 	@Autowired
 	ExceptionProcessorProducer processorException;
 
+	@Autowired
+	CamelContext camelContext;
+	
 	@Override
 	public void configure() throws Exception {
-
+		camelContext.getShutdownStrategy().setLogInflightExchangesOnTimeout(false);
+		camelContext.getShutdownStrategy().setTimeout(3);
+		
 		onException(ExceptionForProcessor.class, RuntimeException.class)
 			.handled(true)
 			.process(processorException);

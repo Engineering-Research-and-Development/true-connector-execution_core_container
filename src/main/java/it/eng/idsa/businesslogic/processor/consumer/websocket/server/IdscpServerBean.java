@@ -3,13 +3,12 @@ package it.eng.idsa.businesslogic.processor.consumer.websocket.server;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+
+import javax.annotation.PreDestroy;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -86,5 +85,13 @@ public class IdscpServerBean {
 	public IdscpServer getIdscpServer() {
 		return this.idscpServer;
 	}
+	
+	@PreDestroy
+    public void onDestroy() throws Exception {
+        if (idscpServer.getServer()!=null) {
+        	idscpServer.getServer().stop();
+        	idscpServer.getServer().destroy();
+        }
+    }
 		
 }

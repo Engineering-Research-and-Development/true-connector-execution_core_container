@@ -122,7 +122,7 @@ public class DapsServiceImpl implements DapsService {
 
         try {
             logger.debug("Started get JWT token");
-            InputStream jksInputStream = Files.newInputStream(Paths.get(configuration.getBasedir(), targetDirectory.toString()).resolve(keyStoreName));
+			InputStream jksInputStream = Files.newInputStream(targetDirectory.resolve(keyStoreName));
             KeyStore store = KeyStore.getInstance("JKS");
             store.load(jksInputStream, keyStorePassword.toCharArray());
             // get private key
