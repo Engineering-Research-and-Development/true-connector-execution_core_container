@@ -33,4 +33,12 @@ public class ConsumerSendTransactionToCHProcessor implements Processor {
 
 	}
 
+	public ClearingHouseServiceImpl getClearingHouseService() {
+		return clearingHouseService;
+	}
+
+	public void setClearingHouseService(ClearingHouseServiceImpl clearingHouseService) {
+		this.clearingHouseService = clearingHouseService;
+	}
+
 }

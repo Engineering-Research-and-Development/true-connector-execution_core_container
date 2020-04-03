@@ -102,6 +102,22 @@ public class FileStreamingBean {
 		logger.info("Sent the last frame from the large message");
 		webSocket.sendBinaryFrame(END_BINARY_FRAME_SEPARATOR.getBytes(), false, 0);
 		logger.info("Sent the the-end-binary-frame-separator");
-	  }	
+	  }
+
+	public String getServerIP() {
+		return serverIP;
+	}
+
+	public void setServerIP(String serverIP) {
+		this.serverIP = serverIP;
+	}
+
+	public int getServerPort() {
+		return serverPort;
+	}
+
+	public void setServerPort(int serverPort) {
+		this.serverPort = serverPort;
+	}	
 	
 }

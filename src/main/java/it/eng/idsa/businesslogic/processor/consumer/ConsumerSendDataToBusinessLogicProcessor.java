@@ -11,11 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.ResponseMessageBufferBean;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;

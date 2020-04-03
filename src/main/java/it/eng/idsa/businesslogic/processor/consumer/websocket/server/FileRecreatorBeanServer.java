@@ -15,8 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import de.fhg.aisec.ids.comm.server.IdscpServer;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import org.springframework.beans.factory.annotation.Value;
 
 /**
@@ -61,7 +59,7 @@ public class FileRecreatorBeanServer implements Runnable {
             this.idscpServer = webSocketServerConfiguration.idscpServerWebSocket();
             this.idscpServer.setSocketListener(this.inputStreamSocketListener);
             this.idscpServer.createIdscpServer();
-            this.server = this.idscpServer.getIdscpServer();
+            this.setServer(this.idscpServer.getIdscpServer());
         } else if (isEnabledWebSocket) {
             HttpWebSocketServerBean httpWebSocketServerBean = webSocketServerConfiguration.httpsServerWebSocket();
             httpWebSocketServerBean.createServer();
@@ -122,5 +120,21 @@ public class FileRecreatorBeanServer implements Runnable {
         String multipartMessage = new String(allFrames, StandardCharsets.UTF_8);
         return multipartMessage;
     }
+
+	public IdscpServer getServer() {
+		return server;
+	}
+
+	public void setServer(IdscpServer server) {
+		this.server = server;
+	}
+
+	public ByteBuffer getByteBuffer() {
+		return byteBuffer;
+	}
+
+	public void setByteBuffer(ByteBuffer byteBuffer) {
+		this.byteBuffer = byteBuffer;
+	}
 
 }

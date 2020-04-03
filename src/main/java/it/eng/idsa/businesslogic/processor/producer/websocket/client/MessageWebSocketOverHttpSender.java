@@ -14,7 +14,6 @@ import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.asynchttpclient.SslEngineFactory;
 import org.asynchttpclient.netty.ssl.JsseSslEngineFactory;
 import org.asynchttpclient.ws.WebSocket;
-import org.asynchttpclient.ws.WebSocketListener;
 import org.asynchttpclient.ws.WebSocketUpgradeHandler;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
