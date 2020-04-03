@@ -13,6 +13,9 @@ import de.fraunhofer.iais.eis.Message;
  * Service Interface for managing Clearing House.
  */
 public interface ClearingHouseService {
-	public boolean registerTransaction(Message message);
+	//ORBITER IMPLEMENTATION - DEPRECATED
+	//public boolean registerTransaction(Message message);
+	public boolean registerTransaction(Message message, String payload);
+
 
 }

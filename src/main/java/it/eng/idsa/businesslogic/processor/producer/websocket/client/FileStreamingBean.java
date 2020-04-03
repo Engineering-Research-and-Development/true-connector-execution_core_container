@@ -43,21 +43,23 @@ public class FileStreamingBean {
 	public void sendMultipartMessage(String multipartMessage) throws KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException, IOException {
 		// Convert multipartMessage to the InputStream
 		InputStream multipartMessageStream = new ByteArrayInputStream(multipartMessage.getBytes());
-		
-		if(wsClient.isOpen()) {
-			try {
-				// Send multipartMessageStream as stream of the frames using the webSocket
-				sendStreamMessage(wsClient, multipartMessageStream);
-			} 
-			finally
-		    {
-		        if (multipartMessageStream != null)
-		        {
-		        	multipartMessageStream.close();
-		        }
-		    }
+		if (wsClient!=null) {
+			if(wsClient.isOpen()) {
+				try {
+					// Send multipartMessageStream as stream of the frames using the webSocket
+					sendStreamMessage(wsClient, multipartMessageStream);
+				} 
+				finally
+				{
+					if (multipartMessageStream != null)
+					{
+						multipartMessageStream.close();
+					}
+				}
+			}
+		} else {
+			//TODO Send rejection Message
 		}
-		
 		ResponseMessageReceiverClient responseMessageReceiverClient = webSocketClientConfiguration.responseMessageReceiverWebSocketClient();
 		Thread responseMessageReceiverClientThread = new Thread(responseMessageReceiverClient, "ResponseMssageReceiverClientThread");
 

@@ -87,13 +87,13 @@ public class CamelRouteConsumer extends RouteBuilder {
 					.process(sendDataToBusinessLogicProcessor)
 					.choice()
 						.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-						.process(sendTransactionToCHProcessor)
+						//.process(sendTransactionToCHProcessor)
 					.endChoice()
 				.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
 					.process(sendDataToBusinessLogicProcessor)
 					.choice()
 						.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-						.process(sendTransactionToCHProcessor)
+						//.process(sendTransactionToCHProcessor)
 					.endChoice()
 			.endChoice();
 
@@ -121,7 +121,7 @@ public class CamelRouteConsumer extends RouteBuilder {
 					.process(sendDataToBusinessLogicProcessor)
 					.choice()
 						.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-							.process(sendTransactionToCHProcessor)
+							//.process(sendTransactionToCHProcessor)
 					.endChoice()
 			.endChoice();
 		
@@ -143,7 +143,7 @@ public class CamelRouteConsumer extends RouteBuilder {
 					.process(sendDataToBusinessLogicProcessor)
 					.choice()
 						.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-							.process(sendTransactionToCHProcessor)
+							//.process(sendTransactionToCHProcessor)
 					.endChoice()
 				.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
 					// Send to the Endpoint: F
@@ -152,7 +152,7 @@ public class CamelRouteConsumer extends RouteBuilder {
 					.process(sendDataToBusinessLogicProcessor)
 					.choice()
 						.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-							.process(sendTransactionToCHProcessor)
+							//.process(sendTransactionToCHProcessor)
 					.endChoice()
 			.endChoice();			
 	}
