@@ -27,10 +27,17 @@
 		<application.basedir>${basedir}</application.basedir>
 	</properties>
 
-	<repositories> <repository> <id>nl.tno.ids</id> <url>https://ci.ids.smart-connected.nl/nexus/repository/tno-ids/ 
-		</url> </repository> <repository> <id>snapshots</id> <name>maven-snapshots</name> 
-		<url>http://maven.iais.fraunhofer.de/artifactory/eis-ids-public</url> </repository> 
-		</repositories> 
+	<repositories> 
+		<repository> 
+			<id>nl.tno.ids</id> 
+			<url>https://ci.ids.smart-connected.nl/nexus/repository/tno-ids/ </url> 
+		</repository> 
+		<repository> 
+			<id>snapshots</id> 
+			<name>maven-snapshots</name> 
+			<url>http://maven.iais.fraunhofer.de/artifactory/eis-ids-public</url> 
+		</repository> 
+	</repositories> 
 	<dependencies>
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -99,6 +106,13 @@
 			<artifactId>infomodel-serializer</artifactId>
 			<version>${information.model.version}</version>
 		</dependency>
+		
+		<!-- CLEARING HOUSE -->
+		<dependency>
+			<groupId>it.eng</groupId>
+			<artifactId>clearing-house-model</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency> 
 
 		<!-- Camel -->
 		<dependency>

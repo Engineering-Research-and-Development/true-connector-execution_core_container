@@ -93,7 +93,13 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
         }
         String forwardTo = headesParts.get("Forward-To").toString();
         Message message = multiPartMessageServiceImpl.getMessage(header);
-
+        
+        // Body from the original multipart message which is created using the header and payload from the original body
+        String multipartMessageBody = new MultiPartMessage.Builder()
+                .setHeader(header)
+                .setPayload(payload)
+                .build()
+                .toString();
 
         if (isEnabledIdscp) {
             // check & exstract WebSocket IP and Port
@@ -110,19 +116,20 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
             if (Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
                 response = this.sendMultipartMessageWebSocket(messageWithToken, payload, forwardTo, message);
             } else {
-                response = sendMultipartMessageWebSocket(header, payload, forwardTo, message);
+                response = this.sendMultipartMessageWebSocket(header, payload, forwardTo, message);
             }
-
             // Handle response
-            this.handleResponseWebSocket(exchange, message, response, forwardTo);
+            this.handleResponseWebSocket(exchange, message, response, forwardTo, multipartMessageBody);
         } else if (isEnabledWebSocket) {
+        	// -- Send data using HTTPS - (Client) - WebSocket
             String response;
             if (Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
                 response = messageWebSocketOverHttpSender.sendMultipartMessageWebSocketOverHttps(messageWithToken, payload, forwardTo, message);
             } else {
                 response = messageWebSocketOverHttpSender.sendMultipartMessageWebSocketOverHttps(header, payload, forwardTo, message);
             }
-            handleResponseWebSocket(exchange, message, response, forwardTo);
+            // Handle response
+            this.handleResponseWebSocket(exchange, message, response, forwardTo, multipartMessageBody);
         } else {
             // Send MultipartMessage HTTPS
             CloseableHttpResponse response = this.sendMultipartMessage(
@@ -132,9 +139,8 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
                     payload,
                     forwardTo
             );
-
             // Handle response
-            this.handleResponse(exchange, message, response, forwardTo);
+            this.handleResponse(exchange, message, response, forwardTo, multipartMessageBody);
 
             if (response != null) {
                 response.close();
@@ -216,7 +222,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
         return httpClient;
     }
 
-    private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response, String forwardTo) throws UnsupportedOperationException, IOException {
+    private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response, String forwardTo, String multipartMessageBody) throws UnsupportedOperationException, IOException {
         if (response == null) {
             logger.info("...communication error");
             rejectionMessageServiceImpl.sendRejectionMessage(
@@ -242,12 +248,15 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
             } else {
                 logger.info("data sent to destination " + forwardTo);
                 logger.info("Successful response: " + responseString);
+                // TODO:
+                // Set original body which is created using the original payload and header
+                exchange.getOut().setHeader("multipartMessageBody", multipartMessageBody);
                 exchange.getOut().setBody(responseString);
             }
         }
     }
 
-    private void handleResponseWebSocket(Exchange exchange, Message message, String responseString, String forwardTo) {
+    private void handleResponseWebSocket(Exchange exchange, Message message, String responseString, String forwardTo, String multipartMessageBody) {
         if (responseString == null) {
             logger.info("...communication error");
             rejectionMessageServiceImpl.sendRejectionMessage(
@@ -257,6 +266,9 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
             logger.info("response received from the DataAPP=" + responseString);
             logger.info("data sent to destination " + forwardTo);
             logger.info("Successful response: " + responseString);
+            // TODO:
+            // Set original body which is created using the original payload and header 
+            exchange.getOut().setHeader("multipartMessageBody", multipartMessageBody);
             exchange.getOut().setBody(responseString);
         }
     }

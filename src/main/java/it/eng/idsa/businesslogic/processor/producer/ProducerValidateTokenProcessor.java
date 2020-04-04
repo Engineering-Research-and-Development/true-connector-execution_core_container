@@ -63,6 +63,8 @@ private static final Logger logger = LogManager.getLogger(ConsumerValidateTokenP
 		
 		logger.info("is token valid: "+isTokenValid);
 		multipartMessageParts.put("isTokenValid", isTokenValid);
+		
+		exchange.getOut().setHeaders(exchange.getIn().getHeaders());
 		// Return multipartMessageParts
 		exchange.getOut().setBody(multipartMessageParts);
 	}

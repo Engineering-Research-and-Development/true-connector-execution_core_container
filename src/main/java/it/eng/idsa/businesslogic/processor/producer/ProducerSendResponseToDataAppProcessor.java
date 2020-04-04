@@ -38,7 +38,7 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		
-		Map<String, Object> headesParts = new HashMap();
+		Map<String, Object> headesParts = exchange.getIn().getHeaders();
 		
 		Map<String, Object> multipartMessagePartsReceived = exchange.getIn().getBody(HashMap.class);
 		
@@ -60,18 +60,17 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 			header = this.filterHeader(multipartMessagePartsReceived.get("header").toString());
 		}
 		
-		// Prepare multipart message as string
-		HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(header, payload, null);
-		String responseString = EntityUtils.toString(entity, "UTF-8");
-		
-		// Return exchange
-		MultiPartMessage multiPartMessage = MultiPart.parseString(responseString);
-		String multipartMessageString = MultiPart.toString(multiPartMessage, false);
-		String contentType = multiPartMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
+		// Prepare response
+		MultiPartMessage responseMultipartMessage = new MultiPartMessage.Builder()
+														.setHeader(header)
+														.setPayload(payload)
+														.build();
+		String responseMultipartMessageString = MultiPart.toString(responseMultipartMessage, false);
+		String contentType = responseMultipartMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
 		headesParts.put("Content-Type", contentType);
 		
 		exchange.getOut().setHeaders(headesParts);
-		exchange.getOut().setBody(multipartMessageString);
+		exchange.getOut().setBody(responseMultipartMessageString);
 	}	
 
 	private String filterHeader(String header) throws JsonMappingException, JsonProcessingException {

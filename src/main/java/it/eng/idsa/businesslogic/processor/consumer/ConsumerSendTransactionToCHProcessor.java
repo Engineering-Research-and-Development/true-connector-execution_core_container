@@ -31,16 +31,18 @@ public class ConsumerSendTransactionToCHProcessor implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 
-		// Get "multipartMessageString" from the input "exchange"
-		String multipartMessageString = exchange.getIn().getBody(String.class);
-		// Prepare data for CH
-		String header = multiPartMessageServiceImpl.getHeader(multipartMessageString);
-		String payload = multiPartMessageServiceImpl.getPayload(multipartMessageString);
-		Message message = multiPartMessageServiceImpl.getMessage(header);
-		// Send data to CH
-		clearingHouseService.registerTransaction(message, payload);
-		logger.info(multipartMessageString);
-
+//		// Get "multipartMessageString" from the input "exchange"
+//		String multipartMessageString = exchange.getIn().getBody(String.class);
+//		// Prepare data for CH
+//		String header = multiPartMessageServiceImpl.getHeader(multipartMessageString);
+//		String payload = multiPartMessageServiceImpl.getPayload(multipartMessageString);
+//		Message message = multiPartMessageServiceImpl.getMessage(header);
+//		// Send data to CH
+//		clearingHouseService.registerTransaction(message, payload);
+//		logger.info(multipartMessageString);
+		
+		exchange.getOut().setHeaders(exchange.getIn().getHeaders());
+		exchange.getOut().setBody(exchange.getIn().getBody());
 	}
 
 	public ClearingHouseServiceImpl getClearingHouseService() {

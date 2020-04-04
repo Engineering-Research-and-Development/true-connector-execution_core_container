@@ -1,5 +1,8 @@
 package it.eng.idsa.businesslogic.processor.producer;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.logging.log4j.LogManager;
@@ -31,16 +34,23 @@ public class ProducerSendTransactionToCHProcessor implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		
-
-		// Get "multipartMessageString" from the input "exchange"
-		String multipartMessageString = exchange.getIn().getBody(String.class);
+		// In the multipartMessageBody is original header and payload
+		String multipartMessageBody = exchange.getIn().getHeader("multipartMessageBody").toString();
+		
 		// Prepare data for CH
-		String header = multiPartMessageServiceImpl.getHeader(multipartMessageString);
-		String payload = multiPartMessageServiceImpl.getPayload(multipartMessageString);
+		String header = multiPartMessageServiceImpl.getHeader(multipartMessageBody);
+		String payload = multiPartMessageServiceImpl.getPayload(multipartMessageBody);
 		Message message = multiPartMessageServiceImpl.getMessage(header);
 		// Send data to CH
 		clearingHouseService.registerTransaction(message, payload);
-		logger.info(multipartMessageString);
+		logger.info("Successfully wrote down in the Clearing House");
+
+		// clear from Headers multipartMessageBody (it is not unusable for the Open Data App)
+		Map<String, Object> headers = exchange.getIn().getHeaders();
+		headers.remove("multipartMessageBody");
+		
+		exchange.getOut().setHeaders(headers);
+		exchange.getOut().setBody(exchange.getIn().getBody());
 	}
 
 }
