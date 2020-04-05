@@ -18,6 +18,8 @@ import java.net.BindException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import javax.annotation.PreDestroy;
+
 /**
  * Jetty Server instantiation with WebSocket over SSL
  *
@@ -114,6 +116,14 @@ public class HttpWebSocketServerBean {
         http_config.setSecurePort(port);
         http_config.addCustomizer(new SecureRequestCustomizer());
         return http_config;
+    }
+    
+	@PreDestroy
+    public void onDestroy() throws Exception {
+        if (server.getServer()!=null) {
+        	server.getServer().stop();
+        	server.getServer().destroy();
+        }
     }
 
 }
