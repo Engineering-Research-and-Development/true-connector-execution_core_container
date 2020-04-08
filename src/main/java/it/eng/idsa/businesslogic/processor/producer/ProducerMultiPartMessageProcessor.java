@@ -39,7 +39,7 @@ public class ProducerMultiPartMessageProcessor implements Processor {
 		String header;
 		String payload;
 		String frowardTo;
-		Map<String, Object> multipartMessageParts = new HashMap();
+		Map<String, Object> multipartMessageParts = new HashMap<String, Object>();
 		Message message=null;
 		
 		// Get multipart message from the input "exchange"

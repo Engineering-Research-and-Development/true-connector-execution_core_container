@@ -8,7 +8,6 @@ import java.net.Proxy;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyManagementException;
@@ -37,7 +36,7 @@ import javax.net.ssl.X509TrustManager;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,7 +58,7 @@ import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+
 import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.util.ProxyAuthenticator;
 import okhttp3.Authenticator;
@@ -84,12 +83,11 @@ public class DapsServiceImpl implements DapsService {
 
     private static final Logger logger = LogManager.getLogger(DapsServiceImpl.class);
 
-    @Autowired
-    private ApplicationConfiguration configuration;
+   
 
     private Key privKey;
     private Certificate cert;
-    private PublicKey publicKey;
+
     private String token = "";
 
     @Value("${application.targetDirectory}")
@@ -128,9 +126,8 @@ public class DapsServiceImpl implements DapsService {
             // get private key
             privKey = (PrivateKey) store.getKey(keystoreAliasName, keyStorePassword.toCharArray());
             // Get certificate of public key
-            cert = store.getCertificate(keystoreAliasName);
-            // Get public key
-            publicKey = cert.getPublicKey();
+            setCert(store.getCertificate(keystoreAliasName));
+
             //byte[] encodedPublicKey = publicKey.getEncoded();
             //String b64PublicKey = Base64.getEncoder().encodeToString(encodedPublicKey);
 
@@ -368,7 +365,15 @@ public class DapsServiceImpl implements DapsService {
         return rc.toString();
     }
 
-    private static final String[] HEX_TABLE = new String[]{"00", "01", "02", "03", "04", "05", "06", "07", "08", "09",
+    public Certificate getCert() {
+		return cert;
+	}
+
+	public void setCert(Certificate cert) {
+		this.cert = cert;
+	}
+
+	private static final String[] HEX_TABLE = new String[]{"00", "01", "02", "03", "04", "05", "06", "07", "08", "09",
             "0a", "0b", "0c", "0d", "0e", "0f", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "1a", "1b",
             "1c", "1d", "1e", "1f", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "2a", "2b", "2c", "2d",
             "2e", "2f", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "3a", "3b", "3c", "3d", "3e", "3f",

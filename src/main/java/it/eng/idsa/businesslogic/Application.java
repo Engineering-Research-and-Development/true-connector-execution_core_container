@@ -8,11 +8,6 @@ import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactor
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
-import org.springframework.jms.annotation.EnableJms;
-import org.springframework.jms.config.JmsListenerContainerFactory;
-import javax.jms.ConnectionFactory;
-import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
-import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 
 /**
  * 
@@ -25,7 +20,6 @@ import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
  */
 @EnableCaching
 @SpringBootApplication
-@EnableJms
 public class Application {
 	//HTTP port
 	@Value("${http.port}")
@@ -50,13 +44,5 @@ public class Application {
 			connector.setPort(httpPort);
 			return connector;
 		}
-		
-		@Bean
-	    public JmsListenerContainerFactory<?> jmsFactory(ConnectionFactory connectionFactory,
-	      DefaultJmsListenerContainerFactoryConfigurer configurer) {
-	        DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
-	        // This provides all boot's default to this factory, including the message converter
-	        configurer.configure(factory, connectionFactory);
-	        return factory;
-	    }
+
 }

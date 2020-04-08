@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import de.fraunhofer.iais.eis.Message;
+
 import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 
@@ -38,7 +38,7 @@ public class ProducerSendDataToBusinessLogicConsumer implements Processor {
 		String header;
 		String payload;
 		String forwardTo;
-		Message message=null;
+	
 		
 		// Get "multipartMessageParts" from the input "exchange"
 		Map<String, Object> multipartMessageParts = exchange.getIn().getBody(HashMap.class);

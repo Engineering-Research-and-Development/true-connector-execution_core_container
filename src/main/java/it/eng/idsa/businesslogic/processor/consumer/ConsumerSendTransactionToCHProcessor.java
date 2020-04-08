@@ -2,14 +2,12 @@ package it.eng.idsa.businesslogic.processor.consumer;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import de.fraunhofer.iais.eis.Message;
+
 import it.eng.idsa.businesslogic.service.impl.ClearingHouseServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 
 /**
  * 
@@ -20,10 +18,6 @@ import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 @Component
 public class ConsumerSendTransactionToCHProcessor implements Processor {
 
-	private static final Logger logger = LogManager.getLogger(ConsumerSendTransactionToCHProcessor.class);
-
-	@Autowired
-	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
 
 	@Autowired
 	private ClearingHouseServiceImpl clearingHouseService;

@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.Properties;
 import java.util.UUID;
 
 import javax.xml.datatype.DatatypeFactory;
@@ -17,7 +18,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.json.simple.JSONObject;
+import org.apache.maven.project.MavenProject;
 import org.json.simple.JsonObject;
 import org.json.simple.Jsoner;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -161,11 +162,15 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	private static String getInformationModelVersion() {
 		String currnetInformationModelVersion = null;
 		try {
-
+	
 			InputStream is = RejectionMessageServiceImpl.class.getClassLoader().getResourceAsStream("META-INF/maven/it.eng.idsa/market4.0-execution_core_container_business_logic/pom.xml");
 			MavenXpp3Reader reader = new MavenXpp3Reader();
 			Model model = reader.read(is);
-
+			MavenProject project = new MavenProject(model);
+			Properties props = project.getProperties(); 
+			if (props.get("information.model.version")!=null) {
+				return props.get("information.model.version").toString();
+			}
 			for (int i = 0; i < model.getDependencies().size(); i++) {
 				if (model.getDependencies().get(i).getGroupId().equalsIgnoreCase("de.fraunhofer.iais.eis.ids.infomodel")){
 					String version=model.getDependencies().get(i).getVersion();

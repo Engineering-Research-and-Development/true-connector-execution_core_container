@@ -12,7 +12,7 @@
 	<groupId>it.eng.idsa</groupId>
 	<artifactId>market4.0-execution_core_container_business_logic
 	</artifactId>
-	<version>0.0.15-SNAPSHOT</version>
+	<version>0.0.16-SNAPSHOT</version>
 	<name>market4.0-execution_core_container_business_logic</name>
 	<description>Market4.0 execution core container Business Logic
 	</description>
@@ -21,7 +21,6 @@
 		<start-class>it.eng.idsa.businesslogic.Application</start-class>
 		<camel.version>2.24.2</camel.version>
 		<camel.version.rc>3.0.0-RC3</camel.version.rc>
-		<jackson.version>2.10.1</jackson.version>
 		<tomcat.version>9.0.24</tomcat.version>
 		<information.model.version>2.1.0-SNAPSHOT</information.model.version>
 		<application.basedir>${basedir}</application.basedir>
@@ -44,6 +43,12 @@
             <artifactId>maven-model</artifactId>
             <version>3.6.3</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.maven/maven-project -->
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-project</artifactId>
+			<version>2.2.1</version>
+		</dependency>
         <!-- H2 database -->
 		<dependency>
 			<groupId>com.h2database</groupId>
@@ -157,17 +162,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-jms</artifactId>
-			<version>${camel.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-util</artifactId>
-			<version>${camel.version.rc}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-activemq</artifactId>
 			<version>${camel.version.rc}</version>
 		</dependency>
 
@@ -201,14 +196,12 @@
  		<dependency>
 		    <groupId>org.apache.logging.log4j</groupId>
 		    <artifactId>log4j-core</artifactId>
-		    <version>2.6.2</version>
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl -->
  		<dependency>
 		    <groupId>org.apache.logging.log4j</groupId>
 		    <artifactId>log4j-slf4j-impl</artifactId>
-		    <version>2.6.2</version>
 		    <scope>test</scope>
 		</dependency>
 		
@@ -234,30 +227,24 @@
 		<dependency>
 		    <groupId>org.eclipse.jetty.websocket</groupId>
 		    <artifactId>websocket-server</artifactId>
-		    <version>9.4.20.v20190813</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.eclipse.jetty.websocket/websocket-client -->
 		<dependency>
 		    <groupId>org.eclipse.jetty.websocket</groupId>
 		    <artifactId>websocket-client</artifactId>
-		    <version>9.4.20.v20190813</version>
 		</dependency>
-
 		<!-- Jackson -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
-			<version>${jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>${jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
-			<version>${jackson.version}</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt -->
@@ -271,7 +258,6 @@
 		<dependency>
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
-			<version>4.0.1</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/javax.validation/validation-api -->
@@ -348,6 +334,7 @@
 					</execution>
 				</executions>
 			</plugin>
+			
 		</plugins>
 	</build>
 

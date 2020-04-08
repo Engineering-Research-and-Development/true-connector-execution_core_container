@@ -43,8 +43,7 @@ public class ConsumerFileRecreatorProcessor implements Processor {
 		String header;
 		String payload;
 		Message message=null;
-		Map<String, Object> headesParts = new HashMap();
-		Map<String, Object> multipartMessageParts = new HashMap();
+		Map<String, Object> multipartMessageParts = new HashMap<String, Object>();
 		
 		//  Receive and recreate Multipart message
 		FileRecreatorBeanServer fileRecreatorBean = webSocketServerConfiguration.fileRecreatorBeanWebSocket();

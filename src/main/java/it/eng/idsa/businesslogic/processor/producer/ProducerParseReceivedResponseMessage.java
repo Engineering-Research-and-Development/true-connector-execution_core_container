@@ -38,7 +38,7 @@ public class ProducerParseReceivedResponseMessage implements Processor {
 		String header;
 		String payload;
 		Message message=null;
-		Map<String, Object> multipartMessageParts = new HashMap();
+		Map<String, Object> multipartMessageParts = new HashMap<String, Object>();
 		
 		// Get multipart message from the input "exchange"
 		String multipartMessage = exchange.getIn().getBody(String.class);

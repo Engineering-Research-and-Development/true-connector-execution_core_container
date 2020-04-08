@@ -6,19 +6,21 @@ import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
-
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.BindException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.security.KeyStore;
+
 
 import javax.annotation.PreDestroy;
+import javax.validation.constraints.NotNull;
 
 /**
  * Jetty Server instantiation with WebSocket over SSL
@@ -31,7 +33,10 @@ public class HttpWebSocketServerBean {
 
     @Value("${application.idscp.server.port}")
     private int idscpServerPort;
-
+    
+	@Value("${server.ssl.key-store-type}")
+	private String keyStoreType;
+    
     @Value("${server.ssl.key-store}")
     private String keyStoreLocation;
 
@@ -56,29 +61,44 @@ public class HttpWebSocketServerBean {
     }
 
     public void setup() throws IOException {
-        Resource resourceKeyStore = resourceLoader.getResource(keyStoreLocation);
-        String keyStore = resourceKeyStore.getFile().getAbsolutePath();
-        Path keystorePath = Paths.get(keyStore);
-        String password = keyStorePassword;
+    	// Prepare keystore
+    	InputStream keyStore=null;
+    	try {
+    			Resource resourceKeyStore = resourceLoader.getResource(keyStoreLocation);
+    			keyStore = resourceKeyStore.getInputStream();
+    		}
+    	catch (FileNotFoundException e) {
+    			keyStore = new FileInputStream(keyStoreLocation);
+    		}
+    	try {		 
+    		final KeyStore ks = KeyStore.getInstance(keyStoreType);
+    		ks.load(keyStore, keyStorePassword.toCharArray());
 
-        int port = idscpServerPort; //SECURE_PORT;
 
-        HttpConfiguration http_config = getHttpConfiguration(port);
-        SslContextFactory sslContextFactory = getSslContextFactory(keystorePath, password);
-        HttpConfiguration https_config = new HttpConfiguration(http_config);
 
-        server = new Server();
-        ServerConnector connector = new ServerConnector(server,
-                new SslConnectionFactory(sslContextFactory,
-                        HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(https_config));
-        connector.setPort(port);
-        //connector.setReuseAddress(true);
-        server.addConnector(connector);
+    		String password = keyStorePassword;
 
-        ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        handler.setContextPath("/");
-        handler.addServlet(HttpWebSocketMessagingServlet.class, WS_URL);
-        server.setHandler(handler);
+    		int port = idscpServerPort; //SECURE_PORT;
+
+    		HttpConfiguration http_config = getHttpConfiguration(port);
+    		SslContextFactory sslContextFactory = getSslContextFactory (ks, password);
+    		HttpConfiguration https_config = new HttpConfiguration(http_config);
+
+    		server = new Server();
+    		ServerConnector connector = new ServerConnector(server,
+    				new SslConnectionFactory(sslContextFactory,
+    						HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(https_config));
+    		connector.setPort(port);
+    		//connector.setReuseAddress(true);
+    		server.addConnector(connector);
+
+    		ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+    		handler.setContextPath("/");
+    		handler.addServlet(HttpWebSocketMessagingServlet.class, WS_URL);
+    		server.setHandler(handler);
+    	}catch (Exception e) {
+    		e.printStackTrace();
+    	}
     }
 
     public void start() {
@@ -101,9 +121,9 @@ public class HttpWebSocketServerBean {
     }
 
     @NotNull
-    private SslContextFactory getSslContextFactory(Path keystorePath, String password) {
+    private SslContextFactory getSslContextFactory(KeyStore keystore, String password) {
         SslContextFactory sslContextFactory = new SslContextFactory.Server();
-        sslContextFactory.setKeyStorePath(keystorePath.toAbsolutePath().toString());
+        sslContextFactory.setKeyStore(keystore);
         sslContextFactory.setKeyStorePassword(password);
         sslContextFactory.setKeyManagerPassword(password);
         return sslContextFactory;

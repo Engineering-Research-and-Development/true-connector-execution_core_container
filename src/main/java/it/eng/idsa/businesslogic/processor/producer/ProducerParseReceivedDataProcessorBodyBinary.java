@@ -44,8 +44,8 @@ public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 		String header = null;
 		String payload = null;
 		Message message = null;
-		Map<String, Object> headesParts = new HashMap();
-		Map<String, Object> multipartMessageParts = new HashMap();
+		Map<String, Object> headesParts = new HashMap<String, Object>();
+		Map<String, Object> multipartMessageParts = new HashMap<String, Object>();
 		String receivedDataBodyBinary = null;
 
 		// Get from the input "exchange"

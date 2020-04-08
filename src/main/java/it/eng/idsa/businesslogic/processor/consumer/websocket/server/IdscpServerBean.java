@@ -1,5 +1,7 @@
 package it.eng.idsa.businesslogic.processor.consumer.websocket.server;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -32,6 +34,10 @@ public class IdscpServerBean {
 	@Value("${application.idscp.server.port}")
 	private int idscpServerPort;
 	
+	@Value("${server.ssl.key-alias}")
+	private String certAlias;
+	
+	
 	@Value("${server.ssl.key-store-type}")
 	private String keyStoreType;
 	
@@ -58,8 +64,16 @@ public class IdscpServerBean {
 		
 		if(idscpServer==null) {
 			// Prepare keystore
-			Resource resourceKeyStore = resourceLoader.getResource(keyStoreLoation);
-			InputStream keyStore = resourceKeyStore.getInputStream();
+			InputStream keyStore=null;
+			try {
+				Resource resourceKeyStore = resourceLoader.getResource(keyStoreLoation);
+				keyStore = resourceKeyStore.getInputStream();
+			}
+			catch (FileNotFoundException e) {
+				System.out.println("ciaone");
+				keyStore = new FileInputStream(keyStoreLoation);
+			}
+			 
 			final KeyStore ks = KeyStore.getInstance(keyStoreType);
 			ks.load(keyStore, keyStorePassword.toCharArray());
 				
@@ -69,6 +83,8 @@ public class IdscpServerBean {
 			            .config(
 			                new ServerConfiguration.Builder()
 			                    .port(idscpServerPort)
+			                    .setCertAlias(certAlias)
+			                    .setKeyStorePassword(keyStorePassword)
 			                    .attestationType(IdsAttestationType.BASIC)
 			                    .setKeyStore(ks)
 			                    .setKeyPassword(keyStorePassword)

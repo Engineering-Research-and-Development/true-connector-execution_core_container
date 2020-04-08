@@ -14,10 +14,8 @@ import it.eng.idsa.businesslogic.processor.producer.ProducerGetTokenFromDapsProc
 import it.eng.idsa.businesslogic.processor.producer.ProducerParseReceivedDataProcessorBodyBinary;
 import it.eng.idsa.businesslogic.processor.producer.ProducerParseReceivedDataProcessorBodyFormData;
 import it.eng.idsa.businesslogic.processor.producer.ProducerParseReceivedResponseMessage;
-import it.eng.idsa.businesslogic.processor.producer.ProducerReceiveFromActiveMQ;
 import it.eng.idsa.businesslogic.processor.producer.ProducerSendDataToBusinessLogicProcessor;
 import it.eng.idsa.businesslogic.processor.producer.ProducerSendResponseToDataAppProcessor;
-import it.eng.idsa.businesslogic.processor.producer.ProducerSendToActiveMQ;
 import it.eng.idsa.businesslogic.processor.producer.ProducerSendTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.producer.ProducerValidateTokenProcessor;
 
@@ -45,12 +43,6 @@ public class CamelRouteProducer extends RouteBuilder {
 	ProducerGetTokenFromDapsProcessor getTokenFromDapsProcessor;
 	
 	@Autowired
-	ProducerSendToActiveMQ sendToActiveMQ;
-	
-	@Autowired
-	ProducerReceiveFromActiveMQ receiveFromActiveMQ;
-
-	@Autowired
 	ProducerSendTransactionToCHProcessor sendTransactionToCHProcessor;
 
 	@Autowired
@@ -73,12 +65,18 @@ public class CamelRouteProducer extends RouteBuilder {
 	
 	@Override
 	public void configure() throws Exception {
+		logger.debug("Starting Camel Routes...producer side");
+
 		camelContext.getShutdownStrategy().setLogInflightExchangesOnTimeout(false);
 		camelContext.getShutdownStrategy().setTimeout(3);
 		
-		onException(ExceptionForProcessor.class, RuntimeException.class)
+		onException(ExceptionForProcessor.class)
 			.handled(true)
 			.process(processorException);
+		
+		onException(RuntimeException.class)
+		.handled(true)
+		.process(processorException);
 
 		// Camel SSL - Endpoint: A - Body binary
 		from("jetty://https4://0.0.0.0:" + configuration.getCamelProducerPort() + "/incoming-data-app/multipartMessageBodyBinary")

@@ -50,20 +50,25 @@ public class FileRecreatorBeanServer implements Runnable {
 
     }
 
-    public void setup() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, URISyntaxException {
-        this.frameBuffer = webSocketServerConfiguration.frameBufferWebSocket();
-        this.recreatedmultipartMessage = webSocketServerConfiguration.recreatedMultipartMessageBeanWebSocket();
-        if (isEnabledIdscp) {
-            this.inputStreamSocketListener = webSocketServerConfiguration.inputStreamSocketListenerWebSocketServer();
-            this.inputStreamSocketListener.setFrameBuffer(this.frameBuffer);
-            this.idscpServer = webSocketServerConfiguration.idscpServerWebSocket();
-            this.idscpServer.setSocketListener(this.inputStreamSocketListener);
-            this.idscpServer.createIdscpServer();
-            this.setServer(this.idscpServer.getIdscpServer());
-        } else if (isEnabledWebSocket) {
-            HttpWebSocketServerBean httpWebSocketServerBean = webSocketServerConfiguration.httpsServerWebSocket();
-            httpWebSocketServerBean.createServer();
-        }
+    public void setup() throws Exception  {
+    	try {
+    		this.frameBuffer = webSocketServerConfiguration.frameBufferWebSocket();
+    		this.recreatedmultipartMessage = webSocketServerConfiguration.recreatedMultipartMessageBeanWebSocket();
+    		if (isEnabledIdscp) {
+    			this.inputStreamSocketListener = webSocketServerConfiguration.inputStreamSocketListenerWebSocketServer();
+    			this.inputStreamSocketListener.setFrameBuffer(this.frameBuffer);
+    			this.idscpServer = webSocketServerConfiguration.idscpServerWebSocket();
+    			this.idscpServer.setSocketListener(this.inputStreamSocketListener);
+    			this.idscpServer.createIdscpServer();
+    			this.setServer(this.idscpServer.getIdscpServer());
+    		} else if (isEnabledWebSocket) {
+    			HttpWebSocketServerBean httpWebSocketServerBean = webSocketServerConfiguration.httpsServerWebSocket();
+    			httpWebSocketServerBean.createServer();
+    		}
+    	}catch (Exception e) {
+    		e.printStackTrace();
+    		throw e;
+    	}
     }
 
 

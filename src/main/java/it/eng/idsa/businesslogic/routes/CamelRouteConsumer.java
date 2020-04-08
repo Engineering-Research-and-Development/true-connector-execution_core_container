@@ -12,10 +12,8 @@ import it.eng.idsa.businesslogic.processor.consumer.ConsumerExceptionMultiPartMe
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerFileRecreatorProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerGetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerMultiPartMessageProcessor;
-import it.eng.idsa.businesslogic.processor.consumer.ConsumerReceiveFromActiveMQ;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendDataToBusinessLogicProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendDataToDataAppProcessor;
-import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendToActiveMQ;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
@@ -37,12 +35,6 @@ public class CamelRouteConsumer extends RouteBuilder {
 	
 	@Autowired
 	ConsumerValidateTokenProcessor validateTokenProcessor;
-	
-	@Autowired
-	ConsumerSendToActiveMQ sendToActiveMQ;
-	
-	@Autowired
-	ConsumerReceiveFromActiveMQ receiveFromActiveMQ;
 	
 	@Autowired
 	ConsumerMultiPartMessageProcessor multiPartMessageProcessor;
@@ -73,7 +65,7 @@ public class CamelRouteConsumer extends RouteBuilder {
 	
 	@Override
 	public void configure() throws Exception {
-		
+		logger.debug("Starting Camel Routes...consumer side");
         camelContext.getShutdownStrategy().setLogInflightExchangesOnTimeout(false);
         camelContext.getShutdownStrategy().setTimeout(3);
 
@@ -127,7 +119,7 @@ public class CamelRouteConsumer extends RouteBuilder {
 		
 		// TODO: Improve this initialization
 		// Camel WebSocket - Endpoint B
-		boolean startupRoute = true;
+		//boolean startupRoute = true;
 		from("timer://simpleTimer?repeatCount=-1")
 			.process(fileRecreatorProcessor)
 			.process(multiPartMessageProcessor)
