@@ -67,9 +67,9 @@ public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 			headesParts.put("Forward-To", forwardTo);
 
 			// Create multipart message parts
-			header = multiPartMessageServiceImpl.getHeader(receivedDataBodyBinary);
+			header = multiPartMessageServiceImpl.getHeaderContentString(receivedDataBodyBinary);
 			multipartMessageParts.put("header", header);
-			payload = multiPartMessageServiceImpl.getPayload(receivedDataBodyBinary);
+			payload = multiPartMessageServiceImpl.getPayloadContent(receivedDataBodyBinary);
 			if(payload!=null) {
 				multipartMessageParts.put("payload", payload);
 			}

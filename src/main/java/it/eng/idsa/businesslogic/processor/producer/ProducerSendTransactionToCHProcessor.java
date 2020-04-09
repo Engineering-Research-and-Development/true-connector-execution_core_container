@@ -38,8 +38,8 @@ public class ProducerSendTransactionToCHProcessor implements Processor {
 		String multipartMessageBody = exchange.getIn().getHeader("multipartMessageBody").toString();
 		
 		// Prepare data for CH
-		String header = multiPartMessageServiceImpl.getHeader(multipartMessageBody);
-		String payload = multiPartMessageServiceImpl.getPayload(multipartMessageBody);
+		String header = multiPartMessageServiceImpl.getHeaderContentString(multipartMessageBody);
+		String payload = multiPartMessageServiceImpl.getPayloadContent(multipartMessageBody);
 		Message message = multiPartMessageServiceImpl.getMessage(header);
 		// Send data to CH
 		clearingHouseService.registerTransaction(message, payload);

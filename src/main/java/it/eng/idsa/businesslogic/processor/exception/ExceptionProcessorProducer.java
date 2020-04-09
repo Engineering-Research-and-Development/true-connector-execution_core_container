@@ -25,7 +25,7 @@ public class ExceptionProcessorProducer implements Processor {
 		exchange.getOut().setBody(exception.getMessage());
 		Builder builder = new MultiPartMessage.Builder();
 		MultiPartMessageServiceImpl multiPartMessageServiceImpl=new MultiPartMessageServiceImpl();
-		String message = multiPartMessageServiceImpl.getHeader(exception.getMessage());
+		String message = multiPartMessageServiceImpl.getHeaderContentString(exception.getMessage());
 		builder.setHeader(message);
 		MultiPartMessage builtMessage = builder.build();
 		String stringMessage = MultiPart.toString(builtMessage, false);

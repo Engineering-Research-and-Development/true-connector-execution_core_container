@@ -207,8 +207,8 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 			}else { 
 				logger.info("data sent to destination: "+openApiDataAppAddress);
 				logger.info("Successful response: "+ responseString);
-				String	header = multiPartMessageServiceImpl.getHeader(responseString);
-				String payload = multiPartMessageServiceImpl.getPayload(responseString);
+				String	header = multiPartMessageServiceImpl.getHeaderContentString(responseString);
+				String payload = multiPartMessageServiceImpl.getPayloadContent(responseString);
 				exchange.getOut().setHeader("header", header);
 				if(payload!=null) {
 					exchange.getOut().setHeader("payload", payload);

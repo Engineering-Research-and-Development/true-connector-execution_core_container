@@ -49,9 +49,9 @@ public class ProducerMultiPartMessageProcessor implements Processor {
 			// Create multipart message parts
 			frowardTo=getForwardTo(multipartMessage);
 			multipartMessageParts.put("frowardTo", frowardTo);
-			header=multiPartMessageServiceImpl.getHeader(multipartMessage);
+			header=multiPartMessageServiceImpl.getHeaderContentString(multipartMessage);
 			multipartMessageParts.put("header", header);
-			payload=multiPartMessageServiceImpl.getPayload(multipartMessage);
+			payload=multiPartMessageServiceImpl.getPayloadContent(multipartMessage);
 			multipartMessageParts.put("payload", payload);
 			message=multiPartMessageServiceImpl.getMessage(multipartMessage);
 			multipartMessageParts.put("message", message);

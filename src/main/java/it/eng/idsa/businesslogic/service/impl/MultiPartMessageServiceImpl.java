@@ -13,6 +13,7 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +24,8 @@ import de.fraunhofer.iais.eis.Token;
 import de.fraunhofer.iais.eis.TokenBuilder;
 import de.fraunhofer.iais.eis.TokenFormat;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
-import it.eng.idsa.businesslogic.service.MultiPartMessageService;
+import it.eng.idsa.businesslogic.multipart.MultipartMessage;
+import it.eng.idsa.businesslogic.multipart.service.MultipartMessageService;
 import nl.tno.ids.common.multipart.MultiPart;
 import nl.tno.ids.common.multipart.MultiPartMessage;
 import nl.tno.ids.common.serialization.SerializationHelper;
@@ -41,21 +43,21 @@ import nl.tno.ids.common.serialization.SerializationHelper;
  */
 @Service
 @Transactional
-public class MultiPartMessageServiceImpl implements MultiPartMessageService {
+public class MultiPartMessageServiceImpl{
 	
-	@Override
-	public String getHeader(String body) {
-		MultiPartMessage deserializedMultipartMessage = MultiPart.parseString(body);
-		return deserializedMultipartMessage.getHeaderString();
+	@Autowired
+	MultipartMessageService multipartMessageService;
+	
+	public String getHeaderContentString(String body) {
+		MultipartMessage deserializedMultipartMessage = multipartMessageService.parseMultipartMessage(body);
+		return deserializedMultipartMessage.getHeaderContentString();
 	}
 
-	@Override
-	public String getPayload(String body) {
-		MultiPartMessage deserializedMultipartMessage = MultiPart.parseString(body);
-		return deserializedMultipartMessage.getPayload();
+	public String getPayloadContent(String body) {
+		MultipartMessage deserializedMultipartMessage = multipartMessageService.parseMultipartMessage(body);
+		return deserializedMultipartMessage.getPayloadContent();
 	}
 	
-	@Override
 	public Message getMessage(String header) {
 		Message message = null;
 		try {
@@ -68,7 +70,6 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 	 
 
 	
-	@Override
 	public String addToken(Message message, String token) {
 		String output = null;
 		try {
@@ -89,7 +90,6 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 		return output;
 	}
 
-	@Override
 	public String removeToken(Message message) {
 		String output = null;
 		try {
@@ -105,8 +105,6 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 		return output;
 	}
 
-
-	@Override
 	public Message getMessage(Object header) {
 		Message message = null;
 		try {
@@ -118,7 +116,6 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 
 	}
 	
-	@Override
 	public HttpEntity createMultipartMessage(String header, String payload, String frowardTo) {
 		MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
 		multipartEntityBuilder.addTextBody("header", header);
@@ -184,7 +181,6 @@ public class MultiPartMessageServiceImpl implements MultiPartMessageService {
 		return multipartEntityBuilder.build();
 	}
 	
-	@Override
 	public String getToken(String message) {
 		String token = null;
 		try {

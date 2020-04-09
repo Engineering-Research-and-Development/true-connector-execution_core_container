@@ -54,9 +54,9 @@ public class ConsumerFileRecreatorProcessor implements Processor {
 		
 		// Extract header and payload from the multipart message
 		try {
-			header = multiPartMessageServiceImpl.getHeader(recreatedMultipartMessage);
+			header = multiPartMessageServiceImpl.getHeaderContentString(recreatedMultipartMessage);
 			multipartMessageParts.put("header", header);
-			payload = multiPartMessageServiceImpl.getPayload(recreatedMultipartMessage);
+			payload = multiPartMessageServiceImpl.getPayloadContent(recreatedMultipartMessage);
 			if(payload!=null) {
 				multipartMessageParts.put("payload", payload);
 			}
