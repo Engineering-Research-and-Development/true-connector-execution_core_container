@@ -68,6 +68,12 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 		String contentType = responseMultipartMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
 		headesParts.put("Content-Type", contentType);
 		
+		if(!isEnabledClearingHouse) {
+			// clear from Headers multipartMessageBody (it is not unusable for the Open Data App)
+			Map<String, Object> headers = exchange.getIn().getHeaders();
+			headers.remove("multipartMessageBody");
+		}
+		
 		exchange.getOut().setHeaders(headesParts);
 		exchange.getOut().setBody(responseMultipartMessageString);
 	}	
