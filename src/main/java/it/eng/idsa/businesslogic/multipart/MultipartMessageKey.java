@@ -6,6 +6,7 @@ public enum MultipartMessageKey {
 	NAME_HEADER("header"),
 	NAME_PAYLOAD("payload"),
 	NAME_SIGNATURE("signature"),
+	CONTENT_TYPE("Content-Type:"),
 	CONTENT_DISPOSITION("Content-Disposition:"),
 	CONTENT_LENGTH("Content-Length:");
  

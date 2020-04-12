@@ -26,8 +26,6 @@ import de.fraunhofer.iais.eis.TokenFormat;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.multipart.MultipartMessage;
 import it.eng.idsa.businesslogic.multipart.service.MultipartMessageService;
-import nl.tno.ids.common.multipart.MultiPart;
-import nl.tno.ids.common.multipart.MultiPartMessage;
 import nl.tno.ids.common.serialization.SerializationHelper;
 
 

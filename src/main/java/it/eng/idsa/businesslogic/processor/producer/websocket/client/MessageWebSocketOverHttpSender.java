@@ -2,6 +2,9 @@ package it.eng.idsa.businesslogic.processor.producer.websocket.client;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
+import it.eng.idsa.businesslogic.multipart.MultipartMessage;
+import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
+import it.eng.idsa.businesslogic.multipart.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.HttpWebSocketServerBean;
 import it.eng.idsa.businesslogic.processor.producer.ProducerSendDataToBusinessLogicProcessor;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
@@ -51,6 +54,9 @@ public class MessageWebSocketOverHttpSender {
 
     @Autowired
     private RejectionMessageServiceImpl rejectionMessageServiceImpl;
+    
+    @Autowired
+    MultipartMessageService multipartMessageService;
 
     @Value("${application.idscp.server.port}")
     private int idscpServerPort;
@@ -70,17 +76,24 @@ public class MessageWebSocketOverHttpSender {
 
     private String doSendMultipartMessageWebSocketOverHttps(String header, String payload, String forwardTo, Message message)
             throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
-        MultiPartMessage multipartMessage = new MultiPartMessage.Builder()
-                .setHeader(header)
-                .setPayload(payload)
-                .build();
+//        MultiPartMessage multipartMessage = new MultiPartMessage.Builder()
+//                .setHeader(header)
+//                .setPayload(payload)
+//                .build();
+    	
+    	MultipartMessage multipartMessage = new MultipartMessageBuilder()
+    			.withHeaderContent(header)
+    			.withPayloadContent(payload)
+    			.build();
+    	String multipartMessageString = multipartMessageService.multipartMessagetoString(multipartMessage);
+    													                                                        
         extractWebSocketIPAndPort(forwardTo);
         FileStreamingBean fileStreamingBean = webSocketClientConfiguration.fileStreamingWebSocket();
         WebSocket wsClient = createWebSocketClient(message);
         // Try to connect to the Server. Wait until you are not connected to the server.
         fileStreamingBean.setup(wsClient);
-        fileStreamingBean.sendMultipartMessage(multipartMessage.toString());
-        //fileStreamingBean.sendMultipartMessage(multipartMessage);
+//        fileStreamingBean.sendMultipartMessage(multipartMessage.toString());
+        fileStreamingBean.sendMultipartMessage(multipartMessageString);
         // We don't have status of the response (is it 200 OK or not). We have only the content of the response.
         String responseMessage = new String(webSocketClientConfiguration.responseMessageBufferWebSocketClient().remove());
         closeWSClient(wsClient, message);

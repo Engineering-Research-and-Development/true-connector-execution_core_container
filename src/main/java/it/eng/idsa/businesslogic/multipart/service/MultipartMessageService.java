@@ -3,8 +3,10 @@ package it.eng.idsa.businesslogic.multipart.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.Random;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,9 +35,14 @@ public class MultipartMessageService {
 	
 	private static final String REGEX_BOUNDARY = "(.*?)boundary=(.*);.*";
 	private static final String REGEX_NAME = "(.*?)name=\"(.*)\"(.*?)";
-	private static final Predicate<String> predicateLineContentDisposition = (line) -> line.trim().startsWith(MultipartMessageKey.CONTENT_DISPOSITION.label);
-	private static final Predicate<String> predicateLineContentLength = (line) -> line.trim().startsWith(MultipartMessageKey.CONTENT_LENGTH.label);
+	private static final Predicate<String> predicateLineContentType = (line) -> line.trim().startsWith(MultipartMessageKey.CONTENT_TYPE.label.toLowerCase());
+	private static final Predicate<String> predicateLineContentDisposition = (line) -> line.trim().startsWith(MultipartMessageKey.CONTENT_DISPOSITION.label.toLowerCase());
+	private static final Predicate<String> predicateLineContentLength = (line) -> line.trim().startsWith(MultipartMessageKey.CONTENT_LENGTH.label.toLowerCase());
 	private static final Predicate<String> predicateLineEmpty = (line) -> line.trim().isEmpty();
+	private static final char[] BOUNDARY_CHARS = "-_1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+	private static final String DEFAULT_CONTENT_TYPE = "multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6;charset=UTF-8";
+	private static final String DEFAULT_CONTENT_DISPOSITION = MultipartMessageKey.CONTENT_DISPOSITION.label + " form-data; name=";
+	
 	
 	public MultipartMessage parseMultipartMessage(String message) {
 		return parseMultipartMessage(message, null);
@@ -78,12 +85,155 @@ public class MultipartMessageService {
 		return multipartMessage;
 	}
 	
-	// TODO: shoul create logic for the toString
-	public String toString(MultipartMessage message) {
-		//String labela = MultipartMessageKey.CONTENT_DISPOSITION.label;
-		return null;
+	public String multipartMessagetoString(MultipartMessage message) {
+		return multipartMessagetoString(message, true);
 	}
 	
+	public String multipartMessagetoString(MultipartMessage message, boolean includeHttpHeaders) {
+		
+		StringBuilder multipartMessageString = new StringBuilder();
+		String boundary = generateBoundary();
+	    final String SEPARTOR_BOUNDARY = "--" + boundary;
+	    final String END_SEPARTOR_BOUNDARY = "--" + boundary + "--";
+	    boolean payloadTester = ((message.getPayloadContent() == null) ? false : (!message.getPayloadContent().isEmpty()));
+	    boolean signatureTester = ((message.getSignatureContent() == null) ? false : (!message.getSignatureContent().isEmpty()));
+		
+		// Append httpHeaders
+		if(includeHttpHeaders) {
+			setContentTypeInMultipartMessage(message, boundary);
+			String httpHeadersString = message.getHttpHeaders()
+					                          .entrySet()
+					                          .parallelStream()
+					                          .map(e -> e.getKey().toString() + e.getValue().toString())
+					                          .collect(Collectors.joining(System.lineSeparator()));
+			multipartMessageString.append(httpHeadersString  + System.lineSeparator());
+			multipartMessageString.append(System.lineSeparator());
+		}
+		
+		// Append separator boundary
+		multipartMessageString.append(SEPARTOR_BOUNDARY + System.lineSeparator());
+		
+		// Append headerHeader
+		String headerHeaderString;
+		if(message.getHeaderHeader().isEmpty()) {
+			headerHeaderString = setDefaultPartHeader(message.getHeaderContentString(), MultipartMessageKey.NAME_HEADER.label);
+		} else {
+			headerHeaderString = message.getHeaderHeader()
+					                    .entrySet()
+					                    .parallelStream()
+					                    .map(e -> e.getKey().toString() + " " + e.getValue().toString())
+					                    .collect(Collectors.joining(System.lineSeparator()));
+		}
+		multipartMessageString.append(headerHeaderString);
+		multipartMessageString.append(System.lineSeparator());
+		
+		// Append headerContent
+		multipartMessageString.append(message.getHeaderContentString() + System.lineSeparator());
+		
+		// Append payload
+		if(payloadTester) {
+			// Append separator boundary
+			multipartMessageString.append(SEPARTOR_BOUNDARY + System.lineSeparator());
+			
+			// Append payloadHeader
+			String payloadHeader;
+			if(message.getPayloadHeader().isEmpty()) {
+				payloadHeader = setDefaultPartHeader(message.getPayloadContent(), MultipartMessageKey.NAME_PAYLOAD.label);
+			} else {
+				payloadHeader = message.getPayloadHeader()
+						                .entrySet()
+						                .parallelStream()
+						                .map(e -> e.getKey().toString() + " " + e.getValue().toString())
+						                .collect(Collectors.joining(System.lineSeparator()));
+			}
+			multipartMessageString.append(payloadHeader);
+			multipartMessageString.append(System.lineSeparator());
+			
+			// Append payloadContent
+			multipartMessageString.append(message.getPayloadContent() + System.lineSeparator());	
+		}
+		
+		// Append signature
+		if(signatureTester) {
+			// Append separator boundary
+			multipartMessageString.append(SEPARTOR_BOUNDARY + System.lineSeparator());
+			
+			// Append signatureHeader
+			String signatureHeaderString;
+			if(message.getSignatureHeader().isEmpty()) {
+				signatureHeaderString = setDefaultPartHeader(message.getSignatureContent(), MultipartMessageKey.NAME_SIGNATURE.label);
+			} else {
+				signatureHeaderString = message.getSignatureHeader()
+	                       					   .entrySet()
+	                                           .parallelStream()
+	                                           .map(e -> e.getKey().toString() + " " + e.getValue().toString())
+	                                           .collect(Collectors.joining(System.lineSeparator()));
+			}
+			multipartMessageString.append(signatureHeaderString + System.lineSeparator());
+			multipartMessageString.append(System.lineSeparator());
+			
+			// Append signatureContent
+			multipartMessageString.append(message.getSignatureContent() + System.lineSeparator());
+		}
+		
+		// Append end separator boundary
+		multipartMessageString.append(END_SEPARTOR_BOUNDARY + System.lineSeparator());
+		
+		return multipartMessageString.toString();
+	}
+
+	private String setDefaultPartHeader(String headerContentString, String partName) {
+		StringBuffer defaultHeaderHeaderString = new StringBuffer();
+		defaultHeaderHeaderString.append(DEFAULT_CONTENT_DISPOSITION + "\"" + partName + "\"" + System.lineSeparator());
+		defaultHeaderHeaderString.append(MultipartMessageKey.CONTENT_LENGTH.label + headerContentString.length() + System.lineSeparator());
+		return defaultHeaderHeaderString.toString();
+	}
+
+	private void setContentTypeInMultipartMessage(MultipartMessage message, String boundary) {
+		Optional<Entry<String, String>> contentTypeLine = Optional.empty();
+		if(message.getHttpHeaders().containsKey(MultipartMessageKey.CONTENT_TYPE.label)) {
+			contentTypeLine = message.getHttpHeaders()
+		       .entrySet()
+		       .parallelStream()
+		       .filter(e -> (predicateLineContentType.test(e.getKey().toLowerCase())))
+		       .findFirst();
+		}
+
+		if(contentTypeLine.isEmpty()) {
+			setDefaultContentType(message, boundary);
+		} else {
+			setNewBoundaryInContentType(message, boundary, contentTypeLine);
+		}
+	}
+
+	private void setNewBoundaryInContentType(MultipartMessage message, String boundary,
+			                                 Optional<Entry<String, String>> contentTypeLineEntry) {
+		String contentTypeLine = contentTypeLineEntry.get().getValue();
+		String contentTypeLineWithNewBoundary = replaceContentTypeWithNewBoundary(boundary, contentTypeLine);
+		// Set new Content-Type with the new boundary
+		message.getHttpHeaders()
+		       .entrySet()
+		       .parallelStream()
+		       .filter(e -> (predicateLineContentType.test(e.getKey().toLowerCase())))
+		       .findFirst()
+		       .get()
+		       .setValue(contentTypeLineWithNewBoundary);
+	}
+	
+	private void setDefaultContentType(MultipartMessage message, String boundary) {
+		String contentTypeLineWithNewBoundary = replaceContentTypeWithNewBoundary(boundary, DEFAULT_CONTENT_TYPE);
+		message.getHttpHeaders().put(MultipartMessageKey.CONTENT_TYPE.label, contentTypeLineWithNewBoundary);
+	}
+	
+	private String replaceContentTypeWithNewBoundary(String boundary, String contentTypeLine) {
+		Pattern pattern = Pattern.compile(REGEX_BOUNDARY);
+		Matcher matcher = pattern.matcher(contentTypeLine);
+		matcher.find();
+		StringBuilder stringBuilder = new StringBuilder(matcher.group(2));
+		String contentTypeLineWithNewBoundary = contentTypeLine.replace(stringBuilder, boundary);
+		return contentTypeLineWithNewBoundary;
+	}
+
 	private MultipartMessage createMultipartMessage(List<List<String>> multipartMessageParts) {
 		MultipartMessageBuilder multipartMessageBuilder = new MultipartMessageBuilder();
 		multipartMessageParts.parallelStream()
@@ -102,9 +252,8 @@ public class MultipartMessageService {
 
 	private String getMultipartMessagePartName(List<String> part) {
 		Pattern pattern = Pattern.compile(REGEX_NAME);
-		Predicate<String> predicateLineContentType = line -> line.trim().startsWith(MultipartMessageKey.CONTENT_DISPOSITION.label);
 		String lineContentType = part.parallelStream()
-				       .filter(row -> predicateLineContentType.test(row)).findFirst()
+				       .filter(row -> predicateLineContentDisposition.test(row.toLowerCase())).findFirst()
 				       .get();
 		Matcher matcher = pattern.matcher(lineContentType);
 		matcher.find();
@@ -115,10 +264,10 @@ public class MultipartMessageService {
 	private Map<String, String> getPartHeader(List<String> part) {	
 		Map<String, String> partHeader = new HashMap<String, String>();
 		
-		String partContetDisposition = part.parallelStream().filter(line -> predicateLineContentDisposition.test(line)).findFirst().get();
+		String partContetDisposition = part.parallelStream().filter(line -> predicateLineContentDisposition.test(line.toLowerCase())).findFirst().get();
 		partHeader.put(MultipartMessageKey.CONTENT_DISPOSITION.label, partContetDisposition);
 		
-		String partContentLength = part.parallelStream().filter(line -> predicateLineContentLength.test(line)).findFirst().get();
+		String partContentLength = part.parallelStream().filter(line -> predicateLineContentLength.test(line.toLowerCase())).findFirst().get();
 		partHeader.put(MultipartMessageKey.CONTENT_LENGTH.label, partContentLength);
 		
 		return partHeader;
@@ -129,8 +278,8 @@ public class MultipartMessageService {
 											   .filter(index ->
 												   (
 														(
-														    !predicateLineContentDisposition.test(part.get(index)) &&
-			                            					!predicateLineContentLength.test(part.get(index)) &&
+														    !predicateLineContentDisposition.test(part.get(index).toLowerCase()) &&
+			                            					!predicateLineContentLength.test(part.get(index).toLowerCase()) &&
 			                            					!predicateLineEmpty.test(part.get(index))
 			                            				)
 													)
@@ -185,7 +334,7 @@ public class MultipartMessageService {
 		return Optional.ofNullable(boundary);
 	}
 	
-	private static List<List<String>> getMultipartMessagesParts(Predicate<String> predicateLineBoundary, String multipart) {
+	private List<List<String>> getMultipartMessagesParts(Predicate<String> predicateLineBoundary, String multipart) {
 		// Devide multipart message on the lines
 		Stream<String> lines = multipart.lines();
 		
@@ -210,7 +359,7 @@ public class MultipartMessageService {
 		return multipartMessageParts;
 	}
 
-	private static List<String> getLinesMultipartMessagePreparedForSpliting(List<String> linesInMultipartMessage,
+	private List<String> getLinesMultipartMessagePreparedForSpliting(List<String> linesInMultipartMessage,
 			Integer postionStartBoundary, Integer postionLastBoundary) {
 		List<String> linesMultipartMessagePreparedForSpliting = IntStream.range(0, linesInMultipartMessage.size())
         		 .mapToObj(index -> 
@@ -222,7 +371,7 @@ public class MultipartMessageService {
 		return linesMultipartMessagePreparedForSpliting;
 	}
 
-	private static List<Integer> findPostionBoundaries(List<String> linesInMultipartMessage, Predicate<String> predicateLineBoundary) {
+	private List<Integer> findPostionBoundaries(List<String> linesInMultipartMessage, Predicate<String> predicateLineBoundary) {
 		// Find postion of the all boundary
 		List<Integer> list = IntStream.range(0, linesInMultipartMessage.size())
 		         .mapToObj(index -> 
@@ -236,7 +385,7 @@ public class MultipartMessageService {
 		return list;
 	}
 
-	private static List<List<String>> createMultipartMessageParts(Predicate<String> predicateLineBoundary,
+	private List<List<String>> createMultipartMessageParts(Predicate<String> predicateLineBoundary,
 			List<String> linesMultipartMessagePreparedForSpliting) {
 		int[] indexesSepartor = 
 			      Stream.of(IntStream.of(-1), IntStream.range(0, linesMultipartMessagePreparedForSpliting.size())
@@ -247,5 +396,18 @@ public class MultipartMessageService {
 			               .mapToObj(i -> linesMultipartMessagePreparedForSpliting.subList(indexesSepartor[i] + 1, indexesSepartor[i + 1]))
 			               .collect(Collectors.toList());
 	}
+	
+	private String generateBoundary() {
+		StringBuilder buffer = new StringBuilder();
+		Random rand = new Random();
+		int count = rand.nextInt(11) + 30;
+		IntStream.range(0, count)
+		         .forEach( i ->
+			                 buffer.append(BOUNDARY_CHARS[rand.nextInt(BOUNDARY_CHARS.length)])
+		                 );
+		return buffer.toString();
+	}
+	
+	
 	
 }

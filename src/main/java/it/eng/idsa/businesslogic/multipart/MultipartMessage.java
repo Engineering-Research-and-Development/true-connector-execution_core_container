@@ -1,12 +1,10 @@
 package it.eng.idsa.businesslogic.multipart;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.multipart.service.MultipartMessageService;
 import nl.tno.ids.common.serialization.SerializationHelper;
 
 /**
@@ -21,16 +19,13 @@ import nl.tno.ids.common.serialization.SerializationHelper;
  */
 public class MultipartMessage {
 	
-	@Autowired
-	MultipartMessageService multipartMessageService;
-	
-	private Map<String, String> httpHeaders;
-	private Map<String, String> headerHeader;
-	private Message headerContent;
-	private Map<String, String> payloadHeader;
-	private String payloadContent;
-	private Map<String, String> signatureHeader;
-	private String signatureContent;
+	private Map<String, String> httpHeaders = new HashMap<>();
+	private Map<String, String> headerHeader = new HashMap<>();
+	private Message headerContent = null;
+	private Map<String, String> payloadHeader = new HashMap<>();
+	private String payloadContent = null;
+	private Map<String, String> signatureHeader= new HashMap<>();
+	private String signatureContent = null;
 	
 	public MultipartMessage() {
 		super();
@@ -83,10 +78,6 @@ public class MultipartMessage {
 
 	public String getSignatureContent() {
 		return signatureContent;
-	}
-	
-	public String toString() {
-		return multipartMessageService.toString(this);
 	}
 	
 }

@@ -1,17 +1,14 @@
 package it.eng.idsa.businesslogic.multipart;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.NotificationMessage;
-import it.eng.idsa.businesslogic.multipart.service.MultipartMessageService;
-import nl.tno.ids.common.multipart.MultiPart;
-import nl.tno.ids.common.multipart.MultiPartMessage;
 import nl.tno.ids.common.serialization.SerializationHelper;
 
 /**
@@ -29,13 +26,13 @@ public class MultipartMessageBuilder {
 	
 	private static final Logger logger = LogManager.getLogger(MultipartMessageBuilder.class);
 		
-	private Map<String, String> httpHeaders;
-	private Map<String, String> headerHeader;
-	private Message headerContent;
-	private Map<String, String> payloadHeader;
-	private String payloadContent;
-	private Map<String, String> signatureHeader;
-	private String signatureContent;
+	private Map<String, String> httpHeaders = new HashMap<>();
+	private Map<String, String> headerHeader = new HashMap<>();
+	private Message headerContent = null;
+	private Map<String, String> payloadHeader = new HashMap<>();
+	private String payloadContent = null;
+	private Map<String, String> signatureHeader = new HashMap<>();
+	private String signatureContent = null;
 	
 	public MultipartMessageBuilder withHttpHeader(Map<String, String> httpHeaders) {
 		this.httpHeaders = httpHeaders;
