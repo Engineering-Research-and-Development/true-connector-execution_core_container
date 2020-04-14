@@ -99,13 +99,18 @@ public class MultipartMessageService {
 	    boolean signatureTester = ((message.getSignatureContent() == null) ? false : (!message.getSignatureContent().isEmpty()));
 		
 		// Append httpHeaders
+	    String httpHeadersString;
 		if(includeHttpHeaders) {
-			setContentTypeInMultipartMessage(message, boundary);
-			String httpHeadersString = message.getHttpHeaders()
-					                          .entrySet()
-					                          .parallelStream()
-					                          .map(e -> e.getKey().toString() + e.getValue().toString())
-					                          .collect(Collectors.joining(System.lineSeparator()));
+			if(message.getHttpHeaders().isEmpty()) {
+				httpHeadersString = setDefaultHttpHeaders(message.getHttpHeaders());
+			} else {
+				setContentTypeInMultipartMessage(message, boundary);
+				httpHeadersString = message.getHttpHeaders()
+						                          .entrySet()
+						                          .parallelStream()
+						                          .map(e -> e.getKey().toString() + e.getValue().toString())
+						                          .collect(Collectors.joining(System.lineSeparator()));
+			}
 			multipartMessageString.append(httpHeadersString  + System.lineSeparator());
 			multipartMessageString.append(System.lineSeparator());
 		}
@@ -180,6 +185,19 @@ public class MultipartMessageService {
 		multipartMessageString.append(END_SEPARTOR_BOUNDARY + System.lineSeparator());
 		
 		return multipartMessageString.toString();
+	}
+
+	private String setDefaultHttpHeaders(Map<String, String> httpHeaders) {
+		StringBuffer defaultContentType = new StringBuffer();
+		defaultContentType.append(httpHeaders.getOrDefault(MultipartMessageKey.CONTENT_TYPE.label, "multipart/mixed"));
+		httpHeaders.put(MultipartMessageKey.CONTENT_TYPE.label, defaultContentType.toString());
+		
+		String defaultHttpHeadersToString =  httpHeaders
+												.entrySet()
+												.parallelStream()
+												.map(e -> e.getKey().toString() + " " + e.getValue().toString())
+												.collect(Collectors.joining(System.lineSeparator()));
+		return defaultHttpHeadersToString;
 	}
 
 	private String setDefaultPartHeader(String headerContentString, String partName) {

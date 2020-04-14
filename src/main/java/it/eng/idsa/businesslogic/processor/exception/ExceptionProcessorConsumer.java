@@ -37,8 +37,9 @@ public class ExceptionProcessorConsumer implements Processor {
     			.build();
     	String multipartMessageString = multipartMessageService.multipartMessagetoString(multipartMessage, false);
 		
-		exchange.getOut().setHeader("header", multipartMessageString);
-		exchange.getOut().setHeader("payload", "RejectionMessage");
+		exchange.getOut().setBody(multipartMessageString);
+		String contentType = multipartMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
+        exchange.getOut().setHeader("Content-Type", contentType);
 		
 	}
 

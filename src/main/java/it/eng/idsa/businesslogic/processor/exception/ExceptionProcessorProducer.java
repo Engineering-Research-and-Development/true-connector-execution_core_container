@@ -9,9 +9,6 @@ import it.eng.idsa.businesslogic.multipart.MultipartMessage;
 import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
 import it.eng.idsa.businesslogic.multipart.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
-import nl.tno.ids.common.multipart.MultiPart;
-import nl.tno.ids.common.multipart.MultiPartMessage;
-import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
 
 /**
  * 
@@ -23,10 +20,10 @@ import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
 public class ExceptionProcessorProducer implements Processor {
 	
 	@Autowired
-	MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
 	
 	@Autowired
-    MultipartMessageService multipartMessageService;
+    private MultipartMessageService multipartMessageService;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -41,7 +38,8 @@ public class ExceptionProcessorProducer implements Processor {
     	String multipartMessageString = multipartMessageService.multipartMessagetoString(multipartMessage, false);
 		
 		exchange.getOut().setBody(multipartMessageString);
-		exchange.getOut().setHeader("payload", "RejectionMessage");
+		String contentType = multipartMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
+        exchange.getOut().setHeader("Content-Type", contentType);
 		
 	}
 

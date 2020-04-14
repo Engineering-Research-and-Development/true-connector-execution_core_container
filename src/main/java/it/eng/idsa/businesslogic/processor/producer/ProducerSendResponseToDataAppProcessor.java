@@ -15,6 +15,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 
 import de.fraunhofer.iais.eis.Message;
+import it.eng.idsa.businesslogic.multipart.MultipartMessage;
+import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
+import it.eng.idsa.businesslogic.multipart.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import nl.tno.ids.common.multipart.MultiPart;
 import nl.tno.ids.common.multipart.MultiPartMessage;
@@ -33,6 +36,9 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 	
 	@Autowired
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	
+	@Autowired
+    private MultipartMessageService multipartMessageService;
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -60,12 +66,13 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 		}
 		
 		// Prepare response
-		MultiPartMessage responseMultipartMessage = new MultiPartMessage.Builder()
-														.setHeader(header)
-														.setPayload(payload)
-														.build();
-		String responseMultipartMessageString = MultiPart.toString(responseMultipartMessage, false);
-		String contentType = responseMultipartMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
+		MultipartMessage multipartMessage = new MultipartMessageBuilder()
+    			.withHeaderContent(header)
+    			.withPayloadContent(payload)
+    			.build();
+		String responseMultipartMessageString = multipartMessageService.multipartMessagetoString(multipartMessage, false);
+		
+		String contentType = multipartMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
 		headesParts.put("Content-Type", contentType);
 		
 		if(!isEnabledClearingHouse) {

@@ -6,9 +6,10 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Properties;
 
-import org.apache.maven.project.MavenProject;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.apache.maven.project.MavenProject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,12 +18,12 @@ import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionMessageBuilder;
 import de.fraunhofer.iais.eis.RejectionReason;
 import de.fraunhofer.iais.eis.ResultMessageBuilder;
+import it.eng.idsa.businesslogic.multipart.MultipartMessage;
+import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
+import it.eng.idsa.businesslogic.multipart.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
-import nl.tno.ids.common.multipart.MultiPart;
-import nl.tno.ids.common.multipart.MultiPartMessage;
-import nl.tno.ids.common.multipart.MultiPartMessage.Builder;
 import nl.tno.ids.common.serialization.DateUtil;
 
 /**
@@ -38,14 +39,19 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 	@Value("${information.model.version}")
     private String informationModelVersion;
 	
+	@Autowired
+    MultipartMessageService multipartMessageService;
+	
 	@Override 
 	public void sendRejectionMessage(RejectionMessageType rejectionMessageType, Message message) {
 		Message rejectionMessage = createRejectionMessage(rejectionMessageType.toString(), message);
-		Builder builder = new MultiPartMessage.Builder();
-		builder.setHeader(rejectionMessage);
-		MultiPartMessage builtMessage = builder.build();
-		String stringMessage = MultiPart.toString(builtMessage, false);
-		throw new ExceptionForProcessor(stringMessage);
+		
+		MultipartMessage multipartMessage = new MultipartMessageBuilder()
+    			.withHeaderContent(rejectionMessage)
+    			.build();
+    	String multipartMessageString = multipartMessageService.multipartMessagetoString(multipartMessage, false);
+		
+		throw new ExceptionForProcessor(multipartMessageString);
 	}
 	
 	private Message createRejectionMessage(String rejectionMessageType, Message message) {

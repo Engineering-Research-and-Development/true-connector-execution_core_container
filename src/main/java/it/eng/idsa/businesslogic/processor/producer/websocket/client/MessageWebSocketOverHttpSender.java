@@ -1,15 +1,22 @@
 package it.eng.idsa.businesslogic.processor.producer.websocket.client;
 
-import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
-import it.eng.idsa.businesslogic.multipart.MultipartMessage;
-import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
-import it.eng.idsa.businesslogic.multipart.service.MultipartMessageService;
-import it.eng.idsa.businesslogic.processor.consumer.websocket.server.HttpWebSocketServerBean;
-import it.eng.idsa.businesslogic.processor.producer.ProducerSendDataToBusinessLogicProcessor;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
-import nl.tno.ids.common.multipart.MultiPartMessage;
+import static org.asynchttpclient.Dsl.asyncHttpClient;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import javax.validation.constraints.NotNull;
+
 import org.apache.http.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,22 +29,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import javax.validation.constraints.NotNull;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.util.concurrent.ExecutionException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static org.asynchttpclient.Dsl.asyncHttpClient;
+import de.fraunhofer.iais.eis.Message;
+import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
+import it.eng.idsa.businesslogic.multipart.MultipartMessage;
+import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
+import it.eng.idsa.businesslogic.multipart.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.processor.consumer.websocket.server.HttpWebSocketServerBean;
+import it.eng.idsa.businesslogic.processor.producer.ProducerSendDataToBusinessLogicProcessor;
+import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
  * @author Antonio Scatoloni
@@ -76,10 +76,6 @@ public class MessageWebSocketOverHttpSender {
 
     private String doSendMultipartMessageWebSocketOverHttps(String header, String payload, String forwardTo, Message message)
             throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
-//        MultiPartMessage multipartMessage = new MultiPartMessage.Builder()
-//                .setHeader(header)
-//                .setPayload(payload)
-//                .build();
     	
     	MultipartMessage multipartMessage = new MultipartMessageBuilder()
     			.withHeaderContent(header)
@@ -92,7 +88,6 @@ public class MessageWebSocketOverHttpSender {
         WebSocket wsClient = createWebSocketClient(message);
         // Try to connect to the Server. Wait until you are not connected to the server.
         fileStreamingBean.setup(wsClient);
-//        fileStreamingBean.sendMultipartMessage(multipartMessage.toString());
         fileStreamingBean.sendMultipartMessage(multipartMessageString);
         // We don't have status of the response (is it 200 OK or not). We have only the content of the response.
         String responseMessage = new String(webSocketClientConfiguration.responseMessageBufferWebSocketClient().remove());

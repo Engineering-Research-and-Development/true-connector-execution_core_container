@@ -10,7 +10,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import it.eng.idsa.businesslogic.processor.producer.websocket.client.MessageWebSocketOverHttpSender;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.http.HttpEntity;
@@ -33,14 +32,17 @@ import org.springframework.stereotype.Component;
 import de.fhg.aisec.ids.comm.client.IdscpClient;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
+import it.eng.idsa.businesslogic.multipart.MultipartMessage;
+import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
+import it.eng.idsa.businesslogic.multipart.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.FileStreamingBean;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.IdscpClientBean;
+import it.eng.idsa.businesslogic.processor.producer.websocket.client.MessageWebSocketOverHttpSender;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import nl.tno.ids.common.communication.HttpClientGenerator;
 import nl.tno.ids.common.config.keystore.AcceptAllTruststoreConfig;
-import nl.tno.ids.common.multipart.MultiPartMessage;
 
 /**
  * @author Milan Karajovic and Gabriele De Luca
@@ -70,6 +72,9 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 
     @Autowired
     private MessageWebSocketOverHttpSender messageWebSocketOverHttpSender;
+    
+    @Autowired
+    MultipartMessageService multipartMessageService;
 
     private String webSocketIp;
     private Integer webSocketPort;
@@ -94,12 +99,11 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
         String forwardTo = headesParts.get("Forward-To").toString();
         Message message = multiPartMessageServiceImpl.getMessage(header);
         
-        // Body from the original multipart message which is created using the header and payload from the original body
-        String multipartMessageBody = new MultiPartMessage.Builder()
-                .setHeader(header)
-                .setPayload(payload)
-                .build()
-                .toString();
+        MultipartMessage multipartMessage = new MultipartMessageBuilder()
+    			.withHeaderContent(header)
+    			.withPayloadContent(payload)
+    			.build();
+        String multipartMessageString = multipartMessageService.multipartMessagetoString(multipartMessage);
 
         if (isEnabledIdscp) {
             // check & exstract WebSocket IP and Port
@@ -119,7 +123,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
                 response = this.sendMultipartMessageWebSocket(header, payload, forwardTo, message);
             }
             // Handle response
-            this.handleResponseWebSocket(exchange, message, response, forwardTo, multipartMessageBody);
+            this.handleResponseWebSocket(exchange, message, response, forwardTo, multipartMessageString);
         } else if (isEnabledWebSocket) {
         	// -- Send data using HTTPS - (Client) - WebSocket
             String response;
@@ -129,7 +133,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
                 response = messageWebSocketOverHttpSender.sendMultipartMessageWebSocketOverHttps(header, payload, forwardTo, message);
             }
             // Handle response
-            this.handleResponseWebSocket(exchange, message, response, forwardTo, multipartMessageBody);
+            this.handleResponseWebSocket(exchange, message, response, forwardTo, multipartMessageString);
         } else {
             // Send MultipartMessage HTTPS
             CloseableHttpResponse response = this.sendMultipartMessage(
@@ -140,7 +144,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
                     forwardTo
             );
             // Handle response
-            this.handleResponse(exchange, message, response, forwardTo, multipartMessageBody);
+            this.handleResponse(exchange, message, response, forwardTo, multipartMessageString);
 
             if (response != null) {
                 response.close();
@@ -278,11 +282,12 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
         IdscpClientBean idscpClientBean = webSocketClientConfiguration.idscpClientServiceWebSocket();
         this.initializeIdscpClient(message, idscpClientBean);
         IdscpClient idscpClient = idscpClientBean.getClient();
-        // Create multipartMessage as a String
-        MultiPartMessage multipartMessage = new MultiPartMessage.Builder()
-                .setHeader(header)
-                .setPayload(payload)
-                .build();
+        
+        MultipartMessage multipartMessage = new MultipartMessageBuilder()
+    			.withHeaderContent(header)
+    			.withPayloadContent(payload)
+    			.build();
+    	String multipartMessageString = multipartMessageService.multipartMessagetoString(multipartMessage);
 
         // Send multipartMessage as a frames
         FileStreamingBean fileStreamingBean = webSocketClientConfiguration.fileStreamingWebSocket();
@@ -290,7 +295,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
         // Try to connect to the Server. Wait until you are not connected to the server.
         wsClient.addWebSocketListener(webSocketClientConfiguration.inputStreamSocketListenerWebSocketClient());
         fileStreamingBean.setup(wsClient);
-        fileStreamingBean.sendMultipartMessage(multipartMessage.toString());
+        fileStreamingBean.sendMultipartMessage(multipartMessageString);
         // We don't have status of the response (is it 200 OK or not). We have only the content of the response.
         String responseMessage = new String(webSocketClientConfiguration.responseMessageBufferWebSocketClient().remove());
         this.closeWSClient(wsClient);
