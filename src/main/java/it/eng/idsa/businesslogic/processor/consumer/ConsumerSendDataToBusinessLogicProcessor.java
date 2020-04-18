@@ -13,6 +13,10 @@ import org.springframework.stereotype.Component;
 
 
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
+import it.eng.idsa.businesslogic.multipart.MultipartMessage;
+import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
+import it.eng.idsa.businesslogic.multipart.MultipartMessageKey;
+import it.eng.idsa.businesslogic.multipart.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.ResponseMessageBufferBean;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import nl.tno.ids.common.multipart.MultiPart;
@@ -40,6 +44,9 @@ public class ConsumerSendDataToBusinessLogicProcessor implements Processor {
 	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
 	
 	@Autowired
+	private MultipartMessageService multiPartMessageService;
+	
+	@Autowired
 	private WebSocketServerConfiguration webSocketServerConfiguration;
 	
 	@Override
@@ -59,23 +66,22 @@ public class ConsumerSendDataToBusinessLogicProcessor implements Processor {
 			payload = multipartMessagePartsReceived.get("payload").toString();
 		}
 		
-		// Prepare multipart message as string
-		HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(header, payload, null);
-		String responseString = EntityUtils.toString(entity, "UTF-8");
+		MultipartMessage responseMessage = new MultipartMessageBuilder()
+				.withHeaderContent(header)
+				.withPayloadContent(payload)
+				.build();
+		String responseString = multiPartMessageService.multipartMessagetoString(responseMessage, false);
 		
-		// Return exchange
-		MultiPartMessage multiPartMessage = MultiPart.parseString(responseString);
-		String multipartMessageString = MultiPart.toString(multiPartMessage, false);
-		String contentType = multiPartMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
+		String contentType = responseMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
 		headesParts.put("Content-Type", contentType);
 		
 		// TODO: Send The MultipartMessage message to the WebaSocket
 		if(isEnabledIdscp || isEnabledWebSocket) { //TODO Try to remove this config property
 			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration.responseMessageBufferWebSocket();
-			responseMessageServerBean.add(multipartMessageString.getBytes());
+			responseMessageServerBean.add(responseString.getBytes());
 		}
 		
 		exchange.getOut().setHeaders(headesParts);
-		exchange.getOut().setBody(multipartMessageString);
+		exchange.getOut().setBody(responseString);
 	}	
 }
