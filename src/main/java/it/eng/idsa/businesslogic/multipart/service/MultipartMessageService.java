@@ -51,7 +51,7 @@ public class MultipartMessageService {
 	public MultipartMessage parseMultipartMessage(String message, String contentType) {
 		
 		Optional<String> boundaryFromMessage;
-		Optional<String> boundaryFromContentType;
+		Optional<String> boundaryFromContentType = Optional.of("");
 		
 		// Get boundary from the message
 		boundaryFromMessage = getMessageBoundaryFromMessage(message);
@@ -62,25 +62,27 @@ public class MultipartMessageService {
 			//TODO: Throw exception.
 		}
 		
+		String BOUNDARY = boundaryFromMessage.get();
+		
 		// Get boundary from the Content-Type
 		if(contentType!=null) {
 			boundaryFromContentType = getMessageBoundaryFromContentType(contentType);
 			if(boundaryFromContentType.isPresent()) {
 				logger.info("Boundary from the content type is: " + boundaryFromContentType.get());
+				if(!BOUNDARY.substring(2).equals(boundaryFromContentType.get())) {
+					// Overide boundary in the ContentType with the boundary in the multipart message
+					contentType = replaceContentTypeWithNewBoundary(BOUNDARY, contentType);
+				}
 			} else {
 				logger.info("Boundary does not exist in the content type");
-			}
-			// boundaryMessage and boundaryContentType should be the equals
-			if(!boundaryFromContentType.equals(boundaryFromMessage)) {
-				//TODO: Throw the exception
+				// TODO: Throw exception
 			}
 		}
 		
-		String BOUNDARY = boundaryFromMessage.get();
 		Predicate<String> predicateLineBoundary = (line) -> line.startsWith(BOUNDARY);
 		List<List<String>> multipartMessageParts = getMultipartMessagesParts(predicateLineBoundary, message);
 		
-		MultipartMessage multipartMessage = createMultipartMessage(multipartMessageParts);
+		MultipartMessage multipartMessage = createMultipartMessage(multipartMessageParts, contentType);
 		
 		return multipartMessage;
 	}
@@ -104,11 +106,11 @@ public class MultipartMessageService {
 			if(message.getHttpHeaders().isEmpty()) {
 				httpHeadersString = setDefaultHttpHeaders(message.getHttpHeaders());
 			} else {
-				setContentTypeInMultipartMessage(message, boundary);
+				setContentTypeInMultipartMessage(message, SEPARTOR_BOUNDARY);
 				httpHeadersString = message.getHttpHeaders()
 						                          .entrySet()
 						                          .parallelStream()
-						                          .map(e -> e.getKey().toString() + e.getValue().toString())
+						                          .map(e -> e.getValue().toString())
 						                          .collect(Collectors.joining(System.lineSeparator()));
 			}
 			multipartMessageString.append(httpHeadersString  + System.lineSeparator());
@@ -126,10 +128,10 @@ public class MultipartMessageService {
 			headerHeaderString = message.getHeaderHeader()
 					                    .entrySet()
 					                    .parallelStream()
-					                    .map(e -> e.getKey().toString() + " " + e.getValue().toString())
+					                    .map(e -> e.getValue().toString())
 					                    .collect(Collectors.joining(System.lineSeparator()));
 		}
-		multipartMessageString.append(headerHeaderString);
+		multipartMessageString.append(headerHeaderString + System.lineSeparator());
 		multipartMessageString.append(System.lineSeparator());
 		
 		// Append headerContent
@@ -148,10 +150,10 @@ public class MultipartMessageService {
 				payloadHeader = message.getPayloadHeader()
 						                .entrySet()
 						                .parallelStream()
-						                .map(e -> e.getKey().toString() + " " + e.getValue().toString())
+						                .map(e -> e.getValue().toString())
 						                .collect(Collectors.joining(System.lineSeparator()));
 			}
-			multipartMessageString.append(payloadHeader);
+			multipartMessageString.append(payloadHeader + System.lineSeparator());
 			multipartMessageString.append(System.lineSeparator());
 			
 			// Append payloadContent
@@ -171,7 +173,7 @@ public class MultipartMessageService {
 				signatureHeaderString = message.getSignatureHeader()
 	                       					   .entrySet()
 	                                           .parallelStream()
-	                                           .map(e -> e.getKey().toString() + " " + e.getValue().toString())
+	                                           .map(e -> e.getValue().toString())
 	                                           .collect(Collectors.joining(System.lineSeparator()));
 			}
 			multipartMessageString.append(signatureHeaderString + System.lineSeparator());
@@ -248,12 +250,20 @@ public class MultipartMessageService {
 		Matcher matcher = pattern.matcher(contentTypeLine);
 		matcher.find();
 		StringBuilder stringBuilder = new StringBuilder(matcher.group(2));
-		String contentTypeLineWithNewBoundary = contentTypeLine.replace(stringBuilder, boundary);
+		String contentTypeLineWithNewBoundary = contentTypeLine.replace(stringBuilder, boundary.substring(2));
 		return contentTypeLineWithNewBoundary;
 	}
 
-	private MultipartMessage createMultipartMessage(List<List<String>> multipartMessageParts) {
+	private MultipartMessage createMultipartMessage(List<List<String>> multipartMessageParts, String contentType) {
 		MultipartMessageBuilder multipartMessageBuilder = new MultipartMessageBuilder();
+		
+		if(contentType!=null) {
+			Map<String, String> httpHeader  = new HashMap<String, String>() {{
+			    put(MultipartMessageKey.CONTENT_TYPE.label, contentType);
+			}}; 
+			multipartMessageBuilder.withHttpHeader(httpHeader);
+		}
+		
 		multipartMessageParts.parallelStream()
 		                     .forEach
 		                     	(
@@ -320,15 +330,15 @@ public class MultipartMessageService {
 		 
 		if(partName.equals(MultipartMessageKey.NAME_HEADER.label)) {
 			multipartMessageBuilder.withHeaderHeader(partHeader);
-			multipartMessageBuilder.withHeaderContent(partContent);
+			multipartMessageBuilder.withHeaderContent(partContent.trim());
 		} else {
 			if(partName.equals(MultipartMessageKey.NAME_PAYLOAD.label)) {
 				multipartMessageBuilder.withPayloadHeader(partHeader);
-				multipartMessageBuilder.withPayloadContent(partContent);
+				multipartMessageBuilder.withPayloadContent(partContent.trim());
 			} else {
 				if(partName.equals(MultipartMessageKey.NAME_SIGNATURE.label)) {
 					multipartMessageBuilder.withSignatureHeader(partHeader);
-					multipartMessageBuilder.withSignatureContent(partContent);
+					multipartMessageBuilder.withSignatureContent(partContent.trim());
 				}
 			}
 		}
@@ -425,7 +435,5 @@ public class MultipartMessageService {
 		                 );
 		return buffer.toString();
 	}
-	
-	
 	
 }

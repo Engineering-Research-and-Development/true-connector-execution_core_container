@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.NotificationMessage;
+import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import nl.tno.ids.common.serialization.SerializationHelper;
 
 /**
@@ -51,18 +52,19 @@ public class MultipartMessageBuilder {
 	
 	public MultipartMessageBuilder withHeaderContent(String headerContent) {
 		try {
-			this.headerContent = (Message) SerializationHelper.getInstance().fromJsonLD(headerContent,
-					Message.class);
+			this.headerContent = new Serializer().deserialize(headerContent, Message.class);
 		} catch (IOException e) {
 			logger.error("Could not deserialize header");
+			e.printStackTrace();
 		}
 
+		// TODO: Check is this if necessary
 		if (this.headerContent == null) {
 			try {
-				this.headerContent = (Message) SerializationHelper.getInstance().fromJsonLD(headerContent,
-						NotificationMessage.class);
+				this.headerContent = new Serializer().deserialize(headerContent, NotificationMessage.class);
 			} catch (IOException e) {
 				logger.error("Could not deserialize header");
+				e.printStackTrace();
 			}
 		}
 		return this;

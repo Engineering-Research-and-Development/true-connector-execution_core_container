@@ -6,9 +6,10 @@ public enum MultipartMessageKey {
 	NAME_HEADER("header"),
 	NAME_PAYLOAD("payload"),
 	NAME_SIGNATURE("signature"),
-	CONTENT_TYPE("Content-Type:"),
-	CONTENT_DISPOSITION("Content-Disposition:"),
-	CONTENT_LENGTH("Content-Length:");
+	CONTENT_TYPE("Content-Type"),
+	FORWARD_TO("Forward-To"),
+	CONTENT_DISPOSITION("Content-Disposition"),
+	CONTENT_LENGTH("Content-Length");
  
     public final String label;
  

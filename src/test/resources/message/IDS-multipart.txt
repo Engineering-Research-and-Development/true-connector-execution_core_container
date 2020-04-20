@@ -5,7 +5,7 @@ Forward-To: broker
 
 --CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6
 Content-Disposition: form-data; name="header"
-Content-Length: 333
+Content-Length: 534
 
 {
   "@type" : "ids:ArtifactResponseMessage",
@@ -21,4 +21,9 @@ Content-Disposition: form-data; name="payload"
 Content-Length: 50
 
 {"catalog.offers.0.resourceEndpoints.path":"/pet"}
+--CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6
+Content-Disposition: form-data; name="signature"
+Content-Length: 49
+
+{"signature.resourceEndpoints.path":"/signature"}
 --CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6--
