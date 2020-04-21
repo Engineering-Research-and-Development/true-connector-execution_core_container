@@ -41,9 +41,8 @@ public class MultipartMessageService {
 	private static final Predicate<String> predicateLineEmpty = (line) -> line.trim().isEmpty();
 	private static final char[] BOUNDARY_CHARS = "-_1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
 	private static final String DEFAULT_CONTENT_TYPE = "multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6;charset=UTF-8";
-	private static final String DEFAULT_CONTENT_DISPOSITION = MultipartMessageKey.CONTENT_DISPOSITION.label + " form-data; name=";
-	
-	
+	private static final String DEFAULT_CONTENT_DISPOSITION = MultipartMessageKey.CONTENT_DISPOSITION.label + ": form-data; name=";
+
 	public MultipartMessage parseMultipartMessage(String message) {
 		return parseMultipartMessage(message, null);
 	}
@@ -132,7 +131,6 @@ public class MultipartMessageService {
 					                    .collect(Collectors.joining(System.lineSeparator()));
 		}
 		multipartMessageString.append(headerHeaderString + System.lineSeparator());
-		multipartMessageString.append(System.lineSeparator());
 		
 		// Append headerContent
 		multipartMessageString.append(message.getHeaderContentString() + System.lineSeparator());
@@ -184,7 +182,7 @@ public class MultipartMessageService {
 		}
 		
 		// Append end separator boundary
-		multipartMessageString.append(END_SEPARTOR_BOUNDARY + System.lineSeparator());
+		multipartMessageString.append(END_SEPARTOR_BOUNDARY);
 		
 		return multipartMessageString.toString();
 	}
@@ -197,7 +195,7 @@ public class MultipartMessageService {
 		String defaultHttpHeadersToString =  httpHeaders
 												.entrySet()
 												.parallelStream()
-												.map(e -> e.getKey().toString() + " " + e.getValue().toString())
+												.map(e -> e.getKey().toString() + ": " + e.getValue().toString())
 												.collect(Collectors.joining(System.lineSeparator()));
 		return defaultHttpHeadersToString;
 	}
@@ -205,7 +203,7 @@ public class MultipartMessageService {
 	private String setDefaultPartHeader(String headerContentString, String partName) {
 		StringBuffer defaultHeaderHeaderString = new StringBuffer();
 		defaultHeaderHeaderString.append(DEFAULT_CONTENT_DISPOSITION + "\"" + partName + "\"" + System.lineSeparator());
-		defaultHeaderHeaderString.append(MultipartMessageKey.CONTENT_LENGTH.label + headerContentString.length() + System.lineSeparator());
+		defaultHeaderHeaderString.append(MultipartMessageKey.CONTENT_LENGTH.label + ": " + headerContentString.length() + System.lineSeparator());
 		return defaultHeaderHeaderString.toString();
 	}
 
