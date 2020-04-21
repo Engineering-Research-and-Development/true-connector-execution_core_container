@@ -26,7 +26,6 @@ import de.fraunhofer.iais.eis.TokenFormat;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.multipart.MultipartMessage;
 import it.eng.idsa.businesslogic.multipart.service.MultipartMessageService;
-import nl.tno.ids.common.serialization.SerializationHelper;
 
 
 /**
@@ -59,7 +58,7 @@ public class MultiPartMessageServiceImpl{
 	public Message getMessage(String header) {
 		Message message = null;
 		try {
-			message = SerializationHelper.getInstance().fromJsonLD(header, Message.class);
+			message = new Serializer().deserialize(header, Message.class);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -106,7 +105,7 @@ public class MultiPartMessageServiceImpl{
 	public Message getMessage(Object header) {
 		Message message = null;
 		try {
-			message = SerializationHelper.getInstance().fromJsonLD(String.valueOf(header), Message.class);
+			message = new Serializer().deserialize(String.valueOf(header), Message.class);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

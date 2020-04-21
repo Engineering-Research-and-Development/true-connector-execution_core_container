@@ -3,10 +3,9 @@ package it.eng.idsa.businesslogic.multipart;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import de.fraunhofer.iais.eis.Message;
-import nl.tno.ids.common.serialization.SerializationHelper;
+import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 
 /**
  * 
@@ -51,7 +50,7 @@ public class MultipartMessage {
 	
 	public String getHeaderContentString() {
 		try {
-			return SerializationHelper.getInstance().toJsonLD(this.headerContent);
+			return new Serializer().serializePlainJson(this.headerContent);
 		} catch (IOException e) {
 			//TODO: throw exception
 			return "";

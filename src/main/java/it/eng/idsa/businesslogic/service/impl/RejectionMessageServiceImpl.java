@@ -24,7 +24,7 @@ import it.eng.idsa.businesslogic.multipart.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
-import nl.tno.ids.common.serialization.DateUtil;
+import it.eng.idsa.businesslogic.util.DateUtil;
 
 /**
  * 

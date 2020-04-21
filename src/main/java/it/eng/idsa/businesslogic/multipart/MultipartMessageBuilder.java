@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.NotificationMessage;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
-import nl.tno.ids.common.serialization.SerializationHelper;
 
 /**
  * 
