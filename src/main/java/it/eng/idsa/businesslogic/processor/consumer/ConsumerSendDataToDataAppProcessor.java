@@ -30,8 +30,8 @@ import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
-import nl.tno.ids.common.communication.HttpClientGenerator;
-import nl.tno.ids.common.config.keystore.AcceptAllTruststoreConfig;
+import it.eng.idsa.businesslogic.util.communication.HttpClientGenerator;
+import it.eng.idsa.businesslogic.util.config.keystore.AcceptAllTruststoreConfig;
 
 /**
  * 
@@ -167,7 +167,7 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 	}
 
 	private CloseableHttpClient getHttpClient() {
-		AcceptAllTruststoreConfig config=new AcceptAllTruststoreConfig();
+		AcceptAllTruststoreConfig config = new AcceptAllTruststoreConfig();
 
 		CloseableHttpClient httpClient = HttpClientGenerator.get(config);
 		logger.warn("Created Accept-All Http Client");

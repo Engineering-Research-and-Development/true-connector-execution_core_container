@@ -41,8 +41,8 @@ import it.eng.idsa.businesslogic.processor.producer.websocket.client.MessageWebS
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
-import nl.tno.ids.common.communication.HttpClientGenerator;
-import nl.tno.ids.common.config.keystore.AcceptAllTruststoreConfig;
+import it.eng.idsa.businesslogic.util.communication.HttpClientGenerator;
+import it.eng.idsa.businesslogic.util.config.keystore.AcceptAllTruststoreConfig;
 
 /**
  * @author Milan Karajovic and Gabriele De Luca

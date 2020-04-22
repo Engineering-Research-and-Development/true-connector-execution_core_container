@@ -28,10 +28,6 @@
 
 	<repositories> 
 		<repository> 
-			<id>nl.tno.ids</id> 
-			<url>https://ci.ids.smart-connected.nl/nexus/repository/tno-ids/ </url> 
-		</repository> 
-		<repository> 
 			<id>snapshots</id> 
 			<name>maven-snapshots</name> 
 			<url>http://maven.iais.fraunhofer.de/artifactory/eis-ids-public</url> 
@@ -89,15 +85,6 @@
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger-ui</artifactId>
 			<version>2.9.2</version>
-		</dependency>
-
-		
-
-		<!-- TNO -->
-		<dependency>
-			<groupId>nl.tno.ids</groupId>
-			<artifactId>common</artifactId>
-			<version>0.4.1-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Fraunhofer -->
