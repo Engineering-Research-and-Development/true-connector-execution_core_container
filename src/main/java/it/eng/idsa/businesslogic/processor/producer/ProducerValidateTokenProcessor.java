@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.processor.consumer.ConsumerValidateTokenProcessor;
 import it.eng.idsa.businesslogic.service.impl.DapsServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
@@ -26,7 +25,7 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 @Component
 public class ProducerValidateTokenProcessor implements Processor {
 
-private static final Logger logger = LogManager.getLogger(ConsumerValidateTokenProcessor.class);
+	private static final Logger logger = LogManager.getLogger(ProducerValidateTokenProcessor.class);
 	
 	@Autowired
 	DapsServiceImpl dapsServiceImpl;
@@ -47,7 +46,7 @@ private static final Logger logger = LogManager.getLogger(ConsumerValidateTokenP
 		message = multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 		
 		// Get "token" from the input "multipartMessageParts"
-		String token = multiPartMessageServiceImpl.getToken(multipartMessageParts.get("header").toString());
+		String token = multiPartMessageServiceImpl.getToken(message);
 		logger.info("token: ", token);
 		
 		// Check is "token" valid

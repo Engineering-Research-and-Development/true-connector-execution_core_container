@@ -26,6 +26,10 @@ import de.fraunhofer.iais.eis.TokenFormat;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.multipart.MultipartMessage;
 import it.eng.idsa.businesslogic.multipart.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 /**
@@ -41,9 +45,13 @@ import it.eng.idsa.businesslogic.multipart.service.MultipartMessageService;
 @Service
 @Transactional
 public class MultiPartMessageServiceImpl{
+	private static final Logger logger = LogManager.getLogger(MultiPartMessageServiceImpl.class);
 	
 	@Autowired
 	MultipartMessageService multipartMessageService;
+	
+	@Autowired
+	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
 	
 	public String getHeaderContentString(String body) {
 		MultipartMessage deserializedMultipartMessage = multipartMessageService.parseMultipartMessage(body);
@@ -178,14 +186,27 @@ public class MultiPartMessageServiceImpl{
 		return multipartEntityBuilder.build();
 	}
 	
-	public String getToken(String message) {
+	public String getToken(Message message) throws JsonProcessingException {
 		String token = null;
 		try {
-			//String msgSerialized = new Serializer().serializePlainJson(message);
+			String msgSerialized = new Serializer().serializePlainJson(message);
 			JSONParser parser = new JSONParser();
-			JSONObject jsonObject = (JSONObject) parser.parse(message);
+			JSONObject jsonObject = (JSONObject) parser.parse(msgSerialized);
 			jsonObject=(JSONObject) jsonObject.get("authorizationToken");
-			token= (String) jsonObject.get("tokenValue");
+			if(jsonObject == null) {
+				logger.error("Token is not set: authorizationToken is not set in the part of the header in the multipart message");
+				rejectionMessageServiceImpl.sendRejectionMessage(
+						RejectionMessageType.REJECTION_TOKEN, 
+						message);
+			} else {
+				token= (String) jsonObject.get("tokenValue");
+				if(token == null) {
+					logger.error("Token is not set: tokenValue is not set in the part of the header in the multipart message");
+					rejectionMessageServiceImpl.sendRejectionMessage(
+							RejectionMessageType.REJECTION_TOKEN, 
+							message);
+				}
+			}
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
