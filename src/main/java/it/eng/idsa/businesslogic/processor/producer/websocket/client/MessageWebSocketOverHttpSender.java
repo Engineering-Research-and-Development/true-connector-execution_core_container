@@ -3,14 +3,10 @@ package it.eng.idsa.businesslogic.processor.producer.websocket.client;
 import static org.asynchttpclient.Dsl.asyncHttpClient;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.concurrent.ExecutionException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -46,8 +42,6 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 @Component
 public class MessageWebSocketOverHttpSender {
     private static final Logger logger = LogManager.getLogger(ProducerSendDataToBusinessLogicProcessor.class);
-    public static final String REGEX_WSS = "(wss://)([^:^/]*)(:)(\\d*)";
-
 
     @Autowired
     private WebSocketClientConfiguration webSocketClientConfiguration;
@@ -61,20 +55,17 @@ public class MessageWebSocketOverHttpSender {
     @Value("${application.idscp.server.port}")
     private int idscpServerPort;
 
-    private int webSocketPort;
-    private String webSocketHost;
-
-    public String sendMultipartMessageWebSocketOverHttps(String header, String payload, String forwardTo)
+    public String sendMultipartMessageWebSocketOverHttps(String webSocketHost, Integer webSocketPort, String header, String payload)
             throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
-        return doSendMultipartMessageWebSocketOverHttps(header, payload, forwardTo, null);
+        return doSendMultipartMessageWebSocketOverHttps(webSocketHost, webSocketPort, header, payload, null);
     }
 
-    public String sendMultipartMessageWebSocketOverHttps(String header, String payload, String forwardTo, Message message)
+    public String sendMultipartMessageWebSocketOverHttps(String webSocketHost, Integer webSocketPort, String header, String payload, Message message)
             throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
-        return doSendMultipartMessageWebSocketOverHttps(header, payload, forwardTo, message);
+        return doSendMultipartMessageWebSocketOverHttps(webSocketHost, webSocketPort, header, payload, message);
     }
 
-    private String doSendMultipartMessageWebSocketOverHttps(String header, String payload, String forwardTo, Message message)
+    private String doSendMultipartMessageWebSocketOverHttps(String webSocketHost, Integer webSocketPort, String header, String payload, Message message)
             throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
     	
     	MultipartMessage multipartMessage = new MultipartMessageBuilder()
@@ -83,9 +74,8 @@ public class MessageWebSocketOverHttpSender {
     			.build();
     	String multipartMessageString = multipartMessageService.multipartMessagetoString(multipartMessage);
     													                                                        
-        extractWebSocketIPAndPort(forwardTo);
         FileStreamingBean fileStreamingBean = webSocketClientConfiguration.fileStreamingWebSocket();
-        WebSocket wsClient = createWebSocketClient(message);
+        WebSocket wsClient = createWebSocketClient(webSocketHost, webSocketPort, message);
         // Try to connect to the Server. Wait until you are not connected to the server.
         fileStreamingBean.setup(wsClient);
         fileStreamingBean.sendMultipartMessage(multipartMessageString);
@@ -98,7 +88,7 @@ public class MessageWebSocketOverHttpSender {
     }
 
     @NotNull
-    private WebSocket createWebSocketClient(Message message) {
+    private WebSocket createWebSocketClient(String webSocketHost, Integer webSocketPort, Message message) {
         String WS_URL = "wss://" + webSocketHost + ":" + webSocketPort + HttpWebSocketServerBean.WS_URL;
         WebSocket wsClient = null;
         try {
@@ -166,24 +156,6 @@ public class MessageWebSocketOverHttpSender {
                 rejectionMessageServiceImpl.sendRejectionMessage(
                         RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
                         message);
-        }
-    }
-
-    private void extractWebSocketIPAndPort(String forwardTo) {
-        //Example of Forward-to : https://localhost:8889/incoming-data-channel/receivedMessage
-        URL senderURL = null;
-        try {
-            senderURL = new URL(forwardTo);
-            webSocketPort = senderURL.getPort();
-            webSocketHost = senderURL.getHost();
-        } catch (MalformedURLException e) {
-            //Example of Forward-to : wss://localhost:8086
-            logger.info("Use IDSCP port for WS over https!");
-            Pattern pattern = Pattern.compile(REGEX_WSS);
-            Matcher matcher = pattern.matcher(forwardTo);
-            matcher.find();
-            this.webSocketHost = matcher.group(2);
-            this.webSocketPort = Integer.parseInt(matcher.group(4));
         }
     }
 

@@ -29,7 +29,6 @@ public class ExceptionProcessorConsumer implements Processor {
 	public void process(Exchange exchange) throws Exception {
 		
 		Exception exception = (Exception) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
-		exchange.getOut().setBody(exception.getMessage());
 		String message = multiPartMessageServiceImpl.getHeaderContentString(exception.getMessage());
 		
 		MultipartMessage multipartMessage = new MultipartMessageBuilder()

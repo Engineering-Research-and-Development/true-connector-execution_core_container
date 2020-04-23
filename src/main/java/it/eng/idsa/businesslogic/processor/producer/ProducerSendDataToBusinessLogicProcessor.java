@@ -54,6 +54,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
     private static final Logger logger = LogManager.getLogger(ProducerSendDataToBusinessLogicProcessor.class);
     // example for the webSocketURL: idscp://localhost:8099
     public static final String REGEX_IDSCP = "(idscp://)([^:^/]*)(:)(\\d*)";
+    public static final String REGEX_WSS = "(wss://)([^:^/]*)(:)(\\d*)";
 
     @Value("${application.idscp.isEnabled}")
     private boolean isEnabledIdscp;
@@ -76,7 +77,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
     @Autowired
     MultipartMessageService multipartMessageService;
 
-    private String webSocketIp;
+    private String webSocketHost;
     private Integer webSocketPort;
 
     @Override
@@ -106,9 +107,9 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
         String multipartMessageString = multipartMessageService.multipartMessagetoString(multipartMessage);
 
         if (isEnabledIdscp) {
-            // check & exstract WebSocket IP and Port
+            // check & exstract IDSCP WebSocket IP and Port
             try {
-                this.extractWebSocketIPAndPort(forwardTo);
+                this.extractWebSocketIPAndPort(forwardTo, REGEX_IDSCP);
             } catch (Exception e) {
                 logger.info("... bad idscp URL");
                 rejectionMessageServiceImpl.sendRejectionMessage(
@@ -118,19 +119,29 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
             // -- Send data using IDSCP - (Client) - WebSocket
             String response;
             if (Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
-                response = this.sendMultipartMessageWebSocket(messageWithToken, payload, forwardTo, message);
+                response = this.sendMultipartMessageWebSocket(this.webSocketHost, this.webSocketPort, messageWithToken, payload, message);
             } else {
-                response = this.sendMultipartMessageWebSocket(header, payload, forwardTo, message);
+                response = this.sendMultipartMessageWebSocket(this.webSocketHost, this.webSocketPort, header, payload, message);
             }
             // Handle response
             this.handleResponseWebSocket(exchange, message, response, forwardTo, multipartMessageString);
         } else if (isEnabledWebSocket) {
+        	// check & exstract HTTPS WebSocket IP and Port
+        	try {
+                this.extractWebSocketIPAndPort(forwardTo, REGEX_WSS);
+            } catch (Exception e) {
+                logger.info("... bad wss URL");
+                rejectionMessageServiceImpl.sendRejectionMessage(
+                        RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
+                        message);
+            }
+        	
         	// -- Send data using HTTPS - (Client) - WebSocket
             String response;
             if (Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
-                response = messageWebSocketOverHttpSender.sendMultipartMessageWebSocketOverHttps(messageWithToken, payload, forwardTo, message);
+                response = messageWebSocketOverHttpSender.sendMultipartMessageWebSocketOverHttps(this.webSocketHost, this.webSocketPort, messageWithToken, payload, message);
             } else {
-                response = messageWebSocketOverHttpSender.sendMultipartMessageWebSocketOverHttps(header, payload, forwardTo, message);
+                response = messageWebSocketOverHttpSender.sendMultipartMessageWebSocketOverHttps(this.webSocketHost, this.webSocketPort, header, payload, message);
             }
             // Handle response
             this.handleResponseWebSocket(exchange, message, response, forwardTo, multipartMessageString);
@@ -277,7 +288,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
         }
     }
 
-    private String sendMultipartMessageWebSocket(String header, String payload, String forwardTo, Message message) throws Exception, ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
+    private String sendMultipartMessageWebSocket(String webSocketHost, Integer webSocketPort, String header, String payload, Message message) throws Exception, ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
         // Create idscpClient
         IdscpClientBean idscpClientBean = webSocketClientConfiguration.idscpClientServiceWebSocket();
         this.initializeIdscpClient(message, idscpClientBean);
@@ -291,7 +302,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 
         // Send multipartMessage as a frames
         FileStreamingBean fileStreamingBean = webSocketClientConfiguration.fileStreamingWebSocket();
-        WebSocket wsClient = this.createWebSocketConnection(idscpClient, message);
+        WebSocket wsClient = this.createWebSocketConnection(idscpClient, webSocketHost, webSocketPort, message);
         // Try to connect to the Server. Wait until you are not connected to the server.
         wsClient.addWebSocketListener(webSocketClientConfiguration.inputStreamSocketListenerWebSocketClient());
         fileStreamingBean.setup(wsClient);
@@ -315,10 +326,10 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
         }
     }
 
-    private WebSocket createWebSocketConnection(IdscpClient idscpClient, Message message) {
+    private WebSocket createWebSocketConnection(IdscpClient idscpClient, String webSocketHost, Integer webSocketPort, Message message) {
         WebSocket wsClient = null;
         try {
-            wsClient = idscpClient.connect(this.webSocketIp, this.webSocketPort);
+            wsClient = idscpClient.connect(webSocketHost, webSocketPort);
         } catch (Exception e) {
         	e.printStackTrace();
             logger.info("... can not create the WebSocket connection IDSCP");
@@ -329,15 +340,13 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
         return wsClient;
     }
 
-    private void extractWebSocketIPAndPort(String forwardTo) {
-        this.webSocketIp = null;
-        this.webSocketPort = null;
-        // Split URL into protocol, ip, port
-        Pattern pattern = Pattern.compile(REGEX_IDSCP);
+    private void extractWebSocketIPAndPort(String forwardTo, String regexForwardTo) {
+        // Split URL into protocol, host, port
+        Pattern pattern = Pattern.compile(regexForwardTo);
         Matcher matcher = pattern.matcher(forwardTo);
         matcher.find();
 
-        this.webSocketIp = matcher.group(2);
+        this.webSocketHost = matcher.group(2);
         this.webSocketPort = Integer.parseInt(matcher.group(4));
     }
 
