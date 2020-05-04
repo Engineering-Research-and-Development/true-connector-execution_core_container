@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
@@ -28,7 +28,7 @@ public class ProducerMultiPartMessageProcessor implements Processor {
 	private static final Logger logger = LogManager.getLogger(ProducerMultiPartMessageProcessor.class);
 	
 	@Autowired
-	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	private MultipartMessageServiceImpl multipartMessageServiceImpl;
 	
 	@Autowired
 	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
@@ -49,11 +49,11 @@ public class ProducerMultiPartMessageProcessor implements Processor {
 			// Create multipart message parts
 			frowardTo=getForwardTo(multipartMessage);
 			multipartMessageParts.put("frowardTo", frowardTo);
-			header=multiPartMessageServiceImpl.getHeaderContentString(multipartMessage);
+			header=multipartMessageServiceImpl.getHeaderContentString(multipartMessage);
 			multipartMessageParts.put("header", header);
-			payload=multiPartMessageServiceImpl.getPayloadContent(multipartMessage);
+			payload=multipartMessageServiceImpl.getPayloadContent(multipartMessage);
 			multipartMessageParts.put("payload", payload);
-			message=multiPartMessageServiceImpl.getMessage(multipartMessage);
+			message=multipartMessageServiceImpl.getMessage(multipartMessage);
 			multipartMessageParts.put("message", message);
 		
 			// Return multipartMessageParts

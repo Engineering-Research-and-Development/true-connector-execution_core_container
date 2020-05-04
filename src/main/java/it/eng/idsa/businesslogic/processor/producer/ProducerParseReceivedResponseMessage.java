@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
@@ -27,7 +27,7 @@ public class ProducerParseReceivedResponseMessage implements Processor {
 	private static final Logger logger = LogManager.getLogger(ProducerParseReceivedResponseMessage.class);
 
 	@Autowired
-	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	private MultipartMessageServiceImpl multipartMessageServiceImpl;
 	
 	@Autowired
 	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
@@ -50,13 +50,13 @@ public class ProducerParseReceivedResponseMessage implements Processor {
 		}
 		try {
 			// Create multipart message parts
-			header=multiPartMessageServiceImpl.getHeaderContentString(multipartMessage);
+			header=multipartMessageServiceImpl.getHeaderContentString(multipartMessage);
 			multipartMessageParts.put("header", header);
-			if(multiPartMessageServiceImpl.getPayloadContent(multipartMessage)!=null) {
-				payload=multiPartMessageServiceImpl.getPayloadContent(multipartMessage);
+			if(multipartMessageServiceImpl.getPayloadContent(multipartMessage)!=null) {
+				payload=multipartMessageServiceImpl.getPayloadContent(multipartMessage);
 				multipartMessageParts.put("payload", payload);
 			}
-			message=multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
+			message=multipartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 			
 			exchange.getOut().setHeaders(exchange.getIn().getHeaders());
 			// Return multipartMessageParts

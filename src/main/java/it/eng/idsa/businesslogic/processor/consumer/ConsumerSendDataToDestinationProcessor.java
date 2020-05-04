@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
@@ -33,7 +33,7 @@ public class ConsumerSendDataToDestinationProcessor implements Processor {
 	private ApplicationConfiguration configuration;
 	
 	@Autowired
-	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	private MultipartMessageServiceImpl multipartMessageServiceImpl;
 	
 	@Autowired
 	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
@@ -55,8 +55,8 @@ public class ConsumerSendDataToDestinationProcessor implements Processor {
 			logger.info("token is valid");
 			message = (Message) multipartMessageParts.get("message");
 			String payload = multipartMessageParts.get("payload").toString();
-			String headerWithoutToken=multiPartMessageServiceImpl.removeToken(message);
-			HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(headerWithoutToken,payload, null);
+			String headerWithoutToken=multipartMessageServiceImpl.removeToken(message);
+			HttpEntity entity = multipartMessageServiceImpl.createMultipartMessage(headerWithoutToken,payload, null);
 			String response = communicationServiceImpl.sendData("http://"+configuration.getActivemqAddress()+"/api/message/outcoming?type=queue", entity);
 			if (response==null) {
 				logger.info("...communication error");

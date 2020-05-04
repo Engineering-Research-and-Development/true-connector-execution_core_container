@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
@@ -31,7 +31,7 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 	private boolean isEnabledDapsInteraction;
 
 	@Autowired
-	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	private MultipartMessageServiceImpl multipartMessageServiceImpl;
 	
 	@Autowired
 	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
@@ -62,7 +62,7 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 				payload=exchange.getIn().getHeader("payload").toString();
 				if(payload.equals("RejectionMessage")) {
 					// Create multipart message for the RejectionMessage
-					header= multiPartMessageServiceImpl.getHeaderContentString(exchange.getIn().getHeader("header").toString());
+					header= multipartMessageServiceImpl.getHeaderContentString(exchange.getIn().getHeader("header").toString());
 					multipartMessageParts.put("header", header);
 				} else {
 					// Create multipart message with payload
@@ -70,13 +70,13 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 					multipartMessageParts.put("header", header);
 					payload=exchange.getIn().getHeader("payload").toString();
 					multipartMessageParts.put("payload", payload);
-					message=multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
+					message=multipartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 				}
 			}else {
 				// Create multipart message without payload
 				header=exchange.getIn().getHeader("header").toString();
 				multipartMessageParts.put("header", header);
-				message=multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
+				message=multipartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 			}
 						
 			// Return exchange

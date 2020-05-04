@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.FileRecreatorBeanServer;
-import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
@@ -32,7 +32,7 @@ public class ConsumerFileRecreatorProcessor implements Processor {
 	private WebSocketServerConfiguration webSocketServerConfiguration;
 	
 	@Autowired
-	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	private MultipartMessageServiceImpl multipartMessageServiceImpl;
 	
 	@Autowired
 	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
@@ -54,9 +54,9 @@ public class ConsumerFileRecreatorProcessor implements Processor {
 		
 		// Extract header and payload from the multipart message
 		try {
-			header = multiPartMessageServiceImpl.getHeaderContentString(recreatedMultipartMessage);
+			header = multipartMessageServiceImpl.getHeaderContentString(recreatedMultipartMessage);
 			multipartMessageParts.put("header", header);
-			payload = multiPartMessageServiceImpl.getPayloadContent(recreatedMultipartMessage);
+			payload = multipartMessageServiceImpl.getPayloadContent(recreatedMultipartMessage);
 			if(payload!=null) {
 				multipartMessageParts.put("payload", payload);
 			}

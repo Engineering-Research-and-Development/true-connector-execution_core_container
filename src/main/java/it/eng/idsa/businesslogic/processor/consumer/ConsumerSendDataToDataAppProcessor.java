@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
-import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.communication.HttpClientGenerator;
@@ -51,7 +51,7 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 	private ApplicationConfiguration configuration;
 
 	@Autowired
-	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	private MultipartMessageServiceImpl multipartMessageServiceImpl;
 	
 	@Autowired
 	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
@@ -67,7 +67,7 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		if(multipartMessageParts.containsKey("payload")) {
 			payload = multipartMessageParts.get("payload").toString();
 		}
-		Message message = multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
+		Message message = multipartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 
 		// Send data to the endpoint F for the Open API Data App
 		CloseableHttpResponse response = null;
@@ -146,7 +146,7 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		// Set F address
 		HttpPost httpPost = new HttpPost(address);
 
-		HttpEntity reqEntity = multiPartMessageServiceImpl.createMultipartMessage(header, payload, null);
+		HttpEntity reqEntity = multipartMessageServiceImpl.createMultipartMessage(header, payload, null);
 		httpPost.setEntity(reqEntity);
 
 		CloseableHttpResponse response;
@@ -176,8 +176,8 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 	}
 
 	private String filterHeader(String header) throws JsonMappingException, JsonProcessingException {
-		Message message = multiPartMessageServiceImpl.getMessage(header);
-		return multiPartMessageServiceImpl.removeToken(message);
+		Message message = multipartMessageServiceImpl.getMessage(header);
+		return multipartMessageServiceImpl.removeToken(message);
 	}
 
 	private ContentBody convertToContentBody(String value, ContentType contentType, String valueName) throws UnsupportedEncodingException {
@@ -207,8 +207,8 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 			}else { 
 				logger.info("data sent to destination: "+openApiDataAppAddress);
 				logger.info("Successful response: "+ responseString);
-				String	header = multiPartMessageServiceImpl.getHeaderContentString(responseString);
-				String payload = multiPartMessageServiceImpl.getPayloadContent(responseString);
+				String	header = multipartMessageServiceImpl.getHeaderContentString(responseString);
+				String payload = multipartMessageServiceImpl.getPayloadContent(responseString);
 				exchange.getOut().setHeader("header", header);
 				if(payload!=null) {
 					exchange.getOut().setHeader("payload", payload);

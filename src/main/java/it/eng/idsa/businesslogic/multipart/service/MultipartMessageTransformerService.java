@@ -29,9 +29,9 @@ import it.eng.idsa.businesslogic.multipart.MultipartMessageKey;
  */
 @Service
 @Transactional
-public class MultipartMessageService {
+public class MultipartMessageTransformerService {
 	
-	private static final Logger logger = LogManager.getLogger(MultipartMessageService.class);
+	private static final Logger logger = LogManager.getLogger(MultipartMessageTransformerService.class);
 	
 	private static final String REGEX_BOUNDARY = "(.*?)boundary=(.*);.*";
 	private static final String REGEX_NAME = "(.*?)name=\"(.*)\"(.*?)";

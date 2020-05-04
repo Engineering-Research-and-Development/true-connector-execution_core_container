@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.impl.DapsServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
@@ -31,7 +31,7 @@ public class ConsumerValidateTokenProcessor implements Processor {
 	DapsServiceImpl dapsServiceImpl;
 	
 	@Autowired
-	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	private MultipartMessageServiceImpl multipartMessageServiceImpl;
 	
 	@Autowired
 	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
@@ -43,10 +43,10 @@ public class ConsumerValidateTokenProcessor implements Processor {
 		
 		// Get "multipartMessageParts" from the input "exchange"
 		Map<String, Object> multipartMessageParts = exchange.getIn().getBody(HashMap.class);
-		message = multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
+		message = multipartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 		
 		// Get "token" from the input "multipartMessageParts"
-		String token = multiPartMessageServiceImpl.getToken(message);
+		String token = multipartMessageServiceImpl.getToken(message);
 		logger.info("token: ", token);
 		
 		// Check is "token" valid

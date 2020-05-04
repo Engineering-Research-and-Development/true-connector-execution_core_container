@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.producer.ProducerGetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.service.impl.DapsServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
@@ -29,7 +29,7 @@ public class ConsumerGetTokenFromDapsProcessor implements Processor{
 private static final Logger logger = LogManager.getLogger(ProducerGetTokenFromDapsProcessor.class);
 	
 	@Autowired
-	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	private MultipartMessageServiceImpl multipartMessageServiceImpl;
 	
 	@Autowired
 	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
@@ -45,7 +45,7 @@ private static final Logger logger = LogManager.getLogger(ProducerGetTokenFromDa
 		
 		// Get message id
 		try {
-			message=multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
+			message=multipartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 			logger.info("message id=" + message.getId());
 		}catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);
@@ -89,7 +89,7 @@ private static final Logger logger = LogManager.getLogger(ProducerGetTokenFromDa
 		}
 		
 		logger.info("token=" + token);
-		String messageStringWithToken = multiPartMessageServiceImpl.addToken(message, token);
+		String messageStringWithToken = multipartMessageServiceImpl.addToken(message, token);
 		logger.info("messageStringWithToken=" + messageStringWithToken);
 	
 		multipartMessageParts.put("header", messageStringWithToken);

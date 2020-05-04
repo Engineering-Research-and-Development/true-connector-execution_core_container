@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
 
 /**
  * 
@@ -26,7 +26,7 @@ public class ProducerSendDataToBusinessLogicConsumer implements Processor {
 	private static final Logger logger = LogManager.getLogger(ProducerSendDataToBusinessLogicConsumer.class);
 	
 	@Autowired
-	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	private MultipartMessageServiceImpl multipartMessageServiceImpl;
 	
 	@Autowired
 	private CommunicationServiceImpl communicationMessageService;
@@ -46,7 +46,7 @@ public class ProducerSendDataToBusinessLogicConsumer implements Processor {
 		payload = multipartMessageParts.get("payload").toString();
 		forwardTo = multipartMessageParts.get("frowardTo").toString();
 		
-		HttpEntity entity = multiPartMessageServiceImpl.createMultipartMessage(
+		HttpEntity entity = multipartMessageServiceImpl.createMultipartMessage(
 				header,
 				payload,
 				null);

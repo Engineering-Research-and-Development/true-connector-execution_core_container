@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.multipart.MultipartMessage;
 import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
-import it.eng.idsa.businesslogic.multipart.service.MultipartMessageService;
-import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import it.eng.idsa.businesslogic.multipart.service.MultipartMessageTransformerService;
+import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
 
 /**
  * 
@@ -31,10 +31,10 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 	private boolean isEnabledClearingHouse;
 	
 	@Autowired
-	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	private MultipartMessageServiceImpl multipartMessageServiceImpl;
 	
 	@Autowired
-    private MultipartMessageService multipartMessageService;
+    private MultipartMessageTransformerService multipartMessageTransformerService;
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -66,7 +66,7 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
     			.withHeaderContent(header)
     			.withPayloadContent(payload)
     			.build();
-		String responseMultipartMessageString = multipartMessageService.multipartMessagetoString(multipartMessage, false);
+		String responseMultipartMessageString = multipartMessageTransformerService.multipartMessagetoString(multipartMessage, false);
 		
 		String contentType = multipartMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
 		headesParts.put("Content-Type", contentType);
@@ -82,13 +82,13 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 	}	
 
 	private String filterHeader(String header) throws JsonMappingException, JsonProcessingException {
-		Message message = multiPartMessageServiceImpl.getMessage(header);
-		return multiPartMessageServiceImpl.removeToken(message);
+		Message message = multipartMessageServiceImpl.getMessage(header);
+		return multipartMessageServiceImpl.removeToken(message);
 	}
 	
 	private String filterRejectionMessageHeader(String header) throws JsonMappingException, JsonProcessingException {
-		Message message = multiPartMessageServiceImpl.getMessage(header);
-		return multiPartMessageServiceImpl.removeToken(message);
+		Message message = multipartMessageServiceImpl.getMessage(header);
+		return multipartMessageServiceImpl.removeToken(message);
 	}
 	
 }

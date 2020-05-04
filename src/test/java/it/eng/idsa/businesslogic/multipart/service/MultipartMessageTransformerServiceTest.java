@@ -25,10 +25,10 @@ import it.eng.idsa.businesslogic.multipart.MultipartMessageKey;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class MultipartMessageServiceTest {
+public class MultipartMessageTransformerServiceTest {
 	
 	@Autowired
-	private MultipartMessageService multipartMessageService;
+	private MultipartMessageTransformerService multipartMessageTransformerService;
 	
 	private String RESOURCE_MESSAGE_PATH = "./src/test/resources/message/";
 	private String MULTIPART_MESSAGE_NAME = "IDS-multipart.txt";
@@ -89,7 +89,7 @@ public class MultipartMessageServiceTest {
 	public void testParseMultipartMessageWithoutHttpHeader() {
 		
 		// do
-		MultipartMessage resultMultipartMessage = multipartMessageService.parseMultipartMessage(multipartMessageString);
+		MultipartMessage resultMultipartMessage = multipartMessageTransformerService.parseMultipartMessage(multipartMessageString);
 		
 		// then
 		assertTrue("httpHeader shuould be empty", resultMultipartMessage.getHttpHeaders().isEmpty());
@@ -110,7 +110,7 @@ public class MultipartMessageServiceTest {
 		String contentType = "Content-Type: form-data; boundary=TESTCQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4;charset=UTF-8";
 		
 		// do
-		MultipartMessage resultMultipartMessage = multipartMessageService.parseMultipartMessage(multipartMessageString, contentType);
+		MultipartMessage resultMultipartMessage = multipartMessageTransformerService.parseMultipartMessage(multipartMessageString, contentType);
 		
 		// then
 		assertTrue("Content-Type in the httpHeader shuould exists", resultMultipartMessage.getHttpHeaders().get(MultipartMessageKey.CONTENT_TYPE.label).startsWith("Content-Type: form-data; boundary="));
@@ -142,7 +142,7 @@ public class MultipartMessageServiceTest {
 				.build();
 		
 		// do
-		String resultMultipartMessageString = multipartMessageService.multipartMessagetoString(multipartMessage, false);
+		String resultMultipartMessageString = multipartMessageTransformerService.multipartMessagetoString(multipartMessage, false);
 		
 		// Devide multipart message on the lines
 		Stream<String> lines = resultMultipartMessageString.trim().lines();
@@ -211,7 +211,7 @@ public class MultipartMessageServiceTest {
 				.build();
 				
 		// do
-		String resultMultipartMessageString = multipartMessageService.multipartMessagetoString(multipartMessage);
+		String resultMultipartMessageString = multipartMessageTransformerService.multipartMessagetoString(multipartMessage);
 		
 		// Devide multipart message on the lines
 		Stream<String> lines = resultMultipartMessageString.trim().lines();

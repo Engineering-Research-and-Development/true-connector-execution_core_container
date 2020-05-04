@@ -29,7 +29,7 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
 import it.eng.idsa.businesslogic.multipart.MultipartMessage;
 import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
-import it.eng.idsa.businesslogic.multipart.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.multipart.service.MultipartMessageTransformerService;
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.HttpWebSocketServerBean;
 import it.eng.idsa.businesslogic.processor.producer.ProducerSendDataToBusinessLogicProcessor;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
@@ -50,7 +50,7 @@ public class MessageWebSocketOverHttpSender {
     private RejectionMessageServiceImpl rejectionMessageServiceImpl;
     
     @Autowired
-    MultipartMessageService multipartMessageService;
+    MultipartMessageTransformerService multipartMessageTransformerService;
 
     @Value("${application.idscp.server.port}")
     private int idscpServerPort;
@@ -72,7 +72,7 @@ public class MessageWebSocketOverHttpSender {
     			.withHeaderContent(header)
     			.withPayloadContent(payload)
     			.build();
-    	String multipartMessageString = multipartMessageService.multipartMessagetoString(multipartMessage);
+    	String multipartMessageString = multipartMessageTransformerService.multipartMessagetoString(multipartMessage);
     													                                                        
         FileStreamingBean fileStreamingBean = webSocketClientConfiguration.fileStreamingWebSocket();
         WebSocket wsClient = createWebSocketClient(webSocketHost, webSocketPort, message);

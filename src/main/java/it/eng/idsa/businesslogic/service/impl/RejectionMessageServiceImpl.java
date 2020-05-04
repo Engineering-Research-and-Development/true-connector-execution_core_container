@@ -20,7 +20,7 @@ import de.fraunhofer.iais.eis.RejectionReason;
 import de.fraunhofer.iais.eis.ResultMessageBuilder;
 import it.eng.idsa.businesslogic.multipart.MultipartMessage;
 import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
-import it.eng.idsa.businesslogic.multipart.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.multipart.service.MultipartMessageTransformerService;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
@@ -40,7 +40,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
     private String informationModelVersion;
 	
 	@Autowired
-    MultipartMessageService multipartMessageService;
+    MultipartMessageTransformerService multipartMessageTransformerService;
 	
 	@Override 
 	public void sendRejectionMessage(RejectionMessageType rejectionMessageType, Message message) {
@@ -49,7 +49,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		MultipartMessage multipartMessage = new MultipartMessageBuilder()
     			.withHeaderContent(rejectionMessage)
     			.build();
-    	String multipartMessageString = multipartMessageService.multipartMessagetoString(multipartMessage, false);
+    	String multipartMessageString = multipartMessageTransformerService.multipartMessagetoString(multipartMessage, false);
 		
 		throw new ExceptionForProcessor(multipartMessageString);
 	}

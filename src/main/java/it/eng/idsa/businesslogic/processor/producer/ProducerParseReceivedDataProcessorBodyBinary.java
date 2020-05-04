@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
@@ -31,7 +31,7 @@ public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 	private boolean isEnabledDapsInteraction;
 
 	@Autowired
-	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	private MultipartMessageServiceImpl multipartMessageServiceImpl;
 	
 	@Autowired
 	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
@@ -67,13 +67,13 @@ public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 			headesParts.put("Forward-To", forwardTo);
 
 			// Create multipart message parts
-			header = multiPartMessageServiceImpl.getHeaderContentString(receivedDataBodyBinary);
+			header = multipartMessageServiceImpl.getHeaderContentString(receivedDataBodyBinary);
 			multipartMessageParts.put("header", header);
-			payload = multiPartMessageServiceImpl.getPayloadContent(receivedDataBodyBinary);
+			payload = multipartMessageServiceImpl.getPayloadContent(receivedDataBodyBinary);
 			if(payload!=null) {
 				multipartMessageParts.put("payload", payload);
 			}
-			message = multiPartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
+			message = multipartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
 			
 			// Return exchange
 			exchange.getOut().setHeaders(headesParts);

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.impl.ClearingHouseServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.MultiPartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
 
 /**
  * 
@@ -25,7 +25,7 @@ public class ProducerSendTransactionToCHProcessor implements Processor {
 	private static final Logger logger = LogManager.getLogger(ProducerSendTransactionToCHProcessor.class);
 	
 	@Autowired
-	private MultiPartMessageServiceImpl multiPartMessageServiceImpl;
+	private MultipartMessageServiceImpl multipartMessageServiceImpl;
 	
 	@Autowired
 	private ClearingHouseServiceImpl clearingHouseService;
@@ -37,9 +37,9 @@ public class ProducerSendTransactionToCHProcessor implements Processor {
 		String multipartMessageBody = exchange.getIn().getHeader("multipartMessageBody").toString();
 		
 		// Prepare data for CH
-		String header = multiPartMessageServiceImpl.getHeaderContentString(multipartMessageBody);
-		String payload = multiPartMessageServiceImpl.getPayloadContent(multipartMessageBody);
-		Message message = multiPartMessageServiceImpl.getMessage(header);
+		String header = multipartMessageServiceImpl.getHeaderContentString(multipartMessageBody);
+		String payload = multipartMessageServiceImpl.getPayloadContent(multipartMessageBody);
+		Message message = multipartMessageServiceImpl.getMessage(header);
 		// Send data to CH
 		clearingHouseService.registerTransaction(message, payload);
 		logger.info("Successfully wrote down in the Clearing House");
