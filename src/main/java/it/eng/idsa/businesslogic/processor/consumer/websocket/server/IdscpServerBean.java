@@ -3,6 +3,7 @@ package it.eng.idsa.businesslogic.processor.consumer.websocket.server;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyStore;
@@ -14,14 +15,12 @@ import javax.annotation.PreDestroy;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 
 import de.fhg.aisec.ids.comm.server.IdscpServer;
 import de.fhg.aisec.ids.comm.server.ServerConfiguration;
 import de.fhg.aisec.ids.messages.AttestationProtos.IdsAttestationType;
-
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
-import java.io.InputStream;
 
 /**
  * 

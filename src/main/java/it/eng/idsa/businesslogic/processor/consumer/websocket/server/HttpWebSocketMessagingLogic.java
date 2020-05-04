@@ -1,11 +1,12 @@
 package it.eng.idsa.businesslogic.processor.consumer.websocket.server;
 
-import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
+import java.nio.charset.StandardCharsets;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.websocket.api.Session;
 
-import java.nio.charset.StandardCharsets;
+import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 
 /**
  * HttpWebSocketMessagingLogic will be responsible for parsing received data

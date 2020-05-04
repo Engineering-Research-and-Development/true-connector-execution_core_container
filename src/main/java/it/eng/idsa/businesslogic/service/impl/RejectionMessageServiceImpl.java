@@ -111,11 +111,6 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		return currentInformationModelVersion;
 	}
 
-	/*
-	 * public String getInformationModelVersion() { return informationModelVersion;
-	 * }
-	 */
-
 	public void setInformationModelVersion(String informationModelVersion) {
 		this.informationModelVersion = informationModelVersion;
 	}

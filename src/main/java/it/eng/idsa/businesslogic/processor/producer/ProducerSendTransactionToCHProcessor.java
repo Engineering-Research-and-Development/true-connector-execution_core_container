@@ -1,6 +1,5 @@
 package it.eng.idsa.businesslogic.processor.producer;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
