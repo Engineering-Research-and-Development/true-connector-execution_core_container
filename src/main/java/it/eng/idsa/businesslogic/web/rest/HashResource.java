@@ -1,6 +1,6 @@
 package it.eng.idsa.businesslogic.web.rest;
 
-import it.eng.idsa.businesslogic.service.HashService;
+import it.eng.idsa.businesslogic.service.HashFileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class HashResource {
 
     @Autowired
-    private HashService hashService;
+    private HashFileService hashService;
 
     @GetMapping("/content/{hash}")
     @ResponseBody

@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.service.impl.ClearingHouseServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.ClearingHouseService;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
 
 /**
  * 
@@ -25,10 +25,10 @@ public class ProducerSendTransactionToCHProcessor implements Processor {
 	private static final Logger logger = LogManager.getLogger(ProducerSendTransactionToCHProcessor.class);
 	
 	@Autowired
-	private MultipartMessageServiceImpl multipartMessageServiceImpl;
+	private MultipartMessageService multipartMessageService;
 	
 	@Autowired
-	private ClearingHouseServiceImpl clearingHouseService;
+	private ClearingHouseService clearingHouseService;
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -37,9 +37,9 @@ public class ProducerSendTransactionToCHProcessor implements Processor {
 		String multipartMessageBody = exchange.getIn().getHeader("multipartMessageBody").toString();
 		
 		// Prepare data for CH
-		String header = multipartMessageServiceImpl.getHeaderContentString(multipartMessageBody);
-		String payload = multipartMessageServiceImpl.getPayloadContent(multipartMessageBody);
-		Message message = multipartMessageServiceImpl.getMessage(header);
+		String header = multipartMessageService.getHeaderContentString(multipartMessageBody);
+		String payload = multipartMessageService.getPayloadContent(multipartMessageBody);
+		Message message = multipartMessageService.getMessage(header);
 		// Send data to CH
 		clearingHouseService.registerTransaction(message, payload);
 		logger.info("Successfully wrote down in the Clearing House");

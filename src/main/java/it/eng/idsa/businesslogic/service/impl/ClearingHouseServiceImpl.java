@@ -35,7 +35,7 @@ import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.ClearingHouseService;
-import it.eng.idsa.businesslogic.service.HashService;
+import it.eng.idsa.businesslogic.service.HashFileService;
 import it.eng.idsa.clearinghouse.model.Body;
 import it.eng.idsa.clearinghouse.model.NotificationContent;
 
@@ -55,8 +55,9 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	private final static String informationModelVersion = getInformationModelVersion();
 
 	private static URI connectorURI;
+	
 	@Autowired
-	private HashService hashService;
+	private HashFileService hashService;
 
 
 	@Override

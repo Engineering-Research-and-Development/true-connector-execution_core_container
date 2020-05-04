@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
@@ -31,10 +31,10 @@ public class ProducerParseReceivedDataProcessorBodyFormData implements Processor
 	private boolean isEnabledDapsInteraction;
 	
 	@Autowired
-	private MultipartMessageServiceImpl multipartMessageServiceImpl;
+	private MultipartMessageService multipartMessageService;
 	
 	@Autowired
-	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
+	private RejectionMessageService rejectionMessageService;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -66,7 +66,7 @@ public class ProducerParseReceivedDataProcessorBodyFormData implements Processor
 				payload = receivedDataHeader.get("payload").toString();
 				multipartMessageParts.put("payload", payload);
 			}
-			message = multipartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
+			message = multipartMessageService.getMessage(multipartMessageParts.get("header"));
 			
 			// Return exchange
 			exchange.getOut().setHeaders(headesParts);
@@ -74,7 +74,7 @@ public class ProducerParseReceivedDataProcessorBodyFormData implements Processor
 
 		} catch (Exception e) {			
 			logger.error("Error parsing multipart message:" + e);
-			rejectionMessageServiceImpl.sendRejectionMessage(
+			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, 
 					message);
 		}

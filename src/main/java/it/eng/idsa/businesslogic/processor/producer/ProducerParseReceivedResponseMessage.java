@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
@@ -27,10 +27,10 @@ public class ProducerParseReceivedResponseMessage implements Processor {
 	private static final Logger logger = LogManager.getLogger(ProducerParseReceivedResponseMessage.class);
 
 	@Autowired
-	private MultipartMessageServiceImpl multipartMessageServiceImpl;
+	private MultipartMessageService multipartMessageService;
 	
 	@Autowired
-	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
+	private RejectionMessageService rejectionMessageService;
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -44,26 +44,26 @@ public class ProducerParseReceivedResponseMessage implements Processor {
 		String multipartMessage = exchange.getIn().getBody(String.class);
 		if(multipartMessage == null) {
 			logger.error("Multipart message is null");
-			rejectionMessageServiceImpl.sendRejectionMessage(
+			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_MESSAGE_COMMON, 
 					message);
 		}
 		try {
 			// Create multipart message parts
-			header=multipartMessageServiceImpl.getHeaderContentString(multipartMessage);
+			header=multipartMessageService.getHeaderContentString(multipartMessage);
 			multipartMessageParts.put("header", header);
-			if(multipartMessageServiceImpl.getPayloadContent(multipartMessage)!=null) {
-				payload=multipartMessageServiceImpl.getPayloadContent(multipartMessage);
+			if(multipartMessageService.getPayloadContent(multipartMessage)!=null) {
+				payload=multipartMessageService.getPayloadContent(multipartMessage);
 				multipartMessageParts.put("payload", payload);
 			}
-			message=multipartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
+			message=multipartMessageService.getMessage(multipartMessageParts.get("header"));
 			
 			exchange.getOut().setHeaders(exchange.getIn().getHeaders());
 			// Return multipartMessageParts
 			exchange.getOut().setBody(multipartMessageParts);
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);
-			rejectionMessageServiceImpl.sendRejectionMessage(
+			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_MESSAGE_COMMON, 
 					message);
 			

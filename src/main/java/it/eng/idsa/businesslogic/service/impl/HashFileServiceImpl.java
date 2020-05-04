@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 
-import it.eng.idsa.businesslogic.service.HashService;
+import it.eng.idsa.businesslogic.service.HashFileService;
 import it.eng.idsa.clearinghouse.model.NotificationContent;
 import it.eng.idsa.clearinghouse.model.json.JsonHandler;
 
@@ -31,7 +31,7 @@ import it.eng.idsa.clearinghouse.model.json.JsonHandler;
  **/
 
 @Service
-public class HashFileServiceImpl implements HashService {
+public class HashFileServiceImpl implements HashFileService {
     private static final Logger logger = LogManager.getLogger(HashFileServiceImpl.class);
     private static final String HASHING_ALGORITHM = "SHA-256"; //SHA3_256 most secure (no collisions) but less popular
 

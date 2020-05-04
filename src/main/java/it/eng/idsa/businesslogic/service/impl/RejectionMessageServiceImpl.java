@@ -21,9 +21,10 @@ import de.fraunhofer.iais.eis.ResultMessageBuilder;
 import it.eng.idsa.businesslogic.multipart.MultipartMessage;
 import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
+import it.eng.idsa.businesslogic.service.MultipartMessageTransformerService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.DateUtil;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
  * 
@@ -39,7 +40,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
     private String informationModelVersion;
 	
 	@Autowired
-    MultipartMessageTransformerServiceImpl multipartMessageTransformerService;
+    MultipartMessageTransformerService multipartMessageTransformerService;
 	
 	@Override 
 	public void sendRejectionMessage(RejectionMessageType rejectionMessageType, Message message) {

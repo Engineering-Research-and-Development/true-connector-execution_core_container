@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
@@ -28,10 +28,10 @@ public class ProducerMultiPartMessageProcessor implements Processor {
 	private static final Logger logger = LogManager.getLogger(ProducerMultiPartMessageProcessor.class);
 	
 	@Autowired
-	private MultipartMessageServiceImpl multipartMessageServiceImpl;
+	private MultipartMessageService multipartMessageService;
 	
 	@Autowired
-	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
+	private RejectionMessageService rejectionMessageService;
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -49,18 +49,18 @@ public class ProducerMultiPartMessageProcessor implements Processor {
 			// Create multipart message parts
 			frowardTo=getForwardTo(multipartMessage);
 			multipartMessageParts.put("frowardTo", frowardTo);
-			header=multipartMessageServiceImpl.getHeaderContentString(multipartMessage);
+			header=multipartMessageService.getHeaderContentString(multipartMessage);
 			multipartMessageParts.put("header", header);
-			payload=multipartMessageServiceImpl.getPayloadContent(multipartMessage);
+			payload=multipartMessageService.getPayloadContent(multipartMessage);
 			multipartMessageParts.put("payload", payload);
-			message=multipartMessageServiceImpl.getMessage(multipartMessage);
+			message=multipartMessageService.getMessage(multipartMessage);
 			multipartMessageParts.put("message", message);
 		
 			// Return multipartMessageParts
 			exchange.getOut().setBody(multipartMessageParts);
 		} catch (Exception e) {			
 			logger.error("Error parsing multipart message:" + e);
-			rejectionMessageServiceImpl.sendRejectionMessage(
+			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_MESSAGE_COMMON, 
 					message);
 		}

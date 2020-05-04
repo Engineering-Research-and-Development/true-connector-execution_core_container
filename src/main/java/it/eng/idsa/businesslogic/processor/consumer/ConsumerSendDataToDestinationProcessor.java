@@ -13,9 +13,9 @@ import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
-import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.CommunicationService;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
@@ -33,13 +33,13 @@ public class ConsumerSendDataToDestinationProcessor implements Processor {
 	private ApplicationConfiguration configuration;
 	
 	@Autowired
-	private MultipartMessageServiceImpl multipartMessageServiceImpl;
+	private MultipartMessageService multipartMessageService;
 	
 	@Autowired
-	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
+	private RejectionMessageService rejectionMessageService;
 	
 	@Autowired
-	private CommunicationServiceImpl communicationServiceImpl;
+	private CommunicationService communicationService;
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -55,12 +55,12 @@ public class ConsumerSendDataToDestinationProcessor implements Processor {
 			logger.info("token is valid");
 			message = (Message) multipartMessageParts.get("message");
 			String payload = multipartMessageParts.get("payload").toString();
-			String headerWithoutToken=multipartMessageServiceImpl.removeToken(message);
-			HttpEntity entity = multipartMessageServiceImpl.createMultipartMessage(headerWithoutToken,payload, null);
-			String response = communicationServiceImpl.sendData("http://"+configuration.getActivemqAddress()+"/api/message/outcoming?type=queue", entity);
+			String headerWithoutToken=multipartMessageService.removeToken(message);
+			HttpEntity entity = multipartMessageService.createMultipartMessage(headerWithoutToken,payload, null);
+			String response = communicationService.sendData("http://"+configuration.getActivemqAddress()+"/api/message/outcoming?type=queue", entity);
 			if (response==null) {
 				logger.info("...communication error");
-				rejectionMessageServiceImpl.sendRejectionMessage(
+				rejectionMessageService.sendRejectionMessage(
 						RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, 
 						message);
 			}
@@ -71,7 +71,7 @@ public class ConsumerSendDataToDestinationProcessor implements Processor {
 			exchange.getOut().setBody(multipartMessageParts);
 		} else {
 			logger.error("Token is not valid");
-			rejectionMessageServiceImpl.sendRejectionMessage(
+			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_TOKEN, 
 					message);
 		}

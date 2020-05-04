@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.multipart.MultipartMessage;
 import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
-import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.MultipartMessageTransformerServiceImpl;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.service.MultipartMessageTransformerService;
 
 /**
  * 
@@ -31,10 +31,10 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 	private boolean isEnabledClearingHouse;
 	
 	@Autowired
-	private MultipartMessageServiceImpl multipartMessageServiceImpl;
+	private MultipartMessageService multipartMessageService;
 	
 	@Autowired
-    private MultipartMessageTransformerServiceImpl multipartMessageTransformerService;
+    private MultipartMessageTransformerService multipartMessageTransformerService;
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -82,13 +82,13 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 	}	
 
 	private String filterHeader(String header) throws JsonMappingException, JsonProcessingException {
-		Message message = multipartMessageServiceImpl.getMessage(header);
-		return multipartMessageServiceImpl.removeToken(message);
+		Message message = multipartMessageService.getMessage(header);
+		return multipartMessageService.removeToken(message);
 	}
 	
 	private String filterRejectionMessageHeader(String header) throws JsonMappingException, JsonProcessingException {
-		Message message = multipartMessageServiceImpl.getMessage(header);
-		return multipartMessageServiceImpl.removeToken(message);
+		Message message = multipartMessageService.getMessage(header);
+		return multipartMessageService.removeToken(message);
 	}
 	
 }

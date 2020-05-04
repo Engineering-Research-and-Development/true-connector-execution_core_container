@@ -28,6 +28,8 @@ import de.fraunhofer.iais.eis.TokenFormat;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.multipart.MultipartMessage;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.service.MultipartMessageTransformerService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 
@@ -47,10 +49,10 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 	private static final Logger logger = LogManager.getLogger(MultipartMessageServiceImpl.class);
 	
 	@Autowired
-	MultipartMessageTransformerServiceImpl multipartMessageTransformerService;
+	MultipartMessageTransformerService multipartMessageTransformerService;
 	
 	@Autowired
-	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
+	private RejectionMessageService rejectionMessageService;
 	
 	@Override
 	public String getHeaderContentString(String body) {
@@ -200,14 +202,14 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 			jsonObject=(JSONObject) jsonObject.get("authorizationToken");
 			if(jsonObject == null) {
 				logger.error("Token is not set: authorizationToken is not set in the part of the header in the multipart message");
-				rejectionMessageServiceImpl.sendRejectionMessage(
+				rejectionMessageService.sendRejectionMessage(
 						RejectionMessageType.REJECTION_TOKEN, 
 						message);
 			} else {
 				token= (String) jsonObject.get("tokenValue");
 				if(token == null) {
 					logger.error("Token is not set: tokenValue is not set in the part of the header in the multipart message");
-					rejectionMessageServiceImpl.sendRejectionMessage(
+					rejectionMessageService.sendRejectionMessage(
 							RejectionMessageType.REJECTION_TOKEN, 
 							message);
 				}

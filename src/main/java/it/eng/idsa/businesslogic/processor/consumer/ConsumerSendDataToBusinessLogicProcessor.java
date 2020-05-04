@@ -13,7 +13,7 @@ import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 import it.eng.idsa.businesslogic.multipart.MultipartMessage;
 import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.ResponseMessageBufferBean;
-import it.eng.idsa.businesslogic.service.impl.MultipartMessageTransformerServiceImpl;
+import it.eng.idsa.businesslogic.service.MultipartMessageTransformerService;
 
 /**
  * 
@@ -34,7 +34,7 @@ public class ConsumerSendDataToBusinessLogicProcessor implements Processor {
 	private boolean isEnabledWebSocket;
 	
 	@Autowired
-	private MultipartMessageTransformerServiceImpl multipartMessageTransformerService;
+	private MultipartMessageTransformerService multipartMessageTransformerService;
 	
 	@Autowired
 	private WebSocketServerConfiguration webSocketServerConfiguration;

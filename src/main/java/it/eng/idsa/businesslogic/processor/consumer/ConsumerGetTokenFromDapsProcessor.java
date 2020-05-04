@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.producer.ProducerGetTokenFromDapsProcessor;
-import it.eng.idsa.businesslogic.service.impl.DapsServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.DapsService;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
@@ -29,13 +29,13 @@ public class ConsumerGetTokenFromDapsProcessor implements Processor{
 private static final Logger logger = LogManager.getLogger(ProducerGetTokenFromDapsProcessor.class);
 	
 	@Autowired
-	private MultipartMessageServiceImpl multipartMessageServiceImpl;
+	private MultipartMessageService multipartMessageService;
 	
 	@Autowired
-	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
+	private RejectionMessageService rejectionMessageService;
 	
 	@Autowired
-	private DapsServiceImpl dapsServiceImpl;
+	private DapsService dapsService;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -45,18 +45,18 @@ private static final Logger logger = LogManager.getLogger(ProducerGetTokenFromDa
 		
 		// Get message id
 		try {
-			message=multipartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
+			message=multipartMessageService.getMessage(multipartMessageParts.get("header"));
 			logger.info("message id=" + message.getId());
 		}catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);
-			rejectionMessageServiceImpl.sendRejectionMessage(
+			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, 
 					message);
 		}
 		
 		if (message==null) {
 			logger.error("Parsed multipart message is null");
-			rejectionMessageServiceImpl.sendRejectionMessage(
+			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, 
 					message);
 		}
@@ -64,11 +64,11 @@ private static final Logger logger = LogManager.getLogger(ProducerGetTokenFromDa
 		// Get the Token from the DAPS
 		String token="";
 		try {
-			token=dapsServiceImpl.getJwtToken();
+			token=dapsService.getJwtToken();
 //			token="456";
 		}catch (Exception e) {
 			logger.error("Can not get the token from the DAPS server " + e);
-			rejectionMessageServiceImpl.sendRejectionMessage(
+			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_TOKEN_LOCAL_ISSUES, 
 					message);
 			
@@ -76,20 +76,20 @@ private static final Logger logger = LogManager.getLogger(ProducerGetTokenFromDa
 		
 		if(token==null) {
 			logger.error("Can not get the token from the DAPS server");
-			rejectionMessageServiceImpl.sendRejectionMessage(
+			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, 
 					message);
 		}
 		
 		if (token.isEmpty()) {
 			logger.error("The token from the DAPS server is empty");
-			rejectionMessageServiceImpl.sendRejectionMessage(
+			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_TOKEN_LOCAL_ISSUES, 
 					message);
 		}
 		
 		logger.info("token=" + token);
-		String messageStringWithToken = multipartMessageServiceImpl.addToken(message, token);
+		String messageStringWithToken = multipartMessageService.addToken(message, token);
 		logger.info("messageStringWithToken=" + messageStringWithToken);
 	
 		multipartMessageParts.put("header", messageStringWithToken);

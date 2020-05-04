@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
@@ -31,10 +31,10 @@ public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 	private boolean isEnabledDapsInteraction;
 
 	@Autowired
-	private MultipartMessageServiceImpl multipartMessageServiceImpl;
+	private MultipartMessageService multipartMessageService;
 	
 	@Autowired
-	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
+	private RejectionMessageService rejectionMessageService;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -53,7 +53,7 @@ public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 		receivedDataBodyBinary = exchange.getIn().getBody(String.class);
 		if (receivedDataBodyBinary == null) {			
 			logger.error("Body of the received multipart message is null");
-			rejectionMessageServiceImpl.sendRejectionMessage(
+			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, 
 					message);
 		}
@@ -67,13 +67,13 @@ public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 			headesParts.put("Forward-To", forwardTo);
 
 			// Create multipart message parts
-			header = multipartMessageServiceImpl.getHeaderContentString(receivedDataBodyBinary);
+			header = multipartMessageService.getHeaderContentString(receivedDataBodyBinary);
 			multipartMessageParts.put("header", header);
-			payload = multipartMessageServiceImpl.getPayloadContent(receivedDataBodyBinary);
+			payload = multipartMessageService.getPayloadContent(receivedDataBodyBinary);
 			if(payload!=null) {
 				multipartMessageParts.put("payload", payload);
 			}
-			message = multipartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
+			message = multipartMessageService.getMessage(multipartMessageParts.get("header"));
 			
 			// Return exchange
 			exchange.getOut().setHeaders(headesParts);
@@ -81,7 +81,7 @@ public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);
-			rejectionMessageServiceImpl.sendRejectionMessage(
+			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, 
 					message);
 		}

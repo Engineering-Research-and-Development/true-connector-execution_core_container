@@ -27,8 +27,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
-import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.communication.HttpClientGenerator;
 import it.eng.idsa.businesslogic.util.config.keystore.AcceptAllTruststoreConfig;
@@ -51,10 +51,10 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 	private ApplicationConfiguration configuration;
 
 	@Autowired
-	private MultipartMessageServiceImpl multipartMessageServiceImpl;
+	private MultipartMessageService multipartMessageService;
 	
 	@Autowired
-	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
+	private RejectionMessageService rejectionMessageService;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -67,7 +67,7 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		if(multipartMessageParts.containsKey("payload")) {
 			payload = multipartMessageParts.get("payload").toString();
 		}
-		Message message = multipartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
+		Message message = multipartMessageService.getMessage(multipartMessageParts.get("header"));
 
 		// Send data to the endpoint F for the Open API Data App
 		CloseableHttpResponse response = null;
@@ -84,7 +84,7 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		}
 		default:
 			logger.error("Applicaton property: application.openDataAppReceiverRouter is not properly set");
-			rejectionMessageServiceImpl.sendRejectionMessage(
+			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, 
 					message);
 		}
@@ -146,7 +146,7 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		// Set F address
 		HttpPost httpPost = new HttpPost(address);
 
-		HttpEntity reqEntity = multipartMessageServiceImpl.createMultipartMessage(header, payload, null);
+		HttpEntity reqEntity = multipartMessageService.createMultipartMessage(header, payload, null);
 		httpPost.setEntity(reqEntity);
 
 		CloseableHttpResponse response;
@@ -176,8 +176,8 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 	}
 
 	private String filterHeader(String header) throws JsonMappingException, JsonProcessingException {
-		Message message = multipartMessageServiceImpl.getMessage(header);
-		return multipartMessageServiceImpl.removeToken(message);
+		Message message = multipartMessageService.getMessage(header);
+		return multipartMessageService.removeToken(message);
 	}
 
 	private ContentBody convertToContentBody(String value, ContentType contentType, String valueName) throws UnsupportedEncodingException {
@@ -189,7 +189,7 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 	private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response, String openApiDataAppAddress) throws UnsupportedOperationException, IOException {
 		if (response==null) {
 			logger.info("...communication error with: " + openApiDataAppAddress);
-			rejectionMessageServiceImpl.sendRejectionMessage(
+			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, 
 					message);
 		} else {
@@ -201,14 +201,14 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 			logger.info("status code of the response message is: " + statusCode);
 			if (statusCode >=300) { 
 				logger.info("data sent to destination: "+openApiDataAppAddress);
-				rejectionMessageServiceImpl.sendRejectionMessage(
+				rejectionMessageService.sendRejectionMessage(
 						RejectionMessageType.REJECTION_MESSAGE_COMMON, 
 						message);
 			}else { 
 				logger.info("data sent to destination: "+openApiDataAppAddress);
 				logger.info("Successful response: "+ responseString);
-				String	header = multipartMessageServiceImpl.getHeaderContentString(responseString);
-				String payload = multipartMessageServiceImpl.getPayloadContent(responseString);
+				String	header = multipartMessageService.getHeaderContentString(responseString);
+				String payload = multipartMessageService.getPayloadContent(responseString);
 				exchange.getOut().setHeader("header", header);
 				if(payload!=null) {
 					exchange.getOut().setHeader("payload", payload);

@@ -37,9 +37,9 @@ import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.FileStreamingBean;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.IdscpClientBean;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.MessageWebSocketOverHttpSender;
-import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.MultipartMessageTransformerServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.service.MultipartMessageTransformerService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.communication.HttpClientGenerator;
 import it.eng.idsa.businesslogic.util.config.keystore.AcceptAllTruststoreConfig;
@@ -63,10 +63,10 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
     private boolean isEnabledWebSocket;
 
     @Autowired
-    private MultipartMessageServiceImpl multipartMessageServiceImpl;
+    private MultipartMessageService multipartMessageService;
 
     @Autowired
-    private RejectionMessageServiceImpl rejectionMessageServiceImpl;
+    private RejectionMessageService rejectionMessageService;
 
     @Autowired
     private WebSocketClientConfiguration webSocketClientConfiguration;
@@ -75,7 +75,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
     private MessageWebSocketOverHttpSender messageWebSocketOverHttpSender;
     
     @Autowired
-    MultipartMessageTransformerServiceImpl multipartMessageTransformerService;
+    MultipartMessageTransformerService multipartMessageTransformerService;
 
     private String webSocketHost;
     private Integer webSocketPort;
@@ -98,7 +98,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
             payload = multipartMessageParts.get("payload").toString();
         }
         String forwardTo = headesParts.get("Forward-To").toString();
-        Message message = multipartMessageServiceImpl.getMessage(header);
+        Message message = multipartMessageService.getMessage(header);
         
         MultipartMessage multipartMessage = new MultipartMessageBuilder()
     			.withHeaderContent(header)
@@ -112,7 +112,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
                 this.extractWebSocketIPAndPort(forwardTo, REGEX_IDSCP);
             } catch (Exception e) {
                 logger.info("... bad idscp URL");
-                rejectionMessageServiceImpl.sendRejectionMessage(
+                rejectionMessageService.sendRejectionMessage(
                         RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
                         message);
             }
@@ -131,7 +131,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
                 this.extractWebSocketIPAndPort(forwardTo, REGEX_WSS);
             } catch (Exception e) {
                 logger.info("... bad wss URL");
-                rejectionMessageServiceImpl.sendRejectionMessage(
+                rejectionMessageService.sendRejectionMessage(
                         RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
                         message);
             }
@@ -240,7 +240,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
     private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response, String forwardTo, String multipartMessageBody) throws UnsupportedOperationException, IOException {
         if (response == null) {
             logger.info("...communication error");
-            rejectionMessageServiceImpl.sendRejectionMessage(
+            rejectionMessageService.sendRejectionMessage(
                     RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
                     message);
         } else {
@@ -252,12 +252,12 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
             if (statusCode >= 300) {
                 if (statusCode == 404) {
                     logger.info("...communication error - bad forwardTo URL" + forwardTo);
-                    rejectionMessageServiceImpl.sendRejectionMessage(
+                    rejectionMessageService.sendRejectionMessage(
                             RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
                             message);
                 }
                 logger.info("data sent unuccessfully to destination " + forwardTo);
-                rejectionMessageServiceImpl.sendRejectionMessage(
+                rejectionMessageService.sendRejectionMessage(
                         RejectionMessageType.REJECTION_MESSAGE_COMMON,
                         message);
             } else {
@@ -274,7 +274,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
     private void handleResponseWebSocket(Exchange exchange, Message message, String responseString, String forwardTo, String multipartMessageBody) {
         if (responseString == null) {
             logger.info("...communication error");
-            rejectionMessageServiceImpl.sendRejectionMessage(
+            rejectionMessageService.sendRejectionMessage(
                     RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
                     message);
         } else {
@@ -320,7 +320,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
             idscpClientBean.createIdscpClient();
         } catch (Exception e) {
             logger.info("... can not initilize the IdscpClient");
-            rejectionMessageServiceImpl.sendRejectionMessage(
+            rejectionMessageService.sendRejectionMessage(
                     RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
                     message);
         }
@@ -333,7 +333,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
         } catch (Exception e) {
         	e.printStackTrace();
             logger.info("... can not create the WebSocket connection IDSCP");
-            rejectionMessageServiceImpl.sendRejectionMessage(
+            rejectionMessageService.sendRejectionMessage(
                     RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
                     message);
         }

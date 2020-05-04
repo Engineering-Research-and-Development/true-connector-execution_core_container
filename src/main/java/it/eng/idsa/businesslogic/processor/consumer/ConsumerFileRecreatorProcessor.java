@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.FileRecreatorBeanServer;
-import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
@@ -32,10 +32,10 @@ public class ConsumerFileRecreatorProcessor implements Processor {
 	private WebSocketServerConfiguration webSocketServerConfiguration;
 	
 	@Autowired
-	private MultipartMessageServiceImpl multipartMessageServiceImpl;
+	private MultipartMessageService multipartMessageService;
 	
 	@Autowired
-	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
+	private RejectionMessageService rejectionMessageService;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -54,9 +54,9 @@ public class ConsumerFileRecreatorProcessor implements Processor {
 		
 		// Extract header and payload from the multipart message
 		try {
-			header = multipartMessageServiceImpl.getHeaderContentString(recreatedMultipartMessage);
+			header = multipartMessageService.getHeaderContentString(recreatedMultipartMessage);
 			multipartMessageParts.put("header", header);
-			payload = multipartMessageServiceImpl.getPayloadContent(recreatedMultipartMessage);
+			payload = multipartMessageService.getPayloadContent(recreatedMultipartMessage);
 			if(payload!=null) {
 				multipartMessageParts.put("payload", payload);
 			}
@@ -75,7 +75,7 @@ public class ConsumerFileRecreatorProcessor implements Processor {
 			fileRecreatorBean.setup();
 		} catch(Exception e) {
 			logger.info("... can not initilize the IdscpServer");
-			rejectionMessageServiceImpl.sendRejectionMessage(
+			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, 
 					message);
 		}

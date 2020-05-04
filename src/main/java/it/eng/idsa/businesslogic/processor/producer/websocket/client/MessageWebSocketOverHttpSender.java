@@ -31,8 +31,8 @@ import it.eng.idsa.businesslogic.multipart.MultipartMessage;
 import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.HttpWebSocketServerBean;
 import it.eng.idsa.businesslogic.processor.producer.ProducerSendDataToBusinessLogicProcessor;
-import it.eng.idsa.businesslogic.service.impl.MultipartMessageTransformerServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.MultipartMessageTransformerService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
@@ -47,10 +47,10 @@ public class MessageWebSocketOverHttpSender {
     private WebSocketClientConfiguration webSocketClientConfiguration;
 
     @Autowired
-    private RejectionMessageServiceImpl rejectionMessageServiceImpl;
+    private RejectionMessageService rejectionMessageService;
     
     @Autowired
-    MultipartMessageTransformerServiceImpl multipartMessageTransformerService;
+    MultipartMessageTransformerService multipartMessageTransformerService;
 
     @Value("${application.idscp.server.port}")
     private int idscpServerPort;
@@ -112,7 +112,7 @@ public class MessageWebSocketOverHttpSender {
         } catch (Exception e) {
             logger.info("... can not create the WebSocket connection HTTP");
             if (null != message)
-                rejectionMessageServiceImpl.sendRejectionMessage(
+                rejectionMessageService.sendRejectionMessage(
                         RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
                         message);
         }
@@ -153,7 +153,7 @@ public class MessageWebSocketOverHttpSender {
         } catch (Exception e) {
             logger.error("Problems encountered during Client Shutdown with error: " + e.getMessage());
             if (null != message)
-                rejectionMessageServiceImpl.sendRejectionMessage(
+                rejectionMessageService.sendRejectionMessage(
                         RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
                         message);
         }

@@ -11,8 +11,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import it.eng.idsa.businesslogic.service.impl.CommunicationServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.CommunicationService;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
 
 /**
  * 
@@ -26,10 +26,10 @@ public class ProducerSendDataToBusinessLogicConsumer implements Processor {
 	private static final Logger logger = LogManager.getLogger(ProducerSendDataToBusinessLogicConsumer.class);
 	
 	@Autowired
-	private MultipartMessageServiceImpl multipartMessageServiceImpl;
+	private MultipartMessageService multipartMessageService;
 	
 	@Autowired
-	private CommunicationServiceImpl communicationMessageService;
+	private CommunicationService communicationMessageService;
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -46,7 +46,7 @@ public class ProducerSendDataToBusinessLogicConsumer implements Processor {
 		payload = multipartMessageParts.get("payload").toString();
 		forwardTo = multipartMessageParts.get("frowardTo").toString();
 		
-		HttpEntity entity = multipartMessageServiceImpl.createMultipartMessage(
+		HttpEntity entity = multipartMessageService.createMultipartMessage(
 				header,
 				payload,
 				null);

@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
@@ -31,10 +31,10 @@ public class ConsumerExceptionMultiPartMessageProcessor implements Processor {
 	private boolean isEnabledDapsInteraction;
 	
 	@Autowired
-	private MultipartMessageServiceImpl multipartMessageServiceImpl;
+	private MultipartMessageService multipartMessageService;
 	
 	@Autowired
-	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
+	private RejectionMessageService rejectionMessageService;
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -50,7 +50,7 @@ public class ConsumerExceptionMultiPartMessageProcessor implements Processor {
 			)
 		{
 			logger.error("Multipart message header or/and payload is null");
-			rejectionMessageServiceImpl.sendRejectionMessage(
+			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_MESSAGE_COMMON, 
 					message);
 		}
@@ -61,13 +61,13 @@ public class ConsumerExceptionMultiPartMessageProcessor implements Processor {
 			// Put in the header value of the application.property: application.isEnabledDapsInteraction
 			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
 			
-			header= multipartMessageServiceImpl.getHeaderContentString(exchange.getIn().getHeader("header").toString());
+			header= multipartMessageService.getHeaderContentString(exchange.getIn().getHeader("header").toString());
 			multipartMessageParts.put("header", header);
 			if(exchange.getIn().getHeaders().containsKey("payload")) {
 				payload=exchange.getIn().getHeader("payload").toString();
 				multipartMessageParts.put("payload", payload);
 			}
-			message=multipartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
+			message=multipartMessageService.getMessage(multipartMessageParts.get("header"));
 			
 			// Return exchange
 			exchange.getOut().setHeaders(headesParts);
@@ -75,7 +75,7 @@ public class ConsumerExceptionMultiPartMessageProcessor implements Processor {
 			
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);
-			rejectionMessageServiceImpl.sendRejectionMessage(
+			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_MESSAGE_COMMON, 
 					message);
 		}

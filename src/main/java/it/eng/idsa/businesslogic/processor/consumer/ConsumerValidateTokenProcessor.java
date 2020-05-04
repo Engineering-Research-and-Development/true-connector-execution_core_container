@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.service.impl.DapsServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.DapsService;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
@@ -28,13 +28,13 @@ public class ConsumerValidateTokenProcessor implements Processor {
 	private static final Logger logger = LogManager.getLogger(ConsumerValidateTokenProcessor.class);
 	
 	@Autowired
-	DapsServiceImpl dapsServiceImpl;
+	DapsService dapsService;
 	
 	@Autowired
-	private MultipartMessageServiceImpl multipartMessageServiceImpl;
+	private MultipartMessageService multipartMessageService;
 	
 	@Autowired
-	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
+	private RejectionMessageService rejectionMessageService;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -43,19 +43,19 @@ public class ConsumerValidateTokenProcessor implements Processor {
 		
 		// Get "multipartMessageParts" from the input "exchange"
 		Map<String, Object> multipartMessageParts = exchange.getIn().getBody(HashMap.class);
-		message = multipartMessageServiceImpl.getMessage(multipartMessageParts.get("header"));
+		message = multipartMessageService.getMessage(multipartMessageParts.get("header"));
 		
 		// Get "token" from the input "multipartMessageParts"
-		String token = multipartMessageServiceImpl.getToken(message);
+		String token = multipartMessageService.getToken(message);
 		logger.info("token: ", token);
 		
 		// Check is "token" valid
-		boolean isTokenValid = dapsServiceImpl.validateToken(token);
+		boolean isTokenValid = dapsService.validateToken(token);
 //		boolean isTokenValid = true;
 		
 		if(isTokenValid==false) {			
 			logger.error("Token is invalid");
-			rejectionMessageServiceImpl.sendRejectionMessage(
+			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_TOKEN, 
 					message);
 		}
