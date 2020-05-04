@@ -34,11 +34,11 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
 import it.eng.idsa.businesslogic.multipart.MultipartMessage;
 import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
-import it.eng.idsa.businesslogic.multipart.service.MultipartMessageTransformerService;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.FileStreamingBean;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.IdscpClientBean;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.MessageWebSocketOverHttpSender;
 import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.MultipartMessageTransformerServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.communication.HttpClientGenerator;
@@ -75,7 +75,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
     private MessageWebSocketOverHttpSender messageWebSocketOverHttpSender;
     
     @Autowired
-    MultipartMessageTransformerService multipartMessageTransformerService;
+    MultipartMessageTransformerServiceImpl multipartMessageTransformerService;
 
     private String webSocketHost;
     private Integer webSocketPort;

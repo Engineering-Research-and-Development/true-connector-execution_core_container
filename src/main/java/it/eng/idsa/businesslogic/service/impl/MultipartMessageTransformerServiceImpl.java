@@ -1,4 +1,4 @@
-package it.eng.idsa.businesslogic.multipart.service;
+package it.eng.idsa.businesslogic.service.impl;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,16 +22,17 @@ import org.springframework.transaction.annotation.Transactional;
 import it.eng.idsa.businesslogic.multipart.MultipartMessage;
 import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
 import it.eng.idsa.businesslogic.multipart.MultipartMessageKey;
+import it.eng.idsa.businesslogic.service.MultipartMessageTransformerService;
 
 
 /**
- * The MultipartMessageService
+ * The MultipartMessageTransformerServiceImpl
  */
 @Service
 @Transactional
-public class MultipartMessageTransformerService {
+public class MultipartMessageTransformerServiceImpl implements MultipartMessageTransformerService {
 	
-	private static final Logger logger = LogManager.getLogger(MultipartMessageTransformerService.class);
+	private static final Logger logger = LogManager.getLogger(MultipartMessageTransformerServiceImpl.class);
 	
 	private static final String REGEX_BOUNDARY = "(.*?)boundary=(.*);.*";
 	private static final String REGEX_NAME = "(.*?)name=\"(.*)\"(.*?)";
@@ -43,10 +44,12 @@ public class MultipartMessageTransformerService {
 	private static final String DEFAULT_CONTENT_TYPE = "multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6;charset=UTF-8";
 	private static final String DEFAULT_CONTENT_DISPOSITION = MultipartMessageKey.CONTENT_DISPOSITION.label + ": form-data; name=";
 
+	@Override
 	public MultipartMessage parseMultipartMessage(String message) {
 		return parseMultipartMessage(message, null);
 	}
 	
+	@Override
 	public MultipartMessage parseMultipartMessage(String message, String contentType) {
 		
 		Optional<String> boundaryFromMessage;
@@ -86,10 +89,12 @@ public class MultipartMessageTransformerService {
 		return multipartMessage;
 	}
 	
+	@Override
 	public String multipartMessagetoString(MultipartMessage message) {
 		return multipartMessagetoString(message, true);
 	}
 	
+	@Override
 	public String multipartMessagetoString(MultipartMessage message, boolean includeHttpHeaders) {
 		
 		StringBuilder multipartMessageString = new StringBuilder();

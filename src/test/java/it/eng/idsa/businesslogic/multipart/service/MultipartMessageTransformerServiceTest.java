@@ -22,13 +22,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 import it.eng.idsa.businesslogic.multipart.MultipartMessage;
 import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
 import it.eng.idsa.businesslogic.multipart.MultipartMessageKey;
+import it.eng.idsa.businesslogic.service.impl.MultipartMessageTransformerServiceImpl;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class MultipartMessageTransformerServiceTest {
 	
 	@Autowired
-	private MultipartMessageTransformerService multipartMessageTransformerService;
+	private MultipartMessageTransformerServiceImpl multipartMessageTransformerService;
 	
 	private String RESOURCE_MESSAGE_PATH = "./src/test/resources/message/";
 	private String MULTIPART_MESSAGE_NAME = "IDS-multipart.txt";

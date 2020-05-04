@@ -27,7 +27,7 @@ import de.fraunhofer.iais.eis.TokenBuilder;
 import de.fraunhofer.iais.eis.TokenFormat;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.multipart.MultipartMessage;
-import it.eng.idsa.businesslogic.multipart.service.MultipartMessageTransformerService;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 
@@ -39,29 +39,32 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 
 /**
- * Service Implementation for managing MultiPartMessage.
+ * Service Implementation for managing MultipartMessageServiceImpl.
  */
 @Service
 @Transactional
-public class MultipartMessageServiceImpl{
+public class MultipartMessageServiceImpl implements MultipartMessageService {
 	private static final Logger logger = LogManager.getLogger(MultipartMessageServiceImpl.class);
 	
 	@Autowired
-	MultipartMessageTransformerService multipartMessageTransformerService;
+	MultipartMessageTransformerServiceImpl multipartMessageTransformerService;
 	
 	@Autowired
 	private RejectionMessageServiceImpl rejectionMessageServiceImpl;
 	
+	@Override
 	public String getHeaderContentString(String body) {
 		MultipartMessage deserializedMultipartMessage = multipartMessageTransformerService.parseMultipartMessage(body);
 		return deserializedMultipartMessage.getHeaderContentString();
 	}
 
+	@Override
 	public String getPayloadContent(String body) {
 		MultipartMessage deserializedMultipartMessage = multipartMessageTransformerService.parseMultipartMessage(body);
 		return deserializedMultipartMessage.getPayloadContent();
 	}
 	
+	@Override
 	public Message getMessage(String header) {
 		Message message = null;
 		try {
@@ -71,7 +74,8 @@ public class MultipartMessageServiceImpl{
 		}
 		return message;
 	} 
-	 
+	
+	@Override
 	public String addToken(Message message, String token) {
 		String output = null;
 		try {
@@ -92,6 +96,7 @@ public class MultipartMessageServiceImpl{
 		return output;
 	}
 
+	@Override
 	public String removeToken(Message message) {
 		String output = null;
 		try {
@@ -107,6 +112,7 @@ public class MultipartMessageServiceImpl{
 		return output;
 	}
 
+	@Override
 	public Message getMessage(Object header) {
 		Message message = null;
 		try {
@@ -118,6 +124,7 @@ public class MultipartMessageServiceImpl{
 
 	}
 	
+	@Override
 	public HttpEntity createMultipartMessage(String header, String payload, String frowardTo) {
 		MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
 		multipartEntityBuilder.addTextBody("header", header);
@@ -183,6 +190,7 @@ public class MultipartMessageServiceImpl{
 		return multipartEntityBuilder.build();
 	}
 	
+	@Override
 	public String getToken(Message message) throws JsonProcessingException {
 		String token = null;
 		try {

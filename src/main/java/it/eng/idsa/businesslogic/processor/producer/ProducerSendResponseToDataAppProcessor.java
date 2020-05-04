@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.multipart.MultipartMessage;
 import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
-import it.eng.idsa.businesslogic.multipart.service.MultipartMessageTransformerService;
 import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.MultipartMessageTransformerServiceImpl;
 
 /**
  * 
@@ -34,7 +34,7 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 	private MultipartMessageServiceImpl multipartMessageServiceImpl;
 	
 	@Autowired
-    private MultipartMessageTransformerService multipartMessageTransformerService;
+    private MultipartMessageTransformerServiceImpl multipartMessageTransformerService;
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {

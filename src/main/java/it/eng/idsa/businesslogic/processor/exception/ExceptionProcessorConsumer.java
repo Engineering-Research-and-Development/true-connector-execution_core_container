@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.multipart.MultipartMessage;
 import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
-import it.eng.idsa.businesslogic.multipart.service.MultipartMessageTransformerService;
 import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.MultipartMessageTransformerServiceImpl;
 
 /**
  * 
@@ -23,7 +23,7 @@ public class ExceptionProcessorConsumer implements Processor {
 	MultipartMessageServiceImpl multipartMessageServiceImpl;
 	
 	@Autowired
-    MultipartMessageTransformerService multipartMessageTransformerService;
+    MultipartMessageTransformerServiceImpl multipartMessageTransformerService;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
