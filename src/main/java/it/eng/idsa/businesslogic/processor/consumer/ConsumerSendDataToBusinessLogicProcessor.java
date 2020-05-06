@@ -3,13 +3,13 @@ package it.eng.idsa.businesslogic.processor.consumer;
 import java.util.HashMap;
 import java.util.Map;
 
+import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationB;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 import it.eng.idsa.businesslogic.multipart.MultipartMessage;
 import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.ResponseMessageBufferBean;
@@ -36,8 +36,8 @@ public class ConsumerSendDataToBusinessLogicProcessor implements Processor {
 	@Autowired
 	private MultipartMessageTransformerService multipartMessageTransformerService;
 	
-	@Autowired
-	private WebSocketServerConfiguration webSocketServerConfiguration;
+	@Autowired(required = false)
+	private WebSocketServerConfigurationB webSocketServerConfiguration;
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {

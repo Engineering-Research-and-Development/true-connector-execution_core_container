@@ -5,6 +5,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
@@ -26,6 +27,10 @@ import it.eng.idsa.businesslogic.processor.producer.ProducerValidateTokenProcess
  */
 
 @Component
+@ConditionalOnProperty(
+		value="application.dataApp.websocket.isEnabled",
+		havingValue = "false",
+		matchIfMissing = true)
 public class CamelRouteProducer extends RouteBuilder {
 
 	private static final Logger logger = LogManager.getLogger(CamelRouteProducer.class);

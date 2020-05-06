@@ -3,6 +3,8 @@ package it.eng.idsa.businesslogic.processor.producer;
 import java.util.HashMap;
 import java.util.Map;
 
+import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationA;
+import it.eng.idsa.businesslogic.processor.consumer.websocket.server.ResponseMessageBufferBean;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,11 +33,17 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 	private boolean isEnabledClearingHouse;
 	
 	@Autowired
-	private MultipartMessageService multipartMessageService;
-	
+    private MultipartMessageService multipartMessageService;
+
+	@Value("${application.dataApp.websocket.isEnabled}")
+	private boolean isEnabledWebSocket;
+
 	@Autowired
     private MultipartMessageTransformerService multipartMessageTransformerService;
-	
+
+	@Autowired(required = false)
+	WebSocketServerConfigurationA webSocketServerConfiguration;
+
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		
@@ -76,7 +84,13 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 			Map<String, Object> headers = exchange.getIn().getHeaders();
 			headers.remove("multipartMessageBody");
 		}
-		
+
+		// TODO: Send The MultipartMessage message to the WebSocket
+		if(isEnabledWebSocket) {
+			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration.responseMessageBufferWebSocket();
+			responseMessageServerBean.add(responseMultipartMessageString.getBytes());
+		}
+
 		exchange.getOut().setHeaders(headesParts);
 		exchange.getOut().setBody(responseMultipartMessageString);
 	}	

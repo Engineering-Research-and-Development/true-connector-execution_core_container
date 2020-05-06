@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import de.fhg.aisec.ids.comm.server.IdscpServerSocket;
 import de.fhg.aisec.ids.comm.server.SocketListener;
-import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
+import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationB;
 
 /**
  * 
@@ -22,8 +22,8 @@ public class InputStreamSocketListenerServer implements SocketListener {
 	
 	private FrameBufferBean frameBuffer;
 	
-	@Autowired
-	private WebSocketServerConfiguration webSocketServerConfiguration;
+	@Autowired(required = false)
+	private WebSocketServerConfigurationB webSocketServerConfiguration;
 	
 	public InputStreamSocketListenerServer() {
 		
