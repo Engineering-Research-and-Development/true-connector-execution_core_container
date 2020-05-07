@@ -12,8 +12,10 @@ import it.eng.idsa.businesslogic.processor.consumer.ConsumerExceptionMultiPartMe
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerFileRecreatorProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerGetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerMultiPartMessageProcessor;
+import it.eng.idsa.businesslogic.processor.consumer.ConsumerReceiveFromActiveMQ;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendDataToBusinessLogicProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendDataToDataAppProcessor;
+import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendToActiveMQ;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.consumer.ConsumerValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
@@ -35,6 +37,12 @@ public class CamelRouteConsumer extends RouteBuilder {
 	
 	@Autowired
 	ConsumerValidateTokenProcessor validateTokenProcessor;
+	
+	@Autowired
+	ConsumerSendToActiveMQ sendToActiveMQ;
+	
+	@Autowired
+	ConsumerReceiveFromActiveMQ receiveFromActiveMQ;
 	
 	@Autowired
 	ConsumerMultiPartMessageProcessor multiPartMessageProcessor;
@@ -95,8 +103,8 @@ public class CamelRouteConsumer extends RouteBuilder {
 			.choice()
 				.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
 					.process(validateTokenProcessor)
-//					.process(sendToActiveMQ)
-//					.process(receiveFromActiveMQ)
+					.process(sendToActiveMQ)
+					.process(receiveFromActiveMQ)
 					// Send to the Endpoint: F
 					.process(sendDataToDataAppProcessor)
 					.process(multiPartMessageProcessor)
@@ -107,6 +115,8 @@ public class CamelRouteConsumer extends RouteBuilder {
 							.process(sendTransactionToCHProcessor)
 					.endChoice()
 				.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
+					.process(sendToActiveMQ)
+					.process(receiveFromActiveMQ)
 					// Send to the Endpoint: F
 					.process(sendDataToDataAppProcessor)
 					.process(multiPartMessageProcessor)
@@ -126,8 +136,8 @@ public class CamelRouteConsumer extends RouteBuilder {
 			.choice()
 				.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
 					.process(validateTokenProcessor)
-//					.process(sendToActiveMQ)
-//					.process(receiveFromActiveMQ)
+					.process(sendToActiveMQ)
+					.process(receiveFromActiveMQ)
 					// Send to the Endpoint: F
 					.process(sendDataToDataAppProcessor)
 					.process(multiPartMessageProcessor)
@@ -138,6 +148,8 @@ public class CamelRouteConsumer extends RouteBuilder {
 							//.process(sendTransactionToCHProcessor)
 					.endChoice()
 				.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
+					.process(sendToActiveMQ)
+					.process(receiveFromActiveMQ)
 					// Send to the Endpoint: F
 					.process(sendDataToDataAppProcessor)
 					.process(multiPartMessageProcessor)

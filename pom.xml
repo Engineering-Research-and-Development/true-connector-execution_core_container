@@ -152,12 +152,21 @@
 			<artifactId>camel-util</artifactId>
 			<version>${camel.version.rc}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-websocket-starter</artifactId>
 			<version>${camel.version}</version>
 		</dependency>
+		<dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-jms</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-activemq</artifactId>
+            <version>${camel.version.rc}</version>
+        </dependency>
 
 		<!-- IDSCP -->
 		<!-- https://mvnrepository.com/artifact/de.fraunhofer.aisec.ids/ids-comm -->
