@@ -28,7 +28,7 @@ public class CamelRouteWebSocket extends RouteBuilder {
     ProducerParseReceivedDataProcessorBodyBinary parseReceivedDataProcessorBodyBinary;
 
     @Autowired
-    ProducerParseReceivedDataProcessorBodyBinary producerParseReceivedDataFromDAppProcessorBodyBinary;
+    ProducerParseReceivedDataFromDAppProcessorBodyBinary producerParseReceivedDataFromDAppProcessorBodyBinary;
 
     @Autowired
     ProducerGetTokenFromDapsProcessor producerGetTokenFromDapsProcessor;
