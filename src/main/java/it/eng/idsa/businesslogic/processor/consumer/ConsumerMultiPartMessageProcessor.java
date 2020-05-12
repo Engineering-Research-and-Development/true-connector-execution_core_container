@@ -31,7 +31,7 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 	private boolean isEnabledDapsInteraction;
 
 	@Value("${application.dataApp.websocket.isEnabled}")
-	private boolean isEnabledWebSocket;
+	private boolean isEnabledDataAppWebSocket;
 
 	@Value("${application.isEnabledClearingHouse}")
 	private boolean isEnabledClearingHouse;
@@ -65,7 +65,7 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 			// Put in the header value of the application.property: application.isEnabledDapsInteraction
 			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
 			headesParts.put("Is-Enabled-Clearing-House", isEnabledClearingHouse);
-			headesParts.put("Is-Enabled-WebSocket", isEnabledWebSocket);
+			headesParts.put("Is-Enabled-DataApp-WebSocket", isEnabledDataAppWebSocket);
 
 			if(exchange.getIn().getHeaders().containsKey("payload")) {
 				payload=exchange.getIn().getHeader("payload").toString();

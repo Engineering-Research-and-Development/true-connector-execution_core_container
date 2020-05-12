@@ -1,5 +1,6 @@
 package it.eng.idsa.businesslogic.routes;
 
+import it.eng.idsa.businesslogic.processor.consumer.*;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -9,13 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
-import it.eng.idsa.businesslogic.processor.consumer.ConsumerExceptionMultiPartMessageProcessor;
-import it.eng.idsa.businesslogic.processor.consumer.ConsumerGetTokenFromDapsProcessor;
-import it.eng.idsa.businesslogic.processor.consumer.ConsumerMultiPartMessageProcessor;
-import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendDataToBusinessLogicProcessor;
-import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendDataToDataAppProcessor;
-import it.eng.idsa.businesslogic.processor.consumer.ConsumerSendTransactionToCHProcessor;
-import it.eng.idsa.businesslogic.processor.consumer.ConsumerValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorConsumer;
 
@@ -56,6 +50,9 @@ public class CamelRouteConsumer extends RouteBuilder {
 	
 	@Autowired
 	ConsumerExceptionMultiPartMessageProcessor exceptionMultiPartMessageProcessor;
+
+	@Autowired
+	ConsumerWebSocketSendDataToDataAppProcessor sendDataToDataAppProcessorOverWS;
 	
     @Autowired
     CamelContext camelContext;
@@ -102,7 +99,12 @@ public class CamelRouteConsumer extends RouteBuilder {
 	//					.process(sendToActiveMQ)
 	//					.process(receiveFromActiveMQ)
 						// Send to the Endpoint: F
-						.process(sendDataToDataAppProcessor)
+			           .choice()
+					  .when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
+					    	.process(sendDataToDataAppProcessorOverWS)
+					   .when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(false))
+							.process(sendDataToDataAppProcessor)
+						.endChoice()
 						.process(multiPartMessageProcessor)
 						.process(getTokenFromDapsProcessor)
 						.process(sendDataToBusinessLogicProcessor)
@@ -112,7 +114,12 @@ public class CamelRouteConsumer extends RouteBuilder {
 						.endChoice()
 					.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
 						// Send to the Endpoint: F
-						.process(sendDataToDataAppProcessor)
+						.choice()
+						.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
+							.process(sendDataToDataAppProcessorOverWS)
+						.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(false))
+							.process(sendDataToDataAppProcessor)
+						.endChoice()
 						.process(multiPartMessageProcessor)
 						.process(sendDataToBusinessLogicProcessor)
 						.choice()
