@@ -79,7 +79,8 @@ public class MessageWebSocketOverHttpSender {
     			.withHeaderContent(header)
     			.withPayloadContent(payload)
     			.build();
-    	String multipartMessageString = multipartMessageTransformerService.multipartMessagetoString(multipartMessage);
+    	//TODO Use this implementation with includeHttpHeaders set to false, but in future implementations these headers may be mandatory
+    	String multipartMessageString = multipartMessageTransformerService.multipartMessagetoString(multipartMessage, false);
     													                                                        
         FileStreamingBean fileStreamingBean = webSocketClientConfiguration.fileStreamingWebSocket();
         WebSocket wsClient = createWebSocketClient(webSocketHost, webSocketPort, webSocketPath, message);
