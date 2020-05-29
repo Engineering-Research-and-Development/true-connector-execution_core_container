@@ -5,10 +5,10 @@ import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import it.eng.idsa.businesslogic.multipart.MultipartMessage;
-import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
-import it.eng.idsa.businesslogic.service.MultipartMessageTransformerService;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
+import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 /**
  * 
@@ -21,9 +21,6 @@ public class ExceptionProcessorProducer implements Processor {
 	
 	@Autowired
 	private MultipartMessageService multipartMessageService;
-	
-	@Autowired
-    private MultipartMessageTransformerService multipartMessageTransformerService;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -35,7 +32,7 @@ public class ExceptionProcessorProducer implements Processor {
 		MultipartMessage multipartMessage = new MultipartMessageBuilder()
     			.withHeaderContent(message)
     			.build();
-    	String multipartMessageString = multipartMessageTransformerService.multipartMessagetoString(multipartMessage, false);
+    	String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
 		
 		exchange.getOut().setBody(multipartMessageString);
 		String contentType = multipartMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");

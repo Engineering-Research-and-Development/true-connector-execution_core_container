@@ -3,8 +3,6 @@ package it.eng.idsa.businesslogic.processor.producer;
 import java.util.HashMap;
 import java.util.Map;
 
-import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationA;
-import it.eng.idsa.businesslogic.processor.consumer.websocket.server.ResponseMessageBufferBean;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +13,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.multipart.MultipartMessage;
-import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
+import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationA;
+import it.eng.idsa.businesslogic.processor.consumer.websocket.server.ResponseMessageBufferBean;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
-import it.eng.idsa.businesslogic.service.MultipartMessageTransformerService;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
+import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 /**
  * 
@@ -37,9 +37,6 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
-
-	@Autowired
-    private MultipartMessageTransformerService multipartMessageTransformerService;
 
 	@Autowired(required = false)
 	WebSocketServerConfigurationA webSocketServerConfiguration;
@@ -74,7 +71,7 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
     			.withHeaderContent(header)
     			.withPayloadContent(payload)
     			.build();
-		String responseMultipartMessageString = multipartMessageTransformerService.multipartMessagetoString(multipartMessage, false);
+		String responseMultipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
 		
 		String contentType = multipartMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
 		headesParts.put("Content-Type", contentType);

@@ -26,11 +26,11 @@ import de.fraunhofer.iais.eis.Token;
 import de.fraunhofer.iais.eis.TokenBuilder;
 import de.fraunhofer.iais.eis.TokenFormat;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
-import it.eng.idsa.businesslogic.multipart.MultipartMessage;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
-import it.eng.idsa.businesslogic.service.MultipartMessageTransformerService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
+import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 
 /**
@@ -49,20 +49,17 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 	private static final Logger logger = LogManager.getLogger(MultipartMessageServiceImpl.class);
 	
 	@Autowired
-	MultipartMessageTransformerService multipartMessageTransformerService;
-	
-	@Autowired
 	private RejectionMessageService rejectionMessageService;
 	
 	@Override
 	public String getHeaderContentString(String body) {
-		MultipartMessage deserializedMultipartMessage = multipartMessageTransformerService.parseMultipartMessage(body);
+		MultipartMessage deserializedMultipartMessage = MultipartMessageProcessor.parseMultipartMessage(body);
 		return deserializedMultipartMessage.getHeaderContentString();
 	}
 
 	@Override
 	public String getPayloadContent(String body) {
-		MultipartMessage deserializedMultipartMessage = multipartMessageTransformerService.parseMultipartMessage(body);
+		MultipartMessage deserializedMultipartMessage = MultipartMessageProcessor.parseMultipartMessage(body);
 		return deserializedMultipartMessage.getPayloadContent();
 	}
 	
