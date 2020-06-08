@@ -78,13 +78,9 @@ public class CamelRouteProducer extends RouteBuilder {
 		camelContext.getShutdownStrategy().setLogInflightExchangesOnTimeout(false);
 		camelContext.getShutdownStrategy().setTimeout(3);
 		
-		onException(ExceptionForProcessor.class)
+		onException(ExceptionForProcessor.class, RuntimeException.class)
 			.handled(true)
 			.process(processorException);
-		
-		onException(RuntimeException.class)
-		.handled(true)
-		.process(processorException);
 
 		// Camel SSL - Endpoint: A - Body binary
 		from("jetty://https4://0.0.0.0:" + configuration.getCamelProducerPort() + "/incoming-data-app/multipartMessageBodyBinary")

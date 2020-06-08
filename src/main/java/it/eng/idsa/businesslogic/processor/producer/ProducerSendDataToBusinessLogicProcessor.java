@@ -61,6 +61,9 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 
     @Value("${application.websocket.isEnabled}")
     private boolean isEnabledWebSocket;
+    
+    @Value("${application.eccHttpSendRouter}")
+    private String eccHttpSendRouter;  
 
     @Autowired
     private MultipartMessageService multipartMessageService;
@@ -172,17 +175,46 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
             String forwardTo) throws IOException, KeyManagementException,
             NoSuchAlgorithmException, InterruptedException, ExecutionException, UnsupportedEncodingException {
         CloseableHttpResponse response = null;
+        Message message = multipartMessageService.getMessage(header);
         // -- Send message using HTTPS
         if (Boolean.parseBoolean(headesParts.get("Is-Enabled-Daps-Interaction").toString())) {
-            response = this.forwardMessageBinary(forwardTo, messageWithToken, payload);
+        	switch(eccHttpSendRouter) {
+        	case "mixed": {
+        		response = this.forwardMessageBinary(forwardTo, messageWithToken, payload);
+        		break;
+        	}
+        	case "form": {
+        		response = this.forwardMessageFormData(forwardTo, messageWithToken, payload);
+        		break;
+        	}
+        	default:
+        		logger.error("Applicaton property: application.eccHttpSendRouter is not properly set");
+    			rejectionMessageService.sendRejectionMessage(
+    					RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, 
+    					message);
+        	}
         } else {
-            response = forwardMessageBinary(forwardTo, header, payload);
+        	switch(eccHttpSendRouter) {
+        	case "mixed": {
+        		response = forwardMessageBinary(forwardTo, header, payload);
+        		break;
+        	}
+        	case "form": {
+        		response = this.forwardMessageFormData(forwardTo, header, payload);
+        		break;
+        	}
+        	default:
+        		logger.error("Applicaton property: application.eccHttpSendRouter is not properly set");
+    			rejectionMessageService.sendRejectionMessage(
+    					RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, 
+    					message);
+        	}
         }
         return response;
     }
 
     private CloseableHttpResponse forwardMessageBinary(String address, String header, String payload) throws UnsupportedEncodingException {
-        logger.info("Forwarding Message: Body: form-data");
+        logger.info("Forwarding Message: Body: binary");
 
         // Covert to ContentBody
         ContentBody cbHeader = this.convertToContentBody(header, ContentType.DEFAULT_TEXT, "header");
@@ -221,6 +253,32 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 
         return response;
     }
+    
+    private CloseableHttpResponse forwardMessageFormData(String address, String header, String payload) throws ClientProtocolException, IOException {
+		logger.info("Forwarding Message: Body: form-data");
+
+		// Set F address
+		HttpPost httpPost = new HttpPost(address);
+
+		HttpEntity reqEntity = multipartMessageService.createMultipartMessage(header, payload, null);
+		httpPost.setEntity(reqEntity);
+
+		CloseableHttpResponse response;
+		
+		try {
+			response = getHttpClient().execute(httpPost);
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+
+		return response;
+	}
 
     private ContentBody convertToContentBody(String value, ContentType contentType, String valueName) throws UnsupportedEncodingException {
         byte[] valueBiteArray = value.getBytes("utf-8");
