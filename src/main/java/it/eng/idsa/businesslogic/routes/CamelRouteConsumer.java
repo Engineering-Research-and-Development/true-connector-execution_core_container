@@ -1,6 +1,9 @@
 package it.eng.idsa.businesslogic.routes;
 
+import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.consumer.*;
+import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
+import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorConsumer;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -8,10 +11,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
-import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
-import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorConsumer;
 
 /**
  * 
@@ -26,7 +25,10 @@ public class CamelRouteConsumer extends RouteBuilder {
 	
 	@Autowired
 	private ApplicationConfiguration configuration;
-	
+
+	@Autowired(required = false)
+	ConsumerFileRecreatorProcessor fileRecreatorProcessor;
+
 	@Autowired
 	ConsumerValidateTokenProcessor validateTokenProcessor;
 	
@@ -53,9 +55,9 @@ public class CamelRouteConsumer extends RouteBuilder {
 
 	@Autowired
 	ConsumerWebSocketSendDataToDataAppProcessor sendDataToDataAppProcessorOverWS;
-	
-    @Autowired
-    CamelContext camelContext;
+
+	@Autowired
+	CamelContext camelContext;
 
 	@Value("${application.idscp.isEnabled}")
 	private boolean isEnabledIdscp;
@@ -90,27 +92,27 @@ public class CamelRouteConsumer extends RouteBuilder {
 			.endChoice();
 
 		// Camel SSL - Endpoint: B
-		if(!isEnabledIdscp && !isEnabledWebSocket)
-			from("jetty://https4://0.0.0.0:"+configuration.getCamelConsumerPort()+"/incoming-data-channel/receivedMessage")
-				.process(multiPartMessageProcessor)
-				.choice()
+		if(!isEnabledIdscp && !isEnabledWebSocket) {
+			from("jetty://https4://0.0.0.0:" + configuration.getCamelConsumerPort() + "/incoming-data-channel/receivedMessage")
+					.process(multiPartMessageProcessor)
+					.choice()
 					.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
 						.process(validateTokenProcessor)
-	//					.process(sendToActiveMQ)
-	//					.process(receiveFromActiveMQ)
+						//.process(sendToActiveMQ)
+						//.process(receiveFromActiveMQ)
 						// Send to the Endpoint: F
-			           .choice()
-					  .when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
-					    	.process(sendDataToDataAppProcessorOverWS)
-					   .when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(false))
+						.choice()
+						.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
+							.process(sendDataToDataAppProcessorOverWS)
+						.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(false))
 							.process(sendDataToDataAppProcessor)
 						.endChoice()
 						.process(multiPartMessageProcessor)
 						.process(getTokenFromDapsProcessor)
 						.process(sendDataToBusinessLogicProcessor)
 						.choice()
-							.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-								.process(sendTransactionToCHProcessor)
+						.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
+							.process(sendTransactionToCHProcessor)
 						.endChoice()
 					.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
 						// Send to the Endpoint: F
@@ -123,40 +125,48 @@ public class CamelRouteConsumer extends RouteBuilder {
 						.process(multiPartMessageProcessor)
 						.process(sendDataToBusinessLogicProcessor)
 						.choice()
-							.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-								//.process(sendTransactionToCHProcessor)
+						.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
+							//.process(sendTransactionToCHProcessor)
 						.endChoice()
-				.endChoice();
-		
-		// TODO: Improve this initialization
-		// Camel WebSocket - Endpoint B
-		//boolean startupRoute = true;
-		/*from("timer://simpleTimer?repeatCount=-1")
-			.process(fileRecreatorProcessor)
-			.process(multiPartMessageProcessor)
-			.choice()
-				.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
-					.process(validateTokenProcessor)
-//					.process(sendToActiveMQ)
-//					.process(receiveFromActiveMQ)
-					// Send to the Endpoint: F
-					.process(sendDataToDataAppProcessor)
+					.endChoice();
+		} else if (isEnabledIdscp || isEnabledWebSocket) {
+			// End point B. ECC communication (Web Socket or IDSCP)
+			from("timer://timerEndpointB?fixedRate=true&period=10s") //EndPoint B
+					.process(fileRecreatorProcessor)
 					.process(multiPartMessageProcessor)
-					.process(getTokenFromDapsProcessor)
-					.process(sendDataToBusinessLogicProcessor)
 					.choice()
-						.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-							//.process(sendTransactionToCHProcessor)
-					.endChoice()
-				.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-					// Send to the Endpoint: F
-					.process(sendDataToDataAppProcessor)
-					.process(multiPartMessageProcessor)
-					.process(sendDataToBusinessLogicProcessor)
-					.choice()
-						.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-							//.process(sendTransactionToCHProcessor)
-					.endChoice()
-			.endChoice();*/
+						.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
+							.process(validateTokenProcessor)
+							// Send to the Endpoint: F
+							.choice()
+								.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
+									.process(sendDataToDataAppProcessorOverWS)
+								.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(false))
+								.process(sendDataToDataAppProcessor)
+							.endChoice()
+								.process(multiPartMessageProcessor)
+								.process(getTokenFromDapsProcessor)
+								.process(sendDataToBusinessLogicProcessor)
+							.choice()
+								.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
+									.process(sendTransactionToCHProcessor)
+							.endChoice()
+								.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
+							// Send to the Endpoint: F
+							.choice()
+							.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
+								.process(sendDataToDataAppProcessorOverWS)
+							.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(false))
+								.process(sendDataToDataAppProcessor)
+							.endChoice()
+							.process(multiPartMessageProcessor)
+							.process(sendDataToBusinessLogicProcessor)
+							.choice()
+								.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
+									// .process(sendTransactionToCHProcessor)
+							.endChoice()
+					.endChoice();
+		}
+
 	}
 }

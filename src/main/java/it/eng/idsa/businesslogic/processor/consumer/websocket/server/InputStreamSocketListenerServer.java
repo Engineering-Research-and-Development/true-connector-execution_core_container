@@ -2,6 +2,8 @@ package it.eng.idsa.businesslogic.processor.consumer.websocket.server;
 
 import java.nio.charset.StandardCharsets;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.websocket.api.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -16,7 +18,8 @@ import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationB;
  */
 
 public class InputStreamSocketListenerServer implements SocketListener {
-	
+	private static final Logger logger = LogManager.getLogger(InputStreamSocketListenerServer.class);
+
 	public static final String CLOSURE_FRAME = "�normal closure";
 	public static final String END_BINARY_FRAME_SEPARATOR = "�normal-IDS-ENG-SEPARATOR the-last-frame";
 	
@@ -33,6 +36,7 @@ public class InputStreamSocketListenerServer implements SocketListener {
 	public void onMessage(Session session, byte[] message) {
 		
 		String receivedMessage = new String(message, StandardCharsets.UTF_8);
+		logger.debug("Message arrived from IDSCP Channel with value: " + receivedMessage);
 		if(receivedMessage.equals(CLOSURE_FRAME)) {
 			// The last frame is received - skip this frame
 			// This indicate that Client WebSocket now is closed
