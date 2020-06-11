@@ -82,11 +82,12 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 			response =  forwardMessageFormData(configuration.getOpenDataAppReceiver(), header, payload);
 			break;
 		}
-		default:
+		default: {
 			logger.error("Applicaton property: application.openDataAppReceiverRouter is not properly set");
 			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, 
 					message);
+		}
 		}
 
 		// Handle response
@@ -99,7 +100,7 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 	}
 
 	private CloseableHttpResponse forwardMessageBinary(String address, String header, String payload) throws ClientProtocolException, IOException {
-		logger.info("Forwarding Message: Body: form-data");
+		logger.info("Forwarding Message: Body: binary");
 
 		// Covert to ContentBody
 		ContentBody cbHeader = convertToContentBody(header, ContentType.APPLICATION_JSON, "header");
@@ -141,7 +142,7 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 	}
 
 	private CloseableHttpResponse forwardMessageFormData(String address, String header, String payload) throws ClientProtocolException, IOException {
-		logger.info("Forwarding Message: Body: binary");
+		logger.info("Forwarding Message: Body: form-data");
 
 		// Set F address
 		HttpPost httpPost = new HttpPost(address);
