@@ -32,17 +32,17 @@ import org.springframework.stereotype.Component;
 import de.fhg.aisec.ids.comm.client.IdscpClient;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
-import it.eng.idsa.businesslogic.multipart.MultipartMessage;
-import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.FileStreamingBean;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.IdscpClientBean;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.MessageWebSocketOverHttpSender;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
-import it.eng.idsa.businesslogic.service.MultipartMessageTransformerService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.communication.HttpClientGenerator;
 import it.eng.idsa.businesslogic.util.config.keystore.AcceptAllTruststoreConfig;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
+import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 /**
  * @author Milan Karajovic and Gabriele De Luca
@@ -76,9 +76,6 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 
     @Autowired
     private MessageWebSocketOverHttpSender messageWebSocketOverHttpSender;
-    
-    @Autowired
-    MultipartMessageTransformerService multipartMessageTransformerService;
 
     private String webSocketHost;
     private Integer webSocketPort;
@@ -107,7 +104,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
     			.withHeaderContent(header)
     			.withPayloadContent(payload)
     			.build();
-        String multipartMessageString = multipartMessageTransformerService.multipartMessagetoString(multipartMessage);
+        String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage);
 
         if (isEnabledIdscp) {
             // check & exstract IDSCP WebSocket IP and Port
@@ -356,7 +353,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
     			.withHeaderContent(header)
     			.withPayloadContent(payload)
     			.build();
-    	String multipartMessageString = multipartMessageTransformerService.multipartMessagetoString(multipartMessage);
+    	String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage);
 
         // Send multipartMessage as a frames
         FileStreamingBean fileStreamingBean = webSocketClientConfiguration.fileStreamingWebSocket();

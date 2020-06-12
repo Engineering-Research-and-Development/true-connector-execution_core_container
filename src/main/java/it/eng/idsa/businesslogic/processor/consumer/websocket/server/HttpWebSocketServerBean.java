@@ -13,12 +13,8 @@ import javax.validation.constraints.NotNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.http.HttpVersion;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.SecureRequestCustomizer;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +30,8 @@ import org.springframework.core.io.ResourceLoader;
 public class HttpWebSocketServerBean {
     private static final Logger logger = LogManager.getLogger(HttpWebSocketServerBean.class);
     public static final String WS_URL = "/incoming-data-channel-received-message";
+    private int port;
+    private Class messagingServlet;
 
     @Value("${application.idscp.server.port}")
     private int idscpServerPort;
@@ -52,13 +50,16 @@ public class HttpWebSocketServerBean {
     @Autowired
     private ResourceLoader resourceLoader;
 
-    public Server createServer() {
-        if (null == server || !server.isStarted() || !server.isRunning()) {
+    public synchronized Server createServer() {
+        if (null == server
+                || !server.isStarted()
+                || !server.isRunning()
+                 ){
             try {
                 setup();
                 start();
             } catch (Exception e) {
-                logger.error("Error on starting JETTY Server with stack: " + e.getMessage());
+                logger.error("Error on executing JETTY Server with stack: " + e.getMessage());
             }
         }
         return server;
@@ -78,12 +79,9 @@ public class HttpWebSocketServerBean {
     		final KeyStore ks = KeyStore.getInstance(keyStoreType);
     		ks.load(keyStore, keyStorePassword.toCharArray());
 
-
+            int port = getPort();
 
     		String password = keyStorePassword;
-
-    		int port = idscpServerPort; //SECURE_PORT;
-
     		HttpConfiguration http_config = getHttpConfiguration(port);
     		SslContextFactory sslContextFactory = getSslContextFactory (ks, password);
     		HttpConfiguration https_config = new HttpConfiguration(http_config);
@@ -96,10 +94,14 @@ public class HttpWebSocketServerBean {
     		//connector.setReuseAddress(true);
     		server.addConnector(connector);
 
-    		ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-    		handler.setContextPath("/");
-    		handler.addServlet(HttpWebSocketMessagingServlet.class, WS_URL);
-    		server.setHandler(handler);
+            HandlerCollection handlerCollection = new HandlerCollection();
+
+            ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+            handler.setContextPath("/");
+            handler.addServlet(getMessagingServlet(), WS_URL);
+            handlerCollection.setHandlers(new Handler[]{handler});
+
+            server.setHandler(handlerCollection);
     	}catch (Exception e) {
     		e.printStackTrace();
     	}
@@ -150,4 +152,19 @@ public class HttpWebSocketServerBean {
         }
     }
 
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public Class getMessagingServlet() {
+        return messagingServlet;
+    }
+
+    public void setMessagingServlet(Class messagingServlet) {
+        this.messagingServlet = messagingServlet;
+    }
 }

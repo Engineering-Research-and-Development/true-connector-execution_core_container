@@ -6,7 +6,7 @@ import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
  * Well, it's just a servlet declaration.
  * @author Antonio Scatoloni
  */
-public class HttpWebSocketMessagingServlet extends WebSocketServlet {
+public class HttpWebSocketMessagingServletA extends WebSocketServlet {
 
     /**
 	 * 
@@ -15,7 +15,7 @@ public class HttpWebSocketMessagingServlet extends WebSocketServlet {
 
 	@Override
     public void configure(WebSocketServletFactory factory) {
-       factory.register(HttpWebSocketListenerServer.class);
+       factory.register(HttpWebSocketListenerServerA.class);
     }
 
 }

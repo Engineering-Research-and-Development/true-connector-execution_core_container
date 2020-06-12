@@ -1,7 +1,7 @@
-package it.eng.idsa.businesslogic.processor.consumer;
+package it.eng.idsa.businesslogic.processor.producer;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationB;
+import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationA;
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.FileRecreatorBeanServer;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
@@ -11,39 +11,39 @@ import org.apache.camel.Processor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * 
  * @author Milan Karajovic and Gabriele De Luca
  *
  */
 
 @Component
-@ConditionalOnExpression(
-		"${application.websocket.isEnabled:true} or ${application.idscp.isEnabled:true}"
-)
-public class ConsumerFileRecreatorProcessor implements Processor {
-
-	private static final Logger logger = LogManager.getLogger(ConsumerFileRecreatorProcessor.class);
-
+@ConditionalOnProperty(
+		value="application.dataApp.websocket.isEnabled",
+		havingValue = "true",
+		matchIfMissing = false)
+public class ProducerFileRecreatorProcessor implements Processor {
+	
+	private static final Logger logger = LogManager.getLogger(ProducerFileRecreatorProcessor.class);
+	
 	@Autowired
-	private WebSocketServerConfigurationB webSocketServerConfiguration;
-
+	private WebSocketServerConfigurationA webSocketServerConfiguration;
+	
 	@Autowired
 	private MultipartMessageService multipartMessageService;
-
+	
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
 
-
 	@Override
 	public void process(Exchange exchange) throws Exception {
-
+		
 		String header;
 		String payload;
 		Message message=null;
@@ -55,7 +55,7 @@ public class ConsumerFileRecreatorProcessor implements Processor {
 		Thread fileRecreatorBeanThread = new Thread(fileRecreatorBean, "FileRecreator_"+this.getClass().getSimpleName());
 		fileRecreatorBeanThread.start();
 		String recreatedMultipartMessage = webSocketServerConfiguration.recreatedMultipartMessageBeanWebSocket().remove();
-
+		
 		// Extract header and payload from the multipart message
 		try {
 			header = multipartMessageService.getHeaderContentString(recreatedMultipartMessage);
@@ -67,9 +67,8 @@ public class ConsumerFileRecreatorProcessor implements Processor {
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);
 			// TODO: Send WebSocket rejection message
-
+			
 		}
-
 		// Return exchange
 		exchange.getOut().setHeaders(multipartMessageParts);
 	}
@@ -80,10 +79,9 @@ public class ConsumerFileRecreatorProcessor implements Processor {
 		} catch(Exception e) {
 			logger.info("... can not initilize the IdscpServer");
 			rejectionMessageService.sendRejectionMessage(
-					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
+					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, 
 					message);
 		}
 	}
 
 }
-

@@ -1,30 +1,32 @@
 package it.eng.idsa.businesslogic.processor.consumer.websocket.server;
 
-import java.nio.charset.StandardCharsets;
-
+import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.websocket.api.Session;
 
-import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
+import java.nio.charset.StandardCharsets;
 
 /**
  * HttpWebSocketMessagingLogic will be responsible for parsing received data
  *
  * @author Antonio Scatoloni
  */
-public class HttpWebSocketMessagingLogic {
-    private static final Logger logger = LogManager.getLogger(HttpWebSocketMessagingLogic.class);
+public class HttpWebSocketMessagingLogicA {
+    private static final Logger logger = LogManager.getLogger(HttpWebSocketMessagingLogicA.class);
+    private static final String FORWARD_TO_HEADER = "Forward-To:";
 
     private WebSocketServerConfiguration webSocketServerConfiguration;
-    private static HttpWebSocketMessagingLogic instance;
+    private static HttpWebSocketMessagingLogicA instance;
 
-    private HttpWebSocketMessagingLogic() {
+    private String forwardTo;
+
+    private HttpWebSocketMessagingLogicA() {
     }
 
-    public static HttpWebSocketMessagingLogic getInstance() {
+    public static HttpWebSocketMessagingLogicA getInstance() {
         if (instance == null) {
-            instance = new HttpWebSocketMessagingLogic();
+            instance = new HttpWebSocketMessagingLogicA();
         }
         return instance;
     }
@@ -32,7 +34,10 @@ public class HttpWebSocketMessagingLogic {
     // TODO Duplicate code fragment @See InputStreamSocketListenerServer onMessage()
     public void onMessage(Session session, byte[] message) {
         String receivedMessage = new String(message, StandardCharsets.UTF_8);
-       if (receivedMessage.equals(InputStreamSocketListenerServer.CLOSURE_FRAME)) {
+        if(receivedMessage.contains(FORWARD_TO_HEADER)) {
+              forwardTo = receivedMessage.substring(FORWARD_TO_HEADER.length());
+        }
+        else if (receivedMessage.equals(InputStreamSocketListenerServer.CLOSURE_FRAME)) {
             // The last frame is received - skip this frame
             // This indicate that Client WebSocket now is closed
         } else {
@@ -44,7 +49,7 @@ public class HttpWebSocketMessagingLogic {
                 Thread fileRecreatorBeanThread = new Thread(responseMessageSendPartialServer, "ResponseMessageSendPartialServer");
                 fileRecreatorBeanThread.start();
             }
-           logger.debug(HttpWebSocketMessagingLogic.class.getSimpleName() +" DATA RECEIVED FROM SOCKET -> " + receivedMessage);
+//           logger.debug(HttpWebSocketMessagingLogicA.class.getSimpleName() +" DATA RECEIVED FROM SOCKET -> " + receivedMessage);
 
        }
     }
@@ -52,4 +57,9 @@ public class HttpWebSocketMessagingLogic {
     public void setWebSocketServerConfiguration(WebSocketServerConfiguration webSocketServerConfiguration) {
         this.webSocketServerConfiguration = webSocketServerConfiguration;
     }
+
+    public String getForwardTo() {
+        return forwardTo;
+    }
+
 }

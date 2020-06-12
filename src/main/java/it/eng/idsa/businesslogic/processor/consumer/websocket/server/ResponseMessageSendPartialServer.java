@@ -5,11 +5,9 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 
 /**
  * 
@@ -25,7 +23,7 @@ public class ResponseMessageSendPartialServer implements Runnable {
 	private int streamBufferSize = DEFAULT_STREAM_BUFFER_SIZE;
 	private volatile int loopCounter;
 	
-	@Autowired
+	//@Autowired
 	private WebSocketServerConfiguration webSocketServerConfiguration;
 
 	public ResponseMessageSendPartialServer() {	
@@ -87,5 +85,7 @@ public class ResponseMessageSendPartialServer implements Runnable {
 		return dividedArray;
 	}
 
-	
+	public void setWebSocketServerConfiguration(WebSocketServerConfiguration webSocketServerConfiguration) {
+		this.webSocketServerConfiguration = webSocketServerConfiguration;
+	}
 }

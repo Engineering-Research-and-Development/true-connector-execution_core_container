@@ -13,10 +13,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.multipart.MultipartMessage;
-import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
+import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationA;
+import it.eng.idsa.businesslogic.processor.consumer.websocket.server.ResponseMessageBufferBean;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
-import it.eng.idsa.businesslogic.service.MultipartMessageTransformerService;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
+import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 /**
  * 
@@ -31,11 +33,14 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 	private boolean isEnabledClearingHouse;
 	
 	@Autowired
-	private MultipartMessageService multipartMessageService;
-	
-	@Autowired
-    private MultipartMessageTransformerService multipartMessageTransformerService;
-	
+    private MultipartMessageService multipartMessageService;
+
+	@Value("${application.dataApp.websocket.isEnabled}")
+	private boolean isEnabledWebSocket;
+
+	@Autowired(required = false)
+	WebSocketServerConfigurationA webSocketServerConfiguration;
+
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		
@@ -66,7 +71,7 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
     			.withHeaderContent(header)
     			.withPayloadContent(payload)
     			.build();
-		String responseMultipartMessageString = multipartMessageTransformerService.multipartMessagetoString(multipartMessage, false);
+		String responseMultipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
 		
 		String contentType = multipartMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
 		headesParts.put("Content-Type", contentType);
@@ -76,7 +81,13 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 			Map<String, Object> headers = exchange.getIn().getHeaders();
 			headers.remove("multipartMessageBody");
 		}
-		
+
+		// TODO: Send The MultipartMessage message to the WebSocket
+		if(isEnabledWebSocket) {
+			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration.responseMessageBufferWebSocket();
+			responseMessageServerBean.add(responseMultipartMessageString.getBytes());
+		}
+
 		exchange.getOut().setHeaders(headesParts);
 		exchange.getOut().setBody(responseMultipartMessageString);
 	}	

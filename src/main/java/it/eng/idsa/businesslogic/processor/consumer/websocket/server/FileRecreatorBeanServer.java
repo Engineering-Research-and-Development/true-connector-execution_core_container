@@ -5,6 +5,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
+import it.eng.idsa.businesslogic.configuration.IdscpServerConfiguration;
+import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationB;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +26,11 @@ public class FileRecreatorBeanServer implements Runnable {
     private static final int DEFAULT_STREAM_BUFFER_SIZE = 127;
     private static final String END_BINARY_FRAME_SEPARATOR = "�normal-IDS-ENG-SEPARATOR the-last-frame";
 
-    @Autowired
+    //@Autowired
     private WebSocketServerConfiguration webSocketServerConfiguration;
+
+    @Autowired
+    private IdscpServerConfiguration idscpServerConfiguration;
 
     @Value("${application.idscp.isEnabled}")
     private boolean isEnabledIdscp;
@@ -50,14 +55,15 @@ public class FileRecreatorBeanServer implements Runnable {
     	try {
     		this.frameBuffer = webSocketServerConfiguration.frameBufferWebSocket();
     		this.recreatedmultipartMessage = webSocketServerConfiguration.recreatedMultipartMessageBeanWebSocket();
-    		if (isEnabledIdscp) {
-    			this.inputStreamSocketListener = webSocketServerConfiguration.inputStreamSocketListenerWebSocketServer();
+            //TODO!!! ONLY for EndPoint B enables Idscp
+    		if (isEnabledIdscp && webSocketServerConfiguration instanceof WebSocketServerConfigurationB) {
+    			this.inputStreamSocketListener = idscpServerConfiguration.inputStreamSocketListenerWebSocketServer();
     			this.inputStreamSocketListener.setFrameBuffer(this.frameBuffer);
-    			this.idscpServer = webSocketServerConfiguration.idscpServerWebSocket();
+    			this.idscpServer = idscpServerConfiguration.idscpServerWebSocket();
     			this.idscpServer.setSocketListener(this.inputStreamSocketListener);
     			this.idscpServer.createIdscpServer();
     			this.setServer(this.idscpServer.getIdscpServer());
-    		} else if (isEnabledWebSocket) {
+    		} else {
     			HttpWebSocketServerBean httpWebSocketServerBean = webSocketServerConfiguration.httpsServerWebSocket();
     			httpWebSocketServerBean.createServer();
     		}
@@ -138,4 +144,7 @@ public class FileRecreatorBeanServer implements Runnable {
 		this.byteBuffer = byteBuffer;
 	}
 
+    public void setWebSocketServerConfiguration(WebSocketServerConfiguration webSocketServerConfiguration) {
+        this.webSocketServerConfiguration = webSocketServerConfiguration;
+    }
 }

@@ -11,8 +11,8 @@ import org.eclipse.jetty.websocket.api.WebSocketPartialListener;
  * Example MessagingListenerServer using PartialListener.
  * @author Antonio Scatoloni
  */
-public class HttpWebSocketListenerServer implements WebSocketPartialListener {
-    private static final Logger logger = LogManager.getLogger(HttpWebSocketListenerServer.class);
+public class HttpWebSocketListenerServerA implements WebSocketPartialListener {
+    private static final Logger logger = LogManager.getLogger(HttpWebSocketListenerServerA.class);
     private Session session;
 
     @Override
@@ -34,11 +34,11 @@ public class HttpWebSocketListenerServer implements WebSocketPartialListener {
     public void onWebSocketPartialBinary(ByteBuffer byteBuffer, boolean b) {
         byte[] arr = new byte[byteBuffer.remaining()];
         byteBuffer.get(arr);
-        HttpWebSocketMessagingLogic.getInstance().onMessage(session, arr);
+        HttpWebSocketMessagingLogicA.getInstance().onMessage(session, arr);
     }
 
     @Override
     public void onWebSocketPartialText(String s, boolean b) {
-        HttpWebSocketMessagingLogic.getInstance().onMessage(session, s.getBytes());
+        HttpWebSocketMessagingLogicA.getInstance().onMessage(session, s.getBytes());
     }
 }

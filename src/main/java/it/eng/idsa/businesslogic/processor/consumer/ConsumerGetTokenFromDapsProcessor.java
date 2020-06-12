@@ -26,7 +26,7 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 @Component
 public class ConsumerGetTokenFromDapsProcessor implements Processor{
 
-private static final Logger logger = LogManager.getLogger(ProducerGetTokenFromDapsProcessor.class);
+private static final Logger logger = LogManager.getLogger(ConsumerGetTokenFromDapsProcessor.class);
 	
 	@Autowired
 	private MultipartMessageService multipartMessageService;

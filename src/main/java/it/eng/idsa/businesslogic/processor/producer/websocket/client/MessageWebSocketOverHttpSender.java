@@ -22,18 +22,17 @@ import org.asynchttpclient.netty.ssl.JsseSslEngineFactory;
 import org.asynchttpclient.ws.WebSocket;
 import org.asynchttpclient.ws.WebSocketUpgradeHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
-import it.eng.idsa.businesslogic.multipart.MultipartMessage;
-import it.eng.idsa.businesslogic.multipart.MultipartMessageBuilder;
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.HttpWebSocketServerBean;
 import it.eng.idsa.businesslogic.processor.producer.ProducerSendDataToBusinessLogicProcessor;
-import it.eng.idsa.businesslogic.service.MultipartMessageTransformerService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
+import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 /**
  * @author Antonio Scatoloni
@@ -48,34 +47,40 @@ public class MessageWebSocketOverHttpSender {
 
     @Autowired
     private RejectionMessageService rejectionMessageService;
-    
-    @Autowired
-    MultipartMessageTransformerService multipartMessageTransformerService;
-
-    @Value("${application.idscp.server.port}")
-    private int idscpServerPort;
 
     public String sendMultipartMessageWebSocketOverHttps(String webSocketHost, Integer webSocketPort, String header, String payload)
             throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
-        return doSendMultipartMessageWebSocketOverHttps(webSocketHost, webSocketPort, header, payload, null);
+        return doSendMultipartMessageWebSocketOverHttps(webSocketHost, webSocketPort, null, header, payload, null);
     }
 
     public String sendMultipartMessageWebSocketOverHttps(String webSocketHost, Integer webSocketPort, String header, String payload, Message message)
             throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
-        return doSendMultipartMessageWebSocketOverHttps(webSocketHost, webSocketPort, header, payload, message);
+        return doSendMultipartMessageWebSocketOverHttps(webSocketHost, webSocketPort,null, header, payload, message);
     }
 
-    private String doSendMultipartMessageWebSocketOverHttps(String webSocketHost, Integer webSocketPort, String header, String payload, Message message)
+    public String sendMultipartMessageWebSocketOverHttps(String webSocketHost, Integer webSocketPort, String webSocketPath, String header, String payload)
+            throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
+        return doSendMultipartMessageWebSocketOverHttps(webSocketHost, webSocketPort, webSocketPath, header, payload, null);
+    }
+
+    public String sendMultipartMessageWebSocketOverHttps(String webSocketHost, Integer webSocketPort, String webSocketPath, String header, String payload, Message message)
+            throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
+        return doSendMultipartMessageWebSocketOverHttps(webSocketHost, webSocketPort, header, webSocketPath,  payload, message);
+    }
+
+
+    private String doSendMultipartMessageWebSocketOverHttps(String webSocketHost, Integer webSocketPort, String webSocketPath, String header, String payload, Message message)
             throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
     	
     	MultipartMessage multipartMessage = new MultipartMessageBuilder()
     			.withHeaderContent(header)
     			.withPayloadContent(payload)
     			.build();
-    	String multipartMessageString = multipartMessageTransformerService.multipartMessagetoString(multipartMessage);
+    	//TODO Use this implementation with includeHttpHeaders set to false, but in future implementations these headers may be mandatory
+    	String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
     													                                                        
         FileStreamingBean fileStreamingBean = webSocketClientConfiguration.fileStreamingWebSocket();
-        WebSocket wsClient = createWebSocketClient(webSocketHost, webSocketPort, message);
+        WebSocket wsClient = createWebSocketClient(webSocketHost, webSocketPort, webSocketPath, message);
         // Try to connect to the Server. Wait until you are not connected to the server.
         fileStreamingBean.setup(wsClient);
         fileStreamingBean.sendMultipartMessage(multipartMessageString);
@@ -88,8 +93,8 @@ public class MessageWebSocketOverHttpSender {
     }
 
     @NotNull
-    private WebSocket createWebSocketClient(String webSocketHost, Integer webSocketPort, Message message) {
-        String WS_URL = "wss://" + webSocketHost + ":" + webSocketPort + HttpWebSocketServerBean.WS_URL;
+    private WebSocket createWebSocketClient(String webSocketHost, Integer webSocketPort, String webSocketPath, Message message) {
+        String WS_URL = "wss://" + webSocketHost + ":" + webSocketPort + ( webSocketPath == null ? HttpWebSocketServerBean.WS_URL : webSocketPath );
         WebSocket wsClient = null;
         try {
             final SslEngineFactory ssl = getSslEngineFactory();
@@ -110,7 +115,7 @@ public class MessageWebSocketOverHttpSender {
                     .get();
             return wsClient;
         } catch (Exception e) {
-            logger.info("... can not create the WebSocket connection HTTP");
+            logger.info("... can not create the WebSocket connection HTTP at: " + WS_URL);
             if (null != message)
                 rejectionMessageService.sendRejectionMessage(
                         RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
