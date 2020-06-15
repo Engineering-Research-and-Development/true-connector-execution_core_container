@@ -1,0 +1,57 @@
+version: '2.2'
+services:
+  ecc-consumer:
+    image: rdlabengpa/execution_core_container_bl:latest
+    ports:
+      - 8086:8086
+      - 8888:8888
+      - 8890:8890
+    environment:
+      - SPRING_PROFILES_ACTIVE=CONSUMER_DOCKER
+      - MULTIPART=mixed  #Data APP endpoint multipart/mixed content type
+      - CLEARING_HOUSE=http://109.232.32.193:8280/data
+      - SSL_KEY_PASSWORD=${SSL_KEY_PASSWORD}
+      - KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
+      - CH=${CH}
+      - DAPS=${DAPS}
+      - WSS=false
+      - IDSCP=false
+      - WSSE=false
+      - PRODUCER_ENDPOINT_FOR_CH_CONSENSUS=https://ecc-provider:8889/incoming-data-channel/receivedMessage
+    command: --spring.profiles.active=CONSUMER_DOCKER
+    volumes:
+      - /home/travis/cert:/cert
+      - /home/travis/hash:/hash
+
+  ecc-provider:
+    image: rdlabengpa/execution_core_container_bl:latest
+    ports:
+      - 8097:8097
+      - 8887:8887
+      - 8889:8889
+    environment:
+      - SPRING_PROFILES_ACTIVE=PRODUCER_DOCKER
+      - MULTIPART=mixed  #Data APP endpoint multipart/mixed content type
+      - CLEARING_HOUSE=http://109.232.32.193:8280/data
+      - SSL_KEY_PASSWORD=${SSL_KEY_PASSWORD}
+      - KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
+      - CH=${CH}
+      - DAPS=${DAPS}
+      - WSS=false
+      - IDSCP=false
+      - WSSE=false
+    command: --spring.profiles.active=PRODUCER_DOCKER
+    volumes:
+      - /home/travis/cert:/cert
+      - /home/travis/hash:/hash
+
+  data-app:
+   image: rdlabengpa/data-app:latest
+   environment:
+     - SPRING_PROFILES_ACTIVE=DOCKER
+     - WSSE=false
+   ports:
+    - 8083:8083
+    - 9000:9000
+   command: --spring.profiles.active=DOCKER
+
