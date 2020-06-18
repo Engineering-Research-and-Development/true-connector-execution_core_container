@@ -2,8 +2,13 @@ package it.eng.idsa.businesslogic.service.impl;
 
 import static de.fraunhofer.iais.eis.util.Util.asList;
 
+import java.io.InputStream;
 import java.net.URI;
+import java.util.Properties;
 
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.apache.maven.project.MavenProject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,38 +78,38 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		return rejectionMessage;
 	}
 
-//	private String getInformationModelVersion() {
-//		String currentInformationModelVersion = null;
-//		try {
-//			
-//			InputStream is = RejectionMessageServiceImpl.class.getClassLoader().getResourceAsStream("META-INF/maven/it.eng.idsa/market4.0-execution_core_container_business_logic/pom.xml");
-//			MavenXpp3Reader reader = new MavenXpp3Reader();
-//			Model model = reader.read(is);
-//			MavenProject project = new MavenProject(model);
-//			Properties props = project.getProperties(); 
-//			if (props.get("information.model.version")!=null) {
-//				return props.get("information.model.version").toString();
-//			}
-//			for (int i = 0; i < model.getDependencies().size(); i++) {
-//				if (model.getDependencies().get(i).getGroupId().equalsIgnoreCase("de.fraunhofer.iais.eis.ids.infomodel")){
-//					String version=model.getDependencies().get(i).getVersion();
-//					// If we want, we can delete "-SNAPSHOT" from the version
-////					if (version.contains("-SNAPSHOT")) {
-////						version=version.substring(0,version.indexOf("-SNAPSHOT"));
-////					}
-//					currentInformationModelVersion=version;
-//				}
-//			}
-//		}catch(Exception e) {
-//			e.printStackTrace();
-//		}
-//
-//		return currentInformationModelVersion;
-//	}
-	
 	private String getInformationModelVersion() {
-		return "2.1.0-SNAPSHOT";
+		String currentInformationModelVersion = null;
+		try {
+
+			InputStream is = RejectionMessageServiceImpl.class.getClassLoader().getResourceAsStream("META-INF/maven/it.eng.idsa/market4.0-execution_core_container_business_logic/pom.xml");
+			MavenXpp3Reader reader = new MavenXpp3Reader();
+			Model model = reader.read(is);
+			MavenProject project = new MavenProject(model);
+			Properties props = project.getProperties();
+			if (props.get("information.model.version")!=null) {
+				return props.get("information.model.version").toString();
+			}
+			for (int i = 0; i < model.getDependencies().size(); i++) {
+				if (model.getDependencies().get(i).getGroupId().equalsIgnoreCase("de.fraunhofer.iais.eis.ids.infomodel")){
+					String version=model.getDependencies().get(i).getVersion();
+					// If we want, we can delete "-SNAPSHOT" from the version
+//					if (version.contains("-SNAPSHOT")) {
+//						version=version.substring(0,version.indexOf("-SNAPSHOT"));
+//					}
+					currentInformationModelVersion=version;
+				}
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+
+		return currentInformationModelVersion;
 	}
+	
+	/*private String getInformationModelVersion() {
+		return "2.1.0-SNAPSHOT";
+	}*/
 
 	public void setInformationModelVersion(String informationModelVersion) {
 		this.informationModelVersion = informationModelVersion;
