@@ -45,7 +45,7 @@ jobs:
   include:
   - stage: deploy
     script: bash ./travis/deploy.sh
-    env: NET=WSS NETE=WSSE DAPS=true CH=false
+    env: NET=HTTPS NETE=HTTPSE DAPS=true CH=true
 
 branches:
   only:

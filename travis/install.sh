@@ -27,12 +27,8 @@ chmod +x docker-compose
 sudo mv docker-compose /usr/local/bin
 echo "docker-compose correctly installed"
 
-echo "Settings.xml copy on Travis Home_M2 at: "$HOME
-envsubst '${MVN_PASSWORD} ${MVN_USER}' <./travis/.m2/settings.xml >$HOME/.m2/settings.xml
-
 mkdir -p  $HOME/.m2/repository/de/fraunhofer/aisec
 cp -rf ./travis/.m2/repository/de/fraunhofer/aisec/ids  $HOME/.m2/repository/de/fraunhofer/aisec
-echo "REMOVE ASAP-> Settings.xml copy on Travis Home_M2 at: "$HOME
 
 echo "Installing Multipart Message Lib..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-ids_multipart_message_processor
@@ -58,9 +54,8 @@ cd ..
 echo "Data-App is ready to start"
 
 echo "Downloading and installing Clearing-House Model..."
-git clone https://gitlab.com/eng-siena-ri/market4.0/clearing-house.git
-cd clearing-house
-mkdir chaincode-libs
+git clone https://github.com/Engineering-Research-and-Development/market4.0-clearing_house.git
+cd market4.0-clearing_house
 mvn install -DskipTests
 cd ..
 echo "Clearing-House Model installed!"
