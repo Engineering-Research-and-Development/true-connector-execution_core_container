@@ -36,7 +36,6 @@ public class InputStreamSocketListenerServer implements SocketListener {
 	public void onMessage(Session session, byte[] message) {
 		
 		String receivedMessage = new String(message, StandardCharsets.UTF_8);
-		logger.debug("Message arrived from IDSCP Channel with value: " + receivedMessage);
 		if(receivedMessage.equals(CLOSURE_FRAME)) {
 			// The last frame is received - skip this frame
 			// This indicate that Client WebSocket now is closed

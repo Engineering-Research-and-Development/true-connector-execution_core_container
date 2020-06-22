@@ -70,7 +70,7 @@ public class CamelRouteConsumer extends RouteBuilder {
 		logger.debug("Starting Camel Routes...consumer side");
         camelContext.getShutdownStrategy().setLogInflightExchangesOnTimeout(false);
         camelContext.getShutdownStrategy().setTimeout(3);
-
+		//@formatter:off
 		onException(ExceptionForProcessor.class, RuntimeException.class)
 			.handled(true)
 			.process(exceptionProcessorConsumer)
@@ -131,7 +131,7 @@ public class CamelRouteConsumer extends RouteBuilder {
 					.endChoice();
 		} else if (isEnabledIdscp || isEnabledWebSocket) {
 			// End point B. ECC communication (Web Socket or IDSCP)
-			from("timer://timerEndpointB?fixedRate=true&period=10s") //EndPoint B
+			from("timer://timerEndpointB?repeatCount=-1") //EndPoint B
 					.process(fileRecreatorProcessor)
 					.process(multiPartMessageProcessor)
 					.choice()
@@ -166,6 +166,7 @@ public class CamelRouteConsumer extends RouteBuilder {
 									// .process(sendTransactionToCHProcessor)
 							.endChoice()
 					.endChoice();
+			//@formatter:on
 		}
 
 	}

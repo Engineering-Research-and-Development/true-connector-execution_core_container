@@ -75,7 +75,7 @@ public class CamelRouteProducer extends RouteBuilder {
 
 		camelContext.getShutdownStrategy().setLogInflightExchangesOnTimeout(false);
 		camelContext.getShutdownStrategy().setTimeout(3);
-
+		//@formatter:off
 		onException(ExceptionForProcessor.class, RuntimeException.class)
 			.handled(true)
 			.process(processorException);
@@ -141,8 +141,9 @@ public class CamelRouteProducer extends RouteBuilder {
                             .endChoice()
                     .endChoice();
             } else {
-				// End point A. Coomunication between Data App and ECC Producer.
-				from("timer://timerEndpointA?fixedRate=true&period=10s") //EndPoint A
+				// End point A. Communication between Data App and ECC Producer.
+				//fixedRate=true&period=10s
+				from("timer://timerEndpointA?repeatCount=-1") //EndPoint A
 						.process(fileRecreatorProcessor)
 						.process(parseReceivedDataFromDAppProcessorBodyBinary)
 						.choice()
@@ -169,6 +170,7 @@ public class CamelRouteProducer extends RouteBuilder {
 									.process(sendTransactionToCHProcessor)
 								.endChoice()
 					.endChoice();
+			//@formatter:on
 		}
 	}
 
