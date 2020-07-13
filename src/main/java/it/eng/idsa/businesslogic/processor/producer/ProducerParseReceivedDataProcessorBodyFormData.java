@@ -69,8 +69,8 @@ public class ProducerParseReceivedDataProcessorBodyFormData implements Processor
 			message = multipartMessageService.getMessage(multipartMessageParts.get("header"));
 			
 			// Return exchange
-			exchange.getOut().setHeaders(headesParts);
-			exchange.getOut().setBody(multipartMessageParts);
+			exchange.getMessage().setHeaders(headesParts);
+			exchange.getMessage().setBody(multipartMessageParts);
 
 		} catch (Exception e) {			
 			logger.error("Error parsing multipart message:" + e);

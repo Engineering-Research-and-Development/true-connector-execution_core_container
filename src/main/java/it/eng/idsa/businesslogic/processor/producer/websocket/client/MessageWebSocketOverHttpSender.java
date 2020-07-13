@@ -115,6 +115,7 @@ public class MessageWebSocketOverHttpSender {
                     .get();
             return wsClient;
         } catch (Exception e) {
+        	e.printStackTrace();
             logger.info("... can not create the WebSocket connection HTTP at: " + WS_URL);
             if (null != message)
                 rejectionMessageService.sendRejectionMessage(

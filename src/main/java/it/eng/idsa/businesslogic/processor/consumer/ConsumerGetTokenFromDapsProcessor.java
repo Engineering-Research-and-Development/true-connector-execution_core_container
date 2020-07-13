@@ -95,7 +95,7 @@ private static final Logger logger = LogManager.getLogger(ConsumerGetTokenFromDa
 		multipartMessageParts.put("header", messageStringWithToken);
 		
 		// Return exchange
-		exchange.getOut().setBody(multipartMessageParts);
+		exchange.getMessage().setBody(multipartMessageParts);
 		
 	}
 

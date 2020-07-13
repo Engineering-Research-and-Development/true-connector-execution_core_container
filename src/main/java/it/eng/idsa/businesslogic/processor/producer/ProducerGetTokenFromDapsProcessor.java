@@ -93,8 +93,8 @@ public class ProducerGetTokenFromDapsProcessor implements Processor {
 		multipartMessageParts.put("messageWithToken", messageStringWithToken);
 		
 		// Return exchange
-		exchange.getOut().setHeaders(headesParts);
-		exchange.getOut().setBody(multipartMessageParts);
+		exchange.getMessage().setHeaders(headesParts);
+		exchange.getMessage().setBody(multipartMessageParts);
 		
 	}
 

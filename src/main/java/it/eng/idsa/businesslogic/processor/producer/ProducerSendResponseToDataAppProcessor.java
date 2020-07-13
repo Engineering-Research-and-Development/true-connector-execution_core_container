@@ -88,8 +88,8 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 			responseMessageServerBean.add(responseMultipartMessageString.getBytes());
 		}
 
-		exchange.getOut().setHeaders(headesParts);
-		exchange.getOut().setBody(responseMultipartMessageString);
+		exchange.getMessage().setHeaders(headesParts);
+		exchange.getMessage().setBody(responseMultipartMessageString);
 	}	
 
 	private String filterHeader(String header) throws JsonMappingException, JsonProcessingException {

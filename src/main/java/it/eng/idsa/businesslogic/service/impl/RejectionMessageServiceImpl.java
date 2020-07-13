@@ -82,7 +82,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		String currentInformationModelVersion = null;
 		try {
 
-			InputStream is = RejectionMessageServiceImpl.class.getClassLoader().getResourceAsStream("META-INF/maven/it.eng.idsa/market4.0-execution_core_container_business_logic/pom.xml");
+			InputStream is = RejectionMessageServiceImpl.class.getClassLoader().getResourceAsStream("META-INF/maven/it.eng.idsa/market4.0-CONSUMER-execution_core_container_business_logic/pom.xml");
 			MavenXpp3Reader reader = new MavenXpp3Reader();
 			Model model = reader.read(is);
 			MavenProject project = new MavenProject(model);

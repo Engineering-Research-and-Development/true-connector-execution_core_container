@@ -63,9 +63,9 @@ public class ConsumerValidateTokenProcessor implements Processor {
 		logger.info("is token valid: "+isTokenValid);
 		multipartMessageParts.put("isTokenValid", isTokenValid);
 
-		exchange.getOut().setHeaders(exchange.getIn().getHeaders());
+		exchange.getMessage().setHeaders(exchange.getIn().getHeaders());
 		// Return multipartMessageParts
-		exchange.getOut().setBody(multipartMessageParts);
+		exchange.getMessage().setBody(multipartMessageParts);
 	}
 
 }

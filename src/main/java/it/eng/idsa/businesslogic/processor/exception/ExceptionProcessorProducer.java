@@ -35,7 +35,7 @@ public class ExceptionProcessorProducer implements Processor {
 	public void process(Exchange exchange) throws Exception {
 
 		Exception exception = (Exception) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
-		exchange.getOut().setBody(exception.getMessage());
+		exchange.getMessage().setBody(exception.getMessage());
 		String message = multipartMessageService.getHeaderContentString(exception.getMessage());
 
 		MultipartMessage multipartMessage = new MultipartMessageBuilder()
@@ -48,9 +48,9 @@ public class ExceptionProcessorProducer implements Processor {
 			responseMessageServerBean.add(multipartMessageString.getBytes());
 		}
 
-		exchange.getOut().setBody(multipartMessageString);
+		exchange.getMessage().setBody(multipartMessageString);
 		String contentType = multipartMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
-		exchange.getOut().setHeader("Content-Type", contentType);
+		exchange.getMessage().setHeader("Content-Type", contentType);
 
 	}
 

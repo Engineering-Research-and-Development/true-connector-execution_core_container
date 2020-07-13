@@ -57,7 +57,7 @@ public class ProducerMultiPartMessageProcessor implements Processor {
 			multipartMessageParts.put("message", message);
 		
 			// Return multipartMessageParts
-			exchange.getOut().setBody(multipartMessageParts);
+			exchange.getMessage().setBody(multipartMessageParts);
 		} catch (Exception e) {			
 			logger.error("Error parsing multipart message:" + e);
 			rejectionMessageService.sendRejectionMessage(

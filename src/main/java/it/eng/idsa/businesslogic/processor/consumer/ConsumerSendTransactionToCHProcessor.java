@@ -33,8 +33,8 @@ public class ConsumerSendTransactionToCHProcessor implements Processor {
 //		clearingHouseService.registerTransaction(message, payload);
 //		logger.info(multipartMessageString);
 		
-		exchange.getOut().setHeaders(exchange.getIn().getHeaders());
-		exchange.getOut().setBody(exchange.getIn().getBody());
+		exchange.getMessage().setHeaders(exchange.getIn().getHeaders());
+		exchange.getMessage().setBody(exchange.getIn().getBody());
 	}
 
 	public ClearingHouseService getClearingHouseService() {

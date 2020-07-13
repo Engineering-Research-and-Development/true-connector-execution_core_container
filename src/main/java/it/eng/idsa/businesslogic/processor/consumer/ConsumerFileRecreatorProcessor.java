@@ -71,7 +71,7 @@ public class ConsumerFileRecreatorProcessor implements Processor {
 		}
 
 		// Return exchange
-		exchange.getOut().setHeaders(multipartMessageParts);
+		exchange.getMessage().setHeaders(multipartMessageParts);
 	}
 
 	private void initializeServer(Message message, FileRecreatorBeanServer fileRecreatorBean) {

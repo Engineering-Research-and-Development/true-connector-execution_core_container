@@ -58,9 +58,9 @@ public class ProducerParseReceivedResponseMessage implements Processor {
 			}
 			message=multipartMessageService.getMessage(multipartMessageParts.get("header"));
 			
-			exchange.getOut().setHeaders(exchange.getIn().getHeaders());
+			exchange.getMessage().setHeaders(exchange.getIn().getHeaders());
 			// Return multipartMessageParts
-			exchange.getOut().setBody(multipartMessageParts);
+			exchange.getMessage().setBody(multipartMessageParts);
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);
 			rejectionMessageService.sendRejectionMessage(

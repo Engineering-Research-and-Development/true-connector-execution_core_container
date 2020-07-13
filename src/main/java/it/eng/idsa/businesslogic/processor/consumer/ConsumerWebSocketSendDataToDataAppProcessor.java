@@ -84,9 +84,9 @@ public class ConsumerWebSocketSendDataToDataAppProcessor implements Processor {
             logger.info("Successful response: " + response);
             String header = multipartMessageService.getHeaderContentString(response);
             String payload = multipartMessageService.getPayloadContent(response);
-            exchange.getOut().setHeader("header", header);
+            exchange.getMessage().setHeader("header", header);
             if (payload != null) {
-                exchange.getOut().setHeader("payload", payload);
+                exchange.getMessage().setHeader("payload", payload);
             }
         }
     }
