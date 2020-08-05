@@ -39,8 +39,6 @@ public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 
-		String contentType;
-		String forwardTo;
 		String header = null;
 		String payload = null;
 		Message message = null;
@@ -49,7 +47,7 @@ public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 		String receivedDataBodyBinary = null;
 
 		// Get from the input "exchange"
-		Map<String, Object> receivedDataHeader = exchange.getIn().getHeaders();
+		headesParts = exchange.getIn().getHeaders();
 		receivedDataBodyBinary = exchange.getIn().getBody(String.class);
 		if (receivedDataBodyBinary == null) {			
 			logger.error("Body of the received multipart message is null");
@@ -61,11 +59,7 @@ public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 			// Create headers parts
 			// Put in the header value of the application.property: application.isEnabledDapsInteraction
 			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
-			contentType = receivedDataHeader.get("Content-Type").toString();
-			headesParts.put("Content-Type", contentType);
-			forwardTo = receivedDataHeader.get("Forward-To").toString();
-			headesParts.put("Forward-To", forwardTo);
-
+			
 			// Create multipart message parts
 			header = multipartMessageService.getHeaderContentString(receivedDataBodyBinary);
 			multipartMessageParts.put("header", header);
@@ -76,8 +70,8 @@ public class ProducerParseReceivedDataProcessorBodyBinary implements Processor {
 			message = multipartMessageService.getMessage(multipartMessageParts.get("header"));
 			
 			// Return exchange
-			exchange.getMessage().setHeaders(headesParts);
-			exchange.getMessage().setBody(multipartMessageParts);
+			exchange.getOut().setHeaders(headesParts);
+			exchange.getOut().setBody(multipartMessageParts);
 
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);

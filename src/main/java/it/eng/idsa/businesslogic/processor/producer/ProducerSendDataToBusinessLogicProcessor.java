@@ -338,8 +338,9 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
             logger.info("Successful response: " + responseString);
             // TODO:
             // Set original body which is created using the original payload and header 
-            exchange.getMessage().setHeader("multipartMessageBody", multipartMessageBody);
-            exchange.getMessage().setBody(responseString);
+            exchange.getOut().setHeaders(exchange.getIn().getHeaders());
+            exchange.getOut().setHeader("multipartMessageBody", multipartMessageBody);
+            exchange.getOut().setBody(responseString);
         }
     }
 
