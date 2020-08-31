@@ -30,7 +30,6 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
@@ -70,7 +69,7 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		
+		System.out.println(exchange.getIn().getHeader("name5"));
 		String headerStr = null, payloadStr = null;
 		if(!isEnabledIdscp && !isEnabledWebSocket) {
 		   AttachmentMessage attMsg = exchange.getIn(AttachmentMessage.class);
@@ -147,7 +146,6 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 				.build();
 
 		httpPost.setEntity(reqEntity);
-
 		CloseableHttpResponse response;
 		
 		try {
@@ -234,9 +232,10 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 				logger.info("Successful response: "+ responseString);
 				String	header = multipartMessageService.getHeaderContentString(responseString);
 				String payload = multipartMessageService.getPayloadContent(responseString);
-				exchange.getMessage().setHeader("header", header);
+				exchange.getOut().setHeaders(exchange.getIn().getHeaders());
+				exchange.getOut().setHeader("header", header);
 				if(payload!=null) {
-					exchange.getMessage().setHeader("payload", payload);
+					exchange.getOut().setHeader("payload", payload);
 				}
 			}
 		}

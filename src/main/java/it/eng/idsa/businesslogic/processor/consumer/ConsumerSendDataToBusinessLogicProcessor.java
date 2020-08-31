@@ -39,7 +39,7 @@ public class ConsumerSendDataToBusinessLogicProcessor implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		
-		Map<String, Object> headesParts = new HashMap<String, Object>();
+		Map<String, Object> headesParts = exchange.getIn().getHeaders();
 		
 		Map<String, Object> multipartMessagePartsReceived = exchange.getIn().getBody(HashMap.class);
 		
