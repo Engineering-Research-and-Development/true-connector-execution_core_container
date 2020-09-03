@@ -18,7 +18,7 @@ import it.eng.idsa.businesslogic.Application;
 
 @Component
 public class ConsumerReceiveFromActiveMQ implements Processor {
-    
+   
     @Autowired
     private JmsTemplate jmsTemplate;
     
@@ -31,8 +31,8 @@ public class ConsumerReceiveFromActiveMQ implements Processor {
         Map<String, Object> multipartMessageParts = (Map<String, Object>) queueContent.get("multipartMessageParts");
             
         // Return exchange
-        exchange.getMessage().setHeaders(headersParts);
-        exchange.getMessage().setBody(multipartMessageParts);
+        exchange.getOut().setHeaders(headersParts);
+        exchange.getOut().setBody(multipartMessageParts);
         
     }
 

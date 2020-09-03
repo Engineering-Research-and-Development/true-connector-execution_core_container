@@ -3,12 +3,8 @@ package it.eng.idsa.businesslogic.processor.consumer;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.activation.DataHandler;
-
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.attachment.AttachmentMessage;
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,12 +36,8 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 	@Value("${application.isEnabledClearingHouse}")
 	private boolean isEnabledClearingHouse;
 	
-	@Value("${application.idscp.isEnabled}")
-	private boolean isEnabledIdscp;
-
-	@Value("${application.websocket.isEnabled}")
-	private boolean isEnabledWebSocket;
-
+	@Value("${application.eccHttpSendRouter}")
+	private String eccHttpSendRouter;
 
 	@Autowired
 	private MultipartMessageService multipartMessageService;
@@ -59,7 +51,7 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 		String header;
 		String payload;
 		Message message=null;
-		Map<String, Object> headesParts = new HashMap<String, Object>();
+		Map<String, Object> headesParts = exchange.getIn().getHeaders();
 		Map<String, Object> multipartMessageParts = new HashMap<String, Object>();
 		
 		if(!exchange.getIn().getHeaders().containsKey("header"))
@@ -84,18 +76,10 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 					header= multipartMessageService.getHeaderContentString(exchange.getIn().getHeader("header").toString());
 					multipartMessageParts.put("header", header);
 				} else {
-					if (!isEnabledIdscp && !isEnabledWebSocket && isEnabledDapsInteraction) {
-						AttachmentMessage attMsg = exchange.getIn(AttachmentMessage.class);
-						DataHandler headerDataHandler = attMsg.getAttachment("header");
-						//DataHandler payloadDataHandler = attMsg.getAttachment("payload");
-						header = IOUtils.toString(headerDataHandler.getInputStream(), "UTF-8");
-						//payload = IOUtils.toString(payloadDataHandler.getInputStream(), "UTF-8");
-					}else {
 					// Create multipart message with payload
 					header=exchange.getIn().getHeader("header").toString();
-					//payload=exchange.getIn().getHeader("payload").toString();
-					}
 					multipartMessageParts.put("header", header);
+					payload=exchange.getIn().getHeader("payload").toString();
 					multipartMessageParts.put("payload", payload);
 					message=multipartMessageService.getMessage(multipartMessageParts.get("header"));
 				}
@@ -107,8 +91,8 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 			}
 
 			// Return exchange
-			exchange.getMessage().setHeaders(headesParts);
-			exchange.getMessage().setBody(multipartMessageParts);
+			exchange.getOut().setHeaders(headesParts);
+			exchange.getOut().setBody(multipartMessageParts);
 			
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);
@@ -117,5 +101,8 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 					message);
 		}
 	}
+
+
 	
+
 }

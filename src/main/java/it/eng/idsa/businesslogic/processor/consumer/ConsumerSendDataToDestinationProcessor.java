@@ -68,7 +68,7 @@ public class ConsumerSendDataToDestinationProcessor implements Processor {
 			logger.info("response "+response);
 			
 			// Return multipartMessageParts
-			exchange.getMessage().setBody(multipartMessageParts);
+			exchange.getOut().setBody(multipartMessageParts);
 		} else {
 			logger.error("Token is not valid");
 			rejectionMessageService.sendRejectionMessage(

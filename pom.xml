@@ -19,33 +19,33 @@
 	<properties>
 		<java.version>11</java.version>
 		<start-class>it.eng.idsa.businesslogic.Application</start-class>
-		<camel.version>3.4.0</camel.version>
-		<camel.version.m4>3.0.0-M4</camel.version.m4>
+		<camel.version>2.24.2</camel.version>
+		<camel.version.rc>3.0.0-RC3</camel.version.rc>
 		<tomcat.version>9.0.24</tomcat.version>
 		<information.model.version>2.1.0-SNAPSHOT</information.model.version>
 		<application.basedir>${basedir}</application.basedir>
 	</properties>
 
-	<repositories>
-		<repository>
-			<id>snapshots</id>
-			<name>maven-snapshots</name>
-			<url>http://maven.iais.fraunhofer.de/artifactory/eis-ids-public</url>
-		</repository>
-	</repositories>
+	<repositories> 
+		<repository> 
+			<id>snapshots</id> 
+			<name>maven-snapshots</name> 
+			<url>http://maven.iais.fraunhofer.de/artifactory/eis-ids-public</url> 
+		</repository> 
+	</repositories> 
 	<dependencies>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-model</artifactId>
-			<version>3.6.3</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.maven/maven-project -->
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-model</artifactId>
+            <version>3.6.3</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.maven/maven-project -->
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-project</artifactId>
 			<version>2.2.1</version>
 		</dependency>
-		<!-- H2 database -->
+        <!-- H2 database -->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
@@ -55,8 +55,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-		<!-- <dependency> <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter-data-jpa</artifactId> 
-			</dependency> -->
+		<!-- <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency> -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -72,7 +74,7 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
+		
 		<!-- Swagger -->
 		<dependency>
 			<groupId>io.springfox</groupId>
@@ -96,20 +98,20 @@
 			<artifactId>infomodel-serializer</artifactId>
 			<version>${information.model.version}</version>
 		</dependency>
-
+		
 		<!-- it.eng.idsa -->
 		<dependency>
 			<groupId>it.eng.idsa</groupId>
 			<artifactId>multipart-message-processor</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-
+		
 		<!-- CLEARING HOUSE -->
 		<dependency>
 			<groupId>it.eng</groupId>
 			<artifactId>clearing-house-model</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
-		</dependency>
+		</dependency> 
 
 		<!-- Camel -->
 		<dependency>
@@ -118,22 +120,22 @@
 			<version>${camel.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.camel.springboot</groupId>
+			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-servlet-starter</artifactId>
 			<version>${camel.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.camel.springboot</groupId>
+			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-jackson-starter</artifactId>
 			<version>${camel.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.camel.springboot</groupId>
+			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-swagger-java-starter</artifactId>
 			<version>${camel.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.camel.springboot</groupId>
+			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-spring-boot-starter</artifactId>
 			<version>${camel.version}</version>
 		</dependency>
@@ -145,103 +147,94 @@
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-http4</artifactId>
-			<version>${camel.version.m4}</version>
+			<version>${camel.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.camel.springboot</groupId>
-			<artifactId>camel-jetty-starter</artifactId>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-jetty9-starter</artifactId>
 			<version>${camel.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-util</artifactId>
-			<version>${camel.version}</version>
+			<version>${camel.version.rc}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.camel.springboot</groupId>
+			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-websocket-starter</artifactId>
 			<version>${camel.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-jms</artifactId>
-			<version>${camel.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-activemq</artifactId>
-			<version>${camel.version}</version>
-		</dependency>
-		
-		
-		<!-- https://mvnrepository.com/artifact/org.apache.camel/camel-http-common -->
-        <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-http-common</artifactId>
+            <artifactId>camel-jms</artifactId>
             <version>${camel.version}</version>
         </dependency>
-		
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-activemq</artifactId>
+            <version>${camel.version.rc}</version>
+        </dependency>
+
 		<!-- IDSCP -->
 		<!-- https://mvnrepository.com/artifact/de.fraunhofer.aisec.ids/ids-comm -->
 		<dependency>
-			<groupId>de.fraunhofer.aisec.ids</groupId>
-			<artifactId>ids-comm</artifactId>
-			<version>1.1.0</version>
+    		<groupId>de.fraunhofer.aisec.ids</groupId>
+    		<artifactId>ids-comm</artifactId>
+    		<version>1.1.0</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/de.fhg.aisec.ids/ids-api -->
-		<dependency>
-			<groupId>de.fraunhofer.aisec.ids</groupId>
-			<artifactId>ids-api</artifactId>
-			<version>2.1.0</version>
+  		<dependency>
+		    <groupId>de.fraunhofer.aisec.ids</groupId>
+		    <artifactId>ids-api</artifactId>
+		    <version>2.1.0</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/javax.xml/jaxb-api -->
-
 		<dependency>
-			<groupId>javax.xml</groupId>
-			<artifactId>jaxb-api</artifactId>
-			<version>2.1</version>
+    		<groupId>javax.xml</groupId>
+    		<artifactId>jaxb-api</artifactId>
+    		<version>2.1</version>
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-core</artifactId>
+ 		<dependency>
+		    <groupId>org.apache.logging.log4j</groupId>
+		    <artifactId>log4j-core</artifactId>
 		</dependency>
-
+		
 		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl -->
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-slf4j-impl</artifactId>
-			<scope>test</scope>
+ 		<dependency>
+		    <groupId>org.apache.logging.log4j</groupId>
+		    <artifactId>log4j-slf4j-impl</artifactId>
+		    <scope>test</scope>
 		</dependency>
-
+		
 		<!-- https://mvnrepository.com/artifact/org.asynchttpclient/async-http-client -->
 		<dependency>
-			<groupId>org.asynchttpclient</groupId>
-			<artifactId>async-http-client</artifactId>
-			<version>2.10.5</version>
+		    <groupId>org.asynchttpclient</groupId>
+		    <artifactId>async-http-client</artifactId>
+		    <version>2.10.5</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.checkerframework/checker-qual -->
 		<dependency>
-			<groupId>org.checkerframework</groupId>
-			<artifactId>checker-qual</artifactId>
-			<version>2.5.2</version>
+		    <groupId>org.checkerframework</groupId>
+		    <artifactId>checker-qual</artifactId>
+		    <version>2.5.2</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
 		<dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-java</artifactId>
-			<version>3.10.0</version>
-		</dependency>
+		    <groupId>com.google.protobuf</groupId>
+		    <artifactId>protobuf-java</artifactId>
+		    <version>3.10.0</version>
+		</dependency>					
 		<!-- https://mvnrepository.com/artifact/org.eclipse.jetty.websocket/websocket-server -->
 		<dependency>
-			<groupId>org.eclipse.jetty.websocket</groupId>
-			<artifactId>websocket-server</artifactId>
+		    <groupId>org.eclipse.jetty.websocket</groupId>
+		    <artifactId>websocket-server</artifactId>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.eclipse.jetty.websocket/websocket-client -->
 		<dependency>
-			<groupId>org.eclipse.jetty.websocket</groupId>
-			<artifactId>websocket-client</artifactId>
+		    <groupId>org.eclipse.jetty.websocket</groupId>
+		    <artifactId>websocket-client</artifactId>
 		</dependency>
 		<!-- Jackson -->
 		<dependency>
@@ -325,7 +318,7 @@
 			<artifactId>commons-io</artifactId>
 			<version>2.6</version>
 		</dependency>
-
+		
 	</dependencies>
 
 	<build>
@@ -342,7 +335,7 @@
 					</execution>
 				</executions>
 			</plugin>
-
+			
 		</plugins>
 	</build>
 

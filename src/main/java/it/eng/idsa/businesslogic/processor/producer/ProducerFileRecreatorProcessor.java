@@ -70,7 +70,7 @@ public class ProducerFileRecreatorProcessor implements Processor {
 			
 		}
 		// Return exchange
-		exchange.getMessage().setHeaders(multipartMessageParts);
+		exchange.getOut().setHeaders(multipartMessageParts);
 	}
 
 	private void initializeServer(Message message, FileRecreatorBeanServer fileRecreatorBean) {

@@ -68,7 +68,7 @@ public class ConsumerSendDataToBusinessLogicProcessor implements Processor {
 			responseMessageServerBean.add(responseString.getBytes());
 		}
 		
-		exchange.getMessage().setHeaders(headesParts);
-		exchange.getMessage().setBody(responseString);
+		exchange.getOut().setHeaders(headesParts);
+		exchange.getOut().setBody(responseString);
 	}	
 }

@@ -5,13 +5,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.activation.DataHandler;
-
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.attachment.AttachmentMessage;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -69,28 +64,20 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		System.out.println(exchange.getIn().getHeader("name5"));
-		String headerStr = null, payloadStr = null;
-		if(!isEnabledIdscp && !isEnabledWebSocket) {
-		   AttachmentMessage attMsg = exchange.getIn(AttachmentMessage.class);
-		   DataHandler headerDataHandler = attMsg.getAttachment("header");
-		   DataHandler payloadDataHandler = attMsg.getAttachment("payload");
-		   headerStr = IOUtils.toString(headerDataHandler.getInputStream(), "UTF-8");
-		   payloadStr = IOUtils.toString(payloadDataHandler.getInputStream(), "UTF-8");
-		} else {
-		   Map<String, Object> multipartMessageParts = exchange.getIn().getBody(HashMap.class);
-		   // Get header, payload and message
-		   headerStr = multipartMessageParts.get("header").toString();
-		   payloadStr = multipartMessageParts.get("payload").toString();
-		}
-		String header= filterHeader(headerStr);
-		String payload= null;
-		if(!StringUtils.isEmpty(payloadStr)) {
-			payload= payloadStr;
-		}
+		Map<String, Object> headerParts = exchange.getIn().getHeaders();
+        Map<String, Object> multipartMessageParts = exchange.getIn().getBody(HashMap.class);
+        
+
+ 
+
+        // Get header, payload and message
+        String header = filterHeader(multipartMessageParts.get("header").toString());
+        String payload = null;
+        if(multipartMessageParts.containsKey("payload")) {
+            payload = multipartMessageParts.get("payload").toString();
+        }
 		
-		
-		Message message = multipartMessageService.getMessage(headerStr);
+		Message message = multipartMessageService.getMessage(multipartMessageParts.get("header"));
 
 		// Send data to the endpoint F for the Open API Data App
 		CloseableHttpResponse response = null;
