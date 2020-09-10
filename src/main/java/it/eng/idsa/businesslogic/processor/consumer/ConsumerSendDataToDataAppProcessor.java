@@ -29,6 +29,7 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.communication.HttpClientGenerator;
 import it.eng.idsa.businesslogic.util.config.keystore.AcceptAllTruststoreConfig;
@@ -67,7 +68,7 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		Map<String, Object> headerParts = exchange.getIn().getHeaders();
         Map<String, Object> multipartMessageParts = exchange.getIn().getBody(HashMap.class);
         
-
+		HeaderCleaner.removeTechnicalHeaders(headerParts);
  
 
         // Get header, payload and message
@@ -219,6 +220,7 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 				logger.info("Successful response: "+ responseString);
 				String	header = multipartMessageService.getHeaderContentString(responseString);
 				String payload = multipartMessageService.getPayloadContent(responseString);
+				HeaderCleaner.removeTechnicalHeaders(exchange.getIn().getHeaders());
 				exchange.getOut().setHeaders(exchange.getIn().getHeaders());
 				exchange.getOut().setHeader("header", header);
 				if(payload!=null) {

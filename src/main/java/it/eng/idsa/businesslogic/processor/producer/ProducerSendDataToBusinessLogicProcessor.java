@@ -1,18 +1,15 @@
 package it.eng.idsa.businesslogic.processor.producer;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -36,12 +33,14 @@ import org.springframework.stereotype.Component;
 
 import de.fhg.aisec.ids.comm.client.IdscpClient;
 import de.fraunhofer.iais.eis.Message;
+import edu.emory.mathcs.backport.java.util.Arrays;
 import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.FileStreamingBean;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.IdscpClientBean;
 import it.eng.idsa.businesslogic.processor.producer.websocket.client.MessageWebSocketOverHttpSender;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.communication.HttpClientGenerator;
 import it.eng.idsa.businesslogic.util.config.keystore.AcceptAllTruststoreConfig;
@@ -221,16 +220,7 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		HttpEntity reqEntity = payload == null ? MultipartEntityBuilder.create().addPart("header", cbHeader).build()
 				: MultipartEntityBuilder.create().addPart("header", cbHeader).addPart("payload", cbPayload).build();
 
-		headesParts.forEach((name, value) -> {
-			if (!name.equals("Content-Length") && !name.equals("Content-Type")) {
-				if (value != null) {
-					httpPost.setHeader(name, value.toString());
-				} else {
-					httpPost.setHeader(name, null);
-				}
-
-			}
-		});
+		addHeadersToHttpPost(headesParts, httpPost);
 
 		httpPost.setEntity(reqEntity);
 
@@ -250,19 +240,30 @@ public class ProducerSendDataToBusinessLogicProcessor implements Processor {
 		return response;
 	}
 
+	private void addHeadersToHttpPost(Map<String, Object> headesParts, HttpPost httpPost) {
+		HeaderCleaner.removeTechnicalHeaders(headesParts);
+		
+		headesParts.forEach((name, value) -> {
+			if (!name.equals("Content-Length") && !name.equals("Content-Type")) {
+				if (value != null) {
+					httpPost.setHeader(name, value.toString());
+				} else {
+					httpPost.setHeader(name, null);
+				}
+
+			}
+		});
+	}
+
 	private CloseableHttpResponse forwardMessageFormData(String address, String header, String payload,
 			Map<String, Object> headesParts) throws ClientProtocolException, IOException {
 		logger.info("Forwarding Message: Body: form-data");
 
 		// Set F address
 		HttpPost httpPost = new HttpPost(address);
-
+		addHeadersToHttpPost(headesParts, httpPost);
 		HttpEntity reqEntity = multipartMessageService.createMultipartMessage(header, payload, null);
 		httpPost.setEntity(reqEntity);
-		headesParts.forEach((name, value) -> {
-			httpPost.addHeader(name, value.toString());
-		});
-
 		CloseableHttpResponse response;
 
 		try {

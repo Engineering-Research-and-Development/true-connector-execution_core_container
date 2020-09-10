@@ -16,6 +16,7 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationA;
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.ResponseMessageBufferBean;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -87,7 +88,7 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration.responseMessageBufferWebSocket();
 			responseMessageServerBean.add(responseMultipartMessageString.getBytes());
 		}
-
+		HeaderCleaner.removeTechnicalHeaders(headesParts);
 		exchange.getOut().setHeaders(headesParts);
 		exchange.getOut().setBody(responseMultipartMessageString);
 	}	
@@ -101,5 +102,7 @@ public class ProducerSendResponseToDataAppProcessor implements Processor {
 		Message message = multipartMessageService.getMessage(header);
 		return multipartMessageService.removeToken(message);
 	}
+	
+	
 	
 }

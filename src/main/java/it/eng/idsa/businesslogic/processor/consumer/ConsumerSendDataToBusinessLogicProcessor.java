@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.processor.consumer.websocket.server.ResponseMessageBufferBean;
+import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -39,12 +40,12 @@ public class ConsumerSendDataToBusinessLogicProcessor implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		
-		Map<String, Object> headesParts = exchange.getIn().getHeaders();
+		Map<String, Object> headersParts = exchange.getIn().getHeaders();
 		
 		Map<String, Object> multipartMessagePartsReceived = exchange.getIn().getBody(HashMap.class);
 		
 		// Put in the header value of the application.property: application.isEnabledClearingHouse
-		headesParts.put("Is-Enabled-Clearing-House", isEnabledClearingHouse);
+		headersParts.put("Is-Enabled-Clearing-House", isEnabledClearingHouse);
 		
 		// Get header, payload and message
 		String header = multipartMessagePartsReceived.get("header").toString();
@@ -60,15 +61,15 @@ public class ConsumerSendDataToBusinessLogicProcessor implements Processor {
 		String responseString = MultipartMessageProcessor.multipartMessagetoString(responseMessage, false);
 		
 		String contentType = responseMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
-		headesParts.put("Content-Type", contentType);
+		headersParts.put("Content-Type", contentType);
 		
 		// TODO: Send The MultipartMessage message to the WebaSocket
 		if(isEnabledIdscp || isEnabledWebSocket) { //TODO Try to remove this config property
 			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration.responseMessageBufferWebSocket();
 			responseMessageServerBean.add(responseString.getBytes());
 		}
-		
-		exchange.getOut().setHeaders(headesParts);
+		HeaderCleaner.removeTechnicalHeaders(headersParts);
+		exchange.getOut().setHeaders(headersParts);
 		exchange.getOut().setBody(responseString);
 	}	
 }
