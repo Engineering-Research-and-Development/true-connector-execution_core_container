@@ -41,7 +41,7 @@ public class ProducerSendTransactionToCHProcessor implements Processor {
 		String payload = multipartMessageService.getPayloadContent(multipartMessageBody);
 		Message message = multipartMessageService.getMessage(header);
 		// Send data to CH
-		//clearingHouseService.registerTransaction(message, payload);
+		clearingHouseService.registerTransaction(message, payload);
 		logger.info("Successfully wrote down in the Clearing House");
 
 		// clear from Headers multipartMessageBody (it is not unusable for the Open Data App)

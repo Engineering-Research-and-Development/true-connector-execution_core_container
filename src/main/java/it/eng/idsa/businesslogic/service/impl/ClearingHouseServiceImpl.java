@@ -11,15 +11,13 @@ import java.util.UUID;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-//import org.apache.camel.util.json.JsonObject;
-//import org.apache.camel.util.json.Jsoner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.project.MavenProject;
-//import org.json.simple.JsonObject;
-//import org.json.simple.Jsoner;
+import org.json.simple.JsonObject;
+import org.json.simple.Jsoner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -58,7 +56,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	@Autowired
 	private HashFileService hashService;
 
-	/*
+	
 	@Override
 	public boolean registerTransaction(Message correlatedMessage, String payload) {
 		// TODO Auto-generated method stub
@@ -117,12 +115,12 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			e.printStackTrace();
 		}
 		return false;
-	}*/
+	}
 	private static String getInformationModelVersion() {
-		/*String currnetInformationModelVersion = null;
+		String currnetInformationModelVersion = null;
 		try {
 	
-			InputStream is = RejectionMessageServiceImpl.class.getClassLoader().getResourceAsStream("META-INF/maven/it.eng.idsa/market4.0-CONSUMER-execution_core_container_business_logic/pom.xml");
+			InputStream is = RejectionMessageServiceImpl.class.getClassLoader().getResourceAsStream("META-INF/maven/it.eng.idsa/market4.0-execution_core_container_business_logic/pom.xml");
 			MavenXpp3Reader reader = new MavenXpp3Reader();
 			Model model = reader.read(is);
 			MavenProject project = new MavenProject(model);
@@ -143,8 +141,8 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		return currnetInformationModelVersion;*/
-		return "1.0";
+		return currnetInformationModelVersion;
+		
 	}
 	
 	private URI whoIAm() {
