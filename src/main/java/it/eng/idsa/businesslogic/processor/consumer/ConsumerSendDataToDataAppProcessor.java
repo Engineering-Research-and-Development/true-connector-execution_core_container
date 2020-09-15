@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -53,89 +54,77 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 
 	@Autowired
 	private MultipartMessageService multipartMessageService;
-	
+
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
-	
+
 	@Value("${application.idscp.isEnabled}")
 	private boolean isEnabledIdscp;
-	
+
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		Map<String, Object> headerParts = exchange.getIn().getHeaders();
-        Map<String, Object> multipartMessageParts = exchange.getIn().getBody(HashMap.class);
-        
-		HeaderCleaner.removeTechnicalHeaders(headerParts);
- 
+		Map<String, Object> multipartMessageParts = exchange.getIn().getBody(HashMap.class);
 
-        // Get header, payload and message
-        String header = filterHeader(multipartMessageParts.get("header").toString());
-        String payload = null;
-        if(multipartMessageParts.containsKey("payload")) {
-            payload = multipartMessageParts.get("payload").toString();
-        }
-		
+		// Get header, payload and message
+		String header = filterHeader(multipartMessageParts.get("header").toString());
+		String payload = null;
+		if (multipartMessageParts.containsKey("payload")) {
+			payload = multipartMessageParts.get("payload").toString();
+		}
+
 		Message message = multipartMessageService.getMessage(multipartMessageParts.get("header"));
 
 		// Send data to the endpoint F for the Open API Data App
 		CloseableHttpResponse response = null;
-		switch(openDataAppReceiverRouter) {
-		case "mixed":
-		{
-			response =  forwardMessageBinary(configuration.getOpenDataAppReceiver(), header, payload);
+		switch (openDataAppReceiverRouter) {
+		case "mixed": {
+			response = forwardMessageBinary(configuration.getOpenDataAppReceiver(), header, payload, headerParts);
 			break;
 		}
-		case "form":
-		{
-			response =  forwardMessageFormData(configuration.getOpenDataAppReceiver(), header, payload);
+		case "form": {
+			response = forwardMessageFormData(configuration.getOpenDataAppReceiver(), header, payload, headerParts);
 			break;
 		}
 		default: {
 			logger.error("Applicaton property: application.openDataAppReceiverRouter is not properly set");
-			rejectionMessageService.sendRejectionMessage(
-					RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, 
-					message);
+			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		}
 		}
 
 		// Handle response
 		handleResponse(exchange, message, response, configuration.getOpenDataAppReceiver());
 
-		if(response!=null) {
+		if (response != null) {
 			response.close();
-		}	
+		}
 
 	}
 
-	private CloseableHttpResponse forwardMessageBinary(String address, String header, String payload) throws ClientProtocolException, IOException {
+	private CloseableHttpResponse forwardMessageBinary(String address, String header, String payload,
+			Map<String, Object> headerParts) throws ClientProtocolException, IOException {
 		logger.info("Forwarding Message: Body: binary");
 
 		// Covert to ContentBody
 		ContentBody cbHeader = convertToContentBody(header, ContentType.APPLICATION_JSON, "header");
 		ContentBody cbPayload = null;
-		if(payload!=null) {
+		if (payload != null) {
 			cbPayload = convertToContentBody(payload, ContentType.DEFAULT_TEXT, "payload");
 		}
 
 		// Set F address
 		HttpPost httpPost = new HttpPost(address);
+		addHeadersToHttpPost(headerParts, httpPost);
 
-		HttpEntity reqEntity = payload==null ?
-			MultipartEntityBuilder.create()
-				.addPart("header", cbHeader)
-				.build()	
-				:
-			MultipartEntityBuilder.create()
-				.addPart("header", cbHeader)
-				.addPart("payload", cbPayload)
-				.build();
+		HttpEntity reqEntity = payload == null ? MultipartEntityBuilder.create().addPart("header", cbHeader).build()
+				: MultipartEntityBuilder.create().addPart("header", cbHeader).addPart("payload", cbPayload).build();
 
 		httpPost.setEntity(reqEntity);
 		CloseableHttpResponse response;
-		
+
 		try {
 			response = getHttpClient().execute(httpPost);
 		} catch (ClientProtocolException e) {
@@ -151,17 +140,19 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		return response;
 	}
 
-	private CloseableHttpResponse forwardMessageFormData(String address, String header, String payload) throws ClientProtocolException, IOException {
+	private CloseableHttpResponse forwardMessageFormData(String address, String header, String payload,
+			Map<String, Object> headerParts) throws ClientProtocolException, IOException {
 		logger.info("Forwarding Message: Body: form-data");
 
 		// Set F address
 		HttpPost httpPost = new HttpPost(address);
+		addHeadersToHttpPost(headerParts, httpPost);
 
 		HttpEntity reqEntity = multipartMessageService.createMultipartMessage(header, payload, null);
 		httpPost.setEntity(reqEntity);
 
 		CloseableHttpResponse response;
-		
+
 		try {
 			response = getHttpClient().execute(httpPost);
 		} catch (ClientProtocolException e) {
@@ -175,6 +166,21 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		}
 
 		return response;
+	}
+
+	private void addHeadersToHttpPost(Map<String, Object> headesParts, HttpPost httpPost) {
+		HeaderCleaner.removeTechnicalHeaders(headesParts);
+
+		headesParts.forEach((name, value) -> {
+			if (!name.equals("Content-Length") && !name.equals("Content-Type")) {
+				if (value != null) {
+					httpPost.setHeader(name, value.toString());
+				} else {
+					httpPost.setHeader(name, null);
+				}
+
+			}
+		});
 	}
 
 	private CloseableHttpClient getHttpClient() {
@@ -191,39 +197,45 @@ public class ConsumerSendDataToDataAppProcessor implements Processor {
 		return multipartMessageService.removeToken(message);
 	}
 
-	private ContentBody convertToContentBody(String value, ContentType contentType, String valueName) throws UnsupportedEncodingException {
+	private ContentBody convertToContentBody(String value, ContentType contentType, String valueName)
+			throws UnsupportedEncodingException {
 		byte[] valueBiteArray = value.getBytes("utf-8");
 		ContentBody cbValue = new ByteArrayBody(valueBiteArray, contentType, valueName);
 		return cbValue;
 	}
 
-	private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response, String openApiDataAppAddress) throws UnsupportedOperationException, IOException {
-		if (response==null) {
+	private Map<String, Object> returnHeadersAsMap(Header[] allHeaders) {
+		Map<String, Object> headersMap = new HashMap<>();
+		for (Header header : allHeaders) {
+			headersMap.put(header.getName(), header.getValue());
+		}
+		return headersMap;
+	}
+
+	private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response,
+			String openApiDataAppAddress) throws UnsupportedOperationException, IOException {
+		if (response == null) {
 			logger.info("...communication error with: " + openApiDataAppAddress);
-			rejectionMessageService.sendRejectionMessage(
-					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, 
+			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
 					message);
 		} else {
-			String responseString=new String(response.getEntity().getContent().readAllBytes());
-			logger.info("content type response received from the DataAPP="+response.getFirstHeader("Content-Type"));
-			logger.info("response received from the DataAPP="+responseString);
+			String responseString = new String(response.getEntity().getContent().readAllBytes());
+			logger.info("content type response received from the DataAPP=" + response.getFirstHeader("Content-Type"));
+			logger.info("response received from the DataAPP=" + responseString);
 
 			int statusCode = response.getStatusLine().getStatusCode();
 			logger.info("status code of the response message is: " + statusCode);
-			if (statusCode >=300) { 
-				logger.info("data sent to destination: "+openApiDataAppAddress);
-				rejectionMessageService.sendRejectionMessage(
-						RejectionMessageType.REJECTION_MESSAGE_COMMON, 
-						message);
-			}else { 
-				logger.info("data sent to destination: "+openApiDataAppAddress);
-				logger.info("Successful response: "+ responseString);
-				String	header = multipartMessageService.getHeaderContentString(responseString);
+			if (statusCode >= 300) {
+				logger.info("data sent to destination: " + openApiDataAppAddress);
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+			} else {
+				logger.info("data sent to destination: " + openApiDataAppAddress);
+				logger.info("Successful response: " + responseString);
+				String header = multipartMessageService.getHeaderContentString(responseString);
 				String payload = multipartMessageService.getPayloadContent(responseString);
-				HeaderCleaner.removeTechnicalHeaders(exchange.getIn().getHeaders());
-				exchange.getOut().setHeaders(exchange.getIn().getHeaders());
+				exchange.getOut().setHeaders(returnHeadersAsMap(response.getAllHeaders()));
 				exchange.getOut().setHeader("header", header);
-				if(payload!=null) {
+				if (payload != null) {
 					exchange.getOut().setHeader("payload", payload);
 				}
 			}

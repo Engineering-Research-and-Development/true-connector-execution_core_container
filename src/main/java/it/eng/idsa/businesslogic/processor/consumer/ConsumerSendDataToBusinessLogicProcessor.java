@@ -27,49 +27,53 @@ public class ConsumerSendDataToBusinessLogicProcessor implements Processor {
 
 	@Value("${application.isEnabledClearingHouse}")
 	private boolean isEnabledClearingHouse;
-	
+
 	@Value("${application.idscp.isEnabled}")
 	private boolean isEnabledIdscp;
 
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
-	
+
 	@Autowired(required = false)
 	private WebSocketServerConfigurationB webSocketServerConfiguration;
-	
+
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		
+
 		Map<String, Object> headersParts = exchange.getIn().getHeaders();
-		
+
 		Map<String, Object> multipartMessagePartsReceived = exchange.getIn().getBody(HashMap.class);
-		
-		// Put in the header value of the application.property: application.isEnabledClearingHouse
-		headersParts.put("Is-Enabled-Clearing-House", isEnabledClearingHouse);
-		
+
 		// Get header, payload and message
 		String header = multipartMessagePartsReceived.get("header").toString();
 		String payload = null;
-		if(multipartMessagePartsReceived.containsKey("payload")) {
+		if (multipartMessagePartsReceived.containsKey("payload")) {
 			payload = multipartMessagePartsReceived.get("payload").toString();
 		}
-		
-		MultipartMessage responseMessage = new MultipartMessageBuilder()
-				.withHeaderContent(header)
-				.withPayloadContent(payload)
-				.build();
+
+		MultipartMessage responseMessage = new MultipartMessageBuilder().withHeaderContent(header)
+				.withPayloadContent(payload).build();
 		String responseString = MultipartMessageProcessor.multipartMessagetoString(responseMessage, false);
-		
+
 		String contentType = responseMessage.getHttpHeaders().getOrDefault("Content-Type", "multipart/mixed");
 		headersParts.put("Content-Type", contentType);
-		
+
 		// TODO: Send The MultipartMessage message to the WebaSocket
-		if(isEnabledIdscp || isEnabledWebSocket) { //TODO Try to remove this config property
-			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration.responseMessageBufferWebSocket();
+		if (isEnabledIdscp || isEnabledWebSocket) { // TODO Try to remove this config property
+			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration
+					.responseMessageBufferWebSocket();
 			responseMessageServerBean.add(responseString.getBytes());
 		}
 		HeaderCleaner.removeTechnicalHeaders(headersParts);
+		if (isEnabledClearingHouse) {
+			// Put in the header value of the application.property:
+			// application.isEnabledClearingHouse
+			headersParts.put("Is-Enabled-Clearing-House", isEnabledClearingHouse);
+		}
+		if (isEnabledWebSocket) {
+			headersParts.put("Is-Enabled-DataApp-WebSocket", isEnabledWebSocket);
+		}
 		exchange.getOut().setHeaders(headersParts);
 		exchange.getOut().setBody(responseString);
-	}	
+	}
 }
