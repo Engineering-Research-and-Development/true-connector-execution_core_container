@@ -46,3 +46,6 @@ jobs:
   - stage: deploy
     script: bash ./travis/deploy.sh
     env: NET=HTTPS NETE=HTTPSE DAPS=false CH=false
+branches:
+  only:
+   - master
