@@ -65,7 +65,7 @@ public class ConsumerFileRecreatorProcessor implements Processor {
 				multipartMessageParts.put("payload", payload);
 			}
 		} catch (Exception e) {
-			logger.error("Error parsing multipart message:" + e);
+			logger.error("Error parsing multipart message:", e);
 			// TODO: Send WebSocket rejection message
 
 		}
@@ -79,6 +79,7 @@ public class ConsumerFileRecreatorProcessor implements Processor {
 			fileRecreatorBean.setup();
 		} catch(Exception e) {
 			logger.info("... can not initilize the IdscpServer");
+			logger.error(e);
 			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
 					message);

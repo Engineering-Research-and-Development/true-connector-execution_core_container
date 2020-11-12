@@ -18,7 +18,7 @@ import it.eng.idsa.businesslogic.Application;
 
 @Component
 public class ConsumerReceiveFromActiveMQ implements Processor {
-    
+   
     @Autowired
     private JmsTemplate jmsTemplate;
     

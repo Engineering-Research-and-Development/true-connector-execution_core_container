@@ -46,9 +46,8 @@ public class ProducerParseReceivedDataFromDAppProcessorBodyBinary implements Pro
 		String header = null;
 		String payload = null;
 		Message message = null;
-		Map<String, Object> headesParts = new HashMap();
-		Map<String, Object> multipartMessageParts = new HashMap();
-		String receivedDataBodyBinary = null;
+		Map<String, Object> headesParts = new HashMap<>();
+		Map<String, Object> multipartMessageParts = new HashMap<>();
 
 		// Get from the input "exchange"
 		Map<String, Object> receivedDataHeader = exchange.getIn().getHeaders();
@@ -78,7 +77,7 @@ public class ProducerParseReceivedDataFromDAppProcessorBodyBinary implements Pro
 			exchange.getOut().setBody(multipartMessageParts);
 
 		} catch (Exception e) {
-			logger.error("Error parsing multipart message:" + e);
+			logger.error("Error parsing multipart message:", e);
 			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES,
 					message);

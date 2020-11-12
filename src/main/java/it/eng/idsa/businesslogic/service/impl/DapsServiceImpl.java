@@ -3,8 +3,6 @@ package it.eng.idsa.businesslogic.service.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,8 +34,8 @@ import javax.net.ssl.X509TrustManager;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,17 +56,12 @@ import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-
 import it.eng.idsa.businesslogic.service.DapsService;
-import it.eng.idsa.businesslogic.util.ProxyAuthenticator;
-import okhttp3.Authenticator;
-import okhttp3.Credentials;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.Route;
 
 /**
  * @author Milan Karajovic and Gabriele De Luca
@@ -77,6 +70,7 @@ import okhttp3.Route;
 /**
  * Service Implementation for managing DAPS.
  */
+@ConditionalOnProperty(name="application.dapsVersion", havingValue="v1")
 @Service
 @Transactional
 public class DapsServiceImpl implements DapsService {
@@ -102,14 +96,6 @@ public class DapsServiceImpl implements DapsService {
     private String keystoreAliasName;
     @Value("${application.connectorUUID}")
     private String connectorUUID;
-    @Value("${application.proxyUser}")
-    private String proxyUser;
-    @Value("${application.proxyPassword}")
-    private String proxyPassword;
-    @Value("${application.proxyHost}")
-    private String proxyHost;
-    @Value("${application.proxyPort}")
-    private String proxyPort;
     @Value("${application.dapsJWKSUrl}")
     private String dapsJWKSUrl;
 
@@ -144,15 +130,7 @@ public class DapsServiceImpl implements DapsService {
              * "\"\":\"urn:ietf:params:oauth:client-assertion-type:jwt-bearer\"," +
              * "\"\":\"" + jws + "\"," + "\"\":\"\"," + "}";
              */
-
-            Authenticator proxyAuthenticator = new Authenticator() {
-                @Override
-                public Request authenticate(Route route, Response response) throws IOException {
-                    String credential = Credentials.basic(proxyUser, proxyPassword);
-                    return response.request().newBuilder().header("Proxy-Authorization", credential).build();
-                }
-            };
-
+           
             OkHttpClient client = null;
             final TrustManager[] trustAllCerts = new TrustManager[]{
                     new X509TrustManager() {
@@ -179,22 +157,8 @@ public class DapsServiceImpl implements DapsService {
             // Create an ssl socket factory with our all-trusting manager
             final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
-
-            if (!proxyUser.equalsIgnoreCase("")) {
-                client = new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS)
-                        .writeTimeout(60, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS)
-                        .proxy(new Proxy(Proxy.Type.HTTP,
-                                new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort))))
-                        .proxyAuthenticator(proxyAuthenticator)
-                        .sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
-                        .hostnameVerifier(new HostnameVerifier() {
-                            @Override
-                            public boolean verify(String hostname, SSLSession session) {
-                                // TODO Auto-generated method stub
-                                return true;
-                            }
-                        }).build();
-            } else {
+            
+            
                 client = new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS)
                         .writeTimeout(60, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS)
                         .sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
@@ -204,7 +168,7 @@ public class DapsServiceImpl implements DapsService {
                                 return true;
                             }
                         }).build();
-            }
+            
             RequestBody formBody = new FormBody.Builder().add("grant_type", "client_credentials")
                     .add("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
                     .add("client_assertion", jws).build();
@@ -226,31 +190,11 @@ public class DapsServiceImpl implements DapsService {
             if (!responseDaps.isSuccessful())
                 throw new IOException("Unexpected code " + responseDaps);
 
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (IOException |KeyStoreException | NoSuchAlgorithmException | 
+        		CertificateException |KeyManagementException | UnrecoverableKeyException e) {
+        	logger.error(e);
             return null;
-        } catch (KeyStoreException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return null;
-        } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return null;
-        } catch (CertificateException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return null;
-        } catch (UnrecoverableKeyException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return null;
-        } catch (KeyManagementException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
+        	}
         return token;
     }
 
@@ -274,16 +218,9 @@ public class DapsServiceImpl implements DapsService {
 
             // Load JWK set from URL
             JWKSet publicKeys = null;
-            if (!proxyUser.equalsIgnoreCase("")) {
-                System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
-                System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
-                ProxyAuthenticator proxyAuthenticator = new ProxyAuthenticator(proxyUser, proxyPassword);
-                java.net.Authenticator.setDefault(proxyAuthenticator);
-                Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)));
-                publicKeys = JWKSet.load(new URL(dapsJWKSUrl), 0, 0, 0, proxy);
-            } else {
+           
                 publicKeys = JWKSet.load(new URL(dapsJWKSUrl));
-            }
+            
             RSAKey key = (RSAKey) publicKeys.getKeyByKeyId("default");
 
             // The expected JWS algorithm of the access tokens (agreed out-of-band)
@@ -333,7 +270,7 @@ public class DapsServiceImpl implements DapsService {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+        	logger.error(e);
         }
 
         return isValid;

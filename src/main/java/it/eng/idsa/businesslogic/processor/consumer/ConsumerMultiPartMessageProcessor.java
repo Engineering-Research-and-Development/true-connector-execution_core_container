@@ -1,10 +1,14 @@
 package it.eng.idsa.businesslogic.processor.consumer;
 
-import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+
+import javax.activation.DataHandler;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +16,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
+import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
+import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.util.MultipartMessageKey;
 
 /**
  * 
@@ -24,9 +32,9 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 @Component
 public class ConsumerMultiPartMessageProcessor implements Processor {
-	
+
 	private static final Logger logger = LogManager.getLogger(ConsumerMultiPartMessageProcessor.class);
-	
+
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean isEnabledDapsInteraction;
 
@@ -36,68 +44,96 @@ public class ConsumerMultiPartMessageProcessor implements Processor {
 	@Value("${application.isEnabledClearingHouse}")
 	private boolean isEnabledClearingHouse;
 
+	@Value("${application.eccHttpSendRouter}")
+	private String eccHttpSendRouter;
+	
+	@Value("${application.openDataAppReceiverRouter}")
+	private String dataAppSendRouter;
 
 	@Autowired
 	private MultipartMessageService multipartMessageService;
-	
+
+	@Autowired
+	private HttpHeaderService headerService;
+
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
-	
+
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		
-		String header;
-		String payload;
-		Message message=null;
-		Map<String, Object> headesParts = new HashMap<String, Object>();
-		Map<String, Object> multipartMessageParts = new HashMap<String, Object>();
-		
-		if(!exchange.getIn().getHeaders().containsKey("header"))
-		{
-			logger.error("Multipart message header is null");
-			rejectionMessageService.sendRejectionMessage(
-					RejectionMessageType.REJECTION_MESSAGE_COMMON, 
-					message);
-		}
-		try {
-			
-			// Create headers parts
-			// Put in the header value of the application.property: application.isEnabledDapsInteraction
-			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
-			headesParts.put("Is-Enabled-Clearing-House", isEnabledClearingHouse);
-			headesParts.put("Is-Enabled-DataApp-WebSocket", isEnabledDataAppWebSocket);
 
-			if(exchange.getIn().getHeaders().containsKey("payload")) {
-				payload=exchange.getIn().getHeader("payload").toString();
-				if(payload.equals("RejectionMessage")) {
-					// Create multipart message for the RejectionMessage
-					header= multipartMessageService.getHeaderContentString(exchange.getIn().getHeader("header").toString());
-					multipartMessageParts.put("header", header);
-				} else {
-					// Create multipart message with payload
-					header=exchange.getIn().getHeader("header").toString();
-					multipartMessageParts.put("header", header);
-					payload=exchange.getIn().getHeader("payload").toString();
-					multipartMessageParts.put("payload", payload);
-					message=multipartMessageService.getMessage(multipartMessageParts.get("header"));
-				}
-			}else {
-				// Create multipart message without payload
-				header=exchange.getIn().getHeader("header").toString();
-				multipartMessageParts.put("header", header);
-				message=multipartMessageService.getMessage(multipartMessageParts.get("header"));
+		String header = null;
+		String payload = null;
+		Map<String, Object> headersParts = exchange.getIn().getHeaders();
+		Message message = null;
+		MultipartMessage multipartMessage = null;
+
+		headersParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
+		headersParts.put("Is-Enabled-Clearing-House", isEnabledClearingHouse);
+		headersParts.put("Is-Enabled-DataApp-WebSocket", isEnabledDataAppWebSocket);
+		
+		if (dataAppSendRouter.equals("http-header")) { 
+			if (exchange.getIn().getBody() != null) {
+				payload = exchange.getIn().getBody(String.class);
+			} else {
+				logger.error("Payload is null");
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+			}
+			// create Message object from IDS-* headers, needs for UsageControl flow
+			header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
+			message = multipartMessageService.getMessage(header);
+			multipartMessage = new MultipartMessageBuilder()
+					.withHeaderContent(header)
+					.withPayloadContent(payload).build();
+			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
+
+		} else {
+
+			if (!headersParts.containsKey("header")) {
+				logger.error("Multipart message header is missing");
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 
-			// Return exchange
-			exchange.getOut().setHeaders(headesParts);
-			exchange.getOut().setBody(multipartMessageParts);
-			
-		} catch (Exception e) {
-			logger.error("Error parsing multipart message:" + e);
-			rejectionMessageService.sendRejectionMessage(
-					RejectionMessageType.REJECTION_MESSAGE_COMMON, 
-					message);
+
+			if (headersParts.get("header") == null) {
+				logger.error("Multipart message header is null");
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+			}
+
+
+			try {
+
+				// Save the original message header for Usage Control Enforcement
+				if (headersParts.containsKey("Original-Message-Header"))
+					headersParts.put("Original-Message-Header", headersParts.get("Original-Message-Header").toString());
+
+				if (headersParts.get("header") instanceof String) {
+					header = headersParts.get("header").toString();
+				}else {
+					DataHandler dtHeader = (DataHandler) headersParts.get("header");
+					header = IOUtils.toString(dtHeader.getInputStream(), StandardCharsets.UTF_8);
+				}
+				if(headersParts.get("payload")!=null) {
+					payload = headersParts.get("payload").toString();
+				}
+
+				multipartMessage = new MultipartMessageBuilder().withHeaderContent(header).withPayloadContent(payload)
+						.build();
+				if(headersParts.containsKey("Payload-Content-Type")) {
+					headersParts.put("Payload-Content-Type",
+							headersParts.get("payload.org.eclipse.jetty.servlet.contentType"));
+				} else {
+					// Payload content type not present, setting default plain/text
+					headersParts.put("Payload-Content-Type", ContentType.TEXT_PLAIN.toString());
+				}
+			} catch (Exception e) {
+				logger.error("Error parsing multipart message:", e);
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+			}
+
 		}
+
+		exchange.getOut().setHeaders(headersParts);
+		exchange.getOut().setBody(multipartMessage);
 	}
-	
 }

@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +50,8 @@ public class ProducerSendDataToBusinessLogicConsumer implements Processor {
 		HttpEntity entity = multipartMessageService.createMultipartMessage(
 				header,
 				payload,
-				null);
+				null,
+				ContentType.DEFAULT_TEXT);
 
 		String response = communicationMessageService.sendData(forwardTo, entity);
 		

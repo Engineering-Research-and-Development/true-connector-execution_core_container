@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +57,7 @@ public class ConsumerSendDataToDestinationProcessor implements Processor {
 			message = (Message) multipartMessageParts.get("message");
 			String payload = multipartMessageParts.get("payload").toString();
 			String headerWithoutToken=multipartMessageService.removeToken(message);
-			HttpEntity entity = multipartMessageService.createMultipartMessage(headerWithoutToken,payload, null);
+			HttpEntity entity = multipartMessageService.createMultipartMessage(headerWithoutToken,payload, null,ContentType.DEFAULT_TEXT);
 			String response = communicationService.sendData("http://"+configuration.getActivemqAddress()+"/api/message/outcoming?type=queue", entity);
 			if (response==null) {
 				logger.info("...communication error");

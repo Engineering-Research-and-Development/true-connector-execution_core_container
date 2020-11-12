@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +54,7 @@ public class ProducerSendDataToDestinationProcessor implements Processor {
 		String forwardTo = headesParts.get("Forward-To").toString();
 		Message message = multipartMessageService.getMessage(header);
 
-		HttpEntity entity = multipartMessageService.createMultipartMessage(messageWithToken, payload, forwardTo);
+		HttpEntity entity = multipartMessageService.createMultipartMessage(messageWithToken, payload, forwardTo,ContentType.DEFAULT_TEXT);
 		String response = communicationService.sendData("http://"+configuration.getActivemqAddress()+"/api/message/incoming?type=queue", entity);
 		
 		if (response==null) {

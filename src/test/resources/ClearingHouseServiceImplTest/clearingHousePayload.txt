@@ -1,0 +1,1 @@
+{"catalog.offers.0.resourceEndpoints.path":"/pet2"}

@@ -1,13 +1,10 @@
 package it.eng.idsa.businesslogic.processor.consumer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
-import it.eng.idsa.businesslogic.processor.producer.websocket.client.MessageWebSocketOverHttpSender;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
-import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.logging.log4j.LogManager;
@@ -16,10 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import de.fraunhofer.iais.eis.Message;
+import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import it.eng.idsa.businesslogic.processor.producer.websocket.client.MessageWebSocketOverHttpSender;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
  * @author Antonio Scatoloni
@@ -45,14 +44,20 @@ public class ConsumerWebSocketSendDataToDataAppProcessor implements Processor {
     @Autowired
     private MessageWebSocketOverHttpSender messageWebSocketOverHttpSender;
 
+    @Value("${application.isEnabledUsageControl:false}")
+    private boolean isEnabledUsageControl;
+
+    private String originalHeader;
+
     @Override
     public void process(Exchange exchange) throws Exception {
 
         Map<String, Object> multipartMessageParts = exchange.getIn().getBody(HashMap.class);
 
         // Get header, payload and message
-        String header = filterHeader(multipartMessageParts.get("header").toString());
+        String header = multipartMessageParts.get("header").toString();
         String payload = null;
+        this.originalHeader = header;
         if (multipartMessageParts.containsKey("payload")) {
             payload = multipartMessageParts.get("payload").toString();
         }
@@ -67,10 +72,6 @@ public class ConsumerWebSocketSendDataToDataAppProcessor implements Processor {
     }
 
 
-    private String filterHeader(String header) throws JsonMappingException, JsonProcessingException {
-        Message message = multipartMessageService.getMessage(header);
-        return multipartMessageService.removeToken(message);
-    }
 
     private void handleResponse(Exchange exchange, Message message, String response, String openApiDataAppAddress) throws UnsupportedOperationException, IOException {
         if (response == null) {
@@ -85,6 +86,10 @@ public class ConsumerWebSocketSendDataToDataAppProcessor implements Processor {
             String header = multipartMessageService.getHeaderContentString(response);
             String payload = multipartMessageService.getPayloadContent(response);
             exchange.getOut().setHeader("header", header);
+            //Save original Header for Usage Control Enforcement
+            if(isEnabledUsageControl) {
+                exchange.getOut().setHeader("Original-Message-Header", originalHeader);
+            }
             if (payload != null) {
                 exchange.getOut().setHeader("payload", payload);
             }

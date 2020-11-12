@@ -28,8 +28,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		.csrf().disable()
 		.requiresChannel()
         //.anyRequest().requiresInsecure()
-		.antMatchers("/incoming-data-channel/**").requiresSecure()
-		.antMatchers("/incoming-data-app/**").requiresSecure()
+		.antMatchers("/incoming-data-channel/**").requiresInsecure()
+		.antMatchers("/incoming-data-app/**").requiresInsecure()
 		.antMatchers("/outcoming-data-app/**").requiresInsecure();
 
         

@@ -1,52 +1,52 @@
-language: java, node_js
-cache:
-  directories:
-  - "$HOME/.m2"
-env:
-  jobs:
-  - NET=WSS NETE=WSSE DAPS=true CH=true
-#  - NET=WSS NETE=WSSE DAPS=false CH=false
-#  - NET=WSS NETE=WSSE DAPS=true CH=true
-#  - NET=WSS NETE=WSSE DAPS=false CH=true
-  - NET=IDSCP NETE=WSSE DAPS=false CH=false
-#  - NET=IDSCP NETE=WSSE DAPS=false CH=false
-#  - NET=IDSCP NETE=WSSE DAPS=true CH=true
-#  - NET=IDSCP NETE=WSSE DAPS=false CH=true
-  - NET=HTTPS NETE=WSSE DAPS=false CH=false
-#  - NET=HTTPS NETE=WSSE DAPS=false CH=false
-#  - NET=HTTPS NETE=WSSE DAPS=true CH=true
-#  - NET=HTTPS NETE=WSSE DAPS=false CH=true
-  - NET=WSS NETE=HTTPSE DAPS=false CH=false
-#  - NET=WSS NETE=HTTPSE DAPS=false CH=false
-#  - NET=WSS NETE=HTTPSE DAPS=true CH=true
-#  - NET=WSS NETE=HTTPSE DAPS=false CH=true
-  - NET=IDSCP NETE=HTTPSE DAPS=false CH=false
-#  - NET=IDSCP NETE=HTTPSE DAPS=false CH=false
-#  - NET=IDSCP NETE=HTTPSE DAPS=true CH=true
-#  - NET=IDSCP NETE=HTTPSE DAPS=false CH=true
-  - NET=HTTPS NETE=HTTPSE DAPS=false CH=false
-#  - NET=HTTPS NETE=HTTPSE DAPS=false CH=false
-#  - NET=HTTPS NETE=HTTPSE DAPS=true CH=true
-#  - NET=HTTPS NETE=HTTPSE DAPS=false CH=true
-services:
-- docker
-install:
-- bash ./travis/install.sh
-before_script:
-- docker ps -a
-- sleep 60
-script:
-- bash ./travis/test.sh
-after_script:
-- docker logs docker_data-app_1
-- docker logs docker_ecc-provider_1
-- docker logs docker_ecc-consumer_1
-jobs:
-  include:
-  - stage: deploy
-    script: bash ./travis/deploy.sh
-    env: NET=HTTPS NETE=HTTPSE DAPS=false CH=false
+# language: java, node_js
+# cache:
+#   directories:
+#   - "$HOME/.m2"
+# env:
+#   jobs:
+#   - NET=WSS NETE=WSSE DAPS=true CH=true
+# #  - NET=WSS NETE=WSSE DAPS=false CH=false
+# #  - NET=WSS NETE=WSSE DAPS=true CH=true
+# #  - NET=WSS NETE=WSSE DAPS=false CH=true
+#   - NET=IDSCP NETE=WSSE DAPS=false CH=false
+# #  - NET=IDSCP NETE=WSSE DAPS=false CH=false
+# #  - NET=IDSCP NETE=WSSE DAPS=true CH=true
+# #  - NET=IDSCP NETE=WSSE DAPS=false CH=true
+#   - NET=HTTPS NETE=WSSE DAPS=false CH=false
+# #  - NET=HTTPS NETE=WSSE DAPS=false CH=false
+# #  - NET=HTTPS NETE=WSSE DAPS=true CH=true
+# #  - NET=HTTPS NETE=WSSE DAPS=false CH=true
+#   - NET=WSS NETE=HTTPSE DAPS=false CH=false
+# #  - NET=WSS NETE=HTTPSE DAPS=false CH=false
+# #  - NET=WSS NETE=HTTPSE DAPS=true CH=true
+# #  - NET=WSS NETE=HTTPSE DAPS=false CH=true
+#   - NET=IDSCP NETE=HTTPSE DAPS=false CH=false
+# #  - NET=IDSCP NETE=HTTPSE DAPS=false CH=false
+# #  - NET=IDSCP NETE=HTTPSE DAPS=true CH=true
+# #  - NET=IDSCP NETE=HTTPSE DAPS=false CH=true
+#   - NET=HTTPS NETE=HTTPSE DAPS=false CH=false
+# #  - NET=HTTPS NETE=HTTPSE DAPS=false CH=false
+# #  - NET=HTTPS NETE=HTTPSE DAPS=true CH=true
+# #  - NET=HTTPS NETE=HTTPSE DAPS=false CH=true
+# services:
+# - docker
+# install:
+# - bash ./travis/install.sh
+# before_script:
+# - docker ps -a
+# - sleep 60
+# script:
+# - bash ./travis/test.sh
+# after_script:
+# - docker logs docker_data-app_1
+# - docker logs docker_ecc-provider_1
+# - docker logs docker_ecc-consumer_1
+# jobs:
+#   include:
+#   - stage: deploy
+#     script: bash ./travis/deploy.sh
+#     env: NET=HTTPS NETE=HTTPSE DAPS=false CH=false
 
-branches:
-  only:
-   - master
+# branches:
+#   only:
+#    - master

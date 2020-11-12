@@ -53,7 +53,7 @@ public class HashFileServiceImpl implements HashFileService {
             byte[] encodedHash = digest.digest(payload.getBytes(StandardCharsets.UTF_8));
             return bytesToHex(encodedHash);
         } catch (NoSuchAlgorithmException e) {
-            logger.error("Hashing of Payload with NO Algorithm available to perform hashing: " + e.getMessage());
+            logger.error("Hashing of Payload with NO Algorithm available to perform hashing: ", e.getMessage());
         }
         return null;
     }
@@ -80,9 +80,9 @@ public class HashFileServiceImpl implements HashFileService {
                     path,
                     content.getBytes(),
                     StandardOpenOption.CREATE);
-            logger.info("Recorded Hash in FileSystem: " + content);
+            logger.debug("Recorded Hash in FileSystem: " + content);
         } catch (Exception e) {
-            logger.error("Recording of HASH in FileSystem encountered and error: " + e.getMessage());
+            logger.error("Recording of HASH in FileSystem encountered and error: ", e.getMessage());
         }
     }
 
@@ -118,7 +118,7 @@ public class HashFileServiceImpl implements HashFileService {
             jsonGenerator.close();
             return writer.toString();
         } catch (Exception e) {
-            logger.error("Recording of HASH in FileSystem encountered and error: " + e.getMessage());
+            logger.error("Recording of HASH in FileSystem encountered and error: ", e.getMessage());
         } finally {
             if (null != jsonGenerator)
                 jsonGenerator.close();

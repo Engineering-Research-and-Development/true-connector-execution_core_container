@@ -3,8 +3,10 @@ package it.eng.idsa.businesslogic.processor.exception;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -21,6 +23,12 @@ public class ExceptionProcessorConsumer implements Processor {
 	
 	@Autowired
 	MultipartMessageService multipartMessageService;
+	
+	@Autowired
+	private HttpHeaderService headerService;
+	
+	@Value("${application.openDataAppReceiverRouter}")
+	private String openDataAppReceiverRouter;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -31,13 +39,17 @@ public class ExceptionProcessorConsumer implements Processor {
 		MultipartMessage multipartMessage = new MultipartMessageBuilder()
     			.withHeaderContent(message)
     			.build();
-    	String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
 		
-		exchange.getOut().setBody(multipartMessageString);
-		exchange.getOut().setHeader("header", multipartMessageString);
-		exchange.getOut().setHeader("payload", "RejectionMessage");
+		if (openDataAppReceiverRouter.equals("http-header")) {
+			exchange.getOut().setHeaders(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));
+		} else {
+			String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
 
-		
+			exchange.getMessage().setBody(multipartMessageString);
+			exchange.getMessage().setHeader("header", multipartMessageString);
+			exchange.getMessage().setHeader("payload", "RejectionMessage");
+
+		}
+	
 	}
-
 }

@@ -1,0 +1,14 @@
+{
+  "@id": "http://example.com/ids-profile/1234",
+  "@context": "http://www.w3.org/ns/odrl.jsonld",
+  "@type": "ids:ContractOffer",
+  "uid": "http://example.com/policy/complex-policy",
+  "profile": "http://example.com/ids-profile",
+  "target": "https://example.com:data-strategy",
+  "provider": "http://example.com/party/my-party",
+  "permission": [{
+    "@id": "http://example.com/ids-profile/12344",
+    "@type": "ids:Permission",
+    "action": "ids:use"
+  }]
+}

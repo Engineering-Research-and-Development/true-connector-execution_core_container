@@ -35,8 +35,13 @@ public class HttpClientGenerator {
 		httpClient = null;
 	}
 
-	public static CloseableHttpClient get(TruststoreConfig trustStore) {
+	public static CloseableHttpClient get(TruststoreConfig trustStore, boolean isSSLEnabled) {
 		if (httpClient != null) {
+			return httpClient;
+		}
+		if(!isSSLEnabled) {
+			httpClient =  HttpClients.custom().build();
+			logger.info("Created Http Client without SSL.");
 			return httpClient;
 		}
 
