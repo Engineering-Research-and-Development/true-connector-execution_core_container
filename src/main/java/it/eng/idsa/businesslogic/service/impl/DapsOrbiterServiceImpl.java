@@ -122,7 +122,7 @@ public class DapsOrbiterServiceImpl implements DapsService {
             RequestBody formBody = RequestBody.create(JSON, jsonString); // new
 
             Request requestDaps = new Request.Builder().url(dapsUrl)
-                    .header("Host", "ecc-consumer")
+                    .header("Host", "ecc-receiver")
                     .header("accept", "application/json")
                     .header("Content-Type", "application/json")
                     .post(formBody).build();
@@ -239,7 +239,7 @@ public class DapsOrbiterServiceImpl implements DapsService {
 			//@formatter:off
 			Request requestDaps = new Request.Builder()
 					.url(dapsUrl + "/validate")
-					.header("Host", "ecc-consumer")
+					.header("Host", "ecc-receiver")
 					.header("accept", "application/json")
 					.header("Content-Type", "application/json")
 					.post(formBody)

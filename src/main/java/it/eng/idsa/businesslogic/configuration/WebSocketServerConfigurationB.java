@@ -1,6 +1,6 @@
 package it.eng.idsa.businesslogic.configuration;
 
-import it.eng.idsa.businesslogic.processor.consumer.websocket.server.*;
+import it.eng.idsa.businesslogic.processor.receiver.websocket.server.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;

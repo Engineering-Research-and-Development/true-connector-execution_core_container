@@ -53,7 +53,7 @@
 					{
 						"key": "Forward-To",
 						"type": "text",
-						"value": "wss://ecc-consumer:8086/incoming-data-channel/receivedMessage"
+						"value": "wss://ecc-receiver:8086/incoming-data-channel/receivedMessage"
 					}
 				],
 				"body": {
@@ -136,7 +136,7 @@
 					{
 						"key": "Forward-To",
 						"type": "text",
-						"value": "wss://ecc-consumer:8086/incoming-data-channel-received-message"
+						"value": "wss://ecc-receiver:8086/incoming-data-channel-received-message"
 					}
 				],
 				"body": {

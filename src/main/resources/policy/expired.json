@@ -5,7 +5,7 @@
   "profile": "http://example.com/ids-profile",    
   "target": "http://mdm-connector.ids.isst.fraunhofer.de/artifact/16",    
   "provider": "http://example.com/party/my-party",    
-  "consumer": "http://example.com/party/consumer-party",    
+  "receiver": "http://example.com/party/receiver-party",    
   "permission": [{    
       "action": "ids:use",     
       "constraint": [{    

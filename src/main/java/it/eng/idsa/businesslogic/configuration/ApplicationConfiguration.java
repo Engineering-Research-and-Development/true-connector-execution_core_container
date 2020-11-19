@@ -26,8 +26,8 @@ public class ApplicationConfiguration {
 	private String uriConnector;
 	private String activemqAddress;
 	private String openDataAppReceiver;
-	private String camelConsumerPort;
-	private String camelProducerPort;
+	private String camelReceiverPort;
+	private String camelSenderPort;
 
 	private String basedir;
 
@@ -135,20 +135,20 @@ public class ApplicationConfiguration {
 		this.openDataAppReceiver = openDataAppReceiver;
 	}
 
-	public String getCamelProducerPort() {
-		return camelProducerPort;
+	public String getCamelSenderPort() {
+		return camelSenderPort;
 	}
 
-	public void setCamelProducerPort(String camelProducerPort) {
-		this.camelProducerPort = camelProducerPort;
+	public void setCamelSenderPort(String camelSenderPort) {
+		this.camelSenderPort = camelSenderPort;
 	}
 
-	public String getCamelConsumerPort() {
-		return camelConsumerPort;
+	public String getCamelReceiverPort() {
+		return camelReceiverPort;
 	}
 
-	public void setCamelConsumerPort(String camelConsumerPort) {
-		this.camelConsumerPort = camelConsumerPort;
+	public void setCamelReceiverPort(String camelReceiverPort) {
+		this.camelReceiverPort = camelReceiverPort;
 	}
 
 	public String getBasedir() {

@@ -163,7 +163,7 @@ public class DapsV2ServiceImpl implements DapsService {
             final SSLContext sslContext = SSLContext.getInstance("SSL");
             sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
             // Create an ssl socket factory with our all-trusting manager
-//            final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+            final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
             client = new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS)
                     .writeTimeout(60, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS)
                     .sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
@@ -220,8 +220,7 @@ public class DapsV2ServiceImpl implements DapsService {
             RequestBody formBody =
                     new FormBody.Builder()
                             .add("grant_type", "client_credentials")
-                            .add(
-                                    "client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+                            .add("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
                             .add("client_assertion", jws)
                             .add("scope", "idsc:IDS_CONNECTOR_ATTRIBUTES_ALL")
                             .build();
@@ -252,11 +251,12 @@ public class DapsV2ServiceImpl implements DapsService {
 
             if (node.has("access_token")) {
                 token = node.get("access_token").asText();
-                logger.info("access_token: {}",  token.toString());
+                logger.debug("access_token: {}",  token.toString());
+            } else {
+            	logger.info("jwtResponse: {}",  jwtResponse.toString());
+//            logger.info("jwtResponse status: {}",  jwtResponse.message());
+//            logger.info("access_token: {}",  jwtString);
             }
-            logger.info("access_token: {}",  jwtResponse.toString());
-            logger.info("access_token: {}",  jwtString);
-            logger.info("access_token: {}",  jwtResponse.message());
 
             if (!jwtResponse.isSuccessful())
                 throw new IOException("Unexpected code " + jwtResponse);
@@ -301,15 +301,15 @@ public class DapsV2ServiceImpl implements DapsService {
             // provided in the header of the JWS/JWT.
             HttpsJwksVerificationKeyResolver httpsJwksKeyResolver =
                     new HttpsJwksVerificationKeyResolver(httpsJkws);
-            // Use JwtConsumerBuilder to construct an appropriate JwtConsumer, which will
+            // Use JwtReceiverBuilder to construct an appropriate JwtReceiver, which will
             // be used to validate and process the JWT.
             // The specific validation requirements for a JWT are context dependent, however,
             // it typically advisable to require a (reasonable) expiration time, a trusted issuer, and
             // and audience that identifies your system as the intended recipient.
             // If the JWT is encrypted too, you need only provide a decryption key or
             // decryption key resolver to the builder.
-            JwtConsumer jwtConsumer =
-                    new JwtConsumerBuilder()
+            JwtReceiver jwtReceiver =
+                    new JwtReceiverBuilder()
                             .setRequireExpirationTime() // the JWT must have an expiration time
                             .setAllowedClockSkewInSeconds(
                                     30) // allow some leeway in validating time based claims to account for clock skew
@@ -325,10 +325,10 @@ public class DapsV2ServiceImpl implements DapsService {
                                             org.jose4j.jwa.AlgorithmConstraints.ConstraintType
                                                     .WHITELIST, // which is only RS256 here
                                             AlgorithmIdentifiers.RSA_USING_SHA256))
-                            .build(); // create the JwtConsumer instance
+                            .build(); // create the JwtReceiver instance
             LOG.info("Verifying JWT...");
             //  Validate the JWT and process it to the Claims
-            JwtClaims jwtClaims = jwtConsumer.processToClaims(dynamicAttributeToken);
+            JwtClaims jwtClaims = jwtReceiver.processToClaims(dynamicAttributeToken);
             LOG.info("JWT validation succeeded! " + jwtClaims);
             return jwtClaims.getClaimsMap();
         } catch (InvalidJwtException e) {

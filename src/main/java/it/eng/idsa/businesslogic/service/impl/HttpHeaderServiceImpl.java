@@ -18,8 +18,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import de.fraunhofer.iais.eis.DynamicAttributeTokenBuilder;
 import de.fraunhofer.iais.eis.Token;
-import de.fraunhofer.iais.eis.TokenBuilder;
 import de.fraunhofer.iais.eis.TokenFormat;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
@@ -39,7 +39,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		Map<String, Object> tokenAsMap = addTokenHeadersToReceivedMessageHeaders(headers);
 
 		JsonObject jsonHeader = new JsonObject(headerAsMap);
-		jsonHeader.put("authorizationToken", tokenAsMap);
+		jsonHeader.put("securityToken", tokenAsMap);
 
 		removeTokenHeaders(headers);
 
@@ -82,7 +82,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 	private void addTokenToPreparedMessage(String header, Map<String, Object> messageAsMap) throws IOException {
 		Map<String, Object> messageAsMapWithToken = new ObjectMapper().readValue(header, Map.class);
 
-		Map<String, Object> tokenAsMap = (Map<String, Object>) messageAsMapWithToken.get("authorizationToken");
+		Map<String, Object> tokenAsMap = (Map<String, Object>) messageAsMapWithToken.get("securityToken");
 		messageAsMap.put("IDS-SecurityToken-Type", tokenAsMap.get("@type").toString());
 		messageAsMap.put("IDS-SecurityToken-Id", tokenAsMap.get("@id").toString());
 		messageAsMap.put("IDS-SecurityToken-TokenValue", tokenAsMap.get("tokenValue").toString());
@@ -277,7 +277,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 	public Map<String, Object> transformJWTTokenToHeaders(String token)
 			throws JsonMappingException, JsonProcessingException, ParseException {
 		Map<String, Object> tokenAsMap = new HashMap<>();
-		Token tokenJsonValue = new TokenBuilder()._tokenFormat_(TokenFormat.JWT)._tokenValue_(token).build();
+		Token tokenJsonValue = new DynamicAttributeTokenBuilder()._tokenFormat_(TokenFormat.JWT)._tokenValue_(token).build();
 		String tokenValueSerialized = new Serializer().serializePlainJson(tokenJsonValue);
 		JSONParser parser = new JSONParser();
 		JSONObject jsonObjectToken = (JSONObject) parser.parse(tokenValueSerialized);

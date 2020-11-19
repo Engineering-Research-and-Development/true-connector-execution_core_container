@@ -40,7 +40,7 @@
 # after_script:
 # - docker logs docker_data-app_1
 # - docker logs docker_ecc-provider_1
-# - docker logs docker_ecc-consumer_1
+# - docker logs docker_ecc-receiver_1
 # jobs:
 #   include:
 #   - stage: deploy

@@ -1,6 +1,6 @@
 package it.eng.idsa.businesslogic.configuration; /* Created by ascatox on 15/04/2020 */
 
-import it.eng.idsa.businesslogic.processor.consumer.websocket.server.*;
+import it.eng.idsa.businesslogic.processor.receiver.websocket.server.*;
 
 public interface WebSocketServerConfiguration {
 

@@ -46,7 +46,7 @@
 					},
 					{
 						"key": "Forward-To",
-						"value": "wss://ecc-consumer:8086",
+						"value": "wss://ecc-receiver:8086",
 						"type": "text"
 					}
 				],
@@ -120,7 +120,7 @@
 					},
 					{
 						"key": "Forward-To",
-						"value": "wss://ecc-consumer:8086",
+						"value": "wss://ecc-receiver:8086",
 						"type": "text"
 					}
 				],

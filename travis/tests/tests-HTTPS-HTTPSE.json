@@ -46,7 +46,7 @@
 					},
 					{
 						"key": "Forward-To",
-						"value": "https://ecc-consumer:8890/incoming-data-channel/receivedMessage",
+						"value": "https://ecc-receiver:8890/incoming-data-channel/receivedMessage",
 						"type": "text"
 					}
 				],
@@ -120,7 +120,7 @@
 					},
 					{
 						"key": "Forward-To",
-						"value": "https://ecc-consumer:8890/incoming-data-channel/receivedMessage",
+						"value": "https://ecc-receiver:8890/incoming-data-channel/receivedMessage",
 						"type": "text"
 					}
 				],

@@ -105,7 +105,7 @@ public class MultipartMessageServiceImplTest {
 				._tokenFormat_(TokenFormat.JWT)
 				._tokenValue_("DummyTokenAsNoDapsIsAvailable")
 				.build();
-//		Token authorizationToken = new TokenBuilder(new URI("http://authorizationToken.com"))
+//		Token securityToken = new TokenBuilder(new URI("http://securityToken.com"))
 //				._tokenFormat_(TokenFormat.JWT)
 //				._tokenValue_("some_dummy_jwt_string_used_for_testing")
 //				.build();
@@ -113,7 +113,7 @@ public class MultipartMessageServiceImplTest {
 				._correlationMessage_(new URI("https://w3id.org/idsa/autogen/connectorAvailableMessage/67b2d428-f7d7-489f-972e-601a12203621"))
 				._issuerConnector_(new URI("https://ids0.datahub.c.fraunhofer.de/"))
 				._securityToken_(securityToken)
-//				._authorizationToken_(authorizationToken)
+//				._securityToken_(securityToken)
 				._modelVersion_("4.0.0")
 				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
 				._senderAgent_(new URI("https://www.iais.fraunhofer.de"))

@@ -25,22 +25,22 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Disabled
 public class DapsOrbiterServiceImplTest {
 
-	private String eccConsumer = "2a62eda0-50bd-4640-9847-b0ea946f89bf";
-	private String eccProducer = "805f80f9-3170-4615-b80a-e93f2a4708e5";
+	private String eccReceiver = "2a62eda0-50bd-4640-9847-b0ea946f89bf";
+	private String eccSender = "805f80f9-3170-4615-b80a-e93f2a4708e5";
 	
 	@Test
-	public void generateJwTokenProducer() {
+	public void generateJwTokenSender() {
 		try {
 			Date expiryDate = Date.from(Instant.now().plusSeconds(86400));
             JwtBuilder jwtb =
                     Jwts.builder()
-                            .claim("id", eccProducer)
+                            .claim("id", eccSender)
                             .setExpiration(expiryDate)
                             .setIssuedAt(Date.from(Instant.now()))
                             .setAudience("idsc:IDS_CONNECTORS_ALL")
                             .setNotBefore(Date.from(Instant.now()));
-			String jws = jwtb.signWith(SignatureAlgorithm.RS256, getOrbiterPrivateKey("ecc-producer.key")).compact();
-			System.out.println("Producer key:\n" + jws);
+			String jws = jwtb.signWith(SignatureAlgorithm.RS256, getOrbiterPrivateKey("ecc-sender.key")).compact();
+			System.out.println("Sender key:\n" + jws);
 		} catch (KeyStoreException e) {
 			e.printStackTrace();
 		} catch (NoSuchAlgorithmException e) {
@@ -55,18 +55,18 @@ public class DapsOrbiterServiceImplTest {
 	}
 	
 	@Test
-	public void generateJwTokenConsumer() {
+	public void generateJwTokenReceiver() {
 		try {
 			Date expiryDate = Date.from(Instant.now().plusSeconds(86400));
             JwtBuilder jwtb =
                     Jwts.builder()
-                            .claim("id", eccConsumer)
+                            .claim("id", eccReceiver)
                             .setExpiration(expiryDate)
                             .setIssuedAt(Date.from(Instant.now()))
                             .setAudience("idsc:IDS_CONNECTORS_ALL")
                             .setNotBefore(Date.from(Instant.now()));
-			String jws = jwtb.signWith(SignatureAlgorithm.RS256, getOrbiterPrivateKey("ecc-consumer.key")).compact();
-			System.out.println("Consumer jwt:\n" + jws);
+			String jws = jwtb.signWith(SignatureAlgorithm.RS256, getOrbiterPrivateKey("ecc-receiver.key")).compact();
+			System.out.println("Receiver jwt:\n" + jws);
 		} catch (KeyStoreException e) {
 			e.printStackTrace();
 		} catch (NoSuchAlgorithmException e) {

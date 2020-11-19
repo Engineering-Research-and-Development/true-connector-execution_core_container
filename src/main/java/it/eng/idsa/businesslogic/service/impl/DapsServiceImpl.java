@@ -77,8 +77,6 @@ public class DapsServiceImpl implements DapsService {
 
     private static final Logger logger = LogManager.getLogger(DapsServiceImpl.class);
 
-   
-
     private Key privKey;
     private Certificate cert;
 

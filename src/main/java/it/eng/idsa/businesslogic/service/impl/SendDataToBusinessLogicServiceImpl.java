@@ -156,7 +156,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		try {
 			response = getHttpClient().execute(httpPost);
 		} catch (IOException e) {
-			logger.error("Error while calling Consumer", e);
+			logger.error("Error while calling Receiver", e);
 			return null;
 		}
 		return response;

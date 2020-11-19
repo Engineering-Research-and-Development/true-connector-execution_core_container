@@ -23,9 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import de.fraunhofer.iais.eis.DynamicAttributeTokenBuilder;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.Token;
-import de.fraunhofer.iais.eis.TokenBuilder;
 import de.fraunhofer.iais.eis.TokenFormat;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
@@ -80,12 +80,12 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 		String output = null;
 		try {
 			String msgSerialized = serializeMessage(message);
-			Token tokenJsonValue = new TokenBuilder()._tokenFormat_(TokenFormat.JWT)._tokenValue_(token).build();
+			Token tokenJsonValue = new DynamicAttributeTokenBuilder()._tokenFormat_(TokenFormat.JWT)._tokenValue_(token).build();
 			String tokenValueSerialized = serializeMessage(tokenJsonValue);
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = (JSONObject) parser.parse(msgSerialized);
 			JSONObject jsonObjectToken = (JSONObject) parser.parse(tokenValueSerialized);
-			jsonObject.put("ids:securityToken ", jsonObjectToken);
+			jsonObject.put("ids:securityToken", jsonObjectToken);
 			output = serializeMessage(jsonObject);
 		} catch (ParseException | IOException e) {
 			logger.error(e);
@@ -173,10 +173,10 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 			String msgSerialized = serializeMessage(message);
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = (JSONObject) parser.parse(msgSerialized);
-			jsonObject = (JSONObject) jsonObject.get("ids:securityToken ");
+			jsonObject = (JSONObject) jsonObject.get("ids:securityToken");
 			if (jsonObject == null) {
 				logger.error(
-						"Token is not set: authorizationToken is not set in the part of the header in the multipart message");
+						"Token is not set: securityToken is not set in the part of the header in the multipart message");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN, message);
 			} else {
 				token = (String) jsonObject.get("ids:tokenValue");

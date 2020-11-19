@@ -1,13 +1,13 @@
 version: '2.2'
 services:
-  ecc-consumer:
+  ecc-receiver:
     image: rdlabengpa/execution_core_container_bl:latest
     ports:
       - 8086:8086
       - 8888:8888
       - 8890:8890
     environment:
-      - SPRING_PROFILES_ACTIVE=CONSUMER_DOCKER
+      - SPRING_PROFILES_ACTIVE=RECEIVER_DOCKER
       - MULTIPART=mixed  #Data APP endpoint multipart/mixed content type
       - CLEARING_HOUSE=http://109.232.32.193:8280/data
       - SSL_KEY_PASSWORD=${SSL_KEY_PASSWORD}
@@ -17,7 +17,7 @@ services:
       - WSS=false
       - IDSCP=false
       - WSSE=false
-    command: --spring.profiles.active=CONSUMER_DOCKER
+    command: --spring.profiles.active=RECEIVER_DOCKER
     volumes:
       - /home/travis/cert:/cert
       - /home/travis/hash:/hash
@@ -29,7 +29,7 @@ services:
       - 8887:8887
       - 8889:8889
     environment:
-      - SPRING_PROFILES_ACTIVE=PRODUCER_DOCKER
+      - SPRING_PROFILES_ACTIVE=SENDER_DOCKER
       - MULTIPART=mixed  #Data APP endpoint multipart/mixed content type
       - CLEARING_HOUSE=http://109.232.32.193:8280/data
       - SSL_KEY_PASSWORD=${SSL_KEY_PASSWORD}
@@ -39,7 +39,7 @@ services:
       - WSS=false
       - IDSCP=false
       - WSSE=false
-    command: --spring.profiles.active=PRODUCER_DOCKER
+    command: --spring.profiles.active=SENDER_DOCKER
     volumes:
       - /home/travis/cert:/cert
       - /home/travis/hash:/hash

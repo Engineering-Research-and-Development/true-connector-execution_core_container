@@ -46,7 +46,7 @@
 					},
 					{
 						"key": "Forward-To",
-						"value": "idscp://ecc-consumer:8086",
+						"value": "idscp://ecc-receiver:8086",
 						"type": "text"
 					}
 				],
@@ -120,7 +120,7 @@
 					},
 					{
 						"key": "Forward-To",
-						"value": "idscp://ecc-consumer:8086",
+						"value": "idscp://ecc-receiver:8086",
 						"type": "text"
 					}
 				],

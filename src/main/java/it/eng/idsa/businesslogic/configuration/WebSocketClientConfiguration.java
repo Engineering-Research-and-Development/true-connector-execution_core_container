@@ -4,11 +4,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
-import it.eng.idsa.businesslogic.processor.producer.websocket.client.FileStreamingBean;
-import it.eng.idsa.businesslogic.processor.producer.websocket.client.IdscpClientBean;
-import it.eng.idsa.businesslogic.processor.producer.websocket.client.InputStreamSocketListenerClient;
-import it.eng.idsa.businesslogic.processor.producer.websocket.client.ResponseMessageBufferClient;
-import it.eng.idsa.businesslogic.processor.producer.websocket.client.ResponseMessageReceiverClient;
+import it.eng.idsa.businesslogic.processor.sender.websocket.client.FileStreamingBean;
+import it.eng.idsa.businesslogic.processor.sender.websocket.client.IdscpClientBean;
+import it.eng.idsa.businesslogic.processor.sender.websocket.client.InputStreamSocketListenerClient;
+import it.eng.idsa.businesslogic.processor.sender.websocket.client.ResponseMessageBufferClient;
+import it.eng.idsa.businesslogic.processor.sender.websocket.client.ResponseMessageReceiverClient;
 
 /**
  * 
