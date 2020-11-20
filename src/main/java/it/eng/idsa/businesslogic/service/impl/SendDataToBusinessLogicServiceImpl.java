@@ -76,15 +76,20 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 			header = multipartMessage.getHeaderContentString();
 		}
 		ContentType ctPayload;
-		String contentTypeRemoval = "Content-Type: ";
 		if (headerParts.get("Payload-Content-Type") != null) {
 			ctPayload = ContentType
-					.parse(headerParts.get("Payload-Content-Type").toString().replaceFirst(contentTypeRemoval, ""));
+					.parse(headerParts.get("Payload-Content-Type").toString());
 		} else {
 			ctPayload = ContentType.TEXT_PLAIN;
 		}
 		// Covert to ContentBody
-		ContentBody cbHeader = this.convertToContentBody(header, ContentType.APPLICATION_JSON, "header");
+		ContentType ctHeader;
+		if(multipartMessage.getHeaderHeader().containsKey("Content-Type")) {
+			ctHeader = ContentType.parse(multipartMessage.getHeaderHeader().get("Content-Type"));
+		} else {
+			ctHeader = ContentType.APPLICATION_JSON;
+		}
+		ContentBody cbHeader = this.convertToContentBody(header, ctHeader, "header");
 		ContentBody cbPayload = null;
 
 		if (payload != null) {
@@ -133,12 +138,9 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		HttpPost httpPost = new HttpPost(address);
 
 		ContentType ctPayload;
-
-		String contentTypeRemoval = "Content-Type: ";
-
 		if (headerParts.get("Payload-Content-Type") != null) {
 			ctPayload = ContentType
-					.parse(headerParts.get("Payload-Content-Type").toString().replaceFirst(contentTypeRemoval, ""));
+					.parse(headerParts.get("Payload-Content-Type").toString());
 		} else {
 			ctPayload = ContentType.TEXT_PLAIN;
 		}
