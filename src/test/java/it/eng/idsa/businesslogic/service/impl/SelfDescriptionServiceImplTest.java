@@ -88,8 +88,8 @@ public class SelfDescriptionServiceImplTest {
 		Message availabilityMessage = selfDefinitionService.getConnectorAvailbilityMessage();
 		assertNotNull(availabilityMessage);
 		assertNotNull(availabilityMessage.getSecurityToken());
-		String ss = geObjectAsString(availabilityMessage);
-		System.out.println(ss);
+//		String ss = geObjectAsString(availabilityMessage);
+//		System.out.println(ss);
 	}
 	
 	@Test

@@ -123,8 +123,9 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 			headerParts.remove("multipartMessageBody");
 			headerParts.remove("Is-Enabled-Clearing-House");
 		}
-		// TODO: Send The MultipartMessage message to the WebSocket
-		if(isEnabledWebSocket) {
+		// Send The MultipartMessage message to the WebSocket if usage control is not enabled
+		// else process with usage control processor
+		if(isEnabledWebSocket && !isEnabledUsageControl) {
 			String responseMultipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
 			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration.responseMessageBufferWebSocket();
 			responseMessageServerBean.add(responseMultipartMessageString.getBytes());

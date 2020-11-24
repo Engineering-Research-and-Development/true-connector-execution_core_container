@@ -53,7 +53,7 @@ public class SenderValidateTokenProcessor implements Processor {
 		
 		String token = multipartMessage.getToken();
 		Message message = multipartMessage.getHeaderContent();
-		logger.info("token: ", token);
+		logger.info("token: {}", token);
 		
 		// Check is "token" valid
 		boolean isTokenValid = dapsService.validateToken(token);
