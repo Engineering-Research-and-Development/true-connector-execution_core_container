@@ -12,7 +12,7 @@
 	<groupId>it.eng.idsa</groupId>
 	<artifactId>market4.0-execution_core_container_business_logic
 	</artifactId>
-	<version>0.0.17-SNAPSHOT</version>
+	<version>0.0.18-SNAPSHOT</version>
 	<name>market4.0-execution_core_container_business_logic</name>
 	<description>Market4.0 execution core container Business Logic
 	</description>
@@ -24,7 +24,7 @@
 		<tomcat.version>9.0.24</tomcat.version>
 		<information.model.version>4.0.0</information.model.version>
 		<application.basedir>${basedir}</application.basedir>
-		<multipart.message.processor.version>1.0.3-SNAPSHOT</multipart.message.processor.version>
+		<multipart.message.processor.version>1.0.4-SNAPSHOT</multipart.message.processor.version>
 	</properties>
 
 	<repositories>

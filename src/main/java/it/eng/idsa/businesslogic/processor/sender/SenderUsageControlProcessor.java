@@ -163,7 +163,7 @@ public class SenderUsageControlProcessor implements Processor {
     		logger.info("Sending response to DataApp");
 
         } catch (Exception e) {
-            logger.error("Usage Control Enforcement has failed with MESSAGE: ", e.getMessage());
+            logger.error("Usage Control Enforcement has failed with MESSAGE: {}", e.getMessage());
             rejectionMessageService.sendRejectionMessage(
                     RejectionMessageType.REJECTION_USAGE_CONTROL,
                     message);
