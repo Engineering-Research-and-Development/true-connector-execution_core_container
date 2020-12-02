@@ -82,9 +82,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	private Integer webSocketPort;
 
 	@Override
-public void process(Exchange exchange) throws Exception {
-
-		
+	public void process(Exchange exchange) throws Exception {
 		MultipartMessage multipartMessage = exchange.getIn().getBody(MultipartMessage.class);
 		Map<String, Object> headerParts = exchange.getIn().getHeaders();
 
@@ -260,7 +258,8 @@ public void process(Exchange exchange) throws Exception {
 		String responseMessage = new String(
 				webSocketClientConfiguration.responseMessageBufferWebSocketClient().remove());
 		this.closeWSClient(wsClient);
-		logger.info("received response: " + responseMessage);
+		logger.info("received response");
+		logger.debug("content: " + responseMessage);
 
 		return responseMessage;
 	}

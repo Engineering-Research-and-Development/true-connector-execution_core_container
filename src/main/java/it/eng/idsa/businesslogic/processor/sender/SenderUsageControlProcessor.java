@@ -99,7 +99,7 @@ public class SenderUsageControlProcessor implements Processor {
 			payload = multipartMessage.getPayloadContent();
 			message = multipartMessageService.getMessage(header);
 			logger.info("from: " + exchange.getFromEndpoint());
-            logger.info("Message Body: " + payload);
+            logger.debug("Message Body: " + payload);
             logger.info("Message Body Out: " + exchange.getOut().getBody(String.class));
 
             JsonElement transferedDataObject = getDataObject(payload);
@@ -113,7 +113,7 @@ public class SenderUsageControlProcessor implements Processor {
                 String targetArtifactId = ucObj.getMeta().getTargetArtifact().getId().toString();
                 IdsMsgTarget idsMsgTarget = getIdsMsgTarget();
                 if (null != ucObj.getPayload() && !(CachedOutputStream.class.equals(ucObj.getPayload().getClass().getEnclosingClass()))) {
-                    logger.info("Message Body In: " + ucObj.getPayload().toString());
+                    logger.debug("Message Body In: " + ucObj.getPayload().toString());
 
                     IdsUseObject idsUseObject = new IdsUseObject();
                     idsUseObject.setTargetDataUri(targetArtifactId);
@@ -125,7 +125,7 @@ public class SenderUsageControlProcessor implements Processor {
                         final LinkedTreeMap<?, ?> treeMap = (LinkedTreeMap<?, ?>) result;
                         final JsonElement jsonElement = gson.toJsonTree(treeMap);
                         ucObj.setPayload(jsonElement);
-                        logger.info("Result from Usage Control: " + jsonElement.toString());
+                        logger.debug("Result from Usage Control: " + jsonElement.toString());
                     } else if (null == result || StringUtils.isEmpty(result.toString())) {
                         throw new Exception("Usage Control Enforcement with EMPTY RESULT encountered.");
                     }

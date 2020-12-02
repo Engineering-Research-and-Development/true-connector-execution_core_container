@@ -106,7 +106,7 @@ public class ReceiverUsageControlProcessor implements Processor {
                 String payloadToEnforce = createUsageControlObject(artifactRequestMessage.getRequestedArtifact(),
                         multipartMessage.getPayloadContent());
                 logger.info("from: " + exchange.getFromEndpoint());
-                logger.info("Message Body: " + payloadToEnforce);
+                logger.debug("Message Body: " + payloadToEnforce);
                 logger.info("Message Body Out: " + exchange.getOut().getBody(String.class));
 
                 MultipartMessage reponseMultipartMessage = new MultipartMessageBuilder()
