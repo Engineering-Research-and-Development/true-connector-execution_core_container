@@ -138,6 +138,12 @@ public class SenderUsageControlProcessor implements Processor {
                             multipartMessagetoString(multipartMessageResponse, false);
                 }
             }
+            else {
+            	logger.info("Usage Control not applied - not ArtifactRequestMessage/ArtifactResponseMessage");
+                 responseMultipartMessageString = MultipartMessageProcessor.
+                         multipartMessagetoString(multipartMessage, false);
+            	
+            }
             if(isEnabledWebSocket) {
                 ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration.responseMessageBufferWebSocket();
                 responseMessageServerBean.add(responseMultipartMessageString.getBytes());

@@ -31,9 +31,7 @@ import de.fraunhofer.dataspaces.iese.camel.interceptor.model.Meta;
 import de.fraunhofer.dataspaces.iese.camel.interceptor.model.TargetArtifact;
 import de.fraunhofer.dataspaces.iese.camel.interceptor.model.UsageControlObject;
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
-import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.Message;
-import de.fraunhofer.iais.eis.RejectionMessage;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
@@ -85,11 +83,11 @@ public class ReceiverUsageControlProcessor implements Processor {
             if(null == requestMessage || null == responseMessage)
                 throw new Exception("Request or Response messages are empty.");
             
-            if (!(requestMessage instanceof  ArtifactRequestMessage
-                    && (responseMessage instanceof ArtifactResponseMessage)
-                    && !(responseMessage instanceof RejectionMessage))) {
-                throw new Exception("Response Header Type is not compatible with Usage Control Required.");
-            }
+//            if (!(requestMessage instanceof  ArtifactRequestMessage
+//                    && (responseMessage instanceof ArtifactResponseMessage)
+//                    && !(responseMessage instanceof RejectionMessage))) {
+//                throw new Exception("Response Header Type is not compatible with Usage Control Required.");
+//            }
 //            if (requestMessage instanceof ArtifactRequestMessage
 //                    && !(responseMessage instanceof ArtifactResponseMessage)) {
 //                throw new Exception("Response Header Type is not compatible with Usage Control Required.");
@@ -99,7 +97,7 @@ public class ReceiverUsageControlProcessor implements Processor {
             try {
                 artifactRequestMessage = (ArtifactRequestMessage) requestMessage;
             } catch (Exception e) {
-            	logger.error(e.getMessage());
+            	logger.info("RequestMessage not of instance ArtifactRequestMessage - will not apply Usage Control");
                 isUsageControlObject = false;
             }
             if (isUsageControlObject) {
