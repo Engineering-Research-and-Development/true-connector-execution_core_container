@@ -49,12 +49,12 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 
 		if (receivedDataBodyBinary == null) {
 			logger.error("Body of the received multipart message is null");
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
+			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
 		}
 
 		try {
 			MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
-
+			message= multipartMessage.getHeaderContent();
 			if (!checkHeaderContentType(
 					multipartMessage.getHeaderHeader().get(MultipartMessageKey.CONTENT_TYPE.label))) {
 				logger.error("Content type of the header must be application/json or application/json UTF-8");

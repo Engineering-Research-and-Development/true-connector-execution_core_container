@@ -8,10 +8,14 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.apache.camel.Message;
+
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactRequestMessageBuilder;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessageBuilder;
+import de.fraunhofer.iais.eis.DescriptionRequestMessage;
+import de.fraunhofer.iais.eis.DescriptionRequestMessageBuilder;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 public class TestUtilMessageService {
@@ -38,21 +42,29 @@ public class TestUtilMessageService {
 		return message;
 	}
 
-	public static String getArtifactRequestMessageAsString() {
+	public static String getArtifactRequestMessageAsString(Message message) {
 		try {
 			return MultipartMessageProcessor.serializeToJsonLD(getArtifactRequestMessage());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null;
+		return message.toString();
 
 	}
 
 	public static ArtifactResponseMessage getArtifactResponseMessage() {
-		ArtifactResponseMessage message = new ArtifactResponseMessageBuilder()._issued_(ISSUED)
-				._issuerConnector_(ISSUER_CONNECTOR)._modelVersion_(MODEL_VERSION).build();
+		ArtifactResponseMessage message = new ArtifactResponseMessageBuilder()
+				._issued_(ISSUED)
+				._issuerConnector_(ISSUER_CONNECTOR)
+				._modelVersion_(MODEL_VERSION).build();
 		return message;
 	}
 
+	public static DescriptionRequestMessage descriptionRequestMessage() {
+		return new DescriptionRequestMessageBuilder()
+				._issued_(ISSUED)
+				._issuerConnector_(ISSUER_CONNECTOR)
+				._modelVersion_(MODEL_VERSION).build();
+	}
 }
