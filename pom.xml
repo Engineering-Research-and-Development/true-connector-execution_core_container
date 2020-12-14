@@ -24,7 +24,7 @@
 		<tomcat.version>9.0.24</tomcat.version>
 		<information.model.version>4.0.0</information.model.version>
 		<application.basedir>${basedir}</application.basedir>
-		<multipart.message.processor.version>1.0.4-SNAPSHOT</multipart.message.processor.version>
+		<multipart.message.processor.version>1.0.5-SNAPSHOT</multipart.message.processor.version>
 	</properties>
 
 	<repositories>

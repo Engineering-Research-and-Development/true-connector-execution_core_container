@@ -37,7 +37,7 @@ public class TestUtilMessageService {
 		}
 	}
 	
-	public static ArtifactRequestMessage dummyArtifactRequestMessage() {
+	public static ArtifactRequestMessage getArtifactRequestMessage() {
 		
 		ArtifactRequestMessage message = new ArtifactRequestMessageBuilder()
 				._issued_(ISSUED)
@@ -50,7 +50,7 @@ public class TestUtilMessageService {
 		return message;
 	}
 
-	public static ArtifactResponseMessage dummyArtifactResponseMessage() {
+	public static ArtifactResponseMessage getArtifactResponseMessage() {
 
 		ArtifactResponseMessage message = new ArtifactResponseMessageBuilder()
 				._issued_(ISSUED)
@@ -62,12 +62,19 @@ public class TestUtilMessageService {
 		return message;
 	}
 	
+	public static DescriptionRequestMessage getDescriptionRequestMessage() {
+		return new DescriptionRequestMessageBuilder()
+				._issued_(ISSUED)
+				._issuerConnector_(ISSUER_CONNECTOR)
+				._modelVersion_(MODEL_VERSION)
+				.build();
+	}
+	
 
 	public static String getMessageAsString(Message message) {
 		try {
 		return MultipartMessageProcessor.serializeToJsonLD(message);
 		} catch (IOException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 		}
 		return null;
