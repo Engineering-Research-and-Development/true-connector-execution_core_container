@@ -17,6 +17,10 @@ import de.fraunhofer.iais.eis.DescriptionRequestMessageBuilder;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
+/**
+ * Util class used for testing
+ * Create methods for generating classes when required
+ */
 public class TestUtilMessageService {
 
 	private static URI REQUESTED_ARTIFACT = URI.create("http://mdm-connector.ids.isst.fraunhofer.de/artifact/1");

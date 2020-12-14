@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -37,7 +36,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	private Message messageOut;
 	@Mock
 	private de.fraunhofer.iais.eis.Message msg;
-	@Spy
+	@Mock
 	private RejectionMessageService rejectionMessageService;
 
 	@Value("${application.isEnabledDapsInteraction}")
