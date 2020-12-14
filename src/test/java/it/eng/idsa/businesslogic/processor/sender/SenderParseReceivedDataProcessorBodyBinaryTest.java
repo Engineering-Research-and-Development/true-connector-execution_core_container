@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
@@ -38,9 +37,6 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	private de.fraunhofer.iais.eis.Message msg;
 	@Mock
 	private RejectionMessageService rejectionMessageService;
-
-	@Value("${application.isEnabledDapsInteraction}")
-	private boolean isEnabledDapsInteraction;
 
 	private MultipartMessage multipartMessage;
 	private String receivedDataBodyBinary;
@@ -119,7 +115,6 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 		httpHeaders = new HashMap<>();
 		httpHeaders.put("Content-Type", "multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6");
 		httpHeaders.put("Forward-To", "https://forward.to.example");
-		httpHeaders.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
 		httpHeaders.put("Payload-Content-Type", ContentType.APPLICATION_JSON);
 		when(message.getHeaders()).thenReturn(httpHeaders);
 	}
