@@ -8,14 +8,13 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.apache.camel.Message;
-
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactRequestMessageBuilder;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessageBuilder;
 import de.fraunhofer.iais.eis.DescriptionRequestMessage;
 import de.fraunhofer.iais.eis.DescriptionRequestMessageBuilder;
+import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 public class TestUtilMessageService {
@@ -42,14 +41,14 @@ public class TestUtilMessageService {
 		return message;
 	}
 
-	public static String getArtifactRequestMessageAsString(Message message) {
+	public static String getMessageAsString(Message message) {
 		try {
-			return MultipartMessageProcessor.serializeToJsonLD(getArtifactRequestMessage());
+			return MultipartMessageProcessor.serializeToJsonLD(message);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return message.toString();
+		return null;
 
 	}
 

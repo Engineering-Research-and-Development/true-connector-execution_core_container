@@ -57,8 +57,8 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	public void processWithoutDaps() throws Exception {
 		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", false);
 		mockExchangeGetHttpHeaders(exchange);
-		header = TestUtilMessageService.getArtifactRequestMessageAsString(message);
 		msg=TestUtilMessageService.getArtifactRequestMessage();
+		header = TestUtilMessageService.getMessageAsString(msg);
 		when(httpHeaderService.getHeaderContentHeaders(httpHeaders)).thenReturn(headerContentHeaders);
 		when(httpHeaderService.getHeaderMessagePartFromHttpHeadersWithoutToken(httpHeaders)).thenReturn(header);
 		when(multipartMessageService.getMessage(header)).thenReturn(msg);
