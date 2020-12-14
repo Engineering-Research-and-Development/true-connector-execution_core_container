@@ -20,6 +20,7 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
 /**
@@ -35,6 +36,9 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean isEnabledDapsInteraction;
+	
+	@Value("${application.isEnabledClearingHouse}")
+	private boolean isEnabledClearingHouse;
 
 	@Autowired
 	private MultipartMessageService multipartMessageService;
@@ -61,6 +65,7 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 			// application.isEnabledDapsInteraction
 			headesParts = exchange.getIn().getHeaders();
 			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
+			headesParts.put("Is-Enabled-Clearing-House", isEnabledClearingHouse);
 			contentType = receivedDataHeader.get("Content-Type").toString();
 			headesParts.put("Content-Type", contentType);
 			forwardTo = receivedDataHeader.get("Forward-To").toString();
@@ -77,10 +82,11 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 			if (receivedDataHeader.containsKey("payload")) {
 				payload = receivedDataHeader.get("payload").toString();
 			}
-			MultipartMessage multipartMessage = new MultipartMessage(
-					receivedDataHeader.entrySet().stream().filter(entry -> entry.getValue() instanceof String)
-							.collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue())),
-					null, message, null, payload, null, null,null);
+			
+			MultipartMessage multipartMessage = new MultipartMessageBuilder()
+					.withHeaderContent(header)
+					.withPayloadContent(payload)
+					.build();
 
 			// Return exchange
 			exchange.getOut().setHeaders(headesParts);

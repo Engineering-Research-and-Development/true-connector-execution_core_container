@@ -48,6 +48,9 @@ public class SenderParseReceivedResponseMessage implements Processor {
 
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean isEnabledDapsInteraction;
+	
+	@Value("${application.isEnabledClearingHouse}")
+	private boolean isEnabledClearingHouse;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -111,6 +114,7 @@ public class SenderParseReceivedResponseMessage implements Processor {
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 		}
+		headersParts.put("Is-Enabled-Clearing-House", isEnabledClearingHouse);
 		exchange.getOut().setHeaders(headersParts);
 		exchange.getOut().setBody(multipartMessage);
 	}

@@ -32,7 +32,10 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean isEnabledDapsInteraction;
-
+	
+	@Value("${application.isEnabledClearingHouse}")
+	private boolean isEnabledClearingHouse;
+	
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
 
@@ -65,6 +68,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 			// Put in the header value of the application.property:
 			// application.isEnabledDapsInteraction
 			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
+			headesParts.put("Is-Enabled-Clearing-House", isEnabledClearingHouse);
 			headesParts.put("Payload-Content-Type",
 					multipartMessage.getPayloadHeader().get(MultipartMessageKey.CONTENT_TYPE.label));
 
