@@ -22,12 +22,12 @@ public class TestUtilMultipartMessageBuilder {
 	
 	
 	public TestUtilMultipartMessageBuilder withArtifactRequestMessage() {
-		this.headerContent = TestUtilMessageService.dummyArtifactRequestMessage();
+		this.headerContent = TestUtilMessageService.getArtifactRequestMessage();
 		return this;
 	}
 	
 	public TestUtilMultipartMessageBuilder withArtifactResponseMessage() {
-		this.headerContent = TestUtilMessageService.dummyArtifactResponseMessage();
+		this.headerContent = TestUtilMessageService.getArtifactResponseMessage();
 		return this;
 	}
 	

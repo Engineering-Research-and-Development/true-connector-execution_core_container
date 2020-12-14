@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import it.eng.idsa.businesslogic.processor.common.SendTransactionToCHProcessor;
+import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
+import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverExceptionMultiPartMessageProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverFileRecreatorProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverGetTokenFromDapsProcessor;
@@ -19,9 +22,6 @@ import it.eng.idsa.businesslogic.processor.receiver.ReceiverSendDataToDataAppPro
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverUsageControlProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverWebSocketSendDataToDataAppProcessor;
-import it.eng.idsa.businesslogic.processor.common.SendTransactionToCHProcessor;
-import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
-import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
 
 /**
  * 
@@ -110,7 +110,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 					.choice()
 					.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
 						.process(validateTokenProcessor)
-						.log("Registering request to clearing house")
 	                    .process(sendTransactionToCHProcessor)
 						// Send to the Endpoint: F
 						.choice()
@@ -149,7 +148,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 					.choice()
 						.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
 							.process(validateTokenProcessor)
-							.log("Registering request to clearing house")
 	                        .process(sendTransactionToCHProcessor)
 							// Send to the Endpoint: F
 							.choice()
@@ -165,7 +163,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 	                            .process(sendTransactionToCHProcessor)
 								.process(sendDataToBusinessLogicProcessor)
 						.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-								.log("Registering request to clearing house")
 		                    	.process(sendTransactionToCHProcessor)
 							// Send to the Endpoint: F
 							.choice()
