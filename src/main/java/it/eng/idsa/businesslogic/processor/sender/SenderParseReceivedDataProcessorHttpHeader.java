@@ -27,9 +27,6 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean isEnabledDapsInteraction;
 	
-	@Value("${application.isEnabledClearingHouse}")
-	private boolean isEnabledClearingHouse;
-	
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
 	
@@ -54,7 +51,6 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 		try {
 			// Put in the header value of the application.property: application.isEnabledDapsInteraction
 			headersParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
-			headersParts.put("Is-Enabled-Clearing-House", isEnabledClearingHouse);
 			headerContentHeaders = headerService.getHeaderContentHeaders(headersParts);
 			String header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
 			message = multipartMessageService.getMessage(header);

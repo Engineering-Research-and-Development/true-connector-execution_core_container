@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
-import it.eng.idsa.businesslogic.processor.common.SendTransactionToCHProcessor;
+import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorSender;
@@ -62,7 +62,7 @@ public class CamelRouteSender extends RouteBuilder {
 	SenderGetTokenFromDapsProcessor getTokenFromDapsProcessor;
 
 	@Autowired
-	SendTransactionToCHProcessor sendTransactionToCHProcessor;
+	RegisterTransactionToCHProcessor sendTransactionToCHProcessor;
 
 	@Autowired
 	SenderSendDataToBusinessLogicProcessor sendDataToBusinessLogicProcessor;

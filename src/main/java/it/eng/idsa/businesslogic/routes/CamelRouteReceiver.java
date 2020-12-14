@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
-import it.eng.idsa.businesslogic.processor.common.SendTransactionToCHProcessor;
+import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverExceptionMultiPartMessageProcessor;
@@ -53,7 +53,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 	ReceiverSendDataToDataAppProcessor sendDataToDataAppProcessor;
 	
 	@Autowired
-	SendTransactionToCHProcessor sendTransactionToCHProcessor;
+	RegisterTransactionToCHProcessor sendTransactionToCHProcessor;
 	
 	@Autowired
 	ExceptionProcessorReceiver exceptionProcessorReceiver;

@@ -18,9 +18,9 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
  */
 
 @Component
-public class SendTransactionToCHProcessor implements Processor {
+public class RegisterTransactionToCHProcessor implements Processor {
 	
-	private static final Logger logger = LogManager.getLogger(SendTransactionToCHProcessor.class);
+	private static final Logger logger = LogManager.getLogger(RegisterTransactionToCHProcessor.class);
 
 
 	@Autowired

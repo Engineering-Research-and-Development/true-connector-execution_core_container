@@ -3,7 +3,6 @@ package it.eng.idsa.businesslogic.processor.sender;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.activation.DataHandler;
 
@@ -37,9 +36,6 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean isEnabledDapsInteraction;
 	
-	@Value("${application.isEnabledClearingHouse}")
-	private boolean isEnabledClearingHouse;
-
 	@Autowired
 	private MultipartMessageService multipartMessageService;
 
@@ -65,7 +61,6 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 			// application.isEnabledDapsInteraction
 			headesParts = exchange.getIn().getHeaders();
 			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
-			headesParts.put("Is-Enabled-Clearing-House", isEnabledClearingHouse);
 			contentType = receivedDataHeader.get("Content-Type").toString();
 			headesParts.put("Content-Type", contentType);
 			forwardTo = receivedDataHeader.get("Forward-To").toString();

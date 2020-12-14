@@ -65,8 +65,6 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 		String responseString = null;
 		String contentType = null;
 
-		// Put in the header value of the application.property:
-		// application.isEnabledClearingHouse
 		if (eccHttpSendRouter.equals("http-header")) {
 			responseString = multipartMessage.getPayloadContent();
 			contentType = headersParts.get("Payload-Content-Type").toString();
