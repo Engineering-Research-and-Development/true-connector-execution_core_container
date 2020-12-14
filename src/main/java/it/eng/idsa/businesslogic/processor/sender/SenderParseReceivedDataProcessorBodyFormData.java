@@ -3,7 +3,6 @@ package it.eng.idsa.businesslogic.processor.sender;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.activation.DataHandler;
 
@@ -82,7 +81,7 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 			if (receivedDataHeader.containsKey("payload")) {
 				payload = receivedDataHeader.get("payload").toString();
 			}
-			
+
 			MultipartMessage multipartMessage = new MultipartMessageBuilder()
 					.withHeaderContent(header)
 					.withPayloadContent(payload)
