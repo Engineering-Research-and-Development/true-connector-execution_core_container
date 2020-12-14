@@ -19,6 +19,7 @@ import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 public class TestUtilMessageService {
 
+
 	public static URI REQUESTED_ARTIFACT = URI.create("http://mdm-connector.ids.isst.fraunhofer.de/artifact/1");
 
 	public static URI ISSUER_CONNECTOR = URI.create("http://true.engineering.it/ids/mdm-connector");
@@ -40,8 +41,7 @@ public class TestUtilMessageService {
 	}
 	
 	public static ArtifactRequestMessage getArtifactRequestMessage() {
-		
-		ArtifactRequestMessage message = new ArtifactRequestMessageBuilder()
+		return new ArtifactRequestMessageBuilder()
 				._issued_(ISSUED)
 				._correlationMessage_(CORRELATION_MESSAGE)
 				._transferContract_(TRANSFER_CONTRACT)
@@ -49,19 +49,16 @@ public class TestUtilMessageService {
 				._modelVersion_(MODEL_VERSION)
 				._requestedArtifact_(REQUESTED_ARTIFACT)
 				.build();
-		return message;
 	}
 
 	public static ArtifactResponseMessage getArtifactResponseMessage() {
-
-		ArtifactResponseMessage message = new ArtifactResponseMessageBuilder()
+		return new ArtifactResponseMessageBuilder()
 				._issued_(ISSUED)
 				._correlationMessage_(CORRELATION_MESSAGE)
 				._transferContract_(TRANSFER_CONTRACT)
 				._issuerConnector_(ISSUER_CONNECTOR)
 				._modelVersion_(MODEL_VERSION)
 				.build();
-		return message;
 	}
 	
 	public static DescriptionRequestMessage getDescriptionRequestMessage() {
@@ -82,4 +79,5 @@ public class TestUtilMessageService {
 		return null;
 
 		 }
+
 }

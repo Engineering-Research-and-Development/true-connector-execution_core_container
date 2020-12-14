@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
@@ -41,9 +40,6 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	private String header;
 	private Map<String, Object> httpHeaders;
 	Map<String, Object> headerContentHeaders = new HashMap<>();
-
-	@Value("${application.isEnabledDapsInteraction}")
-	private boolean isEnabledDapsInteraction;
 
 	@InjectMocks
 	private SenderParseReceivedDataProcessorHttpHeader processor;
@@ -87,7 +83,6 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 				"https://w3id.org/idsa/autogen/artifactRequestMessage/d107ab28-5dc4-4f0c-a440-6d12ae6f2aab");
 		httpHeaders.put("IDS-ModelVersion", "4.0.0");
 		httpHeaders.put("IDS-RequestedArtifact", "http://mdm-connector.ids.isst.fraunhofer.de/artifact/1");
-		httpHeaders.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
 		httpHeaders.put("Payload-Content-Type", ContentType.APPLICATION_JSON);
 		when(message.getHeaders()).thenReturn(httpHeaders);
 	}

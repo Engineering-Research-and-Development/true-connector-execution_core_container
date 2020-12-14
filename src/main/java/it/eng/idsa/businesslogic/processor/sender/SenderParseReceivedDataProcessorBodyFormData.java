@@ -77,7 +77,7 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 			if (receivedDataHeader.containsKey("payload")) {
 				payload = receivedDataHeader.get("payload").toString();
 			}
-			
+
 			MultipartMessage multipartMessage = new MultipartMessageBuilder()
 					.withHeaderContent(header)
 					.withPayloadContent(payload)
