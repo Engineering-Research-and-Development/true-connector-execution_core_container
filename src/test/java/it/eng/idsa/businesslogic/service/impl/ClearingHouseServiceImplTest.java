@@ -55,12 +55,13 @@ public class ClearingHouseServiceImplTest {
 	  @Disabled
 	  //TODO enable test when CH is on the correct infomodel
 	  public void testRegisterTransactionFail () {
-		  assertThrows(ExceptionForProcessor.class, ()-> clearingHouseServiceImpl.registerTransaction(TestUtilMessageService.dummyArtifactRequestMessage(), payload));
+		  assertThrows(ExceptionForProcessor.class, ()-> 
+		  clearingHouseServiceImpl.registerTransaction(TestUtilMessageService.getArtifactResponseMessage(), payload));
 	  }
 	  
 	  @Test
 	  public void testRegisterTransactionSuccess () throws ConstraintViolationException, DatatypeConfigurationException {
-		 assertTrue(clearingHouseServiceImpl.registerTransaction(TestUtilMessageService.dummyArtifactRequestMessage(), payload));
+		 assertTrue(clearingHouseServiceImpl.registerTransaction(TestUtilMessageService.getArtifactResponseMessage(), payload));
 	  }
 	  
 	

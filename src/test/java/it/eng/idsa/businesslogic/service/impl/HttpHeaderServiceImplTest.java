@@ -55,7 +55,7 @@ public class HttpHeaderServiceImplTest {
 		headers.put("foo", "bar");
 		headers.put("Forward-To", "https://forwardToURL");
 		
-		multipartMessage = new MultipartMessageBuilder().withHeaderContent(TestUtilMessageService.dummyArtifactResponseMessage()).build();
+		multipartMessage = new MultipartMessageBuilder().withHeaderContent(TestUtilMessageService.getArtifactResponseMessage()).build();
 	}
 	
 	

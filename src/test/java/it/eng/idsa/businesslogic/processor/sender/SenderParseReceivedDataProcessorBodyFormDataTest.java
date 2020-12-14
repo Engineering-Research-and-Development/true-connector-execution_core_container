@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataProcessorBodyFormData;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
@@ -48,7 +47,7 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		msg = TestUtilMessageService.dummyArtifactRequestMessage();
+		msg = TestUtilMessageService.getArtifactRequestMessage();
 		headerAsString = TestUtilMessageService.getMessageAsString(msg);
 	}
 
