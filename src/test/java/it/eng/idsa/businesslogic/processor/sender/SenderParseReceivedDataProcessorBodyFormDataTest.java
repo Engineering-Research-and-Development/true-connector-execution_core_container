@@ -5,7 +5,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -19,11 +18,12 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.TestUtilMessageService;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
 public class SenderParseReceivedDataProcessorBodyFormDataTest {
 	
-	private final static String HEADER_STRING = "header";
 	private final static String PAYLOAD_STRING = "payload";
 	
 	@Mock
@@ -37,8 +37,9 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 	private Message message;
 	@Mock
 	private Message messageOut;
-	@Mock
+	
 	private de.fraunhofer.iais.eis.Message msg;
+	private String headerAsString;
 	
 	@InjectMocks
 	private SenderParseReceivedDataProcessorBodyFormData processor;
@@ -46,22 +47,23 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
+		msg = TestUtilMessageService.getArtifactRequestMessage();
+		headerAsString = TestUtilMessageService.getMessageAsString(msg);
 	}
 
 	@Test
 	public void processWithoutDaps() throws Exception {
 		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", false);
 		mockExchangeGetHeaders(exchange);
-		when(multipartMessageService.getMessage(HEADER_STRING)).thenReturn(msg);
+		when(multipartMessageService.getMessage(headerAsString)).thenReturn(msg);
 		when(exchange.getOut()).thenReturn(messageOut);
 		
 		processor.process(exchange);
 		
-		Map<String, String> multipartMap = message.getHeaders().entrySet().stream().filter(entry -> entry.getValue() instanceof String)
-				.collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue()));
-		
-		MultipartMessage multipartMessage = new MultipartMessage(multipartMap,
-				null, msg, null, PAYLOAD_STRING, null, null,null);
+		MultipartMessage multipartMessage = new MultipartMessageBuilder()
+				.withHeaderContent(msg)
+				.withPayloadContent(PAYLOAD_STRING)
+				.build();
 		
 		verify(messageOut).setBody(multipartMessage);
 	}
@@ -71,7 +73,7 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 		Map<String, Object> headers = new HashMap<>();
 		headers.put("Content-Type", ContentType.APPLICATION_JSON);
 		headers.put("Forward-To", "https://forward.to.example");
-		headers.put("header", HEADER_STRING);
+		headers.put("header", headerAsString);
 		headers.put("payload", PAYLOAD_STRING);
 		when(message.getHeaders()).thenReturn(headers);
 	}

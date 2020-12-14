@@ -23,8 +23,10 @@ import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
  */
 public class TestUtilMessageService {
 
-	private static URI REQUESTED_ARTIFACT = URI.create("http://w3id.org/engrd/connector/artifact/1");
-	private static URI ISSUER_CONNECTOR = URI.create("http://w3id.org/engrd/connector");
+	private static URI REQUESTED_ARTIFACT = URI.create("http://mdm-connector.ids.isst.fraunhofer.de/artifact/1");
+
+	private static URI ISSUER_CONNECTOR = URI.create("http://true.engineering.it/ids/mdm-connector");
+
 	private static String MODEL_VERSION = "4.0.0";
 
 	private static XMLGregorianCalendar ISSUED;
@@ -37,36 +39,35 @@ public class TestUtilMessageService {
 	}
 
 	public static ArtifactRequestMessage getArtifactRequestMessage() {
-		return new ArtifactRequestMessageBuilder()
-				._issued_(ISSUED)
-				._issuerConnector_(ISSUER_CONNECTOR)
-				._modelVersion_(MODEL_VERSION)
-				._requestedArtifact_(REQUESTED_ARTIFACT)
-				.build();
+		ArtifactRequestMessage message = new ArtifactRequestMessageBuilder()._issued_(ISSUED)
+				._issuerConnector_(ISSUER_CONNECTOR)._modelVersion_(MODEL_VERSION)
+				._requestedArtifact_(REQUESTED_ARTIFACT).build();
+		return message;
 	}
 
-	public static ArtifactResponseMessage getArtifactResponseMessage() {
-		return new ArtifactResponseMessageBuilder()
-				._issued_(ISSUED)
-				._issuerConnector_(ISSUER_CONNECTOR)
-				._modelVersion_(MODEL_VERSION)
-				.build();
-	}
-
-	public static DescriptionRequestMessage getDescriptionRequestMessage() {
-		return new DescriptionRequestMessageBuilder()
-				._issued_(ISSUED)
-				._issuerConnector_(ISSUER_CONNECTOR)
-				._modelVersion_(MODEL_VERSION)
-				.build();
-	}
-	
 	public static String getMessageAsString(Message message) {
 		try {
 			return MultipartMessageProcessor.serializeToJsonLD(message);
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
+
+	}
+
+	public static ArtifactResponseMessage getArtifactResponseMessage() {
+		ArtifactResponseMessage message = new ArtifactResponseMessageBuilder()
+				._issued_(ISSUED)
+				._issuerConnector_(ISSUER_CONNECTOR)
+				._modelVersion_(MODEL_VERSION).build();
+		return message;
+	}
+
+	public static DescriptionRequestMessage descriptionRequestMessage() {
+		return new DescriptionRequestMessageBuilder()
+				._issued_(ISSUED)
+				._issuerConnector_(ISSUER_CONNECTOR)
+				._modelVersion_(MODEL_VERSION).build();
 	}
 }
