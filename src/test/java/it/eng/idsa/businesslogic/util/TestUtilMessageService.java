@@ -20,15 +20,15 @@ import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 public class TestUtilMessageService {
 
 
-	public static URI REQUESTED_ARTIFACT = URI.create("http://mdm-connector.ids.isst.fraunhofer.de/artifact/1");
+	public static URI REQUESTED_ARTIFACT = URI.create("http://w3id.org/engrd/connector/artifact/1");
 
-	public static URI ISSUER_CONNECTOR = URI.create("http://true.engineering.it/ids/mdm-connector");
+	public static URI ISSUER_CONNECTOR = URI.create("http://w3id.org/engrd/connector");
 	
 	public static String MODEL_VERSION = "4.0.0";
 	
-	public static URI CORRELATION_MESSAGE = URI.create("http://industrialdataspace.org/connectorUnavailableMessage/1a421b8c-3407-44a8-aeb9-253f145c869a");
+	public static URI CORRELATION_MESSAGE = URI.create("http://w3id.org/connectorUnavailableMessage/1a421b8c-3407-44a8-aeb9-253f145c869a");
 	
-	public static URI TRANSFER_CONTRACT = URI.create("https://mdm-connector.ids.isst.fraunhofer.de/examplecontract/bab-bayern-sample");
+	public static URI TRANSFER_CONTRACT = URI.create("http://w3id.org/engrd/connector//examplecontract");
 	
 	public static XMLGregorianCalendar ISSUED;
 	
