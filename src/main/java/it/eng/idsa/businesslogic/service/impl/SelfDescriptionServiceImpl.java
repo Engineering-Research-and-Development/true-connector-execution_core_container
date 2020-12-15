@@ -69,17 +69,18 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 
 	@PostConstruct
 	public void initConnector() throws ConstraintViolationException, URISyntaxException {
-		issuerConnectorURI = new URI("https://eng.true-connector.com/" + "igor");//RandomStringUtils.randomAlphabetic(3));
+//		issuerConnectorURI = new URI("https://eng.true-connector.com/" + "igor");//RandomStringUtils.randomAlphabetic(3));
+		issuerConnectorURI = selfDescriptionConfiguration.getConnectorURI();
 		this.connector = new BaseConnectorBuilder(issuerConnectorURI)
-				._maintainer_(new URI(selfDescriptionConfiguration.getCompanyURI()))
+				._maintainer_(new URI(selfDescriptionConfiguration.getSelfDescription().getCompanyURI()))
 				._curator_(issuerConnectorURI)
 				._resourceCatalog_((ArrayList<? extends ResourceCatalog>) this.getCatalog()) // Infomodel version 4.0.0
 				._securityProfile_(SecurityProfile.BASE_SECURITY_PROFILE) // Infomodel version 4.0.0
 				._maintainer_(new URI("https://maintainerURL" + RandomStringUtils.randomAlphabetic(3)))
-				._inboundModelVersion_(Util.asList(new String[] { selfDescriptionConfiguration.getInfoModelVersion() }))
+				._inboundModelVersion_(Util.asList(new String[] { selfDescriptionConfiguration.getInformationMovelVersion() }))
 				._title_(Util.asList(new TypedLiteral("Test Fraunhofer Digital Broker " + RandomStringUtils.randomAlphabetic(3))))
 				._description_(Util.asList(new TypedLiteral("This is selfDescription description for Eng true connector")))
-				._outboundModelVersion_(selfDescriptionConfiguration.getInfoModelVersion())
+				._outboundModelVersion_(selfDescriptionConfiguration.getInformationMovelVersion())
 //				._hasDefaultEndpoint_(new ConnectorEndpointBuilder(new URI("https://someURL/selfDescription")).build())
 //				._hasEndpoint_(Util.asList(new ConnectorEndpointBuilder(new URI("https://someURL/incoming-data-channel/receivedMessage")).build()))
 				.build();
@@ -89,7 +90,6 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		if (null == this.connector) {
 			this.initConnector();
 		}
-
 		return this.connector;
 	}
 
@@ -108,9 +108,9 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	private Resource getResource() throws ConstraintViolationException, URISyntaxException {
 		Resource offeredResource = (new ResourceBuilder())
 				._title_(Util.asList(
-						new TypedLiteral(selfDescriptionConfiguration.getResource().getTitle())))
+						new TypedLiteral(selfDescriptionConfiguration.getSelfDescription().getResource().getTitle())))
 				._description_(Util.asList(
-						new TypedLiteral(selfDescriptionConfiguration.getResource().getDescription())))
+						new TypedLiteral(selfDescriptionConfiguration.getSelfDescription().getResource().getDescription())))
 //				._contractOffer_(getContractOffers())
 				._contentType_(ContentType.SCHEMA_DEFINITION)
 				._keyword_(Util.asList(new TypedLiteral("Engineering Ingegneria Informatica SpA"), 
@@ -123,9 +123,9 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 
 	private ArrayList<ContractOffer> getContractOffers() throws ConstraintViolationException, URISyntaxException {
 		Permission permission = new PermissionBuilder(
-				new URI(selfDescriptionConfiguration.getContractOffer().getPermission())).build();
+				new URI(selfDescriptionConfiguration.getSelfDescription().getContractOffer().getPermission())).build();
 		ContractOffer contractOffer = new ContractOfferBuilder(new URI("http://example.com/ids-profile/1234"))
-				._provider_(new URI(selfDescriptionConfiguration.getContractOffer().getProvider()))
+				._provider_(new URI(selfDescriptionConfiguration.getSelfDescription().getContractOffer().getProvider()))
 				._permission_(Util.asList(permission))
 				.build();
 		
@@ -151,7 +151,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		._senderAgent_(new URI("http://example.org" + RandomStringUtils.randomAlphabetic(3)))
 		._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
 		._issuerConnector_(issuerConnectorURI)
-		._modelVersion_(selfDescriptionConfiguration.getInfoModelVersion())
+		._modelVersion_(selfDescriptionConfiguration.getInformationMovelVersion())
 		._affectedConnector_(connector.getId())
 		.build();
 	}
@@ -175,7 +175,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		return new ConnectorUpdateMessageBuilder(new URI("https://w3id.org/idsa/autogen/connectorUpdateMessage/6d875403-cfea-4aad-979c-3515c2e71967"))
 				._securityToken_(securityToken)
 				._senderAgent_(new URI("http://example.org"))
-				._modelVersion_(selfDescriptionConfiguration.getInfoModelVersion())
+				._modelVersion_(selfDescriptionConfiguration.getInformationMovelVersion())
 				._issuerConnector_(issuerConnectorURI)
 				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
 				._affectedConnector_(connector.getId())
@@ -192,7 +192,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		return new ConnectorUnavailableMessageBuilder(new URI("http://industrialdataspace.org/connectorUnavailableMessage/"+ UUID.randomUUID().toString()))
 				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
 				._affectedConnector_(connector.getId())
-				._modelVersion_(selfDescriptionConfiguration.getInfoModelVersion())
+				._modelVersion_(selfDescriptionConfiguration.getInformationMovelVersion())
 				._issuerConnector_(issuerConnectorURI)
 				._securityToken_(securityToken)
 				._senderAgent_(new URI("http://example.org"))
@@ -207,7 +207,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		DynamicAttributeToken securityToken = getJwToken();
 		
 		return new ConnectorUnavailableMessageBuilder(new URI("https://w3id.org/idsa/autogen/connectorInactiveMessage/8ea20fa1-7258-41c9-abc2-82c787d50ec3"))
-				._modelVersion_(selfDescriptionConfiguration.getInfoModelVersion())
+				._modelVersion_(selfDescriptionConfiguration.getInformationMovelVersion())
 				._issuerConnector_(issuerConnectorURI)
 				._senderAgent_(new URI("http://example.org"))
 				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
@@ -224,7 +224,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		return new QueryMessageBuilder(new URI("https://w3id.org/idsa/autogen/queryMessage" + UUID.randomUUID().toString()))
 				._securityToken_(securityToken)
 				._senderAgent_(new URI("http://example.org"))
-				._modelVersion_(selfDescriptionConfiguration.getInfoModelVersion())
+				._modelVersion_(selfDescriptionConfiguration.getInformationMovelVersion())
 				._issuerConnector_(issuerConnectorURI)
 				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
 				._queryLanguage_(QueryLanguage.SPARQL)

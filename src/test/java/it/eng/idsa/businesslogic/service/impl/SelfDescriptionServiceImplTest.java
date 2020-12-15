@@ -13,13 +13,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
-import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration.ContractOffer;
-import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration.Resource;
+import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration.SelfDescription;
+import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration.SelfDescription.ContractOffer;
+import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration.SelfDescription.Resource;
 import it.eng.idsa.businesslogic.service.DapsService;
 
 public class SelfDescriptionServiceImplTest {
@@ -28,6 +30,8 @@ public class SelfDescriptionServiceImplTest {
 	private DapsService dapsService;
 	@Mock
 	private SelfDescriptionConfiguration configuration;
+	@Mock
+	private SelfDescription sDProperties;
 	@Mock
 	private Resource resource;
 	@Mock
@@ -46,21 +50,23 @@ public class SelfDescriptionServiceImplTest {
 	public void setup() throws ConstraintViolationException, URISyntaxException {
 		MockitoAnnotations.initMocks(this);
 		when(dapsService.getJwtToken()).thenReturn("mockTokenValue");
-		when(configuration.getCompanyURI()).thenReturn(companyURI);
-		when(configuration.getConnectorURI()).thenReturn(connectorURI);
-		when(configuration.getInfoModelVersion()).thenReturn(infoModelVersion);
-		when(configuration.getResource()).thenReturn(resource);
+		when(configuration.getSelfDescription()).thenReturn(sDProperties);
+		when(sDProperties.getCompanyURI()).thenReturn(companyURI);
+		when(sDProperties.getConnectorURI()).thenReturn(connectorURI);
+		when(sDProperties.getResource()).thenReturn(resource);
 		when(resource.getDescription()).thenReturn(resourceDescription);
 		when(resource.getLanguage()).thenReturn(resourceLang);
 		when(resource.getTitle()).thenReturn(resourceTitle);
-		when(configuration.getContractOffer()).thenReturn(contractOffer);
+		when(sDProperties.getContractOffer()).thenReturn(contractOffer);
 		when(contractOffer.getPermission()).thenReturn("https://contractOfferPermission.com");
 		when(contractOffer.getProfile()).thenReturn("https://contractOfferProfile.com");
 		when(contractOffer.getProvider()).thenReturn("https://contractOfferProvider.com");
 		when(contractOffer.getTarget()).thenReturn("https://contractOfferTarget.com");
 
 		selfDefinitionService = new SelfDescriptionServiceImpl(dapsService, configuration);
+		ReflectionTestUtils.setField(selfDefinitionService, "informationMovelVersion", infoModelVersion);
 		selfDefinitionService.initConnector();
+
 	}
 
 	@Test
