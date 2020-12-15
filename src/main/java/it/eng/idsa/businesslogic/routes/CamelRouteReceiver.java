@@ -53,7 +53,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 	ReceiverSendDataToDataAppProcessor sendDataToDataAppProcessor;
 	
 	@Autowired
-	RegisterTransactionToCHProcessor sendTransactionToCHProcessor;
+	RegisterTransactionToCHProcessor registerTransactionToCHProcessor;
 	
 	@Autowired
 	ExceptionProcessorReceiver exceptionProcessorReceiver;
@@ -97,10 +97,10 @@ public class CamelRouteReceiver extends RouteBuilder {
 				.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
 					.process(getTokenFromDapsProcessor)
 					.process(sendDataToBusinessLogicProcessor)
-					.process(sendTransactionToCHProcessor)
+					.process(registerTransactionToCHProcessor)
 				.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
 					.process(sendDataToBusinessLogicProcessor)
-					.process(sendTransactionToCHProcessor)
+					.process(registerTransactionToCHProcessor)
 			.endChoice();
 
 		// Camel SSL - Endpoint: B
@@ -110,7 +110,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 					.choice()
 					.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
 						.process(validateTokenProcessor)
-	                    .process(sendTransactionToCHProcessor)
+	                    .process(registerTransactionToCHProcessor)
 						// Send to the Endpoint: F
 						.choice()
 						.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
@@ -122,10 +122,10 @@ public class CamelRouteReceiver extends RouteBuilder {
 						.process(multiPartMessageProcessor)
 						.process(getTokenFromDapsProcessor)
 						.process(receiverUsageControlProcessor)
-	                    .process(sendTransactionToCHProcessor)
+	                    .process(registerTransactionToCHProcessor)
 						.process(sendDataToBusinessLogicProcessor)
 					.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-		                .process(sendTransactionToCHProcessor)
+		                .process(registerTransactionToCHProcessor)
 						// Send to the Endpoint: F
 						.choice()
 						.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
@@ -136,7 +136,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 						.endChoice()
 						.process(multiPartMessageProcessor)
 						.process(receiverUsageControlProcessor)
-	                    .process(sendTransactionToCHProcessor)
+	                    .process(registerTransactionToCHProcessor)
 						.process(sendDataToBusinessLogicProcessor)
 						.removeHeaders("Camel*")
 					.endChoice();
@@ -148,7 +148,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 					.choice()
 						.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
 							.process(validateTokenProcessor)
-	                        .process(sendTransactionToCHProcessor)
+	                        .process(registerTransactionToCHProcessor)
 							// Send to the Endpoint: F
 							.choice()
 								.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
@@ -160,10 +160,10 @@ public class CamelRouteReceiver extends RouteBuilder {
 								.process(getTokenFromDapsProcessor)
 								.process(receiverUsageControlProcessor)
 								.log("Registering response to clearing house")
-	                            .process(sendTransactionToCHProcessor)
+	                            .process(registerTransactionToCHProcessor)
 								.process(sendDataToBusinessLogicProcessor)
 						.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-		                    	.process(sendTransactionToCHProcessor)
+		                    	.process(registerTransactionToCHProcessor)
 							// Send to the Endpoint: F
 							.choice()
 							.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
@@ -174,7 +174,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 								.process(multiPartMessageProcessor)
 								.process(receiverUsageControlProcessor)
 								.log("Registering response to clearing house")
-	                        	.process(sendTransactionToCHProcessor)
+	                        	.process(registerTransactionToCHProcessor)
 							.process(sendDataToBusinessLogicProcessor)
 					.endChoice();
 			//@formatter:on

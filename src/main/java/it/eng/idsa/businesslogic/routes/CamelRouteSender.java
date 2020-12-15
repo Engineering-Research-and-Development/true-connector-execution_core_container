@@ -62,7 +62,7 @@ public class CamelRouteSender extends RouteBuilder {
 	SenderGetTokenFromDapsProcessor getTokenFromDapsProcessor;
 
 	@Autowired
-	RegisterTransactionToCHProcessor sendTransactionToCHProcessor;
+	RegisterTransactionToCHProcessor registerTransactionToCHProcessor;
 
 	@Autowired
 	SenderSendDataToBusinessLogicProcessor sendDataToBusinessLogicProcessor;
@@ -154,21 +154,21 @@ public class CamelRouteSender extends RouteBuilder {
                     .choice()
                         .when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
                             .process(getTokenFromDapsProcessor)
-                            .process(sendTransactionToCHProcessor)
+                            .process(registerTransactionToCHProcessor)
                              // Send data to Endpoint B
                             .process(sendDataToBusinessLogicProcessor)
                             .process(parseReceivedResponseMessage)
                             .process(validateTokenProcessor)
-	                        .process(sendTransactionToCHProcessor)
+	                        .process(registerTransactionToCHProcessor)
                             .process(sendResponseToDataAppProcessor)
                             .process(senderUsageControlProcessor)
 							.removeHeaders("Camel*")
                         .when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-		                    .process(sendTransactionToCHProcessor)
+		                    .process(registerTransactionToCHProcessor)
                             // Send data to Endpoint B
                             .process(sendDataToBusinessLogicProcessor)
                             .process(parseReceivedResponseMessage)
-	                        .process(sendTransactionToCHProcessor)
+	                        .process(registerTransactionToCHProcessor)
                             .process(sendResponseToDataAppProcessor)
                             .process(senderUsageControlProcessor)
 							.removeHeaders("Camel*")
@@ -180,21 +180,21 @@ public class CamelRouteSender extends RouteBuilder {
                     .choice()
                         .when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
                             .process(getTokenFromDapsProcessor)
-	                        .process(sendTransactionToCHProcessor)
+	                        .process(registerTransactionToCHProcessor)
                              // Send data to Endpoint B
                             .process(sendDataToBusinessLogicProcessor)
                             .process(parseReceivedResponseMessage)
                             .process(validateTokenProcessor)
-	                        .process(sendTransactionToCHProcessor)
+	                        .process(registerTransactionToCHProcessor)
                             .process(sendResponseToDataAppProcessor)
                             .process(senderUsageControlProcessor)
 							.removeHeaders("Camel*")
                         .when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-		                    .process(sendTransactionToCHProcessor)
+		                    .process(registerTransactionToCHProcessor)
                             // Send data to Endpoint B
                             .process(sendDataToBusinessLogicProcessor)
                             .process(parseReceivedResponseMessage)
-	                        .process(sendTransactionToCHProcessor)
+	                        .process(registerTransactionToCHProcessor)
                             .process(sendResponseToDataAppProcessor)
                             .process(senderUsageControlProcessor)
 							.removeHeaders("Camel*")
@@ -207,21 +207,21 @@ public class CamelRouteSender extends RouteBuilder {
                     .choice()
                         .when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
                             .process(getTokenFromDapsProcessor)
-	                        .process(sendTransactionToCHProcessor)
+	                        .process(registerTransactionToCHProcessor)
                             // Send data to Endpoint B
                             .process(sendDataToBusinessLogicProcessor)
                             .process(parseReceivedResponseMessage)
                             .process(validateTokenProcessor)
-	                        .process(sendTransactionToCHProcessor)
+	                        .process(registerTransactionToCHProcessor)
                             .process(sendResponseToDataAppProcessor)
                             .process(senderUsageControlProcessor)
 							.removeHeaders("Camel*")
                         .when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-		                    .process(sendTransactionToCHProcessor)
+		                    .process(registerTransactionToCHProcessor)
                             // Send data to Endpoint B
                             .process(sendDataToBusinessLogicProcessor)
                             .process(parseReceivedResponseMessage)
-	                        .process(sendTransactionToCHProcessor)
+	                        .process(registerTransactionToCHProcessor)
                             .process(sendResponseToDataAppProcessor)
                             .process(senderUsageControlProcessor)
 							.removeHeaders("Camel*")
@@ -235,20 +235,20 @@ public class CamelRouteSender extends RouteBuilder {
 						.choice()
 							.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
 								.process(getTokenFromDapsProcessor)
-	                            .process(sendTransactionToCHProcessor)
+	                            .process(registerTransactionToCHProcessor)
 								// Send data to Endpoint B
 								.process(sendDataToBusinessLogicProcessor)
 								.process(parseReceivedResponseMessage)
 								.process(validateTokenProcessor)
-	                            .process(sendTransactionToCHProcessor)
+	                            .process(registerTransactionToCHProcessor)
 								.process(sendResponseToDataAppProcessor)
 								.process(senderUsageControlProcessor)
 							.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-		                        .process(sendTransactionToCHProcessor)
+		                        .process(registerTransactionToCHProcessor)
 								// Send data to Endpoint B
 								.process(sendDataToBusinessLogicProcessor)
 								.process(parseReceivedResponseMessage)
-	                            .process(sendTransactionToCHProcessor)
+	                            .process(registerTransactionToCHProcessor)
 								.process(sendResponseToDataAppProcessor)
 								.process(senderUsageControlProcessor)
 					.endChoice();
