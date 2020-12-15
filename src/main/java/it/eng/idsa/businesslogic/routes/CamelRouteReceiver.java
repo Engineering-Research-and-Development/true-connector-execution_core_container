@@ -159,7 +159,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 								.process(multiPartMessageProcessor)
 								.process(getTokenFromDapsProcessor)
 								.process(receiverUsageControlProcessor)
-								.log("Registering response to clearing house")
 	                            .process(registerTransactionToCHProcessor)
 								.process(sendDataToBusinessLogicProcessor)
 						.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
@@ -173,7 +172,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 							.endChoice()
 								.process(multiPartMessageProcessor)
 								.process(receiverUsageControlProcessor)
-								.log("Registering response to clearing house")
 	                        	.process(registerTransactionToCHProcessor)
 							.process(sendDataToBusinessLogicProcessor)
 					.endChoice();
