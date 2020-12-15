@@ -14,6 +14,10 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import it.eng.idsa.businesslogic.util.TestUtilMessageService;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
+import it.eng.idsa.multipart.domain.MultipartMessage;
+
 public class HttpHeaderServiceImplTest {
 	
 	private HttpHeaderServiceImpl httpHeaderServiceImpl;
@@ -21,6 +25,8 @@ public class HttpHeaderServiceImplTest {
 	private Map<String, Object> headers;
 	
 	private String headerMessagePart;
+	
+	private MultipartMessage multipartMessage;
 	
 	@BeforeEach
 	public void init() {
@@ -48,6 +54,8 @@ public class HttpHeaderServiceImplTest {
 		headers.put("IDS-RequestedArtifact", "http://mdm-connector.ids.isst.fraunhofer.de/artifact/1");
 		headers.put("foo", "bar");
 		headers.put("Forward-To", "https://forwardToURL");
+		
+		multipartMessage = new MultipartMessageBuilder().withHeaderContent(TestUtilMessageService.getArtifactResponseMessage()).build();
 	}
 	
 	
@@ -92,6 +100,25 @@ public class HttpHeaderServiceImplTest {
 	public void prepareMessageForSendingAsHttpHeadersWithoutTokenTest() throws IOException {
 		Map<String, Object> result = httpHeaderServiceImpl.prepareMessageForSendingAsHttpHeadersWithoutToken(headerMessagePart);
 		verifyIDSHeadersPresent(result);
+	}
+	
+	@Test
+	public void prepareMessageForSendingAsHttpHeadersTest() throws IOException {
+		Map<String, Object> result = httpHeaderServiceImpl.prepareMessageForSendingAsHttpHeaders(multipartMessage);
+		verifyIDSHeadersPresent(result);
+		verifyIDSHeadersCorrectValues(result);
+	}
+
+
+	private void verifyIDSHeadersCorrectValues(Map<String, Object> result) {
+		assertEquals(result.get("IDS-Messagetype"), "ids:"+multipartMessage.getHeaderContent().getClass().getSimpleName().replace("Impl", ""));
+		assertEquals(result.get("IDS-Issued"), multipartMessage.getHeaderContent().getIssued().toString());
+		assertEquals(result.get("IDS-IssuerConnector"), multipartMessage.getHeaderContent().getIssuerConnector().toString());
+		assertEquals(result.get("IDS-CorrelationMessage"), multipartMessage.getHeaderContent().getCorrelationMessage().toString());
+		assertEquals(result.get("IDS-TransferContract"), multipartMessage.getHeaderContent().getTransferContract().toString());
+		assertEquals(result.get("IDS-Id"), multipartMessage.getHeaderContent().getId().toString());
+		assertEquals(result.get("IDS-ModelVersion"), multipartMessage.getHeaderContent().getModelVersion());
+		
 	}
 
 }

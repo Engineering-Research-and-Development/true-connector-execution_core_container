@@ -1,6 +1,6 @@
 package it.eng.idsa.businesslogic.service;
 
-import org.apache.http.HttpEntity;
+import org.springframework.http.HttpEntity;
 
 /**
  * 
@@ -14,7 +14,9 @@ import org.apache.http.HttpEntity;
 public interface CommunicationService {
 	
 	@Deprecated
-	public String sendData(String endpoint, HttpEntity data);
+	public String sendData(String endpoint, org.apache.http.HttpEntity entity);
+	@Deprecated
+	public String sendData(String endpoint, HttpEntity<?> entity);
 	public String sendData(String endpoint, String data);
 	
 }

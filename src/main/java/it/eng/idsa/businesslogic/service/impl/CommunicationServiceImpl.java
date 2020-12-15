@@ -103,6 +103,20 @@ public class CommunicationServiceImpl implements CommunicationService {
 	}
 	
 	@Override
+	@Deprecated
+	public String sendData(String endpoint, org.springframework.http.HttpEntity<?> data) {
+		RestTemplate restTemplate = new RestTemplate();
+		
+		String result;
+		try {
+			result = restTemplate.postForObject (endpoint, data, String.class); 
+		} catch (RestClientException e) {
+			logger.error(e);
+			return null;
+		}
+		return result;
+	}
+	@Override
 	public String sendData(String endpoint, String data) {
 		RestTemplate restTemplate = new RestTemplate();
 		

@@ -63,7 +63,7 @@ public class ReceiverUsageControlProcessorTest {
 		headers.put("Original-Message-Header", ORIGINL_HEADER);
 		artifactRequestMessage = TestUtilMessageService.getArtifactRequestMessage();
 		artifactResponseMessage = TestUtilMessageService.getArtifactResponseMessage();
-		descriptionRequestMessage = TestUtilMessageService.descriptionRequestMessage();
+		descriptionRequestMessage = TestUtilMessageService.getDescriptionRequestMessage();
 	}
 
 	@Test

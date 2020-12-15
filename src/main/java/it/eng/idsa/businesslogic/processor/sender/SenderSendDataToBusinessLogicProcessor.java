@@ -90,15 +90,9 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		Message message = null;
 		String header =null;
 
-		String multipartMessageString = null;
 		payload = multipartMessage.getPayloadContent();
 		header= multipartMessage.getHeaderContentString();
 		message = multipartMessage.getHeaderContent();
-
-		//message needed for clearing house usage
-		MultipartMessage multipartMessageForClearinghouse = new MultipartMessageBuilder().withHeaderContent(message)
-				.withPayloadContent(payload).build();
-		multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessageForClearinghouse);
 
 		String forwardTo = headerParts.get("Forward-To").toString();
 
@@ -115,7 +109,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 			String response = this.sendMultipartMessageWebSocket(this.webSocketHost, this.webSocketPort, header, payload,
 						message);
 			// Handle response
-			this.handleResponseWebSocket(exchange, message, response, forwardTo, multipartMessageString);
+			this.handleResponseWebSocket(exchange, message, response, forwardTo);
 		} else if (isEnabledWebSocket) {
 			// check & exstract HTTPS WebSocket IP and Port
 			try {
@@ -130,12 +124,12 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 			String response = messageWebSocketOverHttpSender.sendMultipartMessageWebSocketOverHttps(this.webSocketHost,
 						this.webSocketPort, header, payload, message);
 			// Handle response
-			this.handleResponseWebSocket(exchange, message, response, forwardTo, multipartMessageString);
+			this.handleResponseWebSocket(exchange, message, response, forwardTo);
 		} else {
 			// Send MultipartMessage HTTPS
 			CloseableHttpResponse response = this.sendMultipartMessage(headerParts,	forwardTo, message,  multipartMessage);
 			// Handle response
-			this.handleResponse(exchange, message, response, forwardTo, multipartMessageString);
+			this.handleResponse(exchange, message, response, forwardTo);
 
 			if (response != null) {
 				response.close();
@@ -170,8 +164,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	}
 
 
-	private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response, String forwardTo,
-			String multipartMessageBody) throws UnsupportedOperationException, IOException {
+	private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response, String forwardTo) throws UnsupportedOperationException, IOException {
 		if (response == null) {
 			logger.info("...communication error");
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
@@ -203,7 +196,6 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 					exchange.getOut().setHeader("payload", multipartMessageService.getPayloadContent(responseString));
 
 				}
-				exchange.getOut().setHeader("multipartMessageBody", multipartMessageBody);
 			}
 		}
 	}
@@ -216,8 +208,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		return headersMap;
 	}
 
-	private void handleResponseWebSocket(Exchange exchange, Message message, String responseString, String forwardTo,
-			String multipartMessageBody) {
+	private void handleResponseWebSocket(Exchange exchange, Message message, String responseString, String forwardTo) {
 		if (responseString == null) {
 			logger.info("...communication error");
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
@@ -228,7 +219,6 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 //			logger.info("Successful response: " + responseString);
 			// TODO:
 			// Set original body which is created using the original payload and header
-			exchange.getOut().setHeader("multipartMessageBody", multipartMessageBody);
 			exchange.getOut().setHeader("header", multipartMessageService.getHeaderContentString(responseString));
 			exchange.getOut().setHeader("payload", multipartMessageService.getPayloadContent(responseString));
 		}

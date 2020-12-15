@@ -29,8 +29,6 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 	
 	private static final Logger logger = LogManager.getLogger(ReceiverSendDataToBusinessLogicProcessor.class);
 
-	@Value("${application.isEnabledClearingHouse}")
-	private boolean isEnabledClearingHouse;
 
 	@Value("${application.idscp.isEnabled}")
 	private boolean isEnabledIdscp;
@@ -67,9 +65,6 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 		String responseString = null;
 		String contentType = null;
 
-		// Put in the header value of the application.property:
-		// application.isEnabledClearingHouse
-		headersParts.put("Is-Enabled-Clearing-House", isEnabledClearingHouse);
 		if (eccHttpSendRouter.equals("http-header")) {
 			responseString = multipartMessage.getPayloadContent();
 			contentType = headersParts.get("Payload-Content-Type").toString();
@@ -99,11 +94,6 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 			responseMessageServerBean.add(responseString.getBytes());
 		}
 
-		if (isEnabledClearingHouse) {
-			// Put in the header value of the application.property:
-			// application.isEnabledClearingHouse
-			headersParts.put("Is-Enabled-Clearing-House", isEnabledClearingHouse);
-		}
 		if (isEnabledWebSocket) {
 			headersParts.put("Is-Enabled-DataApp-WebSocket", isEnabledWebSocket);
 		}
