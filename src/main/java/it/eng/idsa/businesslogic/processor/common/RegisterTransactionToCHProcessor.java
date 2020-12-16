@@ -34,6 +34,7 @@ public class RegisterTransactionToCHProcessor implements Processor {
 		if (!isEnabledClearingHouse) {
             exchange.getOut().setHeaders(exchange.getIn().getHeaders());
             exchange.getOut().setBody(exchange.getIn().getBody());
+            logger.info("CH registration not configured - continued with flow");
             return;
         }
 
@@ -42,9 +43,9 @@ public class RegisterTransactionToCHProcessor implements Processor {
 		// Send data to CH
 		boolean registrationStatus = clearingHouseService.registerTransaction(multipartMessage.getHeaderContent(), multipartMessage.getPayloadContent());
 		if (registrationStatus) {
-			logger.info("Clearing house registered: " + multipartMessage.getHeaderContent());
+			logger.info("Clearing house registered succesfully");
 		}else {
-			logger.info("Could not register to clearing house: " + multipartMessage.getHeaderContent());
+			logger.info("Failed to register to clearing house");
 		}
 		exchange.getOut().setHeaders(exchange.getIn().getHeaders());
 		exchange.getOut().setBody(exchange.getIn().getBody());
