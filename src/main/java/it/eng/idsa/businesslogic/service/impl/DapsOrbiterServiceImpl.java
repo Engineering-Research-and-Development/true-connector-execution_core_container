@@ -64,6 +64,7 @@ public class DapsOrbiterServiceImpl implements DapsService {
     @Override
     public String getJwtToken() {
         // Try clause for setup phase (loading keys, building trust manager)
+        Response jwtResponse = null;
         try {
             logger.info("ConnectorUUID: " + connectorUUID);
             logger.info("Retrieving Dynamic Attribute Token...");
@@ -87,7 +88,7 @@ public class DapsOrbiterServiceImpl implements DapsService {
                     .header("Content-Type", "application/json")
                     .post(formBody).build();
 
-            Response jwtResponse = client.newCall(requestDaps).execute();
+            jwtResponse = client.newCall(requestDaps).execute();
             if (!jwtResponse.isSuccessful()) {
                 throw new IOException("Unexpected code " + jwtResponse);
             }
@@ -103,10 +104,7 @@ public class DapsOrbiterServiceImpl implements DapsService {
                 token = node.get("response").asText();
                 logger.info("access_token: {}", token.toString());
             }
-            logger.info("access_token: {}", jwtResponse.toString());
             logger.info("access_token: {}", jwtString);
-            logger.info("access_token: {}", jwtResponse.message());
-
         } catch (KeyStoreException
                 | NoSuchAlgorithmException
                 | CertificateException
@@ -118,8 +116,9 @@ public class DapsOrbiterServiceImpl implements DapsService {
             logger.error("Error retrieving token:", e);
         } catch (Exception e) {
             logger.error("Something else went wrong:", e);
-        }
-        //settings.setDynamicAttributeToken(dynamicAttributeToken);
+        } finally {
+            jwtResponse.close();
+		}
         return token;
     }
 

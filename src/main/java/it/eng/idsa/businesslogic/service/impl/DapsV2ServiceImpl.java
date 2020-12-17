@@ -92,12 +92,10 @@ public class DapsV2ServiceImpl implements DapsService {
 
     public String getJwtToken() {
 
-//        String dynamicAttributeToken = "INVALID_TOKEN";
         String targetAudience = "idsc:IDS_CONNECTORS_ALL";
 
-//        Map<String, Object> jwtClaims = null;
-
         // Try clause for setup phase (loading keys, building trust manager)
+        Response jwtResponse = null;
         try {
             InputStream jksKeyStoreInputStream =
                     Files.newInputStream(targetDirectory.resolve(keyStoreName));
@@ -163,7 +161,7 @@ public class DapsV2ServiceImpl implements DapsService {
             final SSLContext sslContext = SSLContext.getInstance("SSL");
             sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
             // Create an ssl socket factory with our all-trusting manager
-            final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+            sslSocketFactory = sslContext.getSocketFactory();
             client = new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS)
                     .writeTimeout(60, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS)
                     .sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
@@ -212,7 +210,6 @@ public class DapsV2ServiceImpl implements DapsService {
                             .setAudience(targetAudience)
                             .setNotBefore(Date.from(Instant.now()));
 
-            //String jws = jwtb.signWith(privKey, SignatureAlgorithm.RS256).compact();
             String jws = jwtb.signWith(SignatureAlgorithm.RS256, privKey).compact();
             logger.info("Request token: " + jws);
 
@@ -225,19 +222,8 @@ public class DapsV2ServiceImpl implements DapsService {
                             .add("scope", "idsc:IDS_CONNECTOR_ATTRIBUTES_ALL")
                             .build();
 
-//            OkHttpClient.Builder builder = new OkHttpClient.Builder();
-
-//            // configure client with trust manager
-//            OkHttpClient client =
-//                    builder
-//                            .sslSocketFactory(this.sslSocketFactory, (X509TrustManager) trustManagers[0])
-//                            .connectTimeout(15, TimeUnit.SECONDS)
-//                            .writeTimeout(15, TimeUnit.SECONDS)
-//                            .readTimeout(15, TimeUnit.SECONDS)
-//                            .build();
-
             Request request = new Request.Builder().url(dapsUrl).post(formBody).build();
-            Response jwtResponse = client.newCall(request).execute();
+            jwtResponse = client.newCall(request).execute();
             if (!jwtResponse.isSuccessful()) {
                 throw new IOException("Unexpected code " + jwtResponse);
             }
@@ -254,19 +240,7 @@ public class DapsV2ServiceImpl implements DapsService {
                 logger.debug("access_token: {}",  token.toString());
             } else {
             	logger.info("jwtResponse: {}",  jwtResponse.toString());
-//            logger.info("jwtResponse status: {}",  jwtResponse.message());
-//            logger.info("access_token: {}",  jwtString);
             }
-
-            if (!jwtResponse.isSuccessful())
-                throw new IOException("Unexpected code " + jwtResponse);
-
-            //JSONObject jsonObject = new JSONObject(jwtString);
-            //dynamicAttributeToken = jsonObject.getString("access_token");
-
-            //logger.info("Dynamic Attribute Token: " + dynamicAttributeToken);
-
-           // jwtClaims = verifyJWT(dynamicAttributeToken, dapsUrl);
         } catch (KeyStoreException
                 | NoSuchAlgorithmException
                 | CertificateException
@@ -276,8 +250,9 @@ public class DapsV2ServiceImpl implements DapsService {
             logger.error("Error retrieving token:", e);
         } catch (Exception e) {
             logger.error("Something else went wrong:", e);
-        }
-        //settings.setDynamicAttributeToken(dynamicAttributeToken);
+        } finally {
+			jwtResponse.close();
+		}
         return token;
     }
 

@@ -27,7 +27,6 @@ import org.springframework.stereotype.Component;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.HttpWebSocketServerBean;
-import it.eng.idsa.businesslogic.processor.sender.SenderSendDataToBusinessLogicProcessor;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -40,7 +39,7 @@ import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 @Component
 public class MessageWebSocketOverHttpSender {
-    private static final Logger logger = LogManager.getLogger(SenderSendDataToBusinessLogicProcessor.class);
+    private static final Logger logger = LogManager.getLogger(MessageWebSocketOverHttpSender.class);
 
     @Autowired
     private WebSocketClientConfiguration webSocketClientConfiguration;
@@ -87,7 +86,8 @@ public class MessageWebSocketOverHttpSender {
         // We don't have status of the response (is it 200 OK or not). We have only the content of the response.
         String responseMessage = new String(webSocketClientConfiguration.responseMessageBufferWebSocketClient().remove());
         closeWSClient(wsClient, message);
-        logger.info("received response: " + responseMessage);
+        logger.info("Response is received");
+        logger.debug("response content: " + responseMessage);
 
         return responseMessage;
     }
