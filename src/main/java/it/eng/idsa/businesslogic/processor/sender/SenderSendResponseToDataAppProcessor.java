@@ -33,9 +33,6 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 	
 	private static final Logger logger = LogManager.getLogger(SenderSendResponseToDataAppProcessor.class);
 
-	@Value("${application.isEnabledClearingHouse}")
-	private boolean isEnabledClearingHouse;
-
 	@Autowired
 	private MultipartMessageService multipartMessageService;
 
@@ -72,9 +69,6 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 		String responseString = null;
 		String contentType = null;
 
-		// Put in the header value of the application.property:
-		// application.isEnabledClearingHouse
-		headerParts.put("Is-Enabled-Clearing-House", isEnabledClearingHouse);
 		if (isEnabledDapsInteraction) {
 			//remove token before sending the response
 			multipartMessage = multipartMessageService.removeTokenFromMultipart(multipartMessage);
@@ -108,11 +102,6 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 
 			headerCleaner.removeTechnicalHeaders(headerParts);
 		
-		if (!isEnabledClearingHouse) {
-			// clear from Headers multipartMessageBody (it is not unusable for the Open Data App)
-			headerParts.remove("multipartMessageBody");
-			headerParts.remove("Is-Enabled-Clearing-House");
-		}
 		// Send The MultipartMessage message to the WebSocket if usage control is not enabled
 		// else process with usage control processor
 		if(isEnabledWebSocket && !isEnabledUsageControl) {

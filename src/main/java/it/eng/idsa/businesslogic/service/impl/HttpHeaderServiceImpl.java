@@ -111,7 +111,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		if (headers.get("IDS-Messagetype") != null) {
 			headerAsMap.put("@type", headers.get("IDS-Messagetype"));
 		}
-		if (headers.get("IDS-Messagetype") != null) {
+		if (headers.get("IDS-Id") != null) {
 			headerAsMap.put("@id", headers.get("IDS-Id"));
 		}
 		if (headers.get("IDS-Issued") != null) {
@@ -243,22 +243,42 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 			headers.put("IDS-Id", messageAsMap.get("@id"));
 		}
 		if (messageAsMap.get("ids:issued") != null) {
-			headers.put("IDS-Issued", messageAsMap.get("ids:issued"));
+			if(messageAsMap.get("ids:issued") instanceof Map) {
+				headers.put("IDS-Issued", ((Map)messageAsMap.get("ids:issued")).get("@value"));
+			} else {
+				headers.put("IDS-Issued", messageAsMap.get("ids:issued"));
+			}
 		}
 		if (messageAsMap.get("ids:modelVersion") != null) {
 			headers.put("IDS-ModelVersion", messageAsMap.get("ids:modelVersion"));
 		}
 		if (messageAsMap.get("ids:issuerConnector") != null) {
-			headers.put("IDS-IssuerConnector", messageAsMap.get("ids:issuerConnector"));
+			if(messageAsMap.get("ids:issuerConnector") instanceof Map) {
+				headers.put("IDS-IssuerConnector", ((Map)messageAsMap.get("ids:issuerConnector")).get("@id"));
+			} else {
+				headers.put("IDS-IssuerConnector", messageAsMap.get("ids:issuerConnector"));
+			}
 		}
 		if (messageAsMap.get("ids:transferContract") != null) {
-			headers.put("IDS-TransferContract", messageAsMap.get("ids:transferContract"));
+			if(messageAsMap.get("ids:transferContract") instanceof Map) {
+				headers.put("IDS-TransferContract", ((Map)messageAsMap.get("ids:transferContract")).get("@id"));
+			} else {
+				headers.put("IDS-TransferContract", messageAsMap.get("ids:transferContract"));
+			}
 		}
 		if (messageAsMap.get("ids:correlationMessage") != null) {
-			headers.put("IDS-CorrelationMessage", messageAsMap.get("ids:correlationMessage"));
+			if(messageAsMap.get("ids:correlationMessage") instanceof Map) {
+				headers.put("IDS-CorrelationMessage", ((Map)messageAsMap.get("ids:correlationMessage")).get("@id"));
+			} else {
+				headers.put("IDS-CorrelationMessage", messageAsMap.get("ids:correlationMessage"));
+			}
 		}
 		if (messageAsMap.get("ids:requestedArtifact") != null) {
-			headers.put("IDS-RequestedArtifact", messageAsMap.get("ids:requestedArtifact"));
+			if(messageAsMap.get("ids:requestedArtifact") instanceof Map) {
+				headers.put("IDS-RequestedArtifact", ((Map)messageAsMap.get("ids:requestedArtifact")).get("@id"));
+			} else {
+				headers.put("IDS-RequestedArtifact", messageAsMap.get("ids:requestedArtifact"));
+			}
 		}
 		if (messageAsMap.get("ids:rejectionReason") != null) {
 			Map<String, Object> rejectionReason = (Map<String, Object>) messageAsMap.get("ids:rejectionReason");

@@ -34,9 +34,6 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledDataAppWebSocket;
 
-	@Value("${application.isEnabledClearingHouse}")
-	private boolean isEnabledClearingHouse;
-
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
 
@@ -59,7 +56,6 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 		String token = null;
 
 		headersParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
-		headersParts.put("Is-Enabled-Clearing-House", isEnabledClearingHouse);
 		headersParts.put("Is-Enabled-DataApp-WebSocket", isEnabledDataAppWebSocket);
 		
 		if (eccHttpSendRouter.equals("http-header")) { 

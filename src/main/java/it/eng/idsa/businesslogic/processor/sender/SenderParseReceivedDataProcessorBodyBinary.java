@@ -32,7 +32,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean isEnabledDapsInteraction;
-
+	
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
 

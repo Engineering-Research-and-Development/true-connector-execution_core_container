@@ -48,7 +48,7 @@ public class SenderParseReceivedResponseMessage implements Processor {
 
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean isEnabledDapsInteraction;
-
+	
 	@Override
 	public void process(Exchange exchange) throws Exception {
 
