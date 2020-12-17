@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorSender;
@@ -23,7 +24,6 @@ import it.eng.idsa.businesslogic.processor.sender.SenderProcessRegistrationRespo
 import it.eng.idsa.businesslogic.processor.sender.SenderSendDataToBusinessLogicProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderSendRegistrationRequestProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderSendResponseToDataAppProcessor;
-import it.eng.idsa.businesslogic.processor.sender.SenderSendTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderUsageControlProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.sender.registration.SenderCreateDeleteMessageProcessor;
@@ -62,7 +62,7 @@ public class CamelRouteSender extends RouteBuilder {
 	SenderGetTokenFromDapsProcessor getTokenFromDapsProcessor;
 
 	@Autowired
-	SenderSendTransactionToCHProcessor sendTransactionToCHProcessor;
+	RegisterTransactionToCHProcessor registerTransactionToCHProcessor;
 
 	@Autowired
 	SenderSendDataToBusinessLogicProcessor sendDataToBusinessLogicProcessor;
@@ -154,27 +154,23 @@ public class CamelRouteSender extends RouteBuilder {
                     .choice()
                         .when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
                             .process(getTokenFromDapsProcessor)
+                            .process(registerTransactionToCHProcessor)
                              // Send data to Endpoint B
                             .process(sendDataToBusinessLogicProcessor)
                             .process(parseReceivedResponseMessage)
                             .process(validateTokenProcessor)
+	                        .process(registerTransactionToCHProcessor)
                             .process(sendResponseToDataAppProcessor)
                             .process(senderUsageControlProcessor)
-                            .choice()
-                                .when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-                                .process(sendTransactionToCHProcessor)
-                            .endChoice()
 							.removeHeaders("Camel*")
                         .when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
+		                    .process(registerTransactionToCHProcessor)
                             // Send data to Endpoint B
                             .process(sendDataToBusinessLogicProcessor)
                             .process(parseReceivedResponseMessage)
+	                        .process(registerTransactionToCHProcessor)
                             .process(sendResponseToDataAppProcessor)
                             .process(senderUsageControlProcessor)
-                            .choice()
-                                .when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-                                    .process(sendTransactionToCHProcessor)
-                            .endChoice()
 							.removeHeaders("Camel*")
                     .endChoice();
 
@@ -184,27 +180,23 @@ public class CamelRouteSender extends RouteBuilder {
                     .choice()
                         .when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
                             .process(getTokenFromDapsProcessor)
+	                        .process(registerTransactionToCHProcessor)
                              // Send data to Endpoint B
                             .process(sendDataToBusinessLogicProcessor)
                             .process(parseReceivedResponseMessage)
                             .process(validateTokenProcessor)
+	                        .process(registerTransactionToCHProcessor)
                             .process(sendResponseToDataAppProcessor)
                             .process(senderUsageControlProcessor)
-                            .choice()
-                                .when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-                                    .process(sendTransactionToCHProcessor)
-                            .endChoice()
 							.removeHeaders("Camel*")
                         .when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
+		                    .process(registerTransactionToCHProcessor)
                             // Send data to Endpoint B
                             .process(sendDataToBusinessLogicProcessor)
                             .process(parseReceivedResponseMessage)
+	                        .process(registerTransactionToCHProcessor)
                             .process(sendResponseToDataAppProcessor)
                             .process(senderUsageControlProcessor)
-                            .choice()
-                                .when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-                                    .process(sendTransactionToCHProcessor)
-                            .endChoice()
 							.removeHeaders("Camel*")
 
                     .endChoice();
@@ -215,31 +207,23 @@ public class CamelRouteSender extends RouteBuilder {
                     .choice()
                         .when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
                             .process(getTokenFromDapsProcessor)
-    //						.process(sendToActiveMQ)
-    //						.process(receiveFromActiveMQ)
+	                        .process(registerTransactionToCHProcessor)
                             // Send data to Endpoint B
                             .process(sendDataToBusinessLogicProcessor)
                             .process(parseReceivedResponseMessage)
                             .process(validateTokenProcessor)
+	                        .process(registerTransactionToCHProcessor)
                             .process(sendResponseToDataAppProcessor)
                             .process(senderUsageControlProcessor)
-                            .choice()
-                                .when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-                                    .process(sendTransactionToCHProcessor)
-                            .endChoice()
 							.removeHeaders("Camel*")
                         .when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-        //					.process(sendToActiveMQ)
-        //					.process(receiveFromActiveMQ)
+		                    .process(registerTransactionToCHProcessor)
                             // Send data to Endpoint B
                             .process(sendDataToBusinessLogicProcessor)
                             .process(parseReceivedResponseMessage)
+	                        .process(registerTransactionToCHProcessor)
                             .process(sendResponseToDataAppProcessor)
                             .process(senderUsageControlProcessor)
-                            .choice()
-                                .when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-                                    .process(sendTransactionToCHProcessor)
-                            .endChoice()
 							.removeHeaders("Camel*")
                     .endChoice();
             } else {
@@ -251,27 +235,22 @@ public class CamelRouteSender extends RouteBuilder {
 						.choice()
 							.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
 								.process(getTokenFromDapsProcessor)
+	                            .process(registerTransactionToCHProcessor)
 								// Send data to Endpoint B
 								.process(sendDataToBusinessLogicProcessor)
 								.process(parseReceivedResponseMessage)
 								.process(validateTokenProcessor)
-								//.process(sendResponseToDataAppProcessor)
+	                            .process(registerTransactionToCHProcessor)
 								.process(sendResponseToDataAppProcessor)
 								.process(senderUsageControlProcessor)
-								.choice()
-								.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-									.process(sendTransactionToCHProcessor)
-								.endChoice()
 							.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
+		                        .process(registerTransactionToCHProcessor)
 								// Send data to Endpoint B
 								.process(sendDataToBusinessLogicProcessor)
 								.process(parseReceivedResponseMessage)
+	                            .process(registerTransactionToCHProcessor)
 								.process(sendResponseToDataAppProcessor)
 								.process(senderUsageControlProcessor)
-								.choice()
-							.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-								.process(sendTransactionToCHProcessor)
-								.endChoice()
 					.endChoice();
 			//@formatter:on
 		}

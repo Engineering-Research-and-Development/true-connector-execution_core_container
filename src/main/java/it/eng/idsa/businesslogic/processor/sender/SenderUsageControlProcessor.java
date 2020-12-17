@@ -87,6 +87,7 @@ public class SenderUsageControlProcessor implements Processor {
         if (!isEnabledUsageControl) {
             exchange.getOut().setHeaders(exchange.getIn().getHeaders());
             exchange.getOut().setBody(exchange.getIn().getBody());
+            logger.info("Usage control not configured - continued with flow");
             return;
         }
         Message message = null;
@@ -100,7 +101,6 @@ public class SenderUsageControlProcessor implements Processor {
 			message = multipartMessageService.getMessage(header);
 			logger.info("from: " + exchange.getFromEndpoint());
             logger.debug("Message Body: " + payload);
-            logger.info("Message Body Out: " + exchange.getOut().getBody(String.class));
 
             JsonElement transferedDataObject = getDataObject(payload);
             UsageControlObject ucObj = gson.fromJson(transferedDataObject, UsageControlObject.class);

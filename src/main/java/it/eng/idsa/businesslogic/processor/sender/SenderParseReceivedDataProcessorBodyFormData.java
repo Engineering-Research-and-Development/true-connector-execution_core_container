@@ -3,7 +3,6 @@ package it.eng.idsa.businesslogic.processor.sender;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.activation.DataHandler;
 
@@ -20,6 +19,7 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
 /**
@@ -35,7 +35,7 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean isEnabledDapsInteraction;
-
+	
 	@Autowired
 	private MultipartMessageService multipartMessageService;
 
@@ -77,10 +77,11 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 			if (receivedDataHeader.containsKey("payload")) {
 				payload = receivedDataHeader.get("payload").toString();
 			}
-			MultipartMessage multipartMessage = new MultipartMessage(
-					receivedDataHeader.entrySet().stream().filter(entry -> entry.getValue() instanceof String)
-							.collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue())),
-					null, message, null, payload, null, null,null);
+
+			MultipartMessage multipartMessage = new MultipartMessageBuilder()
+					.withHeaderContent(header)
+					.withPayloadContent(payload)
+					.build();
 
 			// Return exchange
 			exchange.getOut().setHeaders(headesParts);

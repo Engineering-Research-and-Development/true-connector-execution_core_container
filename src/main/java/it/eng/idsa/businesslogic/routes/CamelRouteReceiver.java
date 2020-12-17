@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
+import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
+import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverExceptionMultiPartMessageProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverFileRecreatorProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverGetTokenFromDapsProcessor;
@@ -16,12 +19,9 @@ import it.eng.idsa.businesslogic.processor.receiver.ReceiverMultiPartMessageProc
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverParseReceivedConnectorRequestProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverSendDataToBusinessLogicProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverSendDataToDataAppProcessor;
-import it.eng.idsa.businesslogic.processor.receiver.ReceiverSendTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverUsageControlProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverWebSocketSendDataToDataAppProcessor;
-import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
-import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
 
 /**
  * 
@@ -53,7 +53,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 	ReceiverSendDataToDataAppProcessor sendDataToDataAppProcessor;
 	
 	@Autowired
-	ReceiverSendTransactionToCHProcessor sendTransactionToCHProcessor;
+	RegisterTransactionToCHProcessor registerTransactionToCHProcessor;
 	
 	@Autowired
 	ExceptionProcessorReceiver exceptionProcessorReceiver;
@@ -97,16 +97,10 @@ public class CamelRouteReceiver extends RouteBuilder {
 				.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
 					.process(getTokenFromDapsProcessor)
 					.process(sendDataToBusinessLogicProcessor)
-					.choice()
-						.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-						//.process(sendTransactionToCHProcessor)
-					.endChoice()
+					.process(registerTransactionToCHProcessor)
 				.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
 					.process(sendDataToBusinessLogicProcessor)
-					.choice()
-						.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-						//.process(sendTransactionToCHProcessor)
-					.endChoice()
+					.process(registerTransactionToCHProcessor)
 			.endChoice();
 
 		// Camel SSL - Endpoint: B
@@ -116,6 +110,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 					.choice()
 					.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
 						.process(validateTokenProcessor)
+	                    .process(registerTransactionToCHProcessor)
 						// Send to the Endpoint: F
 						.choice()
 						.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
@@ -127,12 +122,10 @@ public class CamelRouteReceiver extends RouteBuilder {
 						.process(multiPartMessageProcessor)
 						.process(getTokenFromDapsProcessor)
 						.process(receiverUsageControlProcessor)
+	                    .process(registerTransactionToCHProcessor)
 						.process(sendDataToBusinessLogicProcessor)
-						.choice()
-						.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-							.process(sendTransactionToCHProcessor)
-						.endChoice()
 					.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
+		                .process(registerTransactionToCHProcessor)
 						// Send to the Endpoint: F
 						.choice()
 						.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
@@ -143,11 +136,8 @@ public class CamelRouteReceiver extends RouteBuilder {
 						.endChoice()
 						.process(multiPartMessageProcessor)
 						.process(receiverUsageControlProcessor)
+	                    .process(registerTransactionToCHProcessor)
 						.process(sendDataToBusinessLogicProcessor)
-						.choice()
-						.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-							//.process(sendTransactionToCHProcessor)
-						.endChoice()
 						.removeHeaders("Camel*")
 					.endChoice();
 		} else if (isEnabledIdscp || isEnabledWebSocket) {
@@ -158,6 +148,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 					.choice()
 						.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
 							.process(validateTokenProcessor)
+	                        .process(registerTransactionToCHProcessor)
 							// Send to the Endpoint: F
 							.choice()
 								.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
@@ -168,12 +159,10 @@ public class CamelRouteReceiver extends RouteBuilder {
 								.process(multiPartMessageProcessor)
 								.process(getTokenFromDapsProcessor)
 								.process(receiverUsageControlProcessor)
+	                            .process(registerTransactionToCHProcessor)
 								.process(sendDataToBusinessLogicProcessor)
-							.choice()
-								.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-									.process(sendTransactionToCHProcessor)
-							.endChoice()
 						.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
+		                    	.process(registerTransactionToCHProcessor)
 							// Send to the Endpoint: F
 							.choice()
 							.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
@@ -181,13 +170,10 @@ public class CamelRouteReceiver extends RouteBuilder {
 							.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(false))
 								.process(sendDataToDataAppProcessor)
 							.endChoice()
-							.process(multiPartMessageProcessor)
-							.process(receiverUsageControlProcessor)
+								.process(multiPartMessageProcessor)
+								.process(receiverUsageControlProcessor)
+	                        	.process(registerTransactionToCHProcessor)
 							.process(sendDataToBusinessLogicProcessor)
-							.choice()
-								.when(header("Is-Enabled-Clearing-House").isEqualTo(true))
-									// .process(sendTransactionToCHProcessor)
-							.endChoice()
 					.endChoice();
 			//@formatter:on
 		}

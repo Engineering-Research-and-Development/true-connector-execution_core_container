@@ -41,9 +41,6 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledDataAppWebSocket;
 
-	@Value("${application.isEnabledClearingHouse}")
-	private boolean isEnabledClearingHouse;
-
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
 	
@@ -69,7 +66,6 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 		MultipartMessage multipartMessage = null;
 
 		headersParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
-		headersParts.put("Is-Enabled-Clearing-House", isEnabledClearingHouse);
 		headersParts.put("Is-Enabled-DataApp-WebSocket", isEnabledDataAppWebSocket);
 		
 		if (dataAppSendRouter.equals("http-header")) { 
