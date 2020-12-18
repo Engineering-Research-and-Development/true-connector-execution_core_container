@@ -117,8 +117,10 @@ public class DapsOrbiterServiceImpl implements DapsService {
         } catch (Exception e) {
             logger.error("Something else went wrong:", e);
         } finally {
-            jwtResponse.close();
-		}
+	    if(jwtResponse != null){
+           	jwtResponse.close();
+	    }
+	}
         return token;
     }
 
