@@ -48,9 +48,6 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean isEnabledDapsInteraction;
 
-	@Value("${application.isEnabledUsageControl:false}")
-	private boolean isEnabledUsageControl;
-
 	@Autowired(required = false)
 	WebSocketServerConfigurationA webSocketServerConfiguration;
 	
@@ -73,8 +70,6 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 			//remove token before sending the response
 			multipartMessage = multipartMessageService.removeTokenFromMultipart(multipartMessage);
 		}
-		if(!isEnabledUsageControl) {
-			// UsageControl enabled, still some processing needs to be done
 			switch (openDataAppReceiverRouter) {
 			case "form":
 				httpHeaderService.removeTokenHeaders(exchange.getIn().getHeaders());
@@ -83,6 +78,7 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 						multipartMessage.getPayloadContent(),
 						null, ContentType.APPLICATION_JSON);
 				contentType = resultEntity.getContentType().getValue();
+				headerParts.put(Exchange.CONTENT_TYPE, contentType);
 				exchange.getOut().setBody(resultEntity.getContent());
 				break;
 			case "mixed":
@@ -91,30 +87,19 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 				responseString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
 				Optional<String> boundary = getMessageBoundaryFromMessage(responseString);
 				contentType = "multipart/mixed; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
+				headerParts.put(Exchange.CONTENT_TYPE, contentType);
 				exchange.getOut().setBody(responseString);
 				break;
 			case "http-header":
 				responseString = multipartMessage.getPayloadContent();
-				contentType = headerParts.get("Payload-Content-Type").toString();
 				exchange.getOut().setBody(responseString);
 				break;
 			}
 			logger.info("Sending response to DataApp");
 
 			headerCleaner.removeTechnicalHeaders(headerParts);
-			headerParts.put(Exchange.CONTENT_TYPE, contentType);
-//			exchange.getOut().setBody(responseString);
-			exchange.getOut().setHeaders(headerParts);	
-		} else {
-			logger.info("Processing usage control");
-
-		    exchange.getOut().setHeaders(exchange.getIn().getHeaders());
-            exchange.getOut().setBody(multipartMessage);
-		}
 		
-		// Send The MultipartMessage message to the WebSocket if usage control is not enabled
-		// else process with usage control processor
-		if(isEnabledWebSocket && !isEnabledUsageControl) {
+		if(isEnabledWebSocket ) {
 			String responseMultipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
 			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration.responseMessageBufferWebSocket();
 			responseMessageServerBean.add(responseMultipartMessageString.getBytes());

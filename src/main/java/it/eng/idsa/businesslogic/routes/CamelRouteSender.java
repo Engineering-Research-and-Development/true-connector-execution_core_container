@@ -160,8 +160,8 @@ public class CamelRouteSender extends RouteBuilder {
                             .process(parseReceivedResponseMessage)
                             .process(validateTokenProcessor)
 	                        .process(registerTransactionToCHProcessor)
+	                        .process(senderUsageControlProcessor)
                             .process(sendResponseToDataAppProcessor)
-                            .process(senderUsageControlProcessor)
 							.removeHeaders("Camel*")
                         .when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
 		                    .process(registerTransactionToCHProcessor)
@@ -169,8 +169,8 @@ public class CamelRouteSender extends RouteBuilder {
                             .process(sendDataToBusinessLogicProcessor)
                             .process(parseReceivedResponseMessage)
 	                        .process(registerTransactionToCHProcessor)
+	                        .process(senderUsageControlProcessor)
                             .process(sendResponseToDataAppProcessor)
-                            .process(senderUsageControlProcessor)
 							.removeHeaders("Camel*")
                     .endChoice();
 
@@ -186,8 +186,8 @@ public class CamelRouteSender extends RouteBuilder {
                             .process(parseReceivedResponseMessage)
                             .process(validateTokenProcessor)
 	                        .process(registerTransactionToCHProcessor)
+	                        .process(senderUsageControlProcessor)
                             .process(sendResponseToDataAppProcessor)
-                            .process(senderUsageControlProcessor)
 							.removeHeaders("Camel*")
                         .when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
 		                    .process(registerTransactionToCHProcessor)
@@ -195,8 +195,8 @@ public class CamelRouteSender extends RouteBuilder {
                             .process(sendDataToBusinessLogicProcessor)
                             .process(parseReceivedResponseMessage)
 	                        .process(registerTransactionToCHProcessor)
+	                        .process(senderUsageControlProcessor)
                             .process(sendResponseToDataAppProcessor)
-                            .process(senderUsageControlProcessor)
 							.removeHeaders("Camel*")
 
                     .endChoice();
@@ -213,8 +213,8 @@ public class CamelRouteSender extends RouteBuilder {
                             .process(parseReceivedResponseMessage)
                             .process(validateTokenProcessor)
 	                        .process(registerTransactionToCHProcessor)
+	                        .process(senderUsageControlProcessor)
                             .process(sendResponseToDataAppProcessor)
-                            .process(senderUsageControlProcessor)
 							.removeHeaders("Camel*")
                         .when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
 		                    .process(registerTransactionToCHProcessor)
@@ -222,8 +222,8 @@ public class CamelRouteSender extends RouteBuilder {
                             .process(sendDataToBusinessLogicProcessor)
                             .process(parseReceivedResponseMessage)
 	                        .process(registerTransactionToCHProcessor)
+	                        .process(senderUsageControlProcessor)
                             .process(sendResponseToDataAppProcessor)
-                            .process(senderUsageControlProcessor)
 							.removeHeaders("Camel*")
                     .endChoice();
             } else {
@@ -241,16 +241,16 @@ public class CamelRouteSender extends RouteBuilder {
 								.process(parseReceivedResponseMessage)
 								.process(validateTokenProcessor)
 	                            .process(registerTransactionToCHProcessor)
+	                            .process(senderUsageControlProcessor)
 								.process(sendResponseToDataAppProcessor)
-								.process(senderUsageControlProcessor)
 							.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
 		                        .process(registerTransactionToCHProcessor)
 								// Send data to Endpoint B
 								.process(sendDataToBusinessLogicProcessor)
 								.process(parseReceivedResponseMessage)
 	                            .process(registerTransactionToCHProcessor)
+	                            .process(senderUsageControlProcessor)
 								.process(sendResponseToDataAppProcessor)
-								.process(senderUsageControlProcessor)
 					.endChoice();
 			//@formatter:on
 		}

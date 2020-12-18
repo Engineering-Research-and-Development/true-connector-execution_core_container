@@ -1,14 +1,9 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
-import java.util.Optional;
-import java.util.stream.Stream;
-
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.converter.stream.CachedOutputStream;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,15 +24,11 @@ import de.fraunhofer.dataspaces.iese.camel.interceptor.service.UcService;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationA;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverUsageControlProcessor;
-import it.eng.idsa.businesslogic.processor.receiver.websocket.server.ResponseMessageBufferBean;
-import it.eng.idsa.businesslogic.service.HttpHeaderService;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 /**
  * @author Antonio Scatoloni and Gabriele De Luca
@@ -55,9 +46,6 @@ public class SenderUsageControlProcessor implements Processor {
     private UcService ucService;
 
     @Autowired
-    private MultipartMessageService multipartMessageService;
-
-    @Autowired
     private RejectionMessageService rejectionMessageService;
 
     @Value("${application.dataApp.websocket.isEnabled}")
@@ -66,9 +54,6 @@ public class SenderUsageControlProcessor implements Processor {
     @Autowired(required = false)
     WebSocketServerConfigurationA webSocketServerConfiguration;
     
-	@Autowired
-	private HttpHeaderService httpHeaderService;
-
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
 
@@ -91,14 +76,14 @@ public class SenderUsageControlProcessor implements Processor {
             return;
         }
         Message message = null;
-        String responseMultipartMessageString = null;
         String header = null;
         String payload = null;
+        MultipartMessage multipartMessageResponse=null;
         try {
 			MultipartMessage multipartMessage = exchange.getIn().getBody(MultipartMessage.class);
 			header = multipartMessage.getHeaderContentString();
 			payload = multipartMessage.getPayloadContent();
-			message = multipartMessageService.getMessage(header);
+			message = multipartMessage.getHeaderContent();
 			logger.info("from: " + exchange.getFromEndpoint());
             logger.debug("Message Body: " + payload);
 
@@ -130,41 +115,19 @@ public class SenderUsageControlProcessor implements Processor {
                         throw new Exception("Usage Control Enforcement with EMPTY RESULT encountered.");
                     }
                     // Prepare Response
-                    MultipartMessage multipartMessageResponse = new MultipartMessageBuilder()
+                     multipartMessageResponse = new MultipartMessageBuilder()
                             .withHeaderContent(header)
                             .withPayloadContent(extractPayloadFromJson(ucObj.getPayload()))
                             .build();
-                    responseMultipartMessageString = MultipartMessageProcessor.
-                            multipartMessagetoString(multipartMessageResponse, false);
                 }
             }
             else {
             	logger.info("Usage Control not applied - not ArtifactRequestMessage/ArtifactResponseMessage");
-                 responseMultipartMessageString = MultipartMessageProcessor.
-                         multipartMessagetoString(multipartMessage, false);
+            	multipartMessageResponse = multipartMessage;
             	
             }
-            if(isEnabledWebSocket) {
-                ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration.responseMessageBufferWebSocket();
-                responseMessageServerBean.add(responseMultipartMessageString.getBytes());
-            }
-            if(openDataAppReceiverRouter.equals("http-header")) {
-            	exchange.getOut().setBody(extractPayloadFromJson(ucObj.getPayload()));
-            } else {
-            	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getIn().getHeaders());
-            	if(openDataAppReceiverRouter.equals("form")) {
-            		HttpEntity resultEntity = multipartMessageService.createMultipartMessage(header, extractPayloadFromJson(ucObj.getPayload()),
-            				null, ContentType.APPLICATION_JSON);
-            		exchange.getIn().getHeaders().put(Exchange.CONTENT_TYPE, resultEntity.getContentType().getValue());
-            		exchange.getOut().setBody(resultEntity.getContent());
-            	} else {
-            		Optional<String> boundary = getMessageBoundaryFromMessage(responseMultipartMessageString);
-         			String contentType = "multipart/mixed; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
-         			exchange.getIn().getHeaders().put("Content-Type", contentType);
-	            	exchange.getOut().setBody(responseMultipartMessageString);
-            	}
-            }
             headerCleaner.removeTechnicalHeaders(exchange.getIn().getHeaders());
+            exchange.getOut().setBody(multipartMessageResponse);
             exchange.getOut().setHeaders(exchange.getIn().getHeaders());
     		logger.info("Sending response to DataApp");
 
@@ -210,14 +173,5 @@ public class SenderUsageControlProcessor implements Processor {
         JsonElement payloadInner = asJsonObject.get("payload");
         if (null != payloadInner) return payloadInner.getAsString();
         return payload.toString();
-    }
-    
-    private Optional<String> getMessageBoundaryFromMessage(String message) {
-        String boundary = null;
-        Stream<String> lines = message.lines();
-        boundary = lines.filter(line -> line.startsWith("--"))
-                .findFirst()
-                .get();
-        return Optional.ofNullable(boundary);
     }
 }
