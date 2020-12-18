@@ -48,9 +48,6 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean isEnabledDapsInteraction;
 
-	@Value("${application.isEnabledUsageControl:false}")
-	private boolean isEnabledUsageControl;
-
 	@Autowired(required = false)
 	WebSocketServerConfigurationA webSocketServerConfiguration;
 	
@@ -102,18 +99,11 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 
 			headerCleaner.removeTechnicalHeaders(headerParts);
 		
-		// Send The MultipartMessage message to the WebSocket if usage control is not enabled
-		// else process with usage control processor
-		if(isEnabledWebSocket && !isEnabledUsageControl) {
+		if(isEnabledWebSocket ) {
 			String responseMultipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
 			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration.responseMessageBufferWebSocket();
 			responseMessageServerBean.add(responseMultipartMessageString.getBytes());
 		}
-//		 if(isEnabledWebSocket) {
-//		   String responseMultipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
-//           ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration.responseMessageBufferWebSocket();
-//           responseMessageServerBean.add(responseMultipartMessageString.getBytes());
-//       }
 	}
 	
 	private Optional<String> getMessageBoundaryFromMessage(String message) {

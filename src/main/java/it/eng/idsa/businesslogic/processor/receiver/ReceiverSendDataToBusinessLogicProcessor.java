@@ -29,7 +29,6 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 	
 	private static final Logger logger = LogManager.getLogger(ReceiverSendDataToBusinessLogicProcessor.class);
 
-
 	@Value("${application.idscp.isEnabled}")
 	private boolean isEnabledIdscp;
 
@@ -87,16 +86,12 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 			contentType = headersParts.getOrDefault("Content-Type", "multipart/mixed").toString();
 		}
 
-		// TODO: Send The MultipartMessage message to the WebSocket
 		if (isEnabledIdscp || isEnabledWebSocket) { // TODO Try to remove this config property
 			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration
 					.responseMessageBufferWebSocket();
 			responseMessageServerBean.add(responseString.getBytes());
 		}
 
-		if (isEnabledWebSocket) {
-			headersParts.put("Is-Enabled-DataApp-WebSocket", isEnabledWebSocket);
-		}
 		headerCleaner.removeTechnicalHeaders(headersParts);
 		headersParts.put("Payload-Content-Type", contentType);
 		logger.info("Sending response to Data Consumer");
