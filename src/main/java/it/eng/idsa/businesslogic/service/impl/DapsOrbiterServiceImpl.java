@@ -116,11 +116,11 @@ public class DapsOrbiterServiceImpl implements DapsService {
             logger.error("Error retrieving token:", e);
         } catch (Exception e) {
             logger.error("Something else went wrong:", e);
-        } finally {
-	    if(jwtResponse != null){
-           	jwtResponse.close();
-	    }
-	}
+		} finally {
+			if (jwtResponse != null) {
+				jwtResponse.close();
+			}
+		}
         return token;
     }
 
@@ -132,7 +132,7 @@ public class DapsOrbiterServiceImpl implements DapsService {
         boolean isValid = false;
 
         logger.debug("Validating Orbiter token");
-        
+        Response jwtResponse = null;
 		try {
 			Map<String, String> jsonObject = new HashMap<>();
             jsonObject.put("token", tokenValue);
@@ -150,7 +150,7 @@ public class DapsOrbiterServiceImpl implements DapsService {
 					.build();
 			//@formatter:on
 			
-			Response jwtResponse = client.newCall(requestDaps).execute();
+			jwtResponse = client.newCall(requestDaps).execute();
 			
 			ResponseBody responseBody = jwtResponse.body();
 			String response = responseBody.string();
@@ -177,6 +177,10 @@ public class DapsOrbiterServiceImpl implements DapsService {
 			}
 		} catch (Exception e) {
 			logger.error(e);
+		} finally {
+			if (jwtResponse != null) {
+				jwtResponse.close();
+			}
 		}
         return isValid;
     }

@@ -193,7 +193,9 @@ public class DapsServiceImpl implements DapsService {
         	logger.error(e);
             return null;
         } finally {
-			responseDaps.close();
+			if (responseDaps != null) {
+				responseDaps.close();
+			}
 		}
         return token;
     }
