@@ -102,6 +102,7 @@ public class DapsServiceImpl implements DapsService {
 
         logger.debug("Get properties");
 
+        Response responseDaps = null;
         try {
             logger.debug("Started get JWT token");
 			InputStream jksInputStream = Files.newInputStream(targetDirectory.resolve(keyStoreName));
@@ -172,7 +173,10 @@ public class DapsServiceImpl implements DapsService {
                     .add("client_assertion", jws).build();
 
             Request requestDaps = new Request.Builder().url(dapsUrl).post(formBody).build();
-            Response responseDaps = client.newCall(requestDaps).execute();
+            responseDaps = client.newCall(requestDaps).execute();
+            
+            if (!responseDaps.isSuccessful())
+                throw new IOException("Unexpected code " + responseDaps);
 
             String body = responseDaps.body().string();
             ObjectNode node = new ObjectMapper().readValue(body, ObjectNode.class);
@@ -181,18 +185,18 @@ public class DapsServiceImpl implements DapsService {
                 token = node.get("access_token").asText();
                 logger.info("access_token: {}", () -> token.toString());
             }
-            logger.info("access_token: {}", () -> responseDaps.toString());
-            logger.info("access_token: {}", () -> body);
-            logger.info("access_token: {}", () -> responseDaps.message());
+            logger.info("access_token: {}", body);
 
-            if (!responseDaps.isSuccessful())
-                throw new IOException("Unexpected code " + responseDaps);
 
         } catch (IOException |KeyStoreException | NoSuchAlgorithmException | 
         		CertificateException |KeyManagementException | UnrecoverableKeyException e) {
         	logger.error(e);
             return null;
-        	}
+        } finally {
+			if (responseDaps != null) {
+				responseDaps.close();
+			}
+		}
         return token;
     }
 
