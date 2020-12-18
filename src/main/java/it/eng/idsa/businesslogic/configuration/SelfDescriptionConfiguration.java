@@ -1,6 +1,8 @@
 package it.eng.idsa.businesslogic.configuration;
 
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.UnknownHostException;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -15,6 +17,18 @@ public class SelfDescriptionConfiguration {
 	
 	@Value("${information.model.version}")
 	private String informationMovelVersion;
+	
+	/**
+	 * Used for http communication
+	 */
+	@Value("${http.port}")
+	private String httpPort;
+	
+	/**
+	 * Used for https communication
+	 */
+	@Value("${server.port}")
+	private String serverPort;
 
 	private int camelSenderPort;
 	private int camelReceiverPort;
@@ -112,129 +126,58 @@ public class SelfDescriptionConfiguration {
 		return useHttps;
 	}
 
-	public void setUseHttps(boolean useHttps) {
-		this.useHttps = useHttps;
-	}
-
 	public String getInformationMovelVersion() {
 		return informationMovelVersion;
-	}
-
-	public void setInformationMovelVersion(String informationMovelVersion) {
-		this.informationMovelVersion = informationMovelVersion;
 	}
 
 	public URI getConnectorURI() {
 		String schema = useHttps ? "https:" : "http:";
 		return URI.create(schema + uriAuthority + uriConnector);
 	}
-	public static class SelfDescription {
-		private String companyURI;
-		private String connectorURI;
-		
-		private Resource resource = new Resource();
-		private ContractOffer contractOffer = new ContractOffer();
-		
-		public String getCompanyURI() {
-			return companyURI;
-		}
-		
-		public void setCompanyURI(String companyURI) {
-			this.companyURI = companyURI;
-		}
-		
-		public String getConnectorURI() {
-			return connectorURI;
-		}
-		
-		public void setConnectorURI(String connectorURI) {
-			this.connectorURI = connectorURI;
-		}
-		
-		public Resource getResource() {
-			return resource;
-		}
-		
-		public void setResource(Resource resource) {
-			this.resource = resource;
-		}
-		
-		public ContractOffer getContractOffer() {
-			return contractOffer;
-		}
-		
-		public void setContractOffer(ContractOffer contractOffer) {
-			this.contractOffer = contractOffer;
-		}
-		
-		public class Resource {
-			private String title;
-			private String language;
-			private String description;
-			
-			public String getTitle() {
-				return title;
-			}
-			
-			public void setTitle(String title) {
-				this.title = title;
-			}
-			
-			public String getLanguage() {
-				return language;
-			}
-			
-			public void setLanguage(String language) {
-				this.language = language;
-			}
-			
-			public String getDescription() {
-				return description;
-			}
-			
-			public void setDescription(String description) {
-				this.description = description;
-			}
-		}
-		
-		public class ContractOffer {
-			private String profile;
-			private String target;
-			private String provider;
-			private String permission;
-			
-			public String getProfile() {
-				return profile;
-			}
-			
-			public void setProfile(String profile) {
-				this.profile = profile;
-			}
-			
-			public String getTarget() {
-				return target;
-			}
-			
-			public void setTarget(String target) {
-				this.target = target;
-			}
-			
-			public String getProvider() {
-				return provider;
-			}
-			
-			public void setProvider(String provider) {
-				this.provider = provider;
-			}
-			
-			public String getPermission() {
-				return permission;
-			}
-			
-			public void setPermission(String permission) {
-				this.permission = permission;
-			}
-		}
+	
+	public URI getSenderAgent() {
+		return URI.create("http://senderAgentURI.com");
 	}
 	
+	public URI getMaintainerURI() {
+		return URI.create("http://maintainerURI.com");
+	}
+	
+	public URI getCurratorURI() {
+		return URI.create("http://curratorURI.com");
+	}
+	
+	public URI getDefaultEndpoint() {
+		String schema = useHttps ? "https" : "http";
+		String port = useHttps ? serverPort : httpPort;
+		String host;
+		try {
+			host = InetAddress.getLocalHost().getHostAddress();
+			return URI.create(schema + "://" + host + ":" + port + "/selfDescription");
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static class SelfDescription {
+		private String description;
+		private String title;
+		
+		public String getDescription() {
+			return description;
+		}
+
+		public void setDescription(String description) {
+			this.description = description;
+		}
+
+		public String getTitle() {
+			return title;
+		}
+
+		public void setTitle(String title) {
+			this.title = title;
+		}
+	}
 }
