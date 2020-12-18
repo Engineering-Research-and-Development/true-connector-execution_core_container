@@ -81,10 +81,9 @@ public class ReceiverWebSocketSendDataToDataAppProcessor implements Processor {
                       RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
                       message);
           } else {
-              logger.info("content type response received from the DataAPP=" + response);
-              logger.info("response received from the DataAPP=" + response);
-              logger.info("Successful response: " + response);
-              String header = multipartMessageService.getHeaderContentString(response);
+        	  logger.info("Received response from DataAPP");
+        	  logger.debug("response received from the DataAPP=" + response);
+        	  String header = multipartMessageService.getHeaderContentString(response);
               String payload = multipartMessageService.getPayloadContent(response);
               exchange.getOut().setHeader("header", header);
               //Save original Header for Usage Control Enforcement

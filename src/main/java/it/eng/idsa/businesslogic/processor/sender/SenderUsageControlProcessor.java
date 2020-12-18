@@ -101,7 +101,6 @@ public class SenderUsageControlProcessor implements Processor {
 			message = multipartMessageService.getMessage(header);
 			logger.info("from: " + exchange.getFromEndpoint());
             logger.debug("Message Body: " + payload);
-            logger.info("Message Body Out: " + exchange.getOut().getBody(String.class));
 
             JsonElement transferedDataObject = getDataObject(payload);
             UsageControlObject ucObj = gson.fromJson(transferedDataObject, UsageControlObject.class);
