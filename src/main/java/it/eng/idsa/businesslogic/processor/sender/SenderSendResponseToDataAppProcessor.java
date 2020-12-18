@@ -98,6 +98,7 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 			logger.info("Sending response to DataApp");
 
 			headerCleaner.removeTechnicalHeaders(headerParts);
+			exchange.getOut().setHeaders(exchange.getIn().getHeaders());
 		
 		if(isEnabledWebSocket ) {
 			String responseMultipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
