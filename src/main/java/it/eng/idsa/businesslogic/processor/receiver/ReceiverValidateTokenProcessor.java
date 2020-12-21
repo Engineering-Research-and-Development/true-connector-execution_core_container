@@ -33,6 +33,9 @@ public class ReceiverValidateTokenProcessor implements Processor {
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
 	
+	@Value("${application.isEnabledDapsInteraction}")
+    private boolean isEnabledDapsInteraction;
+	
 	@Autowired
 	DapsService dapsService;
 
@@ -47,6 +50,13 @@ public class ReceiverValidateTokenProcessor implements Processor {
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
+		
+		if (!isEnabledDapsInteraction) {
+            exchange.getOut().setHeaders(exchange.getIn().getHeaders());
+            exchange.getOut().setBody(exchange.getIn().getBody());
+            logger.info("Daps interaction not configured - continued with flow");
+            return;
+        }
 		
 		
 		MultipartMessage multipartMessage = exchange.getIn().getBody(MultipartMessage.class);

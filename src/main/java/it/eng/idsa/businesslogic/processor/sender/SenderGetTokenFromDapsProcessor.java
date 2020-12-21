@@ -40,9 +40,19 @@ public class SenderGetTokenFromDapsProcessor implements Processor {
 
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
+	
+	@Value("${application.isEnabledDapsInteraction}")
+    private boolean isEnabledDapsInteraction;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
+		
+		if (!isEnabledDapsInteraction) {
+            exchange.getOut().setHeaders(exchange.getIn().getHeaders());
+            exchange.getOut().setBody(exchange.getIn().getBody());
+            logger.info("Daps interaction not configured - continued with flow");
+            return;
+        }
 
 		MultipartMessage multipartMessage = exchange.getIn().getBody(MultipartMessage.class);
 		Map<String, Object> headersParts = exchange.getIn().getHeaders();

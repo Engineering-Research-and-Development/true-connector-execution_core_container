@@ -150,9 +150,7 @@ public class CamelRouteSender extends RouteBuilder {
 
 			// Camel SSL - Endpoint: A - Body binary
             from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyBinary")
-                    .process(parseReceivedDataProcessorBodyBinary)
-                    .choice()
-                        .when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
+                    		.process(parseReceivedDataProcessorBodyBinary)
                             .process(getTokenFromDapsProcessor)
                             .process(registerTransactionToCHProcessor)
                              // Send data to Endpoint B
@@ -162,23 +160,11 @@ public class CamelRouteSender extends RouteBuilder {
 	                        .process(registerTransactionToCHProcessor)
 	                        .process(senderUsageControlProcessor)
                             .process(sendResponseToDataAppProcessor)
-							.removeHeaders("Camel*")
-                        .when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-		                    .process(registerTransactionToCHProcessor)
-                            // Send data to Endpoint B
-                            .process(sendDataToBusinessLogicProcessor)
-                            .process(parseReceivedResponseMessage)
-	                        .process(registerTransactionToCHProcessor)
-	                        .process(senderUsageControlProcessor)
-                            .process(sendResponseToDataAppProcessor)
-							.removeHeaders("Camel*")
-                    .endChoice();
+							.removeHeaders("Camel*");
 
             // Camel SSL - Endpoint: A - Body form-data
             from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyFormData")
-                    .process(parseReceivedDataProcessorBodyFormData)
-                    .choice()
-                        .when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
+            				.process(parseReceivedDataProcessorBodyFormData)
                             .process(getTokenFromDapsProcessor)
 	                        .process(registerTransactionToCHProcessor)
                              // Send data to Endpoint B
@@ -188,24 +174,11 @@ public class CamelRouteSender extends RouteBuilder {
 	                        .process(registerTransactionToCHProcessor)
 	                        .process(senderUsageControlProcessor)
                             .process(sendResponseToDataAppProcessor)
-							.removeHeaders("Camel*")
-                        .when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-		                    .process(registerTransactionToCHProcessor)
-                            // Send data to Endpoint B
-                            .process(sendDataToBusinessLogicProcessor)
-                            .process(parseReceivedResponseMessage)
-	                        .process(registerTransactionToCHProcessor)
-	                        .process(senderUsageControlProcessor)
-                            .process(sendResponseToDataAppProcessor)
-							.removeHeaders("Camel*")
-
-                    .endChoice();
+							.removeHeaders("Camel*");
             
          // Camel SSL - Endpoint: A - Http-header
             from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageHttpHeader" + "?httpMethodRestrict=POST")
-                    .process(parseReceivedDataProcessorHttpHeader)
-                    .choice()
-                        .when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
+                    		.process(parseReceivedDataProcessorHttpHeader)
                             .process(getTokenFromDapsProcessor)
 	                        .process(registerTransactionToCHProcessor)
                             // Send data to Endpoint B
@@ -215,25 +188,13 @@ public class CamelRouteSender extends RouteBuilder {
 	                        .process(registerTransactionToCHProcessor)
 	                        .process(senderUsageControlProcessor)
                             .process(sendResponseToDataAppProcessor)
-							.removeHeaders("Camel*")
-                        .when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-		                    .process(registerTransactionToCHProcessor)
-                            // Send data to Endpoint B
-                            .process(sendDataToBusinessLogicProcessor)
-                            .process(parseReceivedResponseMessage)
-	                        .process(registerTransactionToCHProcessor)
-	                        .process(senderUsageControlProcessor)
-                            .process(sendResponseToDataAppProcessor)
-							.removeHeaders("Camel*")
-                    .endChoice();
+							.removeHeaders("Camel*");
             } else {
 				// End point A. Communication between Data App and ECC Sender.
 				//fixedRate=true&period=10s
 				from("timer://timerEndpointA?repeatCount=-1") //EndPoint A
-						.process(fileRecreatorProcessor)
-						.process(parseReceivedDataFromDAppProcessorBodyBinary)
-						.choice()
-							.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
+								.process(fileRecreatorProcessor)
+								.process(parseReceivedDataFromDAppProcessorBodyBinary)
 								.process(getTokenFromDapsProcessor)
 	                            .process(registerTransactionToCHProcessor)
 								// Send data to Endpoint B
@@ -242,16 +203,7 @@ public class CamelRouteSender extends RouteBuilder {
 								.process(validateTokenProcessor)
 	                            .process(registerTransactionToCHProcessor)
 	                            .process(senderUsageControlProcessor)
-								.process(sendResponseToDataAppProcessor)
-							.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-		                        .process(registerTransactionToCHProcessor)
-								// Send data to Endpoint B
-								.process(sendDataToBusinessLogicProcessor)
-								.process(parseReceivedResponseMessage)
-	                            .process(registerTransactionToCHProcessor)
-	                            .process(senderUsageControlProcessor)
-								.process(sendResponseToDataAppProcessor)
-					.endChoice();
+								.process(sendResponseToDataAppProcessor);
 			//@formatter:on
 		}
 	}
