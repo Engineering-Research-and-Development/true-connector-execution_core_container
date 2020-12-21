@@ -70,13 +70,13 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	public void initConnector() throws ConstraintViolationException {
 		issuerConnectorURI = selfDescriptionConfiguration.getConnectorURI();
 		this.connector = new BaseConnectorBuilder(issuerConnectorURI)
-				._maintainer_(selfDescriptionConfiguration.getMaintainerURI())
-				._curator_(selfDescriptionConfiguration.getCurratorURI())
-//				._resourceCatalog_((ArrayList<? extends ResourceCatalog>) this.getCatalog())
+				._maintainer_(selfDescriptionConfiguration.getMaintainer())
+				._curator_(selfDescriptionConfiguration.getCurator())
+				._resourceCatalog_((ArrayList<? extends ResourceCatalog>) this.getCatalog())
 				._securityProfile_(SecurityProfile.BASE_SECURITY_PROFILE)
 				._inboundModelVersion_(Util.asList(new String[] { selfDescriptionConfiguration.getInformationMovelVersion() }))
-				._title_(Util.asList(new TypedLiteral(selfDescriptionConfiguration.getSelfDescription().getTitle())))
-				._description_(Util.asList(new TypedLiteral(selfDescriptionConfiguration.getSelfDescription().getDescription())))
+				._title_(Util.asList(new TypedLiteral(selfDescriptionConfiguration.getTitle())))
+				._description_(Util.asList(new TypedLiteral(selfDescriptionConfiguration.getDescription())))
 				._outboundModelVersion_(selfDescriptionConfiguration.getInformationMovelVersion())
 				._hasDefaultEndpoint_(new ConnectorEndpointBuilder(selfDescriptionConfiguration.getDefaultEndpoint()).build())
 //				._hasEndpoint_(Util.asList(new ConnectorEndpointBuilder(new URI("https://someURL/incoming-data-channel/receivedMessage")).build()))

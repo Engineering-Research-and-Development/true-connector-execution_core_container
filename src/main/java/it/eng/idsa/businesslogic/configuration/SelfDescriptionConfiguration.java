@@ -139,14 +139,6 @@ public class SelfDescriptionConfiguration {
 		return URI.create("http://senderAgentURI.com");
 	}
 	
-	public URI getMaintainerURI() {
-		return URI.create("http://maintainerURI.com");
-	}
-	
-	public URI getCurratorURI() {
-		return URI.create("http://curratorURI.com");
-	}
-	
 	public URI getDefaultEndpoint() {
 		String schema = useHttps ? "https" : "http";
 		String port = useHttps ? serverPort : httpPort;
@@ -160,9 +152,30 @@ public class SelfDescriptionConfiguration {
 		return null;
 	}
 	
+	/*
+	 * Shorthand methods to expose self description data
+	 */
+	public String getDescription() {
+		return this.selfDescription.getDescription();
+	}
+	
+	public String getTitle() {
+		return this.selfDescription.getTitle();
+	}
+	
+	public URI getMaintainer() {
+		return this.selfDescription.getMaintainer();
+	}
+	
+	public URI getCurator() {
+		return this.selfDescription.getCurator();
+	}
+	
 	public static class SelfDescription {
 		private String description;
 		private String title;
+		private URI maintainer;
+		private URI curator;
 		
 		public String getDescription() {
 			return description;
@@ -178,6 +191,22 @@ public class SelfDescriptionConfiguration {
 
 		public void setTitle(String title) {
 			this.title = title;
+		}
+
+		public URI getMaintainer() {
+			return maintainer;
+		}
+
+		public void setMaintainer(URI maintainer) {
+			this.maintainer = maintainer;
+		}
+
+		public URI getCurator() {
+			return curator;
+		}
+
+		public void setCurator(URI curator) {
+			this.curator = curator;
 		}
 	}
 }
