@@ -47,7 +47,7 @@ public class SendDataToBusinessLogicServiceImplTest {
 		
 		payload = "{\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"}";
 		
-		address = "https://localhost:8890/incoming-data-channel/receivedMessage";
+		address = "https://localhost:8890/data";
 		
 		headerParts = new HashMap<>();
 	}

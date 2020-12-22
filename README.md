@@ -29,7 +29,7 @@ It will expose the following endpoints (both over https):
 ```
 * /incoming-data-app/multipartMessageBodyBinary to receive data (MultiPartMessage) with binary body from Data App (the A endpoint in the above picture)
 * /incoming-data-app/multipartMessageBodyFormData to receive data (MultiPartMessage) with form-data body from Data App (the A endpoint in the above picture)
-* /incoming-data-channel/receivedMessage to receive data (IDS Message) from a sender connector (the B endpoint in the above picture)
+* /data to receive data (IDS Message) from a sender connector (the B endpoint in the above picture)
 ```
 Furthermore, just for testing it will expose (http and https):
 ```
@@ -59,7 +59,7 @@ The sender DataApp should send a request using the following schema, specifing i
 ```
 curl -k -request POST 'https://{IPADDRESS}:{A_ENDPOINT_PUBLIC_PORT}/incoming-data-app/multipartMessageBodyBinary' 
    --header 'Content-Type: multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6' 
-   --header 'Forward-To: {RECEIVER_IP_ADDRESS}:{B_ENDPOINT_PUBLIC_PORT}/incoming-data-channel/receivedMessage' 
+   --header 'Forward-To: {RECEIVER_IP_ADDRESS}:{B_ENDPOINT_PUBLIC_PORT}/data' 
    --data-binary '@/home/eng/MultipartMessageDataExample1.txt'
 ```
 
@@ -68,14 +68,14 @@ Keeping the provided docker-compose will be:
 ```
 curl -k -request POST 'https://{IPADDRESS}:8887/incoming-data-app/multipartMessageBodyBinary' 
    --header 'Content-Type: multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6' 
-   --header 'Forward-To: {RECEIVER_IP_ADDRESS}:8889/incoming-data-channel/receivedMessage' 
+   --header 'Forward-To: {RECEIVER_IP_ADDRESS}:8889/data' 
    --data-binary '@/home/eng/MultipartMessageDataExample1.txt'
 ```
 
 #### Multipart/form-data - Example
 ```
 curl -k --location --request POST 'https://{IPADDRESS}:{A_ENDPOINT_PUBLIC_PORT}/incoming-data-app/multipartMessageBodyFormData' 
-    --header 'Forward-To: {RECEIVER_IP_ADDRESS}:{B_ENDPOINT_PUBLIC_PORT}/incoming-data-channel/receivedMessage' 
+    --header 'Forward-To: {RECEIVER_IP_ADDRESS}:{B_ENDPOINT_PUBLIC_PORT}/data' 
     --form 'header={
     "@type" : "ids:ArtifactResponseMessage",
     "issued" : "2019-05-27T13:09:42.306Z",
@@ -92,7 +92,7 @@ curl -k --location --request POST 'https://{IPADDRESS}:{A_ENDPOINT_PUBLIC_PORT}/
 Keeping the provided docker-compose will be:
 ```
 curl -k --location --request POST 'https://{IPADDRESS}:8887/incoming-data-app/multipartMessageBodyFormData' 
-    --header 'Forward-To: {RECEIVER_IP_ADDRESS}:8889/incoming-data-channel/receivedMessage' 
+    --header 'Forward-To: {RECEIVER_IP_ADDRESS}:8889/data' 
     --form 'header={
     "@type" : "ids:ArtifactResponseMessage",
     "issued" : "2019-05-27T13:09:42.306Z",

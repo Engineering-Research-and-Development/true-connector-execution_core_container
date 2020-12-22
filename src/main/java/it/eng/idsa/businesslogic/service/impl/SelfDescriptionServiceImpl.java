@@ -81,7 +81,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._description_(Util.asList(new TypedLiteral("This is selfDescription description for Eng true connector")))
 				._outboundModelVersion_(selfDescriptionConfiguration.getInfoModelVersion())
 //				._hasDefaultEndpoint_(new ConnectorEndpointBuilder(new URI("https://someURL/selfDescription")).build())
-//				._hasEndpoint_(Util.asList(new ConnectorEndpointBuilder(new URI("https://someURL/incoming-data-channel/receivedMessage")).build()))
+//				._hasEndpoint_(Util.asList(new ConnectorEndpointBuilder(new URI("https://someURL/data")).build()))
 				.build();
 	}
 
