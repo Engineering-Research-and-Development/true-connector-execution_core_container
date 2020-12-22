@@ -68,16 +68,14 @@ public class TestUtilMessageService {
 				._modelVersion_(MODEL_VERSION)
 				.build();
 	}
-	
 
 	public static String getMessageAsString(Message message) {
 		try {
-		return MultipartMessageProcessor.serializeToJsonLD(message);
+			return MultipartMessageProcessor.serializeToJsonLD(message);
 		} catch (IOException e) {
-		e.printStackTrace();
+			e.printStackTrace();
 		}
 		return null;
-
-		 }
+	}
 
 }
