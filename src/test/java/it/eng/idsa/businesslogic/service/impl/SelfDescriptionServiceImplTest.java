@@ -51,7 +51,7 @@ public class SelfDescriptionServiceImplTest {
 	public void setup() throws ConstraintViolationException, URISyntaxException {
 		MockitoAnnotations.initMocks(this);
 		when(dapsService.getJwtToken()).thenReturn("mockTokenValue");
-		when(configuration.getInformationMovelVersion()).thenReturn(infoModelVersion);
+		when(configuration.getInformationModelVersion()).thenReturn(infoModelVersion);
 		when(configuration.getConnectorURI()).thenReturn(URI.create(connectorURI));
 		when(configuration.getTitle()).thenReturn(title);
 		when(configuration.getDescription()).thenReturn(description);

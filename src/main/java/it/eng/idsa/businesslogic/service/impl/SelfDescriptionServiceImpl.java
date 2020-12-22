@@ -74,10 +74,10 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._curator_(selfDescriptionConfiguration.getCurator())
 				._resourceCatalog_((ArrayList<? extends ResourceCatalog>) this.getCatalog())
 				._securityProfile_(SecurityProfile.BASE_SECURITY_PROFILE)
-				._inboundModelVersion_(Util.asList(new String[] { selfDescriptionConfiguration.getInformationMovelVersion() }))
+				._inboundModelVersion_(Util.asList(new String[] { selfDescriptionConfiguration.getInformationModelVersion() }))
 				._title_(Util.asList(new TypedLiteral(selfDescriptionConfiguration.getTitle())))
 				._description_(Util.asList(new TypedLiteral(selfDescriptionConfiguration.getDescription())))
-				._outboundModelVersion_(selfDescriptionConfiguration.getInformationMovelVersion())
+				._outboundModelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._hasDefaultEndpoint_(new ConnectorEndpointBuilder(selfDescriptionConfiguration.getDefaultEndpoint()).build())
 //				._hasEndpoint_(Util.asList(new ConnectorEndpointBuilder(new URI("https://someURL/incoming-data-channel/receivedMessage")).build()))
 				.build();
@@ -156,7 +156,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 			._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 			._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
 			._issuerConnector_(issuerConnectorURI)
-			._modelVersion_(selfDescriptionConfiguration.getInformationMovelVersion())
+			._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 			._affectedConnector_(connector.getId())
 			.build();
 	}
@@ -180,7 +180,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		return new ConnectorUpdateMessageBuilder()
 				._securityToken_(securityToken)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
-				._modelVersion_(selfDescriptionConfiguration.getInformationMovelVersion())
+				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)
 				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
 				._affectedConnector_(connector.getId())
@@ -197,7 +197,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		return new ConnectorUnavailableMessageBuilder()
 				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
 				._affectedConnector_(connector.getId())
-				._modelVersion_(selfDescriptionConfiguration.getInformationMovelVersion())
+				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)
 				._securityToken_(securityToken)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
@@ -212,7 +212,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		DynamicAttributeToken securityToken = getJwToken();
 		
 		return new ConnectorUnavailableMessageBuilder()
-				._modelVersion_(selfDescriptionConfiguration.getInformationMovelVersion())
+				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
@@ -229,7 +229,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		return new QueryMessageBuilder()
 				._securityToken_(securityToken)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
-				._modelVersion_(selfDescriptionConfiguration.getInformationMovelVersion())
+				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)
 				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
 				._queryLanguage_(QueryLanguage.SPARQL)

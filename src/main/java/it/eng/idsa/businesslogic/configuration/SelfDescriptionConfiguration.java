@@ -16,7 +16,7 @@ public class SelfDescriptionConfiguration {
 	private boolean useHttps;
 	
 	@Value("${information.model.version}")
-	private String informationMovelVersion;
+	private String informationModelVersion;
 	
 	/**
 	 * Used for http communication
@@ -126,8 +126,8 @@ public class SelfDescriptionConfiguration {
 		return useHttps;
 	}
 
-	public String getInformationMovelVersion() {
-		return informationMovelVersion;
+	public String getInformationModelVersion() {
+		return informationModelVersion;
 	}
 
 	public URI getConnectorURI() {
