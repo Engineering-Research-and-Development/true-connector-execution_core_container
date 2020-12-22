@@ -82,6 +82,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void configure() throws Exception {
 		logger.debug("Starting Camel Routes...receiver side");
@@ -93,88 +94,49 @@ public class CamelRouteReceiver extends RouteBuilder {
 			.handled(true)
 			.process(exceptionProcessorReceiver)
 			.process(exceptionMultiPartMessageProcessor)
-			.choice()
-				.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
-					.process(getTokenFromDapsProcessor)
-					.process(sendDataToBusinessLogicProcessor)
-					.process(registerTransactionToCHProcessor)
-				.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-					.process(sendDataToBusinessLogicProcessor)
-					.process(registerTransactionToCHProcessor)
-			.endChoice();
+			.process(getTokenFromDapsProcessor)
+			.process(sendDataToBusinessLogicProcessor)
+			.process(registerTransactionToCHProcessor);
 
 		// Camel SSL - Endpoint: B
 		if(!isEnabledIdscp && !isEnabledWebSocket) {
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/incoming-data-channel/receivedMessage")
-					.process(connectorRequestProcessor)
-					.choice()
-					.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
-						.process(validateTokenProcessor)
-	                    .process(registerTransactionToCHProcessor)
-						// Send to the Endpoint: F
-						.choice()
-						.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
-							.process(sendDataToDataAppProcessorOverWS)
-						.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(false))
-							.removeHeaders("Camel*")
-							.process(sendDataToDataAppProcessor)
-						.endChoice()
-						.process(multiPartMessageProcessor)
-						.process(getTokenFromDapsProcessor)
-						.process(receiverUsageControlProcessor)
-	                    .process(registerTransactionToCHProcessor)
-						.process(sendDataToBusinessLogicProcessor)
-					.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-		                .process(registerTransactionToCHProcessor)
-						// Send to the Endpoint: F
-						.choice()
-						.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
-							.process(sendDataToDataAppProcessorOverWS)
-						.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(false))
-							.removeHeaders("Camel*")
-							.process(sendDataToDataAppProcessor)
-						.endChoice()
-						.process(multiPartMessageProcessor)
-						.process(receiverUsageControlProcessor)
-	                    .process(registerTransactionToCHProcessor)
-						.process(sendDataToBusinessLogicProcessor)
+				.process(connectorRequestProcessor)
+				.process(validateTokenProcessor)
+                .process(registerTransactionToCHProcessor)
+				// Send to the Endpoint: F
+				.choice()
+					.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
+						.process(sendDataToDataAppProcessorOverWS)
+					.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(false))
 						.removeHeaders("Camel*")
-					.endChoice();
+						.process(sendDataToDataAppProcessor)
+				.end()
+				.process(multiPartMessageProcessor)
+				.process(getTokenFromDapsProcessor)
+				.process(receiverUsageControlProcessor)
+                .process(registerTransactionToCHProcessor)
+				.process(sendDataToBusinessLogicProcessor)
+				.removeHeaders("Camel*");
 		} else if (isEnabledIdscp || isEnabledWebSocket) {
 			// End point B. ECC communication (Web Socket or IDSCP)
 			from("timer://timerEndpointB?repeatCount=-1") //EndPoint B
-					.process(fileRecreatorProcessor)
-					.process(connectorRequestProcessor)
-					.choice()
-						.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
-							.process(validateTokenProcessor)
-	                        .process(registerTransactionToCHProcessor)
-							// Send to the Endpoint: F
-							.choice()
-								.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
-									.process(sendDataToDataAppProcessorOverWS)
-								.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(false))
-								.process(sendDataToDataAppProcessor)
-							.endChoice()
-								.process(multiPartMessageProcessor)
-								.process(getTokenFromDapsProcessor)
-								.process(receiverUsageControlProcessor)
-	                            .process(registerTransactionToCHProcessor)
-								.process(sendDataToBusinessLogicProcessor)
-						.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-		                    	.process(registerTransactionToCHProcessor)
-							// Send to the Endpoint: F
-							.choice()
-							.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
-								.process(sendDataToDataAppProcessorOverWS)
-							.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(false))
-								.process(sendDataToDataAppProcessor)
-							.endChoice()
-								.process(multiPartMessageProcessor)
-								.process(receiverUsageControlProcessor)
-	                        	.process(registerTransactionToCHProcessor)
-							.process(sendDataToBusinessLogicProcessor)
-					.endChoice();
+				.process(fileRecreatorProcessor)
+				.process(connectorRequestProcessor)
+				.process(validateTokenProcessor)
+                .process(registerTransactionToCHProcessor)
+				// Send to the Endpoint: F
+				.choice()
+					.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
+						.process(sendDataToDataAppProcessorOverWS)
+					.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(false))
+						.process(sendDataToDataAppProcessor)
+				.end()
+				.process(multiPartMessageProcessor)
+				.process(getTokenFromDapsProcessor)
+				.process(receiverUsageControlProcessor)
+                .process(registerTransactionToCHProcessor)
+				.process(sendDataToBusinessLogicProcessor);
 			//@formatter:on
 		}
 

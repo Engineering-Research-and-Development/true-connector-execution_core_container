@@ -111,6 +111,7 @@ public class CamelRouteSender extends RouteBuilder {
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledDataAppWebSocket;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void configure() throws Exception {
 		logger.debug("Starting Camel Routes...sender side");
@@ -121,137 +122,88 @@ public class CamelRouteSender extends RouteBuilder {
 		onException(ExceptionForProcessor.class, RuntimeException.class)
 			.handled(true)
 			.process(processorException);
-		
 
 		if(!isEnabledDataAppWebSocket) {
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/selfRegistration/register")
-			.process(createRegistratioMessageSender)
+				.process(createRegistratioMessageSender)
 			.to("direct:registrationProcess");
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/selfRegistration/update")
-			.process(createUpdateMessageSender)
+				.process(createUpdateMessageSender)
 			.to("direct:registrationProcess");
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/selfRegistration/delete")
-			.process(createDeleteMessageSender)
+				.process(createDeleteMessageSender)
 			.to("direct:registrationProcess");
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/selfRegistration/passivate")
-			.process(createPassivateMessageSender)
+				.process(createPassivateMessageSender)
 			.to("direct:registrationProcess");
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/selfRegistration/query")
-			.process(createBrokerQueryMessageSender)
+				.process(createBrokerQueryMessageSender)
 			.to("direct:registrationProcess");
 			
 			from("direct:registrationProcess")
-			.process(sendRegistrationRequestProcessor)
-			//TODO following processor is workaround 
-			// to remove Content-Type from response in order to be able to Serialize it correct
-			.process(processRegistrationResponseSender)
-			.process(parseReceivedResponseMessage)
-			.process(sendResponseToDataAppProcessor);
+				.process(sendRegistrationRequestProcessor)
+				//TODO following processor is workaround 
+				// to remove Content-Type from response in order to be able to Serialize it correct
+				.process(processRegistrationResponseSender)
+				.process(parseReceivedResponseMessage)
+				.process(sendResponseToDataAppProcessor);
 
 			// Camel SSL - Endpoint: A - Body binary
             from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyBinary")
-                    .process(parseReceivedDataProcessorBodyBinary)
-                    .choice()
-                        .when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
-                            .process(getTokenFromDapsProcessor)
-                            .process(registerTransactionToCHProcessor)
-                             // Send data to Endpoint B
-                            .process(sendDataToBusinessLogicProcessor)
-                            .process(parseReceivedResponseMessage)
-                            .process(validateTokenProcessor)
-	                        .process(registerTransactionToCHProcessor)
-	                        .process(senderUsageControlProcessor)
-                            .process(sendResponseToDataAppProcessor)
-							.removeHeaders("Camel*")
-                        .when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-		                    .process(registerTransactionToCHProcessor)
-                            // Send data to Endpoint B
-                            .process(sendDataToBusinessLogicProcessor)
-                            .process(parseReceivedResponseMessage)
-	                        .process(registerTransactionToCHProcessor)
-	                        .process(senderUsageControlProcessor)
-                            .process(sendResponseToDataAppProcessor)
-							.removeHeaders("Camel*")
-                    .endChoice();
+        		.process(parseReceivedDataProcessorBodyBinary)
+                .process(getTokenFromDapsProcessor)
+                .process(registerTransactionToCHProcessor)
+                 // Send data to Endpoint B
+                .process(sendDataToBusinessLogicProcessor)
+                .process(parseReceivedResponseMessage)
+                .process(validateTokenProcessor)
+                .process(registerTransactionToCHProcessor)
+                .process(senderUsageControlProcessor)
+                .process(sendResponseToDataAppProcessor)
+				.removeHeaders("Camel*");
 
             // Camel SSL - Endpoint: A - Body form-data
             from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyFormData")
-                    .process(parseReceivedDataProcessorBodyFormData)
-                    .choice()
-                        .when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
-                            .process(getTokenFromDapsProcessor)
-	                        .process(registerTransactionToCHProcessor)
-                             // Send data to Endpoint B
-                            .process(sendDataToBusinessLogicProcessor)
-                            .process(parseReceivedResponseMessage)
-                            .process(validateTokenProcessor)
-	                        .process(registerTransactionToCHProcessor)
-	                        .process(senderUsageControlProcessor)
-                            .process(sendResponseToDataAppProcessor)
-							.removeHeaders("Camel*")
-                        .when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-		                    .process(registerTransactionToCHProcessor)
-                            // Send data to Endpoint B
-                            .process(sendDataToBusinessLogicProcessor)
-                            .process(parseReceivedResponseMessage)
-	                        .process(registerTransactionToCHProcessor)
-	                        .process(senderUsageControlProcessor)
-                            .process(sendResponseToDataAppProcessor)
-							.removeHeaders("Camel*")
-
-                    .endChoice();
+				.process(parseReceivedDataProcessorBodyFormData)
+                .process(getTokenFromDapsProcessor)
+                .process(registerTransactionToCHProcessor)
+                 // Send data to Endpoint B
+                .process(sendDataToBusinessLogicProcessor)
+                .process(parseReceivedResponseMessage)
+                .process(validateTokenProcessor)
+                .process(registerTransactionToCHProcessor)
+                .process(senderUsageControlProcessor)
+                .process(sendResponseToDataAppProcessor)
+				.removeHeaders("Camel*");
             
          // Camel SSL - Endpoint: A - Http-header
             from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageHttpHeader" + "?httpMethodRestrict=POST")
-                    .process(parseReceivedDataProcessorHttpHeader)
-                    .choice()
-                        .when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
-                            .process(getTokenFromDapsProcessor)
-	                        .process(registerTransactionToCHProcessor)
-                            // Send data to Endpoint B
-                            .process(sendDataToBusinessLogicProcessor)
-                            .process(parseReceivedResponseMessage)
-                            .process(validateTokenProcessor)
-	                        .process(registerTransactionToCHProcessor)
-	                        .process(senderUsageControlProcessor)
-                            .process(sendResponseToDataAppProcessor)
-							.removeHeaders("Camel*")
-                        .when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-		                    .process(registerTransactionToCHProcessor)
-                            // Send data to Endpoint B
-                            .process(sendDataToBusinessLogicProcessor)
-                            .process(parseReceivedResponseMessage)
-	                        .process(registerTransactionToCHProcessor)
-	                        .process(senderUsageControlProcessor)
-                            .process(sendResponseToDataAppProcessor)
-							.removeHeaders("Camel*")
-                    .endChoice();
+        		.process(parseReceivedDataProcessorHttpHeader)
+                .process(getTokenFromDapsProcessor)
+                .process(registerTransactionToCHProcessor)
+                // Send data to Endpoint B
+                .process(sendDataToBusinessLogicProcessor)
+                .process(parseReceivedResponseMessage)
+                .process(validateTokenProcessor)
+                .process(registerTransactionToCHProcessor)
+                .process(senderUsageControlProcessor)
+                .process(sendResponseToDataAppProcessor)
+				.removeHeaders("Camel*");
             } else {
 				// End point A. Communication between Data App and ECC Sender.
 				//fixedRate=true&period=10s
 				from("timer://timerEndpointA?repeatCount=-1") //EndPoint A
-						.process(fileRecreatorProcessor)
-						.process(parseReceivedDataFromDAppProcessorBodyBinary)
-						.choice()
-							.when(header("Is-Enabled-Daps-Interaction").isEqualTo(true))
-								.process(getTokenFromDapsProcessor)
-	                            .process(registerTransactionToCHProcessor)
-								// Send data to Endpoint B
-								.process(sendDataToBusinessLogicProcessor)
-								.process(parseReceivedResponseMessage)
-								.process(validateTokenProcessor)
-	                            .process(registerTransactionToCHProcessor)
-	                            .process(senderUsageControlProcessor)
-								.process(sendResponseToDataAppProcessor)
-							.when(header("Is-Enabled-Daps-Interaction").isEqualTo(false))
-		                        .process(registerTransactionToCHProcessor)
-								// Send data to Endpoint B
-								.process(sendDataToBusinessLogicProcessor)
-								.process(parseReceivedResponseMessage)
-	                            .process(registerTransactionToCHProcessor)
-	                            .process(senderUsageControlProcessor)
-								.process(sendResponseToDataAppProcessor)
-					.endChoice();
+					.process(fileRecreatorProcessor)
+					.process(parseReceivedDataFromDAppProcessorBodyBinary)
+					.process(getTokenFromDapsProcessor)
+	                .process(registerTransactionToCHProcessor)
+					// Send data to Endpoint B
+					.process(sendDataToBusinessLogicProcessor)
+					.process(parseReceivedResponseMessage)
+					.process(validateTokenProcessor)
+	                .process(registerTransactionToCHProcessor)
+	                .process(senderUsageControlProcessor)
+					.process(sendResponseToDataAppProcessor);
 			//@formatter:on
 		}
 	}
