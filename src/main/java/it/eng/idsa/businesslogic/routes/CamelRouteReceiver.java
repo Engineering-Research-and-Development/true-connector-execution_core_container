@@ -100,7 +100,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 
 		// Camel SSL - Endpoint: B
 		if(!isEnabledIdscp && !isEnabledWebSocket) {
-			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/incoming-data-channel/receivedMessage")
+			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/data")
 				.process(connectorRequestProcessor)
 				.process(validateTokenProcessor)
                 .process(registerTransactionToCHProcessor)

@@ -19,7 +19,7 @@ public class SelfDescription {
     private SelfDescriptionService selfDescriptionService;
 
 
-    @GetMapping("/selfDescription")
+    @GetMapping("/")
     @ResponseBody
     public String selfDescriptions() {
         return selfDescriptionService.getConnectorAsString();
