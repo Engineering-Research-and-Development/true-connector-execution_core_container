@@ -139,7 +139,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 
 	private CloseableHttpResponse sendMultipartMessage(Map<String, Object> headerParts, String forwardTo, Message message, MultipartMessage multipartMessage)
 			throws IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException,
-			ExecutionException, UnsupportedEncodingException, org.json.simple.parser.ParseException {
+			ExecutionException, UnsupportedEncodingException {
 		CloseableHttpResponse response = null;
 		// -- Send message using HTTPS
 			switch (eccHttpSendRouter) {

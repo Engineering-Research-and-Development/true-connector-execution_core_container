@@ -5,8 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;
-import org.json.simple.JsonObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +29,8 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
 @Service
 public class HttpHeaderServiceImpl implements HttpHeaderService {
 
+	private static final Logger logger = LogManager.getLogger(HttpHeaderService.class);
+	
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean isEnabledDapsInteraction;
 
@@ -38,14 +41,9 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		Map<String, Object> headerAsMap = getHeaderMessagePartAsMap(headers);
 		Map<String, Object> tokenAsMap = addTokenHeadersToReceivedMessageHeaders(headers);
 
-		JsonObject jsonHeader = new JsonObject(headerAsMap);
-		jsonHeader.put("securityToken", tokenAsMap);
-
+		headerAsMap.put("securityToken", tokenAsMap);
 		removeTokenHeaders(headers);
-
-		String header = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(jsonHeader);
-
-		return header;
+		return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(headerAsMap);
 	}
 
 	private Map<String, Object> addTokenHeadersToReceivedMessageHeaders(Map<String, Object> headers) {
@@ -72,11 +70,8 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 			throws JsonParseException, JsonMappingException, IOException {
 
 		Map<String, Object> messageAsMap = prepareMessageForSendingAsHttpHeadersWithoutToken(header);
-
 		addTokenToPreparedMessage(header, messageAsMap);
-
 		return messageAsMap;
-
 	}
 
 	private void addTokenToPreparedMessage(String header, Map<String, Object> messageAsMap) throws IOException {
@@ -88,7 +83,6 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		messageAsMap.put("IDS-SecurityToken-TokenValue", tokenAsMap.get("tokenValue").toString());
 		Map<String, Object> tokenFormatAsMap = (Map<String, Object>) tokenAsMap.get("tokenFormat");
 		messageAsMap.put("IDS-SecurityToken-TokenFormat", tokenFormatAsMap.get("@id").toString());
-
 	}
 
 	@Override
@@ -96,12 +90,8 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 			throws JsonProcessingException {
 
 		Map<String, Object> headerAsMap = getHeaderMessagePartAsMap(headers);
-
 //		removeMessageHeadersWithoutToken(headers);
-
-		String header = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(headerAsMap);
-
-		return header;
+		return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(headerAsMap);
 	}
 
 	@Override
@@ -180,7 +170,6 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		if (messageAsMap.get("requestedArtifact") != null) {
 			headers.put("IDS-RequestedArtifact", messageAsMap.get("requestedArtifact"));
 		}
-
 		return headers;
 	}
 
@@ -295,17 +284,21 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 
 	@Override
 	public Map<String, Object> transformJWTTokenToHeaders(String token)
-			throws JsonMappingException, JsonProcessingException, ParseException {
+			throws JsonProcessingException {
 		Map<String, Object> tokenAsMap = new HashMap<>();
 		Token tokenJsonValue = new DynamicAttributeTokenBuilder()._tokenFormat_(TokenFormat.JWT)._tokenValue_(token).build();
 		String tokenValueSerialized = new Serializer().serializePlainJson(tokenJsonValue);
 		JSONParser parser = new JSONParser();
-		JSONObject jsonObjectToken = (JSONObject) parser.parse(tokenValueSerialized);
-
-		tokenAsMap.put("IDS-SecurityToken-Type", jsonObjectToken.get("@type").toString());
-		tokenAsMap.put("IDS-SecurityToken-Id", tokenJsonValue.getId().toString());
-		tokenAsMap.put("IDS-SecurityToken-TokenFormat", tokenJsonValue.getTokenFormat().toString());
-		tokenAsMap.put("IDS-SecurityToken-TokenValue", token);
+		JSONObject jsonObjectToken;
+		try {
+			jsonObjectToken = (JSONObject) parser.parse(tokenValueSerialized);
+			tokenAsMap.put("IDS-SecurityToken-Type", jsonObjectToken.get("@type").toString());
+			tokenAsMap.put("IDS-SecurityToken-Id", tokenJsonValue.getId().toString());
+			tokenAsMap.put("IDS-SecurityToken-TokenFormat", tokenJsonValue.getTokenFormat().toString());
+			tokenAsMap.put("IDS-SecurityToken-TokenValue", token);
+		} catch (ParseException e) {
+			logger.error("Error while trying to convert from String to json", e);
+		}
 		return tokenAsMap;
 	}
 

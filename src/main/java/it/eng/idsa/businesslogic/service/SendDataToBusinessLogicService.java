@@ -5,7 +5,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.json.simple.parser.ParseException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -18,7 +17,7 @@ public interface SendDataToBusinessLogicService {
 			throws UnsupportedEncodingException, JsonProcessingException;
 
 	CloseableHttpResponse sendMessageHttpHeader(String address, MultipartMessage multipartMessage,
-			Map<String, Object> headerParts, boolean eccCommunication) throws IOException, ParseException;
+			Map<String, Object> headerParts, boolean eccCommunication) throws IOException;
 	
 	CloseableHttpResponse sendMessageFormData(String address, MultipartMessage message,
 			Map<String, Object> headerParts, boolean eccCommunication) throws UnsupportedEncodingException;

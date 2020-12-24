@@ -1,8 +1,10 @@
 package it.eng.idsa.businesslogic.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -27,6 +29,8 @@ public class HttpHeaderServiceImplTest {
 	private String headerMessagePart;
 	
 	private MultipartMessage multipartMessage;
+
+	private static final String TOKEN_VALUE = "ABC_SAMPLE_TOKEN_VALUE";
 	
 	@BeforeEach
 	public void init() {
@@ -72,7 +76,6 @@ public class HttpHeaderServiceImplTest {
 		verifyIDSHeadersPresent(result);
 	}
 
-
 	private void verifyIDSHeadersPresent(Map<String, Object> result) {
 		assertNotNull(result.get("IDS-Messagetype"));
 		assertNotNull(result.get("IDS-Issued"));
@@ -108,6 +111,37 @@ public class HttpHeaderServiceImplTest {
 		verifyIDSHeadersPresent(result);
 		verifyIDSHeadersCorrectValues(result);
 	}
+	
+	@Test
+	public void transformJWTTokenToHeadersTest() throws JsonProcessingException {
+		Map<String, Object> tokenAsMap = httpHeaderServiceImpl.transformJWTTokenToHeaders(TOKEN_VALUE);
+		assertFalse(tokenAsMap.isEmpty());
+		assertEquals(4, tokenAsMap.size());
+		assertEquals(TOKEN_VALUE, tokenAsMap.get("IDS-SecurityToken-TokenValue"));
+	}
+
+	@Test
+	public void getHeaderMessagePartFromHttpHeadersWithTokenTest() throws JsonProcessingException {
+		addTokenToMap(headers);
+		String headerString = httpHeaderServiceImpl.getHeaderMessagePartFromHttpHeadersWithToken(headers);
+		assertNotNull(headerString);
+		assertTrue(headerString.contains(TOKEN_VALUE));
+	}
+	
+	@Test
+	public void getHeaderMessagePartFromHttpHeadersWithoutTokenTest() throws JsonProcessingException {
+		addTokenToMap(headers);
+		String headerString = httpHeaderServiceImpl.getHeaderMessagePartFromHttpHeadersWithoutToken(headers);
+		assertNotNull(headerString);
+		assertFalse(headerString.contains(TOKEN_VALUE));
+	}
+
+	private void addTokenToMap(Map<String, Object> headers) {
+		headers.put("IDS-SecurityToken-Type", "ids:DynamicAttributeToken");
+		headers.put("IDS-SecurityToken-Id", "https://w3id.org/idsa/autogen/dynamicAttributeToken/1");
+		headers.put("IDS-SecurityToken-TokenFormat", "idsc:JWT");
+		headers.put("IDS-SecurityToken-TokenValue", TOKEN_VALUE );
+	}
 
 
 	private void verifyIDSHeadersCorrectValues(Map<String, Object> result) {
@@ -118,7 +152,6 @@ public class HttpHeaderServiceImplTest {
 		assertEquals(result.get("IDS-TransferContract"), multipartMessage.getHeaderContent().getTransferContract().toString());
 		assertEquals(result.get("IDS-Id"), multipartMessage.getHeaderContent().getId().toString());
 		assertEquals(result.get("IDS-ModelVersion"), multipartMessage.getHeaderContent().getModelVersion());
-		
 	}
 
 }

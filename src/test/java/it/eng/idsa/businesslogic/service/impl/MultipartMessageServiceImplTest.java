@@ -3,13 +3,11 @@ package it.eng.idsa.businesslogic.service.impl;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.GregorianCalendar;
 
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -17,13 +15,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import de.fraunhofer.iais.eis.DynamicAttributeToken;
-import de.fraunhofer.iais.eis.DynamicAttributeTokenBuilder;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import de.fraunhofer.iais.eis.Message;
-import de.fraunhofer.iais.eis.MessageProcessedNotificationMessageBuilder;
-import de.fraunhofer.iais.eis.TokenFormat;
 import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 
 public class MultipartMessageServiceImplTest {
 	
@@ -101,27 +98,23 @@ public class MultipartMessageServiceImplTest {
 	
 	@Test
 	public void removeToken() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
-		DynamicAttributeToken securityToken = new DynamicAttributeTokenBuilder(new URI("https://w3id.org/idsa/autogen/dynamicAttributeToken/fe563a55-253f-4872-8df5-949f952440da"))
-				._tokenFormat_(TokenFormat.JWT)
-				._tokenValue_("DummyTokenAsNoDapsIsAvailable")
-				.build();
-//		Token securityToken = new TokenBuilder(new URI("http://securityToken.com"))
-//				._tokenFormat_(TokenFormat.JWT)
-//				._tokenValue_("some_dummy_jwt_string_used_for_testing")
-//				.build();
-		Message message = new MessageProcessedNotificationMessageBuilder(new URI("https://w3id.org/idsa/autogen/messageProcessedNotificationMessage/1f1050d4-6133-41a5-85dc-cc5edf97f614"))
-				._correlationMessage_(new URI("https://w3id.org/idsa/autogen/connectorAvailableMessage/67b2d428-f7d7-489f-972e-601a12203621"))
-				._issuerConnector_(new URI("https://ids0.datahub.c.fraunhofer.de/"))
-				._securityToken_(securityToken)
-//				._securityToken_(securityToken)
-				._modelVersion_("4.0.0")
-				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
-				._senderAgent_(new URI("https://www.iais.fraunhofer.de"))
-				.build();
-		
-		String result = service.removeToken(message);
+		String result = service.removeToken(TestUtilMessageService.getArtifactRequestMessageWithToken());
 		assertNotNull(result);
 		assertFalse(result.contains("securityToken"));
 	}
 	
+	@Test
+	public void addToken() {
+		Message message = TestUtilMessageService.getArtifactRequestMessage();
+		String token = "DUMMY_TOKEN_VALUE";
+		String messageWithToken = service.addToken(message, token );
+		assertNotNull(messageWithToken);
+		assertTrue(messageWithToken.contains(token));
+	}
+	
+	@Test
+	public void getTokenTest() throws JsonProcessingException {
+		String token = service.getToken(TestUtilMessageService.getArtifactRequestMessageWithToken());
+		assertNotNull(token);
+	}
 }
