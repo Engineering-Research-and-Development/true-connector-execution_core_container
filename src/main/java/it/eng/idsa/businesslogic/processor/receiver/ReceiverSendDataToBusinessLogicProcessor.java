@@ -59,8 +59,8 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 
-		Map<String, Object> headersParts = exchange.getIn().getHeaders();
-		MultipartMessage multipartMessage = exchange.getIn().getBody(MultipartMessage.class);
+		Map<String, Object> headersParts = exchange.getMessage().getHeaders();
+		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		String responseString = null;
 		String contentType = null;
 
@@ -96,7 +96,7 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 		headersParts.put("Payload-Content-Type", contentType);
 		logger.info("Sending response to Data Consumer");
 		
-		exchange.getOut().setBody(responseString);
-		exchange.getOut().setHeaders(headersParts);
+		exchange.getMessage().setBody(responseString);
+		exchange.getMessage().setHeaders(headersParts);
 	}
 }

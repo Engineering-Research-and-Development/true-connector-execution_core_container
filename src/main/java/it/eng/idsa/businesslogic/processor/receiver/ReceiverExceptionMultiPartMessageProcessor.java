@@ -45,18 +45,13 @@ public class ReceiverExceptionMultiPartMessageProcessor implements Processor {
 		Map<String, Object> headesParts = new HashMap<String, Object>();
 		Map<String, Object> multipartMessageParts = new HashMap<String, Object>();
 		
-		if(
-			exchange.getIn().getHeaders().containsKey("header")==false
-			)
-		{
+		if(exchange.getIn().getHeaders().containsKey("header"))	{
 			logger.error("Multipart message header or/and payload is null");
 			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_MESSAGE_COMMON, 
 					message);
 		}
-		
 		try {
-			
 			// Create headers parts
 			// Put in the header value of the application.property: application.isEnabledDapsInteraction
 			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
@@ -70,8 +65,8 @@ public class ReceiverExceptionMultiPartMessageProcessor implements Processor {
 			message=multipartMessageService.getMessage(multipartMessageParts.get("header"));
 			
 			// Return exchange
-			exchange.getOut().setHeaders(headesParts);
-			exchange.getOut().setBody(multipartMessageParts);
+			exchange.getMessage().setHeaders(headesParts);
+			exchange.getMessage().setBody(multipartMessageParts);
 			
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);

@@ -48,8 +48,8 @@ public class ReceiverGetTokenFromDapsProcessor implements Processor {
 	public void process(Exchange exchange) throws Exception {
 		
 		if (!isEnabledDapsInteraction) {
-            exchange.getOut().setHeaders(exchange.getIn().getHeaders());
-            exchange.getOut().setBody(exchange.getIn().getBody());
+//            exchange.getOut().setHeaders(exchange.getIn().getHeaders());
+//            exchange.getOut().setBody(exchange.getIn().getBody());
             logger.info("Daps interaction not configured - continued with flow");
             return;
         }
@@ -99,7 +99,7 @@ public class ReceiverGetTokenFromDapsProcessor implements Processor {
 		}
 
 		// Return exchange
-		exchange.getOut().setBody(multipartMessage);
-		exchange.getOut().setHeaders(headersParts);
+		exchange.getMessage().setBody(multipartMessage);
+		exchange.getMessage().setHeaders(headersParts);
 	}
 }

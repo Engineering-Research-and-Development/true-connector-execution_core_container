@@ -61,7 +61,7 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 
 		String header = null;
 		String payload = null;
-		Map<String, Object> headersParts = exchange.getIn().getHeaders();
+		Map<String, Object> headersParts = exchange.getMessage().getHeaders();
 		Message message = null;
 		MultipartMessage multipartMessage = null;
 
@@ -126,10 +126,9 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 				logger.error("Error parsing multipart message:", e);
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
-
 		}
 
-		exchange.getOut().setHeaders(headersParts);
-		exchange.getOut().setBody(multipartMessage);
+		exchange.getMessage().setHeaders(headersParts);
+		exchange.getMessage().setBody(multipartMessage);
 	}
 }

@@ -50,7 +50,7 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 		Map<String, Object> multipartMessageParts = new HashMap<>();
 
 		// Get from the input "exchange"
-		Map<String, Object> receivedDataHeader = exchange.getIn().getHeaders();
+		Map<String, Object> receivedDataHeader = exchange.getMessage().getHeaders();
 		try {
 			// Create headers parts
 			// Put in the header value of the application.property: application.isEnabledDapsInteraction
@@ -72,8 +72,8 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 			message = multipartMessageService.getMessage(multipartMessageParts.get("header"));
 			
 			// Return exchange
-			exchange.getOut().setHeaders(headesParts);
-			exchange.getOut().setBody(exchange.getIn().getBody());
+			exchange.getMessage().setHeaders(headesParts);
+			exchange.getMessage().setBody(exchange.getIn().getBody());
 
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);

@@ -53,12 +53,12 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	public void processWithoutDaps() throws Exception {
 		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", false);
 		mockExchangeGetHttpHeaders(exchange);
-		msg=TestUtilMessageService.getArtifactRequestMessage();
+		msg = TestUtilMessageService.getArtifactRequestMessage();
 		header = TestUtilMessageService.getMessageAsString(msg);
 		when(httpHeaderService.getHeaderContentHeaders(httpHeaders)).thenReturn(headerContentHeaders);
 		when(httpHeaderService.getHeaderMessagePartFromHttpHeadersWithoutToken(httpHeaders)).thenReturn(header);
 		when(multipartMessageService.getMessage(header)).thenReturn(msg);
-		when(exchange.getOut()).thenReturn(messageOut);
+//		when(exchange.getOut()).thenReturn(messageOut);
 
 		processor.process(exchange);
 
@@ -67,12 +67,11 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 				.withHeaderContent(msg)
 				.withPayloadContent(null).build();
 
-		verify(messageOut).setBody(multipartMessage);
-
+		verify(message).setBody(multipartMessage);
 	}
 
 	private void mockExchangeGetHttpHeaders(Exchange exchange) {
-		when(exchange.getIn()).thenReturn(message);
+		when(exchange.getMessage()).thenReturn(message);
 		httpHeaders = new HashMap<>();
 		httpHeaders.put("Content-Type", ContentType.APPLICATION_JSON);
 		httpHeaders.put("Forward-To", "https://forward.to.example");

@@ -44,8 +44,8 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 		String receivedDataBodyBinary = null;
 
 		// Get from the input "exchange"
-		headesParts = exchange.getIn().getHeaders();
-		receivedDataBodyBinary = exchange.getIn().getBody(String.class);
+		headesParts = exchange.getMessage().getHeaders();
+		receivedDataBodyBinary = exchange.getMessage().getBody(String.class);
 
 		if (receivedDataBodyBinary == null) {
 			logger.error("Body of the received multipart message is null");
@@ -69,16 +69,14 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 					multipartMessage.getPayloadHeader().get(MultipartMessageKey.CONTENT_TYPE.label));
 
 			// Return exchange
-			exchange.getOut().setBody(multipartMessage);
-			exchange.getOut().setHeaders(headesParts);
+			exchange.getMessage().setBody(multipartMessage);
+			exchange.getMessage().setHeaders(headesParts);
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		}
-
 	}
 
-	
 	/**
 	 * Check if header content type is application/json; UTF-8 or application/json
 	 * @param contentType
@@ -92,7 +90,6 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 			return true;
 		}
 		return false;
-
 	}
 
 }

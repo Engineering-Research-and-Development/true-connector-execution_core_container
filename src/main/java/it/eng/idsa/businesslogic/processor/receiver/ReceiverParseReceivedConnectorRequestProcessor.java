@@ -50,7 +50,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 	public void process(Exchange exchange) throws Exception {
 		String header = null;
 		String payload = null;
-		Map<String, Object> headersParts = exchange.getIn().getHeaders();
+		Map<String, Object> headersParts = exchange.getMessage().getHeaders();
 		Message message = null;
 		MultipartMessage multipartMessage = null;
 		String token = null;
@@ -73,9 +73,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 					.withPayloadContent(payload)
 					.withToken(token).build();
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
-
 		} else {
-
 			if (!headersParts.containsKey("header")) {
 				logger.error("Multipart message header is missing");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
@@ -86,16 +84,14 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 
-
 			try {
-
 				// Save the original message header for Usage Control Enforcement
-				if (headersParts.containsKey("Original-Message-Header"))
+				if (headersParts.containsKey("Original-Message-Header")) {
 					headersParts.put("Original-Message-Header", headersParts.get("Original-Message-Header").toString());
-
+				}
 				if (headersParts.get("header") instanceof String) {
 					header = headersParts.get("header").toString();
-				}else {
+				} else {
 					DataHandler dtHeader = (DataHandler) headersParts.get("header");
 					header = IOUtils.toString(dtHeader.getInputStream(), StandardCharsets.UTF_8);
 				}
@@ -118,7 +114,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 		}
-		exchange.getOut().setHeaders(headersParts);
-		exchange.getOut().setBody(multipartMessage);
+		exchange.getMessage().setHeaders(headersParts);
+		exchange.getMessage().setBody(multipartMessage);
 	}
 }

@@ -53,13 +53,13 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 		Map<String, Object> headesParts = new HashMap<String, Object>();
 
 		// Get from the input "exchange"
-		Map<String, Object> receivedDataHeader = exchange.getIn().getHeaders();
+		Map<String, Object> receivedDataHeader = exchange.getMessage().getHeaders();
 
 		try {
 			// Create headers parts
 			// Put in the header value of the application.property:
 			// application.isEnabledDapsInteraction
-			headesParts = exchange.getIn().getHeaders();
+			headesParts = exchange.getMessage().getHeaders();
 			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
 			contentType = receivedDataHeader.get("Content-Type").toString();
 			headesParts.put("Content-Type", contentType);
@@ -84,8 +84,8 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 					.build();
 
 			// Return exchange
-			exchange.getOut().setHeaders(headesParts);
-			exchange.getOut().setBody(multipartMessage);
+			exchange.getMessage().setHeaders(headesParts);
+			exchange.getMessage().setBody(multipartMessage);
 
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);

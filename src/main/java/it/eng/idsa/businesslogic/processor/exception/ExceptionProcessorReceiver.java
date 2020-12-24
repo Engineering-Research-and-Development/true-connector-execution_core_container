@@ -41,7 +41,7 @@ public class ExceptionProcessorReceiver implements Processor {
     			.build();
 		
 		if (openDataAppReceiverRouter.equals("http-header")) {
-			exchange.getOut().setHeaders(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));
+			exchange.getMessage().setHeaders(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));
 		} else {
 			String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
 

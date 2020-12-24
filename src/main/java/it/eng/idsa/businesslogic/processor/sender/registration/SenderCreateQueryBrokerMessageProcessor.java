@@ -32,8 +32,8 @@ public class SenderCreateQueryBrokerMessageProcessor implements Processor  {
 		multipartMessageParts.put("header", registrationMessage );
 		multipartMessageParts.put("payload", exchange.getIn().getBody(String.class));
 		
-		exchange.getOut().setHeaders(headersParts);
-		exchange.getOut().setBody(multipartMessageParts);
+		exchange.getMessage().setHeaders(headersParts);
+		exchange.getMessage().setBody(multipartMessageParts);
 	}
 
 	private String geObjectAsString(Object toSerialize) {

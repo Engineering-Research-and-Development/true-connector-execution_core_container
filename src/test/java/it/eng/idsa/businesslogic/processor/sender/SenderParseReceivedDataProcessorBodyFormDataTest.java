@@ -35,8 +35,6 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 	private Exchange exchange;
 	@Mock
 	private Message message;
-	@Mock
-	private Message messageOut;
 	
 	private de.fraunhofer.iais.eis.Message msg;
 	private String headerAsString;
@@ -56,7 +54,6 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", false);
 		mockExchangeGetHeaders(exchange);
 		when(multipartMessageService.getMessage(headerAsString)).thenReturn(msg);
-		when(exchange.getOut()).thenReturn(messageOut);
 		
 		processor.process(exchange);
 		
@@ -65,11 +62,11 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 				.withPayloadContent(PAYLOAD_STRING)
 				.build();
 		
-		verify(messageOut).setBody(multipartMessage);
+		verify(message).setBody(multipartMessage);
 	}
 
 	private void mockExchangeGetHeaders(Exchange exchange) {
-		when(exchange.getIn()).thenReturn(message);
+		when(exchange.getMessage()).thenReturn(message);
 		Map<String, Object> headers = new HashMap<>();
 		headers.put("Content-Type", ContentType.APPLICATION_JSON);
 		headers.put("Forward-To", "https://forward.to.example");

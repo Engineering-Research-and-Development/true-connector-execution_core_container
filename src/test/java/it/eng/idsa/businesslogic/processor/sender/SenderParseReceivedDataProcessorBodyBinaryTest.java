@@ -61,8 +61,8 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 				.build();
 		receivedDataBodyBinary = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, false);
 		msg = TestUtilMessageService.getArtifactRequestMessage();
-		when(exchange.getIn().getBody(String.class)).thenReturn(receivedDataBodyBinary);
-		when(exchange.getOut()).thenReturn(messageOut);
+		when(exchange.getMessage()).thenReturn(messageOut);
+		when(messageOut.getBody(String.class)).thenReturn(receivedDataBodyBinary);
 
 		processor.process(exchange);
 
@@ -78,8 +78,8 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 		multipartMessage = new MultipartMessageBuilder().withHeaderContent(msg).withPayloadContent("foo bar").build();
 
 		receivedDataBodyBinary = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
-		when(exchange.getIn().getBody(String.class)).thenReturn(receivedDataBodyBinary);
-		when(exchange.getOut()).thenReturn(messageOut);
+		when(exchange.getMessage()).thenReturn(messageOut);
+		when(messageOut.getBody(String.class)).thenReturn(receivedDataBodyBinary);
 
 		processor.process(exchange);
 
@@ -101,8 +101,8 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 				.withHeaderHeader(headerHeader)
 				.withPayloadContent("foo bar").build();
 		receivedDataBodyBinary = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
-		when(exchange.getIn().getBody(String.class)).thenReturn(receivedDataBodyBinary);
-		when(exchange.getOut()).thenReturn(messageOut);
+		when(exchange.getMessage()).thenReturn(messageOut);
+		when(messageOut.getBody(String.class)).thenReturn(receivedDataBodyBinary);
 
 		processor.process(exchange);
 
@@ -111,7 +111,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	}
 
 	private void mockExchangeGetHttpHeaders(Exchange exchange) {
-		when(exchange.getIn()).thenReturn(message);
+		when(exchange.getMessage()).thenReturn(message);
 		httpHeaders = new HashMap<>();
 		httpHeaders.put("Content-Type", "multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6");
 		httpHeaders.put("Forward-To", "https://forward.to.example");

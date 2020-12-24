@@ -45,8 +45,8 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 		Map<String, Object> headerContentHeaders = null;
 
 		// Get from the input "exchange"
-		headersParts = exchange.getIn().getHeaders();
-		payload = exchange.getIn().getBody(String.class);
+		headersParts = exchange.getMessage().getHeaders();
+		payload = exchange.getMessage().getBody(String.class);
 		
 		try {
 			// Put in the header value of the application.property: application.isEnabledDapsInteraction
@@ -63,8 +63,8 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
 			
 			// Return exchange
-			exchange.getOut().setHeaders(headersParts);
-			exchange.getOut().setBody(multipartMessage);
+			exchange.getMessage().setHeaders(headersParts);
+			exchange.getMessage().setBody(multipartMessage);
 
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);

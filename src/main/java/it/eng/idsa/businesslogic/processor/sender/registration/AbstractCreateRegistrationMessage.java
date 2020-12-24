@@ -47,8 +47,8 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 			multipartMessageParts.put("payload", connector);
 		}
 		// Return exchange
-		exchange.getOut().setHeaders(headersParts);
-		exchange.getOut().setBody(multipartMessageParts);
+		exchange.getMessage().setHeaders(headersParts);
+		exchange.getMessage().setBody(multipartMessageParts);
 
 	}
 

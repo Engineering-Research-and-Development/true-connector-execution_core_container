@@ -67,11 +67,10 @@ public class ReceiverFileRecreatorProcessor implements Processor {
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);
 			// TODO: Send WebSocket rejection message
-
 		}
 
 		// Return exchange
-		exchange.getOut().setHeaders(multipartMessageParts);
+		exchange.getMessage().setHeaders(multipartMessageParts);
 	}
 
 	private void initializeServer(Message message, FileRecreatorBeanServer fileRecreatorBean) {
