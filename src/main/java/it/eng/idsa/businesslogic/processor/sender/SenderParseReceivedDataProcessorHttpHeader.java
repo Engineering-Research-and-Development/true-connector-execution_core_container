@@ -7,7 +7,6 @@ import org.apache.camel.Processor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
@@ -24,9 +23,6 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 	
 	private static final Logger logger = LogManager.getLogger(SenderParseReceivedDataProcessorHttpHeader.class);
 
-	@Value("${application.isEnabledDapsInteraction}")
-	private boolean isEnabledDapsInteraction;
-	
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
 	
@@ -49,8 +45,6 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 		payload = exchange.getMessage().getBody(String.class);
 		
 		try {
-			// Put in the header value of the application.property: application.isEnabledDapsInteraction
-			headersParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
 			headerContentHeaders = headerService.getHeaderContentHeaders(headersParts);
 			String header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
 			message = multipartMessageService.getMessage(header);

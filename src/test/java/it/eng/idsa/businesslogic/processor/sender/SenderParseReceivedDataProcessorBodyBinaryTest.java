@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
@@ -52,8 +51,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	}
 
 	@Test
-	public void processWithContentTypeAndWithoutDaps() throws Exception {
-		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", false);
+	public void processWithContentType() throws Exception {
 		mockExchangeGetHttpHeaders(exchange);
 		multipartMessage = new MultipartMessageBuilder()
 				.withHeaderContent(TestUtilMessageService.getArtifactRequestMessage())
@@ -71,11 +69,13 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	}
 
 	@Test
-	public void processWithoutContentTypeAndWithoutDaps() throws Exception {
-		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", false);
+	public void processWithoutContentType() throws Exception {
 		mockExchangeGetHttpHeaders(exchange);
 		msg = TestUtilMessageService.getArtifactRequestMessage();
-		multipartMessage = new MultipartMessageBuilder().withHeaderContent(msg).withPayloadContent("foo bar").build();
+		multipartMessage = new MultipartMessageBuilder()
+				.withHeaderContent(msg)
+				.withPayloadContent("foo bar")
+				.build();
 
 		receivedDataBodyBinary = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
 		when(exchange.getMessage()).thenReturn(messageOut);
@@ -89,7 +89,6 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 
 	@Test
 	public void processWithInvalidContentTypeAndWithoutDaps() throws Exception {
-		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", false);
 		mockExchangeGetHttpHeaders(exchange);
 		headerHeader = new HashMap<String, String>();
 		headerHeader.put(MultipartMessageKey.CONTENT_DISPOSITION.label, "form-data; name=\"header\"");

@@ -35,9 +35,6 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 
 	private static final Logger logger = LogManager.getLogger(ReceiverMultiPartMessageProcessor.class);
 
-	@Value("${application.isEnabledDapsInteraction}")
-	private boolean isEnabledDapsInteraction;
-
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledDataAppWebSocket;
 
@@ -65,7 +62,6 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 		Message message = null;
 		MultipartMessage multipartMessage = null;
 
-		headersParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
 		headersParts.put("Is-Enabled-DataApp-WebSocket", isEnabledDataAppWebSocket);
 		
 		if (dataAppSendRouter.equals("http-header")) { 

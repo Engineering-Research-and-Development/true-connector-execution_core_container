@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
@@ -50,8 +49,7 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	}
 
 	@Test
-	public void processWithoutDaps() throws Exception {
-		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", false);
+	public void processHttpHeaderTest() throws Exception {
 		mockExchangeGetHttpHeaders(exchange);
 		msg = TestUtilMessageService.getArtifactRequestMessage();
 		header = TestUtilMessageService.getMessageAsString(msg);

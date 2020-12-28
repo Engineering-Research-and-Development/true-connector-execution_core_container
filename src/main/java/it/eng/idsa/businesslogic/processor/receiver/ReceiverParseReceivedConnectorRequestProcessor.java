@@ -55,7 +55,6 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 		MultipartMessage multipartMessage = null;
 		String token = null;
 
-		headersParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
 		headersParts.put("Is-Enabled-DataApp-WebSocket", isEnabledDataAppWebSocket);
 		
 		if (eccHttpSendRouter.equals("http-header")) { 

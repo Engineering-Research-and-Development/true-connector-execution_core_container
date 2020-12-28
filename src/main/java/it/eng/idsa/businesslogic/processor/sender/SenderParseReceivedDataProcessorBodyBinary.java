@@ -9,7 +9,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
@@ -30,9 +29,6 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 
 	private static final Logger logger = LogManager.getLogger(SenderParseReceivedDataProcessorBodyBinary.class);
 
-	@Value("${application.isEnabledDapsInteraction}")
-	private boolean isEnabledDapsInteraction;
-	
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
 
@@ -62,9 +58,6 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 						message);
 			}
 			// Create headers parts
-			// Put in the header value of the application.property:
-			// application.isEnabledDapsInteraction
-			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
 			headesParts.put("Payload-Content-Type",
 					multipartMessage.getPayloadHeader().get(MultipartMessageKey.CONTENT_TYPE.label));
 
