@@ -2,7 +2,6 @@ package it.eng.idsa.businesslogic.processor.sender;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -85,7 +84,7 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 				httpHeaderService.removeTokenHeaders(exchange.getIn().getHeaders());
             	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getIn().getHeaders());
 				responseString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
-				Optional<String> boundary = getMessageBoundaryFromMessage(responseString);
+				Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(responseString);
 				contentType = "multipart/mixed; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
 				headerParts.put(Exchange.CONTENT_TYPE, contentType);
 				exchange.getOut().setBody(responseString);
@@ -107,12 +106,4 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 		}
 	}
 	
-	private Optional<String> getMessageBoundaryFromMessage(String message) {
-        String boundary = null;
-        Stream<String> lines = message.lines();
-        boundary = lines.filter(line -> line.startsWith("--"))
-                .findFirst()
-                .get();
-        return Optional.ofNullable(boundary);
-    }
 }
