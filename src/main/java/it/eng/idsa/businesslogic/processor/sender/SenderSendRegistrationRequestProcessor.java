@@ -47,7 +47,7 @@ public class SenderSendRegistrationRequestProcessor implements Processor {
 	   
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		Map<String, Object> headesParts = exchange.getIn().getHeaders();
+		Map<String, Object> headesParts = exchange.getMessage().getHeaders();
 		Map<String, Object> multipartMessageParts = exchange.getMessage().getBody(HashMap.class);
 		String forwardTo = headesParts.get("Forward-To").toString();
 

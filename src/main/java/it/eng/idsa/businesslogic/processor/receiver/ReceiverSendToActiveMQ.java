@@ -27,7 +27,7 @@ public class ReceiverSendToActiveMQ implements Processor {
     public void process(Exchange exchange) throws Exception {
         
     	// Get exchange
-    	Map<String, Object> headersParts = exchange.getIn().getHeaders();
+    	Map<String, Object> headersParts = exchange.getMessage().getHeaders();
         Map<String, Object> multipartMessageParts = exchange.getMessage().getBody(HashMap.class);
         
         Map<String, Object> queueContent = new HashMap<>();

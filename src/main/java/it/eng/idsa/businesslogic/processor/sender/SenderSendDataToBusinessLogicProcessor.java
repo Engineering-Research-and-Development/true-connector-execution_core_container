@@ -83,8 +83,8 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		MultipartMessage multipartMessage = exchange.getIn().getBody(MultipartMessage.class);
-		Map<String, Object> headerParts = exchange.getIn().getHeaders();
+		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
+		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
 
 		String payload = null;
 		Message message = null;

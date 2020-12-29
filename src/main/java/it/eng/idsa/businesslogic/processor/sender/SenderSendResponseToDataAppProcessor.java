@@ -2,7 +2,6 @@ package it.eng.idsa.businesslogic.processor.sender;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -72,8 +71,8 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 		}
 			switch (openDataAppReceiverRouter) {
 			case "form":
-				httpHeaderService.removeTokenHeaders(exchange.getIn().getHeaders());
-            	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getIn().getHeaders());
+				httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
+            	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
 				HttpEntity resultEntity = multipartMessageService.createMultipartMessage(multipartMessage.getHeaderContentString(), 
 						multipartMessage.getPayloadContent(),
 						null, ContentType.APPLICATION_JSON);
@@ -82,10 +81,10 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 				exchange.getMessage().setBody(resultEntity.getContent());
 				break;
 			case "mixed":
-				httpHeaderService.removeTokenHeaders(exchange.getIn().getHeaders());
-            	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getIn().getHeaders());
+				httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
+            	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
 				responseString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
-				Optional<String> boundary = getMessageBoundaryFromMessage(responseString);
+				Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(responseString);
 				contentType = "multipart/mixed; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
 				headerParts.put(Exchange.CONTENT_TYPE, contentType);
 				exchange.getMessage().setBody(responseString);
@@ -98,7 +97,7 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 			logger.info("Sending response to DataApp");
 
 			headerCleaner.removeTechnicalHeaders(headerParts);
-			exchange.getMessage().setHeaders(exchange.getIn().getHeaders());
+			exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
 		
 		if(isEnabledWebSocket ) {
 			String responseMultipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
@@ -107,12 +106,4 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 		}
 	}
 	
-	private Optional<String> getMessageBoundaryFromMessage(String message) {
-        String boundary = null;
-        Stream<String> lines = message.lines();
-        boundary = lines.filter(line -> line.startsWith("--"))
-                .findFirst()
-                .get();
-        return Optional.ofNullable(boundary);
-    }
 }

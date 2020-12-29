@@ -45,8 +45,8 @@ public class SenderSendDataToDestinationProcessor implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 
-		Map<String, Object> headesParts = exchange.getIn().getHeaders();
-		Map<String, Object> multipartMessageParts = exchange.getIn().getBody(HashMap.class);
+		Map<String, Object> headesParts = exchange.getMessage().getHeaders();
+		Map<String, Object> multipartMessageParts = exchange.getMessage().getBody(HashMap.class);
 		
 		String messageWithToken = multipartMessageParts.get("messageWithToken").toString();
 		String header = multipartMessageParts.get("header").toString();

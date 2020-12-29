@@ -65,8 +65,8 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 		headersParts.put("Is-Enabled-DataApp-WebSocket", isEnabledDataAppWebSocket);
 		
 		if (dataAppSendRouter.equals("http-header")) { 
-			if (exchange.getIn().getBody() != null) {
-				payload = exchange.getIn().getBody(String.class);
+			if (exchange.getMessage().getBody() != null) {
+				payload = exchange.getMessage().getBody(String.class);
 			} else {
 				logger.error("Payload is null");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
@@ -86,22 +86,19 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 
-
 			if (headersParts.get("header") == null) {
 				logger.error("Multipart message header is null");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 
-
 			try {
-
 				// Save the original message header for Usage Control Enforcement
 				if (headersParts.containsKey("Original-Message-Header"))
 					headersParts.put("Original-Message-Header", headersParts.get("Original-Message-Header").toString());
 
 				if (headersParts.get("header") instanceof String) {
 					header = headersParts.get("header").toString();
-				}else {
+				} else {
 					DataHandler dtHeader = (DataHandler) headersParts.get("header");
 					header = IOUtils.toString(dtHeader.getInputStream(), StandardCharsets.UTF_8);
 				}

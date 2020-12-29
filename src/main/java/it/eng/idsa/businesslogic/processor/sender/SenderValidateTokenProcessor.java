@@ -52,14 +52,12 @@ public class SenderValidateTokenProcessor implements Processor {
 	public void process(Exchange exchange) throws Exception {
 		
 		if (!isEnabledDapsInteraction) {
-//            exchange.getOut().setHeaders(exchange.getIn().getHeaders());
-//            exchange.getOut().setBody(exchange.getIn().getBody());
             logger.info("Daps interaction not configured - continued with flow");
             return;
         }
 		
-		Map<String, Object> headersParts = exchange.getIn().getHeaders();
-		MultipartMessage multipartMessage = exchange.getIn().getBody(MultipartMessage.class);
+		Map<String, Object> headersParts = exchange.getMessage().getHeaders();
+		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		
 		String token = multipartMessage.getToken();
 		Message message = multipartMessage.getHeaderContent();
@@ -77,7 +75,7 @@ public class SenderValidateTokenProcessor implements Processor {
 		
 		logger.info("is token valid: "+isTokenValid);
 		multipartMessage = multipartMessageService.removeTokenFromMultipart(multipartMessage);
-		httpHeaderService.removeTokenHeaders(exchange.getIn().getHeaders());
+		httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
 		multipartMessage = new MultipartMessageBuilder().withHeaderContent(multipartMessage.getHeaderContent())
 				.withHttpHeader(multipartMessage.getHttpHeaders()).withHeaderHeader(multipartMessage.getHeaderHeader())
 				.withPayloadContent(multipartMessage.getPayloadContent())

@@ -69,7 +69,7 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 			
 			// Return exchange
 			exchange.getMessage().setHeaders(headesParts);
-			exchange.getMessage().setBody(exchange.getIn().getBody());
+			exchange.getMessage().setBody(exchange.getMessage().getBody());
 
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);

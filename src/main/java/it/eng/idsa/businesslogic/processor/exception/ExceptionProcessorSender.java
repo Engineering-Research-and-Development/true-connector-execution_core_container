@@ -1,7 +1,6 @@
 package it.eng.idsa.businesslogic.processor.exception;
 
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -71,18 +70,9 @@ public class ExceptionProcessorSender implements Processor {
 			// make use of MultipartMessageServiceImpl.createMultipartMessage
 			headerCleaner.removeTechnicalHeaders(exchange.getMessage().getHeaders());
 			exchange.getMessage().setBody(multipartMessageString);
-			Optional<String> boundary = getMessageBoundaryFromMessage(multipartMessageString);
+			Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(multipartMessageString);
 			String contentType = "multipart/mixed; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
 			exchange.getMessage().setHeader("Content-Type", contentType);
 		}
 	}
-	
-	private Optional<String> getMessageBoundaryFromMessage(String message) {
-        String boundary = null;
-        Stream<String> lines = message.lines();
-        boundary = lines.filter(line -> line.startsWith("--"))
-                .findFirst()
-                .get();
-        return Optional.ofNullable(boundary);
-    }
 }

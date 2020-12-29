@@ -69,8 +69,6 @@ public class ReceiverUsageControlProcessor implements Processor {
     public void process(Exchange exchange) {
         boolean isUsageControlObject = true;
         if (!isEnabledUsageControl) {
-//            exchange.getOut().setHeaders(exchange.getIn().getHeaders());
-//            exchange.getOut().setBody(exchange.getIn().getBody());
             logger.info("Usage control not configured - continued with flow");
             return;
         }

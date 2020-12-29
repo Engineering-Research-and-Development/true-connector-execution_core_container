@@ -52,13 +52,11 @@ public class ReceiverValidateTokenProcessor implements Processor {
 	public void process(Exchange exchange) throws Exception {
 		
 		if (!isEnabledDapsInteraction) {
-//            exchange.getOut().setHeaders(exchange.getIn().getHeaders());
-//            exchange.getOut().setBody(exchange.getIn().getBody());
             logger.info("Daps interaction not configured - continued with flow");
             return;
         }
 		
-		MultipartMessage multipartMessage = exchange.getIn().getBody(MultipartMessage.class);
+		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		
 		Map<String, Object> multipartMessageParts = null;
 		
@@ -79,14 +77,14 @@ public class ReceiverValidateTokenProcessor implements Processor {
 		
 		logger.info("is token valid: "+isTokenValid);
 		multipartMessage = multipartMessageService.removeTokenFromMultipart(multipartMessage);
-		httpHeaderService.removeTokenHeaders(exchange.getIn().getHeaders());
+		httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
 		multipartMessage = new MultipartMessageBuilder().withHeaderContent(multipartMessage.getHeaderContent())
 				.withHttpHeader(multipartMessage.getHttpHeaders()).withHeaderHeader(multipartMessage.getHeaderHeader())
 				.withPayloadContent(multipartMessage.getPayloadContent())
 				.withPayloadHeader(multipartMessage.getPayloadHeader()).build();
-		exchange.getMessage().setHeaders(exchange.getIn().getHeaders());
+		exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
 		if (eccHttpSendRouter.equals("http-header")) {
-			exchange.getMessage().setBody(exchange.getIn().getBody());
+			exchange.getMessage().setBody(exchange.getMessage().getBody());
 		}else {
 			exchange.getMessage().setBody(multipartMessageParts);
 		}

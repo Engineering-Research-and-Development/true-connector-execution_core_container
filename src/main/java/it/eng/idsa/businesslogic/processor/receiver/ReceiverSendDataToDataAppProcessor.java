@@ -76,7 +76,7 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		
 		if (!openDataAppReceiverRouter.equals("http-header")) {
-        	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getIn().getHeaders());
+        	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
 		}
 
 		// Get header, payload and message

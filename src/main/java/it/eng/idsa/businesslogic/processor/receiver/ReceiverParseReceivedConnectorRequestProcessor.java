@@ -65,7 +65,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 			if (headersParts.get("IDS-SecurityToken-TokenValue") != null) {
 				token = headersParts.get("IDS-SecurityToken-TokenValue").toString();
 			}
-				payload = exchange.getIn().getBody(String.class);
+			payload = exchange.getMessage().getBody(String.class);
 			 
 			multipartMessage = new MultipartMessageBuilder()
 					.withHeaderContent(header)

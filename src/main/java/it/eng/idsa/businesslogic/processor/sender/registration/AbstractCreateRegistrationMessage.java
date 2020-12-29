@@ -29,7 +29,7 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 	public void process(Exchange exchange) throws Exception {
 		Map<String, Object> headersParts = new HashMap<String, Object>();
 		// Get from the input "exchange"
-		Map<String, Object> receivedDataHeader = exchange.getIn().getHeaders();
+		Map<String, Object> receivedDataHeader = exchange.getMessage().getHeaders();
 
 		headersParts.put("Forward-To", receivedDataHeader.get("Forward-To").toString());
 

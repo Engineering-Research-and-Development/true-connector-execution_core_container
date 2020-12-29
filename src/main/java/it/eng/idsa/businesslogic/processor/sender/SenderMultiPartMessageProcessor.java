@@ -57,7 +57,7 @@ public class SenderMultiPartMessageProcessor implements Processor {
 			multipartMessageParts.put("message", message);
 		
 			// Return multipartMessageParts
-			exchange.getMessage().setHeaders(exchange.getIn().getHeaders());
+			exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
 			exchange.getMessage().setBody(multipartMessageParts);
 		} catch (Exception e) {			
 			logger.error("Error parsing multipart message:", e);
