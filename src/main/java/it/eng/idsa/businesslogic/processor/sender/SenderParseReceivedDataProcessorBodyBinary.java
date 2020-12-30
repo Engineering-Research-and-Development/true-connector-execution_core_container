@@ -9,7 +9,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
@@ -30,9 +29,6 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 
 	private static final Logger logger = LogManager.getLogger(SenderParseReceivedDataProcessorBodyBinary.class);
 
-	@Value("${application.isEnabledDapsInteraction}")
-	private boolean isEnabledDapsInteraction;
-	
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
 
@@ -44,8 +40,8 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 		String receivedDataBodyBinary = null;
 
 		// Get from the input "exchange"
-		headesParts = exchange.getIn().getHeaders();
-		receivedDataBodyBinary = exchange.getIn().getBody(String.class);
+		headesParts = exchange.getMessage().getHeaders();
+		receivedDataBodyBinary = exchange.getMessage().getBody(String.class);
 
 		if (receivedDataBodyBinary == null) {
 			logger.error("Body of the received multipart message is null");
@@ -62,23 +58,18 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 						message);
 			}
 			// Create headers parts
-			// Put in the header value of the application.property:
-			// application.isEnabledDapsInteraction
-			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
 			headesParts.put("Payload-Content-Type",
 					multipartMessage.getPayloadHeader().get(MultipartMessageKey.CONTENT_TYPE.label));
 
 			// Return exchange
-			exchange.getOut().setBody(multipartMessage);
-			exchange.getOut().setHeaders(headesParts);
+			exchange.getMessage().setBody(multipartMessage);
+			exchange.getMessage().setHeaders(headesParts);
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		}
-
 	}
 
-	
 	/**
 	 * Check if header content type is application/json; UTF-8 or application/json
 	 * @param contentType
@@ -92,7 +83,6 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 			return true;
 		}
 		return false;
-
 	}
 
 }

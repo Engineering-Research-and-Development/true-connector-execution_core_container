@@ -12,7 +12,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
@@ -33,9 +32,6 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 
 	private static final Logger logger = LogManager.getLogger(SenderParseReceivedDataProcessorBodyFormData.class);
 
-	@Value("${application.isEnabledDapsInteraction}")
-	private boolean isEnabledDapsInteraction;
-	
 	@Autowired
 	private MultipartMessageService multipartMessageService;
 
@@ -53,29 +49,25 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 		Map<String, Object> headesParts = new HashMap<String, Object>();
 
 		// Get from the input "exchange"
-		Map<String, Object> receivedDataHeader = exchange.getIn().getHeaders();
+		Map<String, Object> receivedDataHeader = exchange.getMessage().getHeaders();
 
 		try {
 			// Create headers parts
-			// Put in the header value of the application.property:
-			// application.isEnabledDapsInteraction
-			headesParts = exchange.getIn().getHeaders();
-			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
+			headesParts = exchange.getMessage().getHeaders();
 			contentType = receivedDataHeader.get("Content-Type").toString();
 			headesParts.put("Content-Type", contentType);
 			forwardTo = receivedDataHeader.get("Forward-To").toString();
 			headesParts.put("Forward-To", forwardTo);
 
 			// Create multipart message parts
-			if (headesParts.containsKey("header.org.eclipse.jetty.servlet.contentType")) {
+			if (headesParts.containsKey("header")) {
 				DataHandler dtHeader = (DataHandler) receivedDataHeader.get("header");
 				header = IOUtils.toString(dtHeader.getInputStream(), StandardCharsets.UTF_8);
-			} else {
-				header = receivedDataHeader.get("header").toString();
-			}
+			} 
 			message = multipartMessageService.getMessage(header);
 			if (receivedDataHeader.containsKey("payload")) {
-				payload = receivedDataHeader.get("payload").toString();
+				DataHandler dtPayload = (DataHandler) receivedDataHeader.get("payload");
+				payload = IOUtils.toString(dtPayload.getInputStream(), StandardCharsets.UTF_8);
 			}
 
 			MultipartMessage multipartMessage = new MultipartMessageBuilder()
@@ -84,8 +76,8 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 					.build();
 
 			// Return exchange
-			exchange.getOut().setHeaders(headesParts);
-			exchange.getOut().setBody(multipartMessage);
+			exchange.getMessage().setHeaders(headesParts);
+			exchange.getMessage().setBody(multipartMessage);
 
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);

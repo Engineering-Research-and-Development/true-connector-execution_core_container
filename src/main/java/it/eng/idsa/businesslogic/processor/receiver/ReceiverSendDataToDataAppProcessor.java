@@ -72,11 +72,11 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 
-		Map<String, Object> headerParts = exchange.getIn().getHeaders();
-		MultipartMessage multipartMessage = exchange.getIn().getBody(MultipartMessage.class);
+		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
+		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		
 		if (!openDataAppReceiverRouter.equals("http-header")) {
-        	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getIn().getHeaders());
+        	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
 		}
 
 		// Get header, payload and message
@@ -113,7 +113,6 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		if (response != null) {
 			response.close();
 		}
-
 	}
 
 	private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response,
@@ -136,18 +135,17 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 				logger.info("data sent to destination: " + openApiDataAppAddress);
 //				logger.info("Successful response from DataApp: " + responseString);
 
-				exchange.getOut().setHeaders(returnHeadersAsMap(response.getAllHeaders()));
+				exchange.getMessage().setHeaders(returnHeadersAsMap(response.getAllHeaders()));
 				if (openDataAppReceiverRouter.equals("http-header")) {
-					exchange.getOut().setBody(responseString);
+					exchange.getMessage().setBody(responseString);
 				} else {
-					exchange.getOut().setHeader("header",
+					exchange.getMessage().setHeader("header",
 							multipartMessageService.getHeaderContentString(responseString));
-					exchange.getOut().setHeader("payload", multipartMessageService.getPayloadContent(responseString));
-
+					exchange.getMessage().setHeader("payload", multipartMessageService.getPayloadContent(responseString));
 				}
 
 				if (isEnabledUsageControl) {
-					exchange.getOut().setHeader("Original-Message-Header", originalHeader);
+					exchange.getMessage().setHeader("Original-Message-Header", originalHeader);
 				}
 			}
 		}

@@ -41,7 +41,7 @@ public class SenderSendDataToBusinessLogicReceiver implements Processor {
 	
 		
 		// Get "multipartMessageParts" from the input "exchange"
-		Map<String, Object> multipartMessageParts = exchange.getIn().getBody(HashMap.class);
+		Map<String, Object> multipartMessageParts = exchange.getMessage().getBody(HashMap.class);
 		
 		header = multipartMessageParts.get("header").toString();
 		payload = multipartMessageParts.get("payload").toString();

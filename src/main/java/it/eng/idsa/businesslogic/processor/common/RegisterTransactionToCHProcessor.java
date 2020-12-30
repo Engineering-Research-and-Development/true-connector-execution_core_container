@@ -32,14 +32,12 @@ public class RegisterTransactionToCHProcessor implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		if (!isEnabledClearingHouse) {
-            exchange.getOut().setHeaders(exchange.getIn().getHeaders());
-            exchange.getOut().setBody(exchange.getIn().getBody());
             logger.info("CH registration not configured - continued with flow");
             return;
         }
 
 		// Get "multipartMessageString" from the input "exchange"
-		MultipartMessage multipartMessage = exchange.getIn().getBody(MultipartMessage.class);
+		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		// Send data to CH
 		boolean registrationStatus = clearingHouseService.registerTransaction(multipartMessage.getHeaderContent(), multipartMessage.getPayloadContent());
 		if (registrationStatus) {
@@ -47,8 +45,8 @@ public class RegisterTransactionToCHProcessor implements Processor {
 		}else {
 			logger.info("Failed to register to clearing house");
 		}
-		exchange.getOut().setHeaders(exchange.getIn().getHeaders());
-		exchange.getOut().setBody(exchange.getIn().getBody());
+		exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
+		exchange.getMessage().setBody(exchange.getMessage().getBody());
 	}
 
 }

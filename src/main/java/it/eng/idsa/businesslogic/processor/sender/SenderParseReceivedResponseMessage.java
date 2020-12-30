@@ -54,13 +54,13 @@ public class SenderParseReceivedResponseMessage implements Processor {
 
 		String header = null;
 		String payload = null;
-		Map<String, Object> headersParts = exchange.getIn().getHeaders();
+		Map<String, Object> headersParts = exchange.getMessage().getHeaders();
 		Message message = null;
 		MultipartMessage multipartMessage = null;
 		String token = null;
 
 		if (eccHttpSendRouter.equals("http-header")) {
-			payload = exchange.getIn().getBody(String.class);
+			payload = exchange.getMessage().getBody(String.class);
 			header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
 
@@ -78,14 +78,12 @@ public class SenderParseReceivedResponseMessage implements Processor {
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 
-
 			if (headersParts.get("header") == null) {
 				logger.error("Multipart message header is null");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 
 			try {
-
 				// Save the original message header for Usage Control Enforcement
 				if (headersParts.containsKey("Original-Message-Header"))
 					headersParts.put("Original-Message-Header", headersParts.get("Original-Message-Header").toString());
@@ -111,7 +109,7 @@ public class SenderParseReceivedResponseMessage implements Processor {
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 		}
-		exchange.getOut().setHeaders(headersParts);
-		exchange.getOut().setBody(multipartMessage);
+		exchange.getMessage().setHeaders(headersParts);
+		exchange.getMessage().setBody(multipartMessage);
 	}
 }

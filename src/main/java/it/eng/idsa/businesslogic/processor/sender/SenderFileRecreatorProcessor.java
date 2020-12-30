@@ -76,8 +76,8 @@ public void process(Exchange exchange) throws Exception {
 			
 		}
 		// Return exchange
-		exchange.getOut().setHeaders(multipartMessageParts);
-		exchange.getOut().setBody(multipartMessage);
+		exchange.getMessage().setHeaders(multipartMessageParts);
+		exchange.getMessage().setBody(multipartMessage);
 	}
 
 	private void initializeServer(Message message, FileRecreatorBeanServer fileRecreatorBean) {

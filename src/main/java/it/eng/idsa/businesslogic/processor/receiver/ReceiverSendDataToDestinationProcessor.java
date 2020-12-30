@@ -46,7 +46,7 @@ public class ReceiverSendDataToDestinationProcessor implements Processor {
 	public void process(Exchange exchange) throws Exception {
 		
 		// Get "multipartMessageParts" from the input "exchange"
-		Map<String, Object> multipartMessageParts = exchange.getIn().getBody(HashMap.class);
+		Map<String, Object> multipartMessageParts = exchange.getMessage().getBody(HashMap.class);
 		// Get "isTokenValid" from the input "multipartMessageParts"
 		Boolean isTokenValid = Boolean.valueOf(multipartMessageParts.get("isTokenValid").toString());
 		logger.info("isTokenValid="+isTokenValid);
@@ -69,7 +69,7 @@ public class ReceiverSendDataToDestinationProcessor implements Processor {
 			logger.info("response "+response);
 			
 			// Return multipartMessageParts
-			exchange.getOut().setBody(multipartMessageParts);
+			exchange.getMessage().setBody(multipartMessageParts);
 		} else {
 			logger.error("Token is not valid");
 			rejectionMessageService.sendRejectionMessage(

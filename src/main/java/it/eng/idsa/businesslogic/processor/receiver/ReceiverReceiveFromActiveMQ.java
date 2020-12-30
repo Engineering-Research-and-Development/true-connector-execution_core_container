@@ -31,8 +31,8 @@ public class ReceiverReceiveFromActiveMQ implements Processor {
         Map<String, Object> multipartMessageParts = (Map<String, Object>) queueContent.get("multipartMessageParts");
             
         // Return exchange
-        exchange.getOut().setHeaders(headersParts);
-        exchange.getOut().setBody(multipartMessageParts);
+        exchange.getMessage().setHeaders(headersParts);
+        exchange.getMessage().setBody(multipartMessageParts);
         
     }
 

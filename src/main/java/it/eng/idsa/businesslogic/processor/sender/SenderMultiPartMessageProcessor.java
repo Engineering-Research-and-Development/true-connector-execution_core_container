@@ -43,7 +43,7 @@ public class SenderMultiPartMessageProcessor implements Processor {
 		Message message=null;
 		
 		// Get multipart message from the input "exchange"
-		String multipartMessage = exchange.getIn().getBody(String.class);
+		String multipartMessage = exchange.getMessage().getBody(String.class);
 		
 		try {
 			// Create multipart message parts
@@ -57,8 +57,8 @@ public class SenderMultiPartMessageProcessor implements Processor {
 			multipartMessageParts.put("message", message);
 		
 			// Return multipartMessageParts
-			exchange.getOut().setHeaders(exchange.getIn().getHeaders());
-			exchange.getOut().setBody(multipartMessageParts);
+			exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
+			exchange.getMessage().setBody(multipartMessageParts);
 		} catch (Exception e) {			
 			logger.error("Error parsing multipart message:", e);
 			rejectionMessageService.sendRejectionMessage(
@@ -78,7 +78,5 @@ public class SenderMultiPartMessageProcessor implements Processor {
 			}
 		scanner.close();
 		return frowardTo;
-		
 	}
-
 }

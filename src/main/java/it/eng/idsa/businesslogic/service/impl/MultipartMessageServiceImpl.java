@@ -51,7 +51,7 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
-
+	
 	@Override
 	public String getHeaderContentString(String body) {
 		MultipartMessage deserializedMultipartMessage = MultipartMessageProcessor.parseMultipartMessage(body);
@@ -102,7 +102,7 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 			JSONObject jsonObject = (JSONObject) parser.parse(msgSerialized);
 			jsonObject.remove("ids:securityToken");
 			output = serializeMessage(jsonObject);
-		} catch (ParseException | IOException e) {
+		} catch (IOException | ParseException e) {
 			logger.error(e);
 		}
 		return output;
@@ -186,7 +186,7 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 					rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN, message);
 				}
 			}
-		} catch (ParseException | IOException e) {
+		} catch (IOException | ParseException e) {
 			logger.error(e);
 		}
 		return token;

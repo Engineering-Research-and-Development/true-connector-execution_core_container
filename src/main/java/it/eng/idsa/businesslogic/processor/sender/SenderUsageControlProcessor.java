@@ -70,8 +70,6 @@ public class SenderUsageControlProcessor implements Processor {
     @Override
     public void process(Exchange exchange) {
         if (!isEnabledUsageControl) {
-            exchange.getOut().setHeaders(exchange.getIn().getHeaders());
-            exchange.getOut().setBody(exchange.getIn().getBody());
             logger.info("Usage control not configured - continued with flow");
             return;
         }
@@ -80,7 +78,7 @@ public class SenderUsageControlProcessor implements Processor {
         String payload = null;
         MultipartMessage multipartMessageResponse=null;
         try {
-			MultipartMessage multipartMessage = exchange.getIn().getBody(MultipartMessage.class);
+			MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 			header = multipartMessage.getHeaderContentString();
 			payload = multipartMessage.getPayloadContent();
 			message = multipartMessage.getHeaderContent();
@@ -126,9 +124,9 @@ public class SenderUsageControlProcessor implements Processor {
             	multipartMessageResponse = multipartMessage;
             	
             }
-            headerCleaner.removeTechnicalHeaders(exchange.getIn().getHeaders());
-            exchange.getOut().setBody(multipartMessageResponse);
-            exchange.getOut().setHeaders(exchange.getIn().getHeaders());
+            headerCleaner.removeTechnicalHeaders(exchange.getMessage().getHeaders());
+            exchange.getMessage().setBody(multipartMessageResponse);
+            exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
     		logger.info("Sending response to DataApp");
 
         } catch (Exception e) {

@@ -27,8 +27,6 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Processor {
 
 	private static final Logger logger = LogManager.getLogger(SenderParseReceivedDataFromDAppProcessorBodyBinary.class);
-	@Value("${application.isEnabledDapsInteraction}")
-	private boolean isEnabledDapsInteraction;
 
 	@Value("${application.idscp.isEnabled}")
 	private boolean isEnabledIdscp;
@@ -50,11 +48,9 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 		Map<String, Object> multipartMessageParts = new HashMap<>();
 
 		// Get from the input "exchange"
-		Map<String, Object> receivedDataHeader = exchange.getIn().getHeaders();
+		Map<String, Object> receivedDataHeader = exchange.getMessage().getHeaders();
 		try {
 			// Create headers parts
-			// Put in the header value of the application.property: application.isEnabledDapsInteraction
-			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
 			contentType = null != receivedDataHeader.get("Content-Type")? receivedDataHeader.get("Content-Type").toString() : null;
 			headesParts.put("Content-Type", contentType);
 
@@ -72,8 +68,8 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 			message = multipartMessageService.getMessage(multipartMessageParts.get("header"));
 			
 			// Return exchange
-			exchange.getOut().setHeaders(headesParts);
-			exchange.getOut().setBody(exchange.getIn().getBody());
+			exchange.getMessage().setHeaders(headesParts);
+			exchange.getMessage().setBody(exchange.getMessage().getBody());
 
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);

@@ -69,14 +69,12 @@ public class ReceiverUsageControlProcessor implements Processor {
     public void process(Exchange exchange) {
         boolean isUsageControlObject = true;
         if (!isEnabledUsageControl) {
-            exchange.getOut().setHeaders(exchange.getIn().getHeaders());
-            exchange.getOut().setBody(exchange.getIn().getBody());
             logger.info("Usage control not configured - continued with flow");
             return;
         }
         try {
-            Map<String, Object> headerParts = exchange.getIn().getHeaders();
-            MultipartMessage multipartMessage = exchange.getIn().getBody(MultipartMessage.class);
+            Map<String, Object> headerParts = exchange.getMessage().getHeaders();
+            MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
             String originalHeader = headerParts.get("Original-Message-Header").toString();
             requestMessage = multipartMessageService.getMessage(originalHeader);
             responseMessage = multipartMessage.getHeaderContent();
@@ -106,19 +104,20 @@ public class ReceiverUsageControlProcessor implements Processor {
                         multipartMessage.getPayloadContent());
                 logger.info("from: " + exchange.getFromEndpoint());
                 logger.debug("Message Body: " + payloadToEnforce);
-                logger.info("Message Body Out: " + exchange.getOut().getBody(String.class));
+                logger.info("Message Body Out: " + exchange.getMessage().getBody(String.class));
 
                 MultipartMessage reponseMultipartMessage = new MultipartMessageBuilder()
                 		.withHttpHeader(multipartMessage.getHttpHeaders()).withHeaderHeader(multipartMessage.getHeaderHeader())
         				.withHeaderContent(responseMessage).withPayloadHeader(multipartMessage.getPayloadHeader())
         				.withPayloadContent(payloadToEnforce).withToken(multipartMessage.getToken())
         				.build();
-                exchange.getIn().setBody(reponseMultipartMessage);
+//                exchange.getIn().setBody(reponseMultipartMessage);
                 exchange.getMessage().setBody(reponseMultipartMessage);
             }
-            headerParts.remove("Original-Message-Header");
-            exchange.getOut().setHeaders(exchange.getIn().getHeaders());
-            exchange.getOut().setBody(exchange.getIn().getBody());
+            	headerParts.remove("Original-Message-Header");
+//            	exchange.getMessage().setBody(exchange.getIn().getBody());
+//            	exchange.getMessage().setHeaders(exchange.getIn().getHeaders());
+            
         } catch (Exception e) {
             logger.error("Usage Control Enforcement has failed with MESSAGE: {}", e.getMessage());
             rejectionMessageService.sendRejectionMessage(

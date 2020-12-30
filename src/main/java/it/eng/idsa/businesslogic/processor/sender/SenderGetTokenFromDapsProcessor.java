@@ -48,14 +48,12 @@ public class SenderGetTokenFromDapsProcessor implements Processor {
 	public void process(Exchange exchange) throws Exception {
 		
 		if (!isEnabledDapsInteraction) {
-            exchange.getOut().setHeaders(exchange.getIn().getHeaders());
-            exchange.getOut().setBody(exchange.getIn().getBody());
             logger.info("Daps interaction not configured - continued with flow");
             return;
         }
 
-		MultipartMessage multipartMessage = exchange.getIn().getBody(MultipartMessage.class);
-		Map<String, Object> headersParts = exchange.getIn().getHeaders();
+		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
+		Map<String, Object> headersParts = exchange.getMessage().getHeaders();
 		Message message = multipartMessage.getHeaderContent();
 		logger.info("message id=" + message.getId());
 
@@ -97,8 +95,8 @@ public class SenderGetTokenFromDapsProcessor implements Processor {
 					.withPayloadContent(multipartMessage.getPayloadContent()).withToken(token).build();
 		}
 		// Return exchange
-		exchange.getOut().setBody(multipartMessage);
-		exchange.getOut().setHeaders(headersParts);
+		exchange.getMessage().setBody(multipartMessage);
+		exchange.getMessage().setHeaders(headersParts);
 
 	}
 

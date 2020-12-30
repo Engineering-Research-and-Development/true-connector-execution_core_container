@@ -45,7 +45,6 @@ public class ClearingHouseServiceImplTest {
 	
 	Message message;
 	
-	
 	@BeforeEach
 	public void init() {
 		MockitoAnnotations.initMocks(this);
@@ -56,7 +55,6 @@ public class ClearingHouseServiceImplTest {
 		when(configuration.getClearingHouseUrl()).thenReturn(mockEndpoint);
 		when(restTemplate.postForObject(any(String.class), any(), any())).thenReturn(null);
 	}
-	
 	
 	  @Test
 	  public void testRegisterTransactionFail () {
@@ -70,8 +68,4 @@ public class ClearingHouseServiceImplTest {
 		 assertTrue(clearingHouseServiceImpl.registerTransaction(message, payload));
 		 verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, message);
 	  }
-	  
-	
-	
-
 }

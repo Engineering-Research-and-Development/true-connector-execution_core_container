@@ -8,7 +8,6 @@ import org.apache.camel.Processor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
@@ -27,9 +26,6 @@ public class ReceiverExceptionMultiPartMessageProcessor implements Processor {
 
 	private static final Logger logger = LogManager.getLogger(ReceiverExceptionMultiPartMessageProcessor.class);
 	
-	@Value("${application.isEnabledDapsInteraction}")
-	private boolean isEnabledDapsInteraction;
-	
 	@Autowired
 	private MultipartMessageService multipartMessageService;
 	
@@ -45,33 +41,25 @@ public class ReceiverExceptionMultiPartMessageProcessor implements Processor {
 		Map<String, Object> headesParts = new HashMap<String, Object>();
 		Map<String, Object> multipartMessageParts = new HashMap<String, Object>();
 		
-		if(
-			exchange.getIn().getHeaders().containsKey("header")==false
-			)
-		{
+		if(!exchange.getMessage().getHeaders().containsKey("header"))	{
 			logger.error("Multipart message header or/and payload is null");
 			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_MESSAGE_COMMON, 
 					message);
 		}
-		
 		try {
-			
 			// Create headers parts
-			// Put in the header value of the application.property: application.isEnabledDapsInteraction
-			headesParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
-			
-			header= multipartMessageService.getHeaderContentString(exchange.getIn().getHeader("header").toString());
+			header= multipartMessageService.getHeaderContentString(exchange.getMessage().getHeader("header").toString());
 			multipartMessageParts.put("header", header);
-			if(exchange.getIn().getHeaders().containsKey("payload")) {
-				payload=exchange.getIn().getHeader("payload").toString();
+			if(exchange.getMessage().getHeaders().containsKey("payload")) {
+				payload=exchange.getMessage().getHeader("payload").toString();
 				multipartMessageParts.put("payload", payload);
 			}
 			message=multipartMessageService.getMessage(multipartMessageParts.get("header"));
 			
 			// Return exchange
-			exchange.getOut().setHeaders(headesParts);
-			exchange.getOut().setBody(multipartMessageParts);
+			exchange.getMessage().setHeaders(headesParts);
+			exchange.getMessage().setBody(multipartMessageParts);
 			
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);

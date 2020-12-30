@@ -83,8 +83,8 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		MultipartMessage multipartMessage = exchange.getIn().getBody(MultipartMessage.class);
-		Map<String, Object> headerParts = exchange.getIn().getHeaders();
+		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
+		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
 
 		String payload = null;
 		Message message = null;
@@ -139,7 +139,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 
 	private CloseableHttpResponse sendMultipartMessage(Map<String, Object> headerParts, String forwardTo, Message message, MultipartMessage multipartMessage)
 			throws IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException,
-			ExecutionException, UnsupportedEncodingException, org.json.simple.parser.ParseException {
+			ExecutionException, UnsupportedEncodingException {
 		CloseableHttpResponse response = null;
 		// -- Send message using HTTPS
 			switch (eccHttpSendRouter) {
@@ -188,12 +188,12 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 //				logger.info("Successful response: " + responseString);
 				
 				//TODO make the MultipartMessage here or in the ProducerParseReceivedResponseMessage
-				exchange.getOut().setHeaders(returnHeadersAsMap(response.getAllHeaders()));
+				exchange.getMessage().setHeaders(returnHeadersAsMap(response.getAllHeaders()));
 				if (eccHttpSendRouter.equals("http-header")) {
-					exchange.getOut().setBody(responseString);
+					exchange.getMessage().setBody(responseString);
 				}else {
-					exchange.getOut().setHeader("header", multipartMessageService.getHeaderContentString(responseString));
-					exchange.getOut().setHeader("payload", multipartMessageService.getPayloadContent(responseString));
+					exchange.getMessage().setHeader("header", multipartMessageService.getHeaderContentString(responseString));
+					exchange.getMessage().setHeader("payload", multipartMessageService.getPayloadContent(responseString));
 
 				}
 			}
@@ -219,8 +219,8 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 //			logger.info("Successful response: " + responseString);
 			// TODO:
 			// Set original body which is created using the original payload and header
-			exchange.getOut().setHeader("header", multipartMessageService.getHeaderContentString(responseString));
-			exchange.getOut().setHeader("payload", multipartMessageService.getPayloadContent(responseString));
+			exchange.getMessage().setHeader("header", multipartMessageService.getHeaderContentString(responseString));
+			exchange.getMessage().setHeader("payload", multipartMessageService.getPayloadContent(responseString));
 		}
 	}
 

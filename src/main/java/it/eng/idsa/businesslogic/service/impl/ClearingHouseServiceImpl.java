@@ -9,10 +9,11 @@ import java.util.GregorianCalendar;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+//import org.apache.camel.util.json.Jsoner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.simple.JsonObject;
-import org.json.simple.Jsoner;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -55,11 +56,9 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	@Autowired
 	private RestTemplate restTemplate;
 
-
 	@Autowired
 	private HashFileService hashService;
 	
-
 	@Override
 	public boolean registerTransaction(Message correlatedMessage, String payload) {
 		
@@ -90,10 +89,10 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			headers.setContentType(MediaType.APPLICATION_JSON);
 			String msgSerialized = MultipartMessageServiceImpl.serializeMessage(notificationContent);
 			logger.info("msgSerialized to CH=" + msgSerialized);
-			JsonObject jsonObject = (JsonObject) Jsoner.deserialize(msgSerialized);
-			HttpEntity<JsonObject> entity = new HttpEntity<>(jsonObject, headers);
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = (JSONObject) parser.parse(msgSerialized);
+			HttpEntity<JSONObject> entity = new HttpEntity<>(jsonObject, headers);
 
-			
 			logger.info("Sending Data to the Clearing House " + endpoint + " ...");
 			restTemplate.postForObject(endpoint, entity, String.class);
 			logger.info("Data [LogMessage.id=" + logInfo.getId() + "] sent to the Clearing House " + endpoint);

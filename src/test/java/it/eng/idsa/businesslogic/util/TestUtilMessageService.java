@@ -14,7 +14,10 @@ import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessageBuilder;
 import de.fraunhofer.iais.eis.DescriptionRequestMessage;
 import de.fraunhofer.iais.eis.DescriptionRequestMessageBuilder;
+import de.fraunhofer.iais.eis.DynamicAttributeToken;
+import de.fraunhofer.iais.eis.DynamicAttributeTokenBuilder;
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.TokenFormat;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 public class TestUtilMessageService {
@@ -50,6 +53,18 @@ public class TestUtilMessageService {
 				._requestedArtifact_(REQUESTED_ARTIFACT)
 				.build();
 	}
+	
+	public static ArtifactRequestMessage getArtifactRequestMessageWithToken() {
+		return new ArtifactRequestMessageBuilder()
+				._issued_(ISSUED)
+				._correlationMessage_(CORRELATION_MESSAGE)
+				._transferContract_(TRANSFER_CONTRACT)
+				._issuerConnector_(ISSUER_CONNECTOR)
+				._modelVersion_(MODEL_VERSION)
+				._requestedArtifact_(REQUESTED_ARTIFACT)
+				._securityToken_(getDynamicAttributeToken())
+				.build();
+	}
 
 	public static ArtifactResponseMessage getArtifactResponseMessage() {
 		return new ArtifactResponseMessageBuilder()
@@ -59,6 +74,13 @@ public class TestUtilMessageService {
 				._issuerConnector_(ISSUER_CONNECTOR)
 				._modelVersion_(MODEL_VERSION)
 				.build();
+	}
+	
+	public static DynamicAttributeToken getDynamicAttributeToken() {
+		return new DynamicAttributeTokenBuilder()
+				._tokenFormat_(TokenFormat.JWT)
+				._tokenValue_("DummyTokenValue")
+				.build();		
 	}
 	
 	public static DescriptionRequestMessage getDescriptionRequestMessage() {

@@ -47,8 +47,8 @@ public class SenderSendRegistrationRequestProcessor implements Processor {
 	   
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		Map<String, Object> headesParts = exchange.getIn().getHeaders();
-		Map<String, Object> multipartMessageParts = exchange.getIn().getBody(HashMap.class);
+		Map<String, Object> headesParts = exchange.getMessage().getHeaders();
+		Map<String, Object> multipartMessageParts = exchange.getMessage().getBody(HashMap.class);
 		String forwardTo = headesParts.get("Forward-To").toString();
 
 		logger.info("About to send request towards broker... '{}'", forwardTo);
@@ -207,14 +207,13 @@ public class SenderSendRegistrationRequestProcessor implements Processor {
                 logger.info("Successful response: " + responseString);
                 // TODO:
                 // Set original body which is created using the original payload and header
-				exchange.getOut().setHeader("header", multipartMessageService.getHeaderContentString(responseString));
+				exchange.getMessage().setHeader("header", multipartMessageService.getHeaderContentString(responseString));
 				String payload = multipartMessageService.getPayloadContent(responseString);
 				if (StringUtils.isEmpty(payload)) {
 					payload = "Empty";
 				}
-				exchange.getOut().setHeader("payload", payload);
-//                exchange.getOut().setHeaders(exchange.getIn().getHeaders());
-                exchange.getOut().setBody(responseString);
+				exchange.getMessage().setHeader("payload", payload);
+                exchange.getMessage().setBody(responseString);
             }
         }
     }

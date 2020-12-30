@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
@@ -52,8 +51,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	}
 
 	@Test
-	public void processWithContentTypeAndWithoutDaps() throws Exception {
-		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", false);
+	public void processWithContentType() throws Exception {
 		mockExchangeGetHttpHeaders(exchange);
 		multipartMessage = new MultipartMessageBuilder()
 				.withHeaderContent(TestUtilMessageService.getArtifactRequestMessage())
@@ -61,8 +59,8 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 				.build();
 		receivedDataBodyBinary = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, false);
 		msg = TestUtilMessageService.getArtifactRequestMessage();
-		when(exchange.getIn().getBody(String.class)).thenReturn(receivedDataBodyBinary);
-		when(exchange.getOut()).thenReturn(messageOut);
+		when(exchange.getMessage()).thenReturn(messageOut);
+		when(messageOut.getBody(String.class)).thenReturn(receivedDataBodyBinary);
 
 		processor.process(exchange);
 
@@ -71,15 +69,17 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	}
 
 	@Test
-	public void processWithoutContentTypeAndWithoutDaps() throws Exception {
-		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", false);
+	public void processWithoutContentType() throws Exception {
 		mockExchangeGetHttpHeaders(exchange);
 		msg = TestUtilMessageService.getArtifactRequestMessage();
-		multipartMessage = new MultipartMessageBuilder().withHeaderContent(msg).withPayloadContent("foo bar").build();
+		multipartMessage = new MultipartMessageBuilder()
+				.withHeaderContent(msg)
+				.withPayloadContent("foo bar")
+				.build();
 
 		receivedDataBodyBinary = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
-		when(exchange.getIn().getBody(String.class)).thenReturn(receivedDataBodyBinary);
-		when(exchange.getOut()).thenReturn(messageOut);
+		when(exchange.getMessage()).thenReturn(messageOut);
+		when(messageOut.getBody(String.class)).thenReturn(receivedDataBodyBinary);
 
 		processor.process(exchange);
 
@@ -89,7 +89,6 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 
 	@Test
 	public void processWithInvalidContentTypeAndWithoutDaps() throws Exception {
-		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", false);
 		mockExchangeGetHttpHeaders(exchange);
 		headerHeader = new HashMap<String, String>();
 		headerHeader.put(MultipartMessageKey.CONTENT_DISPOSITION.label, "form-data; name=\"header\"");
@@ -101,8 +100,8 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 				.withHeaderHeader(headerHeader)
 				.withPayloadContent("foo bar").build();
 		receivedDataBodyBinary = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
-		when(exchange.getIn().getBody(String.class)).thenReturn(receivedDataBodyBinary);
-		when(exchange.getOut()).thenReturn(messageOut);
+		when(exchange.getMessage()).thenReturn(messageOut);
+		when(messageOut.getBody(String.class)).thenReturn(receivedDataBodyBinary);
 
 		processor.process(exchange);
 
@@ -111,7 +110,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	}
 
 	private void mockExchangeGetHttpHeaders(Exchange exchange) {
-		when(exchange.getIn()).thenReturn(message);
+		when(exchange.getMessage()).thenReturn(message);
 		httpHeaders = new HashMap<>();
 		httpHeaders.put("Content-Type", "multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6");
 		httpHeaders.put("Forward-To", "https://forward.to.example");

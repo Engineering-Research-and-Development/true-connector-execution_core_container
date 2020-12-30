@@ -1,5 +1,6 @@
 package it.eng.idsa.businesslogic.processor.receiver;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +41,7 @@ public class ReceiverUsageControlProcessorTest {
 	@Mock
 	private Exchange exchange;
 	@Mock
-	private  org.apache.camel.Message in;
+	private  org.apache.camel.Message camelMessage;
 	@Mock
 	private  org.apache.camel.Message out;
 	
@@ -68,14 +69,14 @@ public class ReceiverUsageControlProcessorTest {
 
 	@Test
 	public void payloadNullTest() {
-		when(exchange.getIn()).thenReturn(in);
-		when(in.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
-		when(in.getHeaders()).thenReturn(headers);
+		when(exchange.getMessage()).thenReturn(camelMessage);
+		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
+		when(camelMessage.getHeaders()).thenReturn(headers);
 		when(multipartMessageService.getMessage(ORIGINL_HEADER)).thenReturn(artifactRequestMessage);
 		when(multipartMessage.getHeaderContent()).thenReturn(artifactResponseMessage);
 		when(multipartMessage.getPayloadContent()).thenReturn(null);
 		
-		when(exchange.getOut()).thenReturn(out);
+//		when(exchange.getMessage()).thenReturn(out);
 		processor.process(exchange);
 
 		verify(rejectionMessageService).sendRejectionMessage(
@@ -85,16 +86,16 @@ public class ReceiverUsageControlProcessorTest {
 	
 	@Test
 	public void notUsageControlObject() {
-		when(exchange.getIn()).thenReturn(in);
-		when(in.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
-		when(in.getHeaders()).thenReturn(headers);
+		when(exchange.getMessage()).thenReturn(camelMessage);
+		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
+		when(camelMessage.getHeaders()).thenReturn(headers);
 		when(multipartMessageService.getMessage(ORIGINL_HEADER)).thenReturn(descriptionRequestMessage);
 		when(multipartMessage.getHeaderContent()).thenReturn(artifactResponseMessage);
-		when(exchange.getOut()).thenReturn(out);
+//		when(exchange.getOut()).thenReturn(out);
 		
 		processor.process(exchange);
 		
-		verify(out).setHeaders(in.getHeaders());
-		verify(out).setBody(in.getBody());
+		verify(camelMessage, times(0)).setHeaders(headers);
+		verify(camelMessage, times(0)).setBody(multipartMessage);
 	}
 }

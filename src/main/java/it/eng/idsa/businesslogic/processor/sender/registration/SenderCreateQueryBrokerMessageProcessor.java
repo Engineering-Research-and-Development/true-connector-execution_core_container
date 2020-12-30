@@ -23,17 +23,17 @@ public class SenderCreateQueryBrokerMessageProcessor implements Processor  {
 	public void process(Exchange exchange) throws Exception {
 		Map<String, Object> headersParts = new HashMap<String, Object>();
 		// Get from the input "exchange"
-		Map<String, Object> receivedDataHeader = exchange.getIn().getHeaders();
+		Map<String, Object> receivedDataHeader = exchange.getMessage().getHeaders();
 
 		headersParts.put("Forward-To", receivedDataHeader.get("Forward-To").toString());
 
 		Map<String, Object> multipartMessageParts = new HashMap<String, Object>();
 		String  registrationMessage = geObjectAsString(selfDescriptionService.getConnectorQueryMessage());
 		multipartMessageParts.put("header", registrationMessage );
-		multipartMessageParts.put("payload", exchange.getIn().getBody(String.class));
+		multipartMessageParts.put("payload", exchange.getMessage().getBody(String.class));
 		
-		exchange.getOut().setHeaders(headersParts);
-		exchange.getOut().setBody(multipartMessageParts);
+		exchange.getMessage().setHeaders(headersParts);
+		exchange.getMessage().setBody(multipartMessageParts);
 	}
 
 	private String geObjectAsString(Object toSerialize) {

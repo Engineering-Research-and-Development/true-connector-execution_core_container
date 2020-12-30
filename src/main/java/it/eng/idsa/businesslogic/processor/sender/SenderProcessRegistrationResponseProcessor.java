@@ -13,7 +13,7 @@ public class SenderProcessRegistrationResponseProcessor implements Processor {
 	 */
 	public void process(Exchange exchange) throws Exception {
 		// TODO workaround until we solve issue with Content-Type issue present in response
-		String multipartMessagePartsReceived = exchange.getIn().getBody(String.class);
+		String multipartMessagePartsReceived = exchange.getMessage().getBody(String.class);
 
 		String[] lines = multipartMessagePartsReceived.split(System.getProperty("line.separator"));
 		for(int i=0;i<lines.length;i++){
@@ -28,7 +28,7 @@ public class SenderProcessRegistrationResponseProcessor implements Processor {
 		    }
 		}
 		String finalString = finalStringBuilder.toString();
-		exchange.getOut().setBody(finalString);
-		exchange.getOut().setHeaders(exchange.getIn().getHeaders());
+		exchange.getMessage().setBody(finalString);
+		exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
 	}
 }

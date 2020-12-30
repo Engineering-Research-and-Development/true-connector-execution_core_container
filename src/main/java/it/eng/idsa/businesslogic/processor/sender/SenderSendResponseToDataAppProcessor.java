@@ -59,8 +59,8 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 
-		Map<String, Object> headerParts = exchange.getIn().getHeaders();
-		MultipartMessage multipartMessage = exchange.getIn().getBody(MultipartMessage.class);
+		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
+		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 
 		String responseString = null;
 		String contentType = null;
@@ -71,33 +71,33 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 		}
 			switch (openDataAppReceiverRouter) {
 			case "form":
-				httpHeaderService.removeTokenHeaders(exchange.getIn().getHeaders());
-            	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getIn().getHeaders());
+				httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
+            	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
 				HttpEntity resultEntity = multipartMessageService.createMultipartMessage(multipartMessage.getHeaderContentString(), 
 						multipartMessage.getPayloadContent(),
 						null, ContentType.APPLICATION_JSON);
 				contentType = resultEntity.getContentType().getValue();
 				headerParts.put(Exchange.CONTENT_TYPE, contentType);
-				exchange.getOut().setBody(resultEntity.getContent());
+				exchange.getMessage().setBody(resultEntity.getContent());
 				break;
 			case "mixed":
-				httpHeaderService.removeTokenHeaders(exchange.getIn().getHeaders());
-            	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getIn().getHeaders());
+				httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
+            	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
 				responseString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
 				Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(responseString);
 				contentType = "multipart/mixed; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
 				headerParts.put(Exchange.CONTENT_TYPE, contentType);
-				exchange.getOut().setBody(responseString);
+				exchange.getMessage().setBody(responseString);
 				break;
 			case "http-header":
 				responseString = multipartMessage.getPayloadContent();
-				exchange.getOut().setBody(responseString);
+				exchange.getMessage().setBody(responseString);
 				break;
 			}
 			logger.info("Sending response to DataApp");
 
 			headerCleaner.removeTechnicalHeaders(headerParts);
-			exchange.getOut().setHeaders(exchange.getIn().getHeaders());
+			exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
 		
 		if(isEnabledWebSocket ) {
 			String responseMultipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);

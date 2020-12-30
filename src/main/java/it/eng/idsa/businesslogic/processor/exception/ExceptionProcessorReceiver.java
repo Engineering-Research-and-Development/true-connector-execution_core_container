@@ -41,15 +41,15 @@ public class ExceptionProcessorReceiver implements Processor {
     			.build();
 		
 		if (openDataAppReceiverRouter.equals("http-header")) {
-			exchange.getOut().setHeaders(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));
+			// empty body of response since it will contain Message
+			exchange.getMessage().setBody(null);
+			exchange.getMessage().setHeaders(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));
 		} else {
 			String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
-
+			
 			exchange.getMessage().setBody(multipartMessageString);
 			exchange.getMessage().setHeader("header", multipartMessageString);
 			exchange.getMessage().setHeader("payload", "RejectionMessage");
-
 		}
-	
 	}
 }

@@ -53,7 +53,7 @@ public class ReceiverWebSocketSendDataToDataAppProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange) throws Exception {
-        MultipartMessage multipartMessage = exchange.getIn().getBody(MultipartMessage.class);
+        MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 
         // Get header, payload and message
         String header = filterHeader(multipartMessage.getHeaderContentString());
@@ -85,13 +85,13 @@ public class ReceiverWebSocketSendDataToDataAppProcessor implements Processor {
         	  logger.debug("response received from the DataAPP=" + response);
         	  String header = multipartMessageService.getHeaderContentString(response);
               String payload = multipartMessageService.getPayloadContent(response);
-              exchange.getOut().setHeader("header", header);
+              exchange.getMessage().setHeader("header", header);
               //Save original Header for Usage Control Enforcement
               if(isEnabledUsageControl) {
-                  exchange.getOut().setHeader("Original-Message-Header", originalHeader);
+                  exchange.getMessage().setHeader("Original-Message-Header", originalHeader);
               }
               if (payload != null) {
-                  exchange.getOut().setHeader("payload", payload);
+                  exchange.getMessage().setHeader("payload", payload);
               }
           }
       }

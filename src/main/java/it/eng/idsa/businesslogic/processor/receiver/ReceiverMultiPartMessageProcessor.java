@@ -35,9 +35,6 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 
 	private static final Logger logger = LogManager.getLogger(ReceiverMultiPartMessageProcessor.class);
 
-	@Value("${application.isEnabledDapsInteraction}")
-	private boolean isEnabledDapsInteraction;
-
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledDataAppWebSocket;
 
@@ -61,16 +58,15 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 
 		String header = null;
 		String payload = null;
-		Map<String, Object> headersParts = exchange.getIn().getHeaders();
+		Map<String, Object> headersParts = exchange.getMessage().getHeaders();
 		Message message = null;
 		MultipartMessage multipartMessage = null;
 
-		headersParts.put("Is-Enabled-Daps-Interaction", isEnabledDapsInteraction);
 		headersParts.put("Is-Enabled-DataApp-WebSocket", isEnabledDataAppWebSocket);
 		
 		if (dataAppSendRouter.equals("http-header")) { 
-			if (exchange.getIn().getBody() != null) {
-				payload = exchange.getIn().getBody(String.class);
+			if (exchange.getMessage().getBody() != null) {
+				payload = exchange.getMessage().getBody(String.class);
 			} else {
 				logger.error("Payload is null");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
@@ -90,22 +86,19 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 
-
 			if (headersParts.get("header") == null) {
 				logger.error("Multipart message header is null");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 
-
 			try {
-
 				// Save the original message header for Usage Control Enforcement
 				if (headersParts.containsKey("Original-Message-Header"))
 					headersParts.put("Original-Message-Header", headersParts.get("Original-Message-Header").toString());
 
 				if (headersParts.get("header") instanceof String) {
 					header = headersParts.get("header").toString();
-				}else {
+				} else {
 					DataHandler dtHeader = (DataHandler) headersParts.get("header");
 					header = IOUtils.toString(dtHeader.getInputStream(), StandardCharsets.UTF_8);
 				}
@@ -126,10 +119,9 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 				logger.error("Error parsing multipart message:", e);
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
-
 		}
 
-		exchange.getOut().setHeaders(headersParts);
-		exchange.getOut().setBody(multipartMessage);
+		exchange.getMessage().setHeaders(headersParts);
+		exchange.getMessage().setBody(multipartMessage);
 	}
 }
