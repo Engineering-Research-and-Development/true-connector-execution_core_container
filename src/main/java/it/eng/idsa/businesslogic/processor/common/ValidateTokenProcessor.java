@@ -1,4 +1,4 @@
-package it.eng.idsa.businesslogic.processor.sender;
+package it.eng.idsa.businesslogic.processor.common;
 
 import java.util.Map;
 
@@ -26,9 +26,9 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
  */
 
 @Component
-public class SenderValidateTokenProcessor implements Processor {
+public class ValidateTokenProcessor implements Processor {
 
-	private static final Logger logger = LogManager.getLogger(SenderValidateTokenProcessor.class);
+	private static final Logger logger = LogManager.getLogger(ValidateTokenProcessor.class);
 	
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
@@ -81,7 +81,7 @@ public class SenderValidateTokenProcessor implements Processor {
 				.withPayloadContent(multipartMessage.getPayloadContent())
 				.withPayloadHeader(multipartMessage.getPayloadHeader()).build();
 		exchange.getMessage().setHeaders(headersParts);
-		if (eccHttpSendRouter.equals("http-header")) {
+		if ("http-header".equals(eccHttpSendRouter)) {
 			exchange.getMessage().setBody(multipartMessage);
 		}else {
 			// not used

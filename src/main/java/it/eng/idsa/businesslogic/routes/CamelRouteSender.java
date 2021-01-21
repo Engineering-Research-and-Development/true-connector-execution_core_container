@@ -10,11 +10,12 @@ import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
+import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
+import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorSender;
 import it.eng.idsa.businesslogic.processor.sender.SenderFileRecreatorProcessor;
-import it.eng.idsa.businesslogic.processor.sender.SenderGetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataFromDAppProcessorBodyBinary;
 import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataProcessorBodyBinary;
 import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataProcessorBodyFormData;
@@ -25,7 +26,6 @@ import it.eng.idsa.businesslogic.processor.sender.SenderSendDataToBusinessLogicP
 import it.eng.idsa.businesslogic.processor.sender.SenderSendRegistrationRequestProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderSendResponseToDataAppProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderUsageControlProcessor;
-import it.eng.idsa.businesslogic.processor.sender.SenderValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.sender.registration.SenderCreateDeleteMessageProcessor;
 import it.eng.idsa.businesslogic.processor.sender.registration.SenderCreatePassivateMessageProcessor;
 import it.eng.idsa.businesslogic.processor.sender.registration.SenderCreateQueryBrokerMessageProcessor;
@@ -59,7 +59,7 @@ public class CamelRouteSender extends RouteBuilder {
 	SenderParseReceivedDataProcessorHttpHeader parseReceivedDataProcessorHttpHeader;
 
 	@Autowired
-	SenderGetTokenFromDapsProcessor getTokenFromDapsProcessor;
+	GetTokenFromDapsProcessor getTokenFromDapsProcessor;
 
 	@Autowired
 	RegisterTransactionToCHProcessor registerTransactionToCHProcessor;
@@ -71,7 +71,7 @@ public class CamelRouteSender extends RouteBuilder {
 	SenderParseReceivedResponseMessage parseReceivedResponseMessage;
 
 	@Autowired
-	SenderValidateTokenProcessor validateTokenProcessor;
+	ValidateTokenProcessor validateTokenProcessor;
 
 	@Autowired
 	SenderSendResponseToDataAppProcessor sendResponseToDataAppProcessor;

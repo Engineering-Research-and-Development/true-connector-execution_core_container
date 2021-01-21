@@ -1,4 +1,4 @@
-package it.eng.idsa.businesslogic.processor.sender;
+package it.eng.idsa.businesslogic.processor.common;
 
 import java.util.Map;
 
@@ -25,9 +25,9 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
  */
 
 @Component
-public class SenderGetTokenFromDapsProcessor implements Processor {
+public class GetTokenFromDapsProcessor implements Processor {
 
-	private static final Logger logger = LogManager.getLogger(SenderGetTokenFromDapsProcessor.class);
+	private static final Logger logger = LogManager.getLogger(GetTokenFromDapsProcessor.class);
 
 	@Autowired
 	private MultipartMessageService multipartMessageService;
@@ -78,7 +78,7 @@ public class SenderGetTokenFromDapsProcessor implements Processor {
 		}
 
 //		logger.info("token=" + token);
-		if (eccHttpSendRouter.equals("http-header")) {
+		if ("http-header".equals(eccHttpSendRouter)) {
 			// TODO move this to SendDataToBussinessLogicServiceImpl
 			multipartMessage = new MultipartMessageBuilder().withHttpHeader(multipartMessage.getHttpHeaders())
 					.withHeaderHeader(multipartMessage.getHeaderHeader())
