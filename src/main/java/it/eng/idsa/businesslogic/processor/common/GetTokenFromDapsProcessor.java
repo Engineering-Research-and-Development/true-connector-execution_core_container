@@ -1,4 +1,4 @@
-package it.eng.idsa.businesslogic.processor.sender;
+package it.eng.idsa.businesslogic.processor.common;
 
 import java.util.Map;
 
@@ -25,9 +25,9 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
  */
 
 @Component
-public class SenderGetTokenFromDapsProcessor implements Processor {
+public class GetTokenFromDapsProcessor implements Processor {
 
-	private static final Logger logger = LogManager.getLogger(SenderGetTokenFromDapsProcessor.class);
+	private static final Logger logger = LogManager.getLogger(GetTokenFromDapsProcessor.class);
 
 	@Autowired
 	private MultipartMessageService multipartMessageService;
