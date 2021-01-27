@@ -117,4 +117,15 @@ public class MultipartMessageServiceImplTest {
 		String token = service.getToken(TestUtilMessageService.getArtifactRequestMessageWithToken());
 		assertNotNull(token);
 	}
+	@Test
+	public void removeTokenFromMessageTest() {
+		Message removeTokenMsg = service.removeTokenFromMessage(TestUtilMessageService.getArtifactRequestMessageWithToken());
+		assertNull(removeTokenMsg.getSecurityToken());
+	}
+
+	@Test
+	public void removeTokenFromMessageWihtoutToken() {
+		Message removeTokenMsg = service.removeTokenFromMessage(TestUtilMessageService.getArtifactRequestMessage());
+		assertNull(removeTokenMsg.getSecurityToken());
+	}
 }

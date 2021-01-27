@@ -41,6 +41,9 @@ public class ClearingHouseServiceImplTest {
 	@Mock
 	private RejectionMessageService rejectionMessageService;
 	
+	@Mock
+	private MultipartMessageServiceImpl multipartMessageServiceImpl;
+	
 	String mockEndpoint;
 	
 	Message message;
@@ -49,10 +52,12 @@ public class ClearingHouseServiceImplTest {
 	public void init() {
 		MockitoAnnotations.initMocks(this);
 		message = TestUtilMessageService.getArtifactResponseMessage();
+		message= TestUtilMessageService.getArtifactRequestMessageWithToken();
 		payload = "{\"foo\":\"bar\"}";
 		mockEndpoint = "https://clearinghouse.com";
 		when(hashService.hash(payload)).thenReturn("ABC");
 		when(configuration.getClearingHouseUrl()).thenReturn(mockEndpoint);
+		when(multipartMessageServiceImpl.removeTokenFromMessage(message)).thenReturn(TestUtilMessageService.getArtifactResponseMessage());
 		when(restTemplate.postForObject(any(String.class), any(), any())).thenReturn(null);
 	}
 	
