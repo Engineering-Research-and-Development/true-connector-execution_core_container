@@ -52,7 +52,6 @@ public class ClearingHouseServiceImplTest {
 	public void init() {
 		MockitoAnnotations.initMocks(this);
 		message = TestUtilMessageService.getArtifactResponseMessage();
-		message= TestUtilMessageService.getArtifactRequestMessageWithToken();
 		payload = "{\"foo\":\"bar\"}";
 		mockEndpoint = "https://clearinghouse.com";
 		when(hashService.hash(payload)).thenReturn("ABC");

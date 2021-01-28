@@ -113,12 +113,12 @@ public class MultipartMessageServiceImplTest {
 	}
 	
 	@Test
-	public void getTokenTest() throws JsonProcessingException {
+	public void getToken() throws JsonProcessingException {
 		String token = service.getToken(TestUtilMessageService.getArtifactRequestMessageWithToken());
 		assertNotNull(token);
 	}
 	@Test
-	public void removeTokenFromMessageTest() {
+	public void removeTokenFromMessage() {
 		Message removeTokenMsg = service.removeTokenFromMessage(TestUtilMessageService.getArtifactRequestMessageWithToken());
 		assertNull(removeTokenMsg.getSecurityToken());
 	}
