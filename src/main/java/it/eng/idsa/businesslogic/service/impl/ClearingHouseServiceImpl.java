@@ -46,22 +46,25 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 
 	@Autowired
 	private ApplicationConfiguration configuration;
-	
+
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
-	
+
 	@Value("${information.model.version}")
 	private String informationModelVersion;
-	
+
 	@Autowired
 	private RestTemplate restTemplate;
 
 	@Autowired
 	private HashFileService hashService;
-	
+
+	@Autowired
+	private MultipartMessageServiceImpl multipartMessageServiceImpl;
+
 	@Override
 	public boolean registerTransaction(Message correlatedMessage, String payload) {
-		
+
 		boolean success = false;
 		try {
 			logger.info("registerTransaction...");
@@ -70,16 +73,13 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			XMLGregorianCalendar xgcal = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar());
 
 			// Infomodel version 4.0.0
-			LogMessage logInfo = new LogMessageBuilder()
-					._modelVersion_(informationModelVersion)
-					._issuerConnector_(whoIAm())
-					._issued_(xgcal)
-					.build();
+			LogMessage logInfo = new LogMessageBuilder()._modelVersion_(informationModelVersion)
+					._issuerConnector_(whoIAm())._issued_(xgcal).build();
 
 			NotificationContent notificationContent = new NotificationContent();
 			notificationContent.setHeader(logInfo);
 			Body body = new Body();
-			body.setHeader(correlatedMessage);
+			body.setHeader(multipartMessageServiceImpl.removeTokenFromMessage(correlatedMessage));
 			String hash = hashService.hash(payload);
 			body.setPayload(hash);
 
@@ -101,9 +101,10 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			success = true;
 		} catch (Exception e) {
 			logger.error("Could not register the following message to clearing house:", e);
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, correlatedMessage);
+			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
+					correlatedMessage);
 		}
-		
+
 		return success;
 	}
 
