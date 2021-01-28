@@ -31,5 +31,6 @@ public interface MultipartMessageService {
 	
 	MultipartMessage addTokenToMultipartMessage(MultipartMessage messageWithoutToken);
 	MultipartMessage removeTokenFromMultipart(MultipartMessage messageWithToken);
+	Message removeTokenFromMessage(Message messageWithToken);
 	
 }

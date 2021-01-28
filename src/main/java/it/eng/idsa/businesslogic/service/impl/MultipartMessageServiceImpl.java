@@ -223,4 +223,9 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 		json = new ObjectMapper().writeValueAsString(headers);
 		return getMessage(json);
 	}
+
+	@Override
+	public Message removeTokenFromMessage(Message messageWithToken) {
+		return getMessage(removeToken(messageWithToken));
+	}
 }
