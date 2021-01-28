@@ -22,6 +22,7 @@ import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 public class TestUtilMessageService {
 
+	public static final String TOKEN_VALUE = "DummyTokenValue";
 
 	public static URI REQUESTED_ARTIFACT = URI.create("http://w3id.org/engrd/connector/artifact/1");
 
