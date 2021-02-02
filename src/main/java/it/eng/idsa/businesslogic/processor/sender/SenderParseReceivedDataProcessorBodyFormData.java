@@ -1,7 +1,6 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.activation.DataHandler;
@@ -46,28 +45,34 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 		String header = null;
 		String payload = null;
 		Message message = null;
-		Map<String, Object> headesParts = new HashMap<String, Object>();
 
 		// Get from the input "exchange"
 		Map<String, Object> receivedDataHeader = exchange.getMessage().getHeaders();
 
 		try {
 			// Create headers parts
-			headesParts = exchange.getMessage().getHeaders();
 			contentType = receivedDataHeader.get("Content-Type").toString();
-			headesParts.put("Content-Type", contentType);
+			receivedDataHeader.put("Content-Type", contentType);
 			forwardTo = receivedDataHeader.get("Forward-To").toString();
-			headesParts.put("Forward-To", forwardTo);
+			receivedDataHeader.put("Forward-To", forwardTo);
 
 			// Create multipart message parts
-			if (headesParts.containsKey("header")) {
-				DataHandler dtHeader = (DataHandler) receivedDataHeader.get("header");
-				header = IOUtils.toString(dtHeader.getInputStream(), StandardCharsets.UTF_8);
+			if (receivedDataHeader.containsKey("header")) {
+				if(receivedDataHeader.get("header") instanceof DataHandler) {
+					DataHandler dtHeader = (DataHandler) receivedDataHeader.get("header");
+					header = IOUtils.toString(dtHeader.getInputStream(), StandardCharsets.UTF_8);
+				} else {
+					header = (String) receivedDataHeader.get("header");
+				}
 			} 
 			message = multipartMessageService.getMessage(header);
 			if (receivedDataHeader.containsKey("payload")) {
-				DataHandler dtPayload = (DataHandler) receivedDataHeader.get("payload");
-				payload = IOUtils.toString(dtPayload.getInputStream(), StandardCharsets.UTF_8);
+				if(receivedDataHeader.get("payload") instanceof DataHandler) {
+					DataHandler dtPayload = (DataHandler) receivedDataHeader.get("payload");
+					payload = IOUtils.toString(dtPayload.getInputStream(), StandardCharsets.UTF_8);
+				} else {
+					payload = (String) receivedDataHeader.get("payload");
+				}
 			}
 
 			MultipartMessage multipartMessage = new MultipartMessageBuilder()
@@ -76,7 +81,7 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 					.build();
 
 			// Return exchange
-			exchange.getMessage().setHeaders(headesParts);
+			exchange.getMessage().setHeaders(receivedDataHeader);
 			exchange.getMessage().setBody(multipartMessage);
 
 		} catch (Exception e) {

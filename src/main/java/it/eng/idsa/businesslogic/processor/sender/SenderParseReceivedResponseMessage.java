@@ -59,7 +59,7 @@ public class SenderParseReceivedResponseMessage implements Processor {
 		MultipartMessage multipartMessage = null;
 		String token = null;
 
-		if (eccHttpSendRouter.equals("http-header")) {
+		if ("http-header".equals(eccHttpSendRouter)) {
 			payload = exchange.getMessage().getBody(String.class);
 			header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));

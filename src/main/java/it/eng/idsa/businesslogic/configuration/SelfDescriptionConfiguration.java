@@ -3,20 +3,33 @@ package it.eng.idsa.businesslogic.configuration;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import it.eng.idsa.businesslogic.service.ProcessExecutor;
+
 @Configuration
 @ConfigurationProperties(prefix = "application")
 public class SelfDescriptionConfiguration {
+	
+	private static final Logger logger = LogManager.getLogger(SelfDescriptionConfiguration.class);
 
 	@Value("${camel.component.http4.use-global-ssl-context-parameters}")
 	private boolean useHttps;
 	
 	@Value("${information.model.version}")
 	private String informationModelVersion;
+	
+	@Autowired
+	private ProcessExecutor processExecutor;
 	
 	/**
 	 * Used for http communication
@@ -141,15 +154,31 @@ public class SelfDescriptionConfiguration {
 	
 	public URI getDefaultEndpoint() {
 		String schema = useHttps ? "https" : "http";
-		String port = useHttps ? serverPort : httpPort;
-		String host;
-		try {
-			host = InetAddress.getLocalHost().getHostAddress();
-			return URI.create(schema + "://" + host + ":" + port + "/selfDescription");
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
+		String port = System.getenv("PUBLIC_PORT");
+		if(StringUtils.isEmpty(port)) {
+			port = useHttps ? serverPort : httpPort;
 		}
-		return null;
+		return URI.create(schema + "://" + getPublicIpAddress() + ":" + port + "/");
+	}
+	
+	private String getPublicIpAddress() {
+		String ipAddress = null;
+		if(System.getProperty("os.name").toLowerCase().contains("win")) {
+			logger.info("Running on windows - no curl command, using InetAddress");
+			try {
+				ipAddress = InetAddress.getLocalHost().getHostAddress();
+			} catch (UnknownHostException e) {
+				logger.error("Error while attempting to get IP address", e);
+			}
+		} else {
+			List<String> cmdList = new ArrayList<>();
+			cmdList.add("/bin/sh");
+			cmdList.add("-c");
+			cmdList.add(" wget -qO - http://ipinfo.io/ip");
+			
+			ipAddress = processExecutor.executeProcess(cmdList);
+		}
+		return ipAddress;
 	}
 	
 	/*
