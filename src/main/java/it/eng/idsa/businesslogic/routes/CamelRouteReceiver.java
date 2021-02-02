@@ -9,12 +9,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
-import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
-import it.eng.idsa.businesslogic.processor.receiver.ReceiverExceptionMultiPartMessageProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverFileRecreatorProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverMultiPartMessageProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverParseReceivedConnectorRequestProcessor;
@@ -65,9 +64,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 	ReceiverSendDataToBusinessLogicProcessor sendDataToBusinessLogicProcessor;
 	
 	@Autowired
-	ReceiverExceptionMultiPartMessageProcessor exceptionMultiPartMessageProcessor;
-
-	@Autowired
 	ReceiverWebSocketSendDataToDataAppProcessor sendDataToDataAppProcessorOverWS;
 
 	@Autowired
@@ -93,10 +89,9 @@ public class CamelRouteReceiver extends RouteBuilder {
 		onException(ExceptionForProcessor.class, RuntimeException.class)
 			.handled(true)
 			.process(exceptionProcessorReceiver)
-			.process(exceptionMultiPartMessageProcessor)
 			.process(getTokenFromDapsProcessor)
-			.process(sendDataToBusinessLogicProcessor)
-			.process(registerTransactionToCHProcessor);
+			.process(registerTransactionToCHProcessor)
+			.process(sendDataToBusinessLogicProcessor);
 
 		// Camel SSL - Endpoint: B
 		if(!isEnabledIdscp && !isEnabledWebSocket) {

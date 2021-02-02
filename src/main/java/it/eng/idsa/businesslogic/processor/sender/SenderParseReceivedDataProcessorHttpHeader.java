@@ -48,6 +48,10 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 			headerContentHeaders = headerService.getHeaderContentHeaders(headersParts);
 			String header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
 			message = multipartMessageService.getMessage(header);
+			if(message==null) {
+				logger.error("Missed required header");
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
+			}
 			MultipartMessage multipartMessage = new MultipartMessageBuilder()
 					.withHttpHeader(headerService.convertMapToStringString(headerContentHeaders))
 					.withHeaderContent(header)
