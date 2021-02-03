@@ -63,7 +63,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 			header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
 			message = multipartMessageService.getMessage(header);
 			if(message==null) {
-				logger.error("Missed required headers");
+				logger.error("Message could not be created - check if all required headers are present.");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
 			}
 			

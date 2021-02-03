@@ -3,7 +3,6 @@ package it.eng.idsa.businesslogic.processor.exception;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
@@ -22,9 +21,6 @@ public class ExceptionProcessorReceiver implements Processor {
 	@Autowired
 	MultipartMessageService multipartMessageService;
 	
-	@Value("${application.eccHttpSendRouter}")
-	private String eccHttpSendRouter;
-
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		
