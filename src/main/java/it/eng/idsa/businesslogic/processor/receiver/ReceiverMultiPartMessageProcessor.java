@@ -65,6 +65,7 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 		headersParts.put("Is-Enabled-DataApp-WebSocket", isEnabledDataAppWebSocket);
 		
 		if (dataAppSendRouter.equals("http-header")) { 
+			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
 			if (exchange.getMessage().getBody() != null) {
 				payload = exchange.getMessage().getBody(String.class);
 			} else {
@@ -77,7 +78,6 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 			multipartMessage = new MultipartMessageBuilder()
 					.withHeaderContent(header)
 					.withPayloadContent(payload).build();
-			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
 
 		} else {
 

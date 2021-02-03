@@ -59,8 +59,13 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 		
 		if (eccHttpSendRouter.equals("http-header")) { 
 			// create Message object from IDS-* headers, needs for UsageControl flow
+			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
 			header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
 			message = multipartMessageService.getMessage(header);
+			if(message==null) {
+				logger.error("Message could not be created - check if all required headers are present.");
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+			}
 			
 			if (headersParts.get("IDS-SecurityToken-TokenValue") != null) {
 				token = headersParts.get("IDS-SecurityToken-TokenValue").toString();
@@ -71,7 +76,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 					.withHeaderContent(header)
 					.withPayloadContent(payload)
 					.withToken(token).build();
-			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
+			
 		} else {
 			if (!headersParts.containsKey("header")) {
 				logger.error("Multipart message header is missing");

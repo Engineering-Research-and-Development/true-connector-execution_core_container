@@ -1,5 +1,6 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,6 +18,8 @@ import org.mockito.MockitoAnnotations;
 
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -35,6 +38,9 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	private Message messageOut;
 	@Mock
 	private de.fraunhofer.iais.eis.Message msg;
+	
+	@Mock
+	private RejectionMessageService rejectionMessageService;
 
 	private String header;
 	private Map<String, Object> httpHeaders;
@@ -49,7 +55,7 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	}
 
 	@Test
-	public void processHttpHeaderTest() throws Exception {
+	public void processHttpHeader() throws Exception {
 		mockExchangeGetHttpHeaders(exchange);
 		msg = TestUtilMessageService.getArtifactRequestMessage();
 		header = TestUtilMessageService.getMessageAsString(msg);
@@ -66,8 +72,24 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 				.withPayloadContent(null).build();
 
 		verify(message).setBody(multipartMessage);
+		verify(rejectionMessageService,times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, msg);
 	}
+	
+	@Test
+	public void processHttpHeaderRequiredHeadersNotPresent() throws Exception {
+		mockExchangeGetHttpHeaders(exchange);
+		httpHeaders.remove("IDS-Messagetype");
+		msg = TestUtilMessageService.getArtifactRequestMessage();
+		header = TestUtilMessageService.getMessageAsString(msg);
+		when(httpHeaderService.getHeaderContentHeaders(httpHeaders)).thenReturn(headerContentHeaders);
+		when(httpHeaderService.getHeaderMessagePartFromHttpHeadersWithoutToken(httpHeaders)).thenReturn(header);
+		when(multipartMessageService.getMessage(header)).thenReturn(null);
 
+		processor.process(exchange);
+
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+	}
+	
 	private void mockExchangeGetHttpHeaders(Exchange exchange) {
 		when(exchange.getMessage()).thenReturn(message);
 		httpHeaders = new HashMap<>();

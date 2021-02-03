@@ -68,10 +68,8 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 			responseString = multipartMessage.getPayloadContent();
 			contentType = headersParts.get("Payload-Content-Type").toString();
 			headersParts.putAll(multipartMessage.getHttpHeaders());
-			if(!openDataAppReceiverRouter.equals("http-header")) {
-				// DataApp endpoint not http-header, must convert message to http headers
-				headersParts.putAll(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));
-			}
+			// DataApp endpoint not http-header, must convert message to http headers
+			headersParts.putAll(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));
 			if (isEnabledDapsInteraction) {
 				headersParts.putAll(headerService.transformJWTTokenToHeaders(multipartMessage.getToken()));
 			}
@@ -93,7 +91,6 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 		}
 
 		headerCleaner.removeTechnicalHeaders(headersParts);
-		headersParts.put("Payload-Content-Type", contentType);
 		logger.info("Sending response to Data Consumer");
 		
 		exchange.getMessage().setBody(responseString);
