@@ -24,7 +24,7 @@
 		<tomcat.version>9.0.24</tomcat.version>
 		<information.model.version>4.0.0</information.model.version>
 		<application.basedir>${basedir}</application.basedir>
-		<multipart.message.processor.version>1.0.6-SNAPSHOT</multipart.message.processor.version>
+		<multipart.message.processor.version>1.0.7-SNAPSHOT</multipart.message.processor.version>
 	</properties>
 
 	<repositories>
@@ -56,6 +56,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+  					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 <!-- 		<dependency> -->
 <!-- 			<groupId>org.springframework.boot</groupId> -->
@@ -192,18 +198,6 @@
 			<version>2.1</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-core</artifactId>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl -->
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-slf4j-impl</artifactId>
-			<scope>test</scope>
-		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.asynchttpclient/async-http-client -->
 		<dependency>
