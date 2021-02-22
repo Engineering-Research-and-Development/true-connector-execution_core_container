@@ -149,10 +149,10 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 
 	@Override
 	public Message getConnectorAvailbilityMessage() throws ConstraintViolationException, DatatypeConfigurationException {
-		DynamicAttributeToken securityToken = getJwToken();
+//		DynamicAttributeToken securityToken = getJwToken();
 
 		return new ConnectorUpdateMessageBuilder()
-			._securityToken_(securityToken)
+//			._securityToken_(securityToken)
 			._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 			._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
 			._issuerConnector_(issuerConnectorURI)

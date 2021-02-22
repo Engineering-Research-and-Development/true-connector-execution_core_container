@@ -35,16 +35,16 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 
 		Map<String, Object> multipartMessageParts = new HashMap<String, Object>();
 
-		String connector = selfDescriptionService.getConnectorAsString();
+		String selfDescription = selfDescriptionService.getConnectorAsString();
 		Message connectorAvailable = getConnectorMessage();
 
 		String  registrationMessage = geObjectAsString(connectorAvailable);
 		multipartMessageParts.put("header", registrationMessage );
 		logger.debug("Message for sending towards Broker - header\n{}", registrationMessage);
-		logger.debug("Message for sending towards Broker - payload\n{}", connector);
+		logger.debug("Message for sending towards Broker - payload\n{}", selfDescription);
 
-		if (connector != null) {
-			multipartMessageParts.put("payload", connector);
+		if (selfDescription != null) {
+			multipartMessageParts.put("payload", selfDescription);
 		}
 		// Return exchange
 		exchange.getMessage().setHeaders(headersParts);

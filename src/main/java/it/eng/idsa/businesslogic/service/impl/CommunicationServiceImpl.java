@@ -37,7 +37,7 @@ public class CommunicationServiceImpl implements CommunicationService {
 	private static final Logger logger = LogManager.getLogger(CommunicationServiceImpl.class);
 
 	static {
-	    //disableSslVerification();
+	    disableSslVerification();
 	}
 
 	private static void disableSslVerification() {

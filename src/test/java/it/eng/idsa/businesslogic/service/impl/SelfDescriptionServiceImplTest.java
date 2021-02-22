@@ -86,7 +86,7 @@ public class SelfDescriptionServiceImplTest {
 	public void connectorAvailabilityMessage() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
 		Message availabilityMessage = selfDefinitionService.getConnectorAvailbilityMessage();
 		assertNotNull(availabilityMessage);
-		assertNotNull(availabilityMessage.getSecurityToken());
+//		assertNotNull(availabilityMessage.getSecurityToken());
 //		String ss = geObjectAsString(availabilityMessage);
 //		System.out.println(ss);
 	}
