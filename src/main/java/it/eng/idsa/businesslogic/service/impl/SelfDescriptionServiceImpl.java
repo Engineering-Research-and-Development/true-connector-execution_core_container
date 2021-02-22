@@ -209,14 +209,14 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	public Message getConnectorInactiveMessage()
 			throws ConstraintViolationException, DatatypeConfigurationException {
 		
-		DynamicAttributeToken securityToken = getJwToken();
+//		DynamicAttributeToken securityToken = getJwToken();
 		
 		return new ConnectorUnavailableMessageBuilder()
 				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
-				._securityToken_(securityToken)
+//				._securityToken_(securityToken)
 				._affectedConnector_(connector.getId())
 				.build();
 	}
@@ -224,10 +224,10 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	@Override
 	public Message getConnectorQueryMessage()
 			throws ConstraintViolationException, DatatypeConfigurationException {
-		DynamicAttributeToken securityToken = getJwToken();
+//		DynamicAttributeToken securityToken = getJwToken();
 		
 		return new QueryMessageBuilder()
-				._securityToken_(securityToken)
+//				._securityToken_(securityToken)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)
