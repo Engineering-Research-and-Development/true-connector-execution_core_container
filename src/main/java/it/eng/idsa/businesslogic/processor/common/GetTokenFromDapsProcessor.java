@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.service.DapsService;
+import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
@@ -36,7 +36,7 @@ public class GetTokenFromDapsProcessor implements Processor {
 	private RejectionMessageService rejectionMessageService;
 
 	@Autowired
-	private DapsService dapsService;
+	private DapsTokenProviderService dapsTokenProviderService;
 
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
@@ -60,7 +60,7 @@ public class GetTokenFromDapsProcessor implements Processor {
 		// Get the Token from the DAPS
 		String token = null;
 		try {
-			token = dapsService.getJwtToken();
+			token = dapsTokenProviderService.provideToken();
 		} catch (Exception e) {
 			logger.error("Can not get the token from the DAPS server ", e);
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN_LOCAL_ISSUES, message);

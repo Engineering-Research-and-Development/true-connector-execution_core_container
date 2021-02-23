@@ -37,7 +37,7 @@ import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import de.fraunhofer.iais.eis.util.TypedLiteral;
 import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
-import it.eng.idsa.businesslogic.service.DapsService;
+import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.ResourceDataAppService;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
 
@@ -52,16 +52,16 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	
 	private SelfDescriptionConfiguration selfDescriptionConfiguration;
 	private Connector connector;
-	private DapsService dapsService;
+	private DapsTokenProviderService dapsTokenProviderService;
 	private URI issuerConnectorURI;
 	private ResourceDataAppService dataAppService;
 
 	@Autowired
 	public SelfDescriptionServiceImpl(
-			DapsService dapsService,
+			DapsTokenProviderService dapsTokenProviderService,
 			SelfDescriptionConfiguration selfDescriptionConfiguration,
 			ResourceDataAppService dataAppService) {
-		this.dapsService = dapsService;
+		this.dapsTokenProviderService = dapsTokenProviderService;
 		this.selfDescriptionConfiguration = selfDescriptionConfiguration;
 		this.dataAppService = dataAppService;
 	}
@@ -162,7 +162,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	}
 
 	private DynamicAttributeToken getJwToken() {
-		String jwToken = dapsService.getJwtToken();
+		String jwToken = dapsTokenProviderService.provideToken();
 		DynamicAttributeToken securityToken = 
 				new DynamicAttributeTokenBuilder()
 				._tokenValue_(jwToken)

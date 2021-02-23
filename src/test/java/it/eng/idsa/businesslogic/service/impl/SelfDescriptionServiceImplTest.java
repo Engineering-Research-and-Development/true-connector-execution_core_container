@@ -24,12 +24,12 @@ import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import de.fraunhofer.iais.eis.util.TypedLiteral;
 import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
-import it.eng.idsa.businesslogic.service.DapsService;
+import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 
 public class SelfDescriptionServiceImplTest {
 	
 	@Mock
-	private DapsService dapsService;
+	private DapsTokenProviderService dapsTokenProviderService;
 	@Mock
 	private ResourceDataAppServiceImpl dataAppService;
 	@Mock
@@ -50,7 +50,7 @@ public class SelfDescriptionServiceImplTest {
 	@BeforeEach
 	public void setup() throws ConstraintViolationException, URISyntaxException {
 		MockitoAnnotations.initMocks(this);
-		when(dapsService.getJwtToken()).thenReturn("mockTokenValue");
+		when(dapsTokenProviderService.provideToken()).thenReturn("mockTokenValue");
 		when(configuration.getInformationModelVersion()).thenReturn(infoModelVersion);
 		when(configuration.getConnectorURI()).thenReturn(URI.create(connectorURI));
 		when(configuration.getTitle()).thenReturn(title);
@@ -58,7 +58,7 @@ public class SelfDescriptionServiceImplTest {
 		when(configuration.getCurator()).thenReturn(URI.create(curratorURI));
 		when(configuration.getMaintainer()).thenReturn(URI.create(maintainerURI));
 
-		selfDefinitionService = new SelfDescriptionServiceImpl(dapsService, configuration, dataAppService);
+		selfDefinitionService = new SelfDescriptionServiceImpl(dapsTokenProviderService, configuration, dataAppService);
 		selfDefinitionService.initConnector();
 	}
 
