@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
-import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorSender;
@@ -21,9 +21,7 @@ import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataProcess
 import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataProcessorBodyFormData;
 import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataProcessorHttpHeader;
 import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedResponseMessage;
-import it.eng.idsa.businesslogic.processor.sender.SenderProcessRegistrationResponseProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderSendDataToBusinessLogicProcessor;
-import it.eng.idsa.businesslogic.processor.sender.SenderSendRegistrationRequestProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderSendResponseToDataAppProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderUsageControlProcessor;
 import it.eng.idsa.businesslogic.processor.sender.registration.SenderCreateDeleteMessageProcessor;
@@ -102,12 +100,6 @@ public class CamelRouteSender extends RouteBuilder {
 	@Autowired
 	private SenderCreateQueryBrokerMessageProcessor createBrokerQueryMessageSender;
 
-	@Autowired
-	private SenderSendRegistrationRequestProcessor sendRegistrationRequestProcessor;
-
-	@Autowired
-	private SenderProcessRegistrationResponseProcessor processRegistrationResponseSender;
-
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledDataAppWebSocket;
 
@@ -141,11 +133,11 @@ public class CamelRouteSender extends RouteBuilder {
 			.to("direct:registrationProcess");
 			
 			from("direct:registrationProcess")
-				.process(sendRegistrationRequestProcessor)
+				.process(getTokenFromDapsProcessor)
+				.process(sendDataToBusinessLogicProcessor)
 				//TODO following processor is workaround 
-				// to remove Content-Type from response in order to be able to Serialize it correct
-				.process(processRegistrationResponseSender)
 				.process(parseReceivedResponseMessage)
+				.process(validateTokenProcessor)
 				.process(sendResponseToDataAppProcessor);
 
 			// Camel SSL - Endpoint: A - Body binary

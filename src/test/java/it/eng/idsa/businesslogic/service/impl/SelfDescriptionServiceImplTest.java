@@ -24,12 +24,9 @@ import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import de.fraunhofer.iais.eis.util.TypedLiteral;
 import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
-import it.eng.idsa.businesslogic.service.DapsService;
 
 public class SelfDescriptionServiceImplTest {
 	
-	@Mock
-	private DapsService dapsService;
 	@Mock
 	private ResourceDataAppServiceImpl dataAppService;
 	@Mock
@@ -50,15 +47,15 @@ public class SelfDescriptionServiceImplTest {
 	@BeforeEach
 	public void setup() throws ConstraintViolationException, URISyntaxException {
 		MockitoAnnotations.initMocks(this);
-		when(dapsService.getJwtToken()).thenReturn("mockTokenValue");
 		when(configuration.getInformationModelVersion()).thenReturn(infoModelVersion);
 		when(configuration.getConnectorURI()).thenReturn(URI.create(connectorURI));
 		when(configuration.getTitle()).thenReturn(title);
 		when(configuration.getDescription()).thenReturn(description);
 		when(configuration.getCurator()).thenReturn(URI.create(curratorURI));
+		when(configuration.getDefaultEndpoint()).thenReturn(URI.create("https://defaultEndpoint"));
 		when(configuration.getMaintainer()).thenReturn(URI.create(maintainerURI));
 
-		selfDefinitionService = new SelfDescriptionServiceImpl(dapsService, configuration, dataAppService);
+		selfDefinitionService = new SelfDescriptionServiceImpl( configuration, dataAppService);
 		selfDefinitionService.initConnector();
 	}
 
@@ -66,7 +63,7 @@ public class SelfDescriptionServiceImplTest {
 	public void getConnectionString() throws IOException {
 		String connectionString = selfDefinitionService.getConnectorAsString();
 		assertNotNull(connectionString);
-//		System.out.println(MultipartMessageProcessor.serializeToJsonLD(connectionString));
+		System.out.println(connectionString);
 
 		assertTrue(connectionString.contains("ids:BaseConnector"));
 		assertTrue(connectionString.contains("\"@type\" : \"ids:BaseConnector\""));
@@ -86,7 +83,6 @@ public class SelfDescriptionServiceImplTest {
 	public void connectorAvailabilityMessage() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
 		Message availabilityMessage = selfDefinitionService.getConnectorAvailbilityMessage();
 		assertNotNull(availabilityMessage);
-		assertNotNull(availabilityMessage.getSecurityToken());
 //		String ss = geObjectAsString(availabilityMessage);
 //		System.out.println(ss);
 	}
@@ -94,21 +90,18 @@ public class SelfDescriptionServiceImplTest {
 	@Test
 	public void connectorInactiveMessage() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
 		Message inactiveMessage = selfDefinitionService.getConnectorInactiveMessage();
-		assertNotNull(inactiveMessage.getSecurityToken());
 		assertNotNull(inactiveMessage);
 	}
 
 	@Test
 	public void connectorUpdateMessage() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
 		Message updateMessage = selfDefinitionService.getConnectorUpdateMessage();
-		assertNotNull(updateMessage.getSecurityToken());
 		assertNotNull(updateMessage);
 	}
 	
 	@Test
 	public void connectorUnavailableMessage() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
 		Message unavailableMessage = selfDefinitionService.getConnectorUnavailableMessage();
-		assertNotNull(unavailableMessage.getSecurityToken());
 		assertNotNull(unavailableMessage);
 	}
 	

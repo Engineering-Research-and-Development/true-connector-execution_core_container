@@ -1,6 +1,5 @@
 package it.eng.idsa.businesslogic.processor.sender.registration;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,8 +8,9 @@ import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
+import it.eng.idsa.multipart.domain.MultipartMessage;
 
 @Component
 public class SenderCreateQueryBrokerMessageProcessor implements Processor  {
@@ -26,24 +26,12 @@ public class SenderCreateQueryBrokerMessageProcessor implements Processor  {
 		Map<String, Object> receivedDataHeader = exchange.getMessage().getHeaders();
 
 		headersParts.put("Forward-To", receivedDataHeader.get("Forward-To").toString());
-
-		Map<String, Object> multipartMessageParts = new HashMap<String, Object>();
-		String  registrationMessage = geObjectAsString(selfDescriptionService.getConnectorQueryMessage());
-		multipartMessageParts.put("header", registrationMessage );
-		multipartMessageParts.put("payload", exchange.getMessage().getBody(String.class));
+		MultipartMessage multipartMessage = new MultipartMessageBuilder().withHeaderContent(selfDescriptionService.getConnectorQueryMessage())
+				.withPayloadContent(exchange.getMessage().getBody(String.class))
+				.build();
 		
 		exchange.getMessage().setHeaders(headersParts);
-		exchange.getMessage().setBody(multipartMessageParts);
+		exchange.getMessage().setBody(multipartMessage);
 	}
 
-	private String geObjectAsString(Object toSerialize) {
-		final Serializer serializer = new Serializer();
-		String result = null;
-		try {
-			result = serializer.serialize(toSerialize);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return result;
-	}
 }
