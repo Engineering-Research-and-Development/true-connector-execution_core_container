@@ -135,7 +135,6 @@ public class CamelRouteSender extends RouteBuilder {
 			from("direct:registrationProcess")
 				.process(getTokenFromDapsProcessor)
 				.process(sendDataToBusinessLogicProcessor)
-				//TODO following processor is workaround 
 				.process(parseReceivedResponseMessage)
 				.process(validateTokenProcessor)
 				.process(sendResponseToDataAppProcessor);

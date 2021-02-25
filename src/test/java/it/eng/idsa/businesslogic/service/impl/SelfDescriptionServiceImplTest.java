@@ -61,22 +61,22 @@ public class SelfDescriptionServiceImplTest {
 
 	@Test
 	public void getConnectionString() throws IOException {
-		String connectionString = selfDefinitionService.getConnectorAsString();
-		assertNotNull(connectionString);
-		System.out.println(connectionString);
+		String selfDescription = selfDefinitionService.getConnectorAsString();
+		assertNotNull(selfDescription);
+	//	System.out.println(selfDescription);
 
-		assertTrue(connectionString.contains("ids:BaseConnector"));
-		assertTrue(connectionString.contains("\"@type\" : \"ids:BaseConnector\""));
-//		assertTrue(connectionString.contains("ids:resourceCatalog"));
-		assertTrue(connectionString.contains("ids:inboundModelVersion"));
-		assertTrue(connectionString.contains("ids:outboundModelVersion"));
-		assertTrue(connectionString.contains("ids:description"));
-		assertTrue(connectionString.contains("ids:maintainer"));
-		assertTrue(connectionString.contains("ids:curator"));
-		assertTrue(connectionString.contains("ids:title"));
-		assertTrue(connectionString.contains("ids:securityProfile"));
-//		assertTrue(connectionString.contains("ids:hasEndpoint"));
-//		assertTrue(connectionString.contains("ids:hasDefaultEndpoint"));
+		assertTrue(selfDescription.contains("ids:BaseConnector"));
+		assertTrue(selfDescription.contains("\"@type\" : \"ids:BaseConnector\""));
+//		assertTrue(selfDescription.contains("ids:resourceCatalog"));
+		assertTrue(selfDescription.contains("ids:inboundModelVersion"));
+		assertTrue(selfDescription.contains("ids:outboundModelVersion"));
+		assertTrue(selfDescription.contains("ids:description"));
+		assertTrue(selfDescription.contains("ids:maintainer"));
+		assertTrue(selfDescription.contains("ids:curator"));
+		assertTrue(selfDescription.contains("ids:title"));
+		assertTrue(selfDescription.contains("ids:securityProfile"));
+//		assertTrue(selfDescription.contains("ids:hasEndpoint"));
+//		assertTrue(selfDescription.contains("ids:hasDefaultEndpoint"));
 	}
 	
 	@Test
