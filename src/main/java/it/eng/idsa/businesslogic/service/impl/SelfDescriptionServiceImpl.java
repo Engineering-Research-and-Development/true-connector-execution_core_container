@@ -78,7 +78,9 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._title_(Util.asList(new TypedLiteral(selfDescriptionConfiguration.getTitle())))
 				._description_(Util.asList(new TypedLiteral(selfDescriptionConfiguration.getDescription())))
 				._outboundModelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
-				._hasDefaultEndpoint_(new ConnectorEndpointBuilder(selfDescriptionConfiguration.getDefaultEndpoint()).build())
+				._hasDefaultEndpoint_(new ConnectorEndpointBuilder(selfDescriptionConfiguration.getDefaultEndpoint())
+						._accessURL_(selfDescriptionConfiguration.getDefaultEndpoint())
+						.build())
 //				._hasEndpoint_(Util.asList(new ConnectorEndpointBuilder(new URI("https://someURL/incoming-data-channel/receivedMessage")).build()))
 				.build();
 	}

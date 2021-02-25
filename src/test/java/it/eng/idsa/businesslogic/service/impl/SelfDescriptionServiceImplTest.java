@@ -46,6 +46,7 @@ public class SelfDescriptionServiceImplTest {
 
 	private String RESOURCE_TITLE = "Resource title";
 	private String RESOURCE_DESCRIPTION = "Resource description";
+	private String endpointUri="https://defaultEndpoint" ;
 
 	@BeforeEach
 	public void setup() throws ConstraintViolationException, URISyntaxException {
@@ -57,6 +58,7 @@ public class SelfDescriptionServiceImplTest {
 		when(configuration.getDescription()).thenReturn(description);
 		when(configuration.getCurator()).thenReturn(URI.create(curratorURI));
 		when(configuration.getMaintainer()).thenReturn(URI.create(maintainerURI));
+		when(configuration.getDefaultEndpoint()).thenReturn(URI.create(endpointUri));
 
 		selfDefinitionService = new SelfDescriptionServiceImpl(dapsService, configuration, dataAppService);
 		selfDefinitionService.initConnector();
@@ -79,7 +81,7 @@ public class SelfDescriptionServiceImplTest {
 		assertTrue(connectionString.contains("ids:title"));
 		assertTrue(connectionString.contains("ids:securityProfile"));
 //		assertTrue(connectionString.contains("ids:hasEndpoint"));
-//		assertTrue(connectionString.contains("ids:hasDefaultEndpoint"));
+		assertTrue(connectionString.contains("ids:hasDefaultEndpoint"));
 	}
 	
 	@Test
