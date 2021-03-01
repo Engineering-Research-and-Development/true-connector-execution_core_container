@@ -35,25 +35,26 @@ public class SelfDescriptionServiceImplTest {
 	private SelfDescriptionServiceImpl selfDefinitionService;
 
 	private String infoModelVersion = "4.0.0";
-	private String connectorURI = "http://connectorURI";
-	private String curratorURI = "http://curratorURI";
-	private String maintainerURI = "http://maintainerURI";
+	private URI connectorURI = URI.create("http://connectorURI");
+	private URI curratorURI =URI.create("http://curratorURI");
+	private URI maintainerURI =URI.create("http://maintainerURI");
 	private String title = "Self desctiption title";
 	private String description = "Self desctiption desctiption";
 
 	private String RESOURCE_TITLE = "Resource title";
 	private String RESOURCE_DESCRIPTION = "Resource description";
+	private URI endpointUri=URI.create("https://defaultEndpoint");
 
 	@BeforeEach
 	public void setup() throws ConstraintViolationException, URISyntaxException {
 		MockitoAnnotations.initMocks(this);
 		when(configuration.getInformationModelVersion()).thenReturn(infoModelVersion);
-		when(configuration.getConnectorURI()).thenReturn(URI.create(connectorURI));
+		when(configuration.getConnectorURI()).thenReturn(connectorURI);
 		when(configuration.getTitle()).thenReturn(title);
 		when(configuration.getDescription()).thenReturn(description);
-		when(configuration.getCurator()).thenReturn(URI.create(curratorURI));
-		when(configuration.getDefaultEndpoint()).thenReturn(URI.create("https://defaultEndpoint"));
-		when(configuration.getMaintainer()).thenReturn(URI.create(maintainerURI));
+		when(configuration.getCurator()).thenReturn(curratorURI);
+		when(configuration.getDefaultEndpoint()).thenReturn(endpointUri);
+		when(configuration.getMaintainer()).thenReturn(maintainerURI);
 
 		selfDefinitionService = new SelfDescriptionServiceImpl( configuration, dataAppService);
 		selfDefinitionService.initConnector();
@@ -76,7 +77,7 @@ public class SelfDescriptionServiceImplTest {
 		assertTrue(selfDescription.contains("ids:title"));
 		assertTrue(selfDescription.contains("ids:securityProfile"));
 //		assertTrue(selfDescription.contains("ids:hasEndpoint"));
-//		assertTrue(selfDescription.contains("ids:hasDefaultEndpoint"));
+		assertTrue(selfDescription.contains("ids:hasDefaultEndpoint"));
 	}
 	
 	@Test
