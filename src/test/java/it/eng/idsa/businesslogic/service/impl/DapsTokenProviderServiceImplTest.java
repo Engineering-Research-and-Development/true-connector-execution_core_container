@@ -5,10 +5,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.GeneralSecurityException;
-import java.security.spec.InvalidKeySpecException;
+import java.text.ParseException;
+import java.util.Date;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +15,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import de.fraunhofer.iais.eis.util.ConstraintViolationException;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
 import it.eng.idsa.businesslogic.service.DapsService;
 
 public class DapsTokenProviderServiceImplTest {
@@ -31,21 +30,19 @@ public class DapsTokenProviderServiceImplTest {
 	private String dapsToken;
 
 	@BeforeEach
-	public void setup() throws ConstraintViolationException, URISyntaxException, IOException, InvalidKeySpecException,
-			GeneralSecurityException {
+	public void setup() throws ParseException {
 		MockitoAnnotations.initMocks(this);
 		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "tokenCaching", true);
-		dapsToken = "eyJ0eXAiOiJKV1QiLCJraWQiOiJkZWZhdWx0IiwiYWxnIjoiUlMyNTYifQ.eyJzZWN1cml0eVByb2ZpbGUiOiJpZHNjOkJBU0VfQ09OTkVDVE9SX1NFQ1VSSVRZX1BST0ZJTEUiLCJyZWZlcnJpbmdDb25uZWN0b3IiOiJodHRwOi8vaXNzdGJyb2tlci5kZW1vIiwiQHR5cGUiOiJpZHM6RGF0UGF5bG9hZCIsIkBjb250ZXh0IjoiaHR0cHM6Ly93M2lkLm9yZy9pZHNhL2NvbnRleHRzL2NvbnRleHQuanNvbmxkIiwidHJhbnNwb3J0Q2VydHNTaGEyNTYiOiIwZWU3M2RjMGViY2MwOTdhODEzMzRmNTRkNzkyMTc2NWZiMTNiOTFhN2EzYWE2YWMxZGVmYzc5Zjk1MzZkOTQzIiwic2NvcGVzIjpbImlkc2M6SURTX0NPTk5FQ1RPUl9BVFRSSUJVVEVTX0FMTCJdLCJhdWQiOiJpZHNjOklEU19DT05ORUNUT1JTX0FMTCIsImlzcyI6Imh0dHBzOi8vZGFwcy5haXNlYy5mcmF1bmhvZmVyLmRlIiwic3ViIjoiMTc6N0I6RUQ6MTg6NzM6RUI6RDA6NDc6NUM6QzM6MjU6NDk6NDc6MDQ6M0Q6QTI6OEI6NzI6ODY6QkY6a2V5aWQ6Q0I6OEM6Qzc6QjY6ODU6Nzk6QTg6MjM6QTY6Q0I6MTU6QUI6MTc6NTA6MkY6RTY6NjU6NDM6NUQ6RTgiLCJuYmYiOjE2MTM2NDAwOTMsImlhdCI6MTYxMzY0MDA5MywianRpIjoiTVRJeE1qZzVORGMxTlRNek1USTVOVGs1TURjPSIsImV4cCI6MTYxMzY0MzY5M30.LNCMKRQDyMFieErmP2dq40Ub_dCxeb0drlzcyoBmXzlbahyiAzKCX3SLLMUwRHchybnWMY6qTaoBoVFbC9bBUVgg252FZw04yDMJPyHsrzBPuKepsUojycqLdc1pcWdctodeH_W4BpzByKKj9GqALLM9QIzxpmjoXq8DbVVmXXnJwsRTKvHfQHXrgA-Ws5ZXwDFJk5VHx73e537cxTFcVIfAAr5gBewtz03t1oy8IqUK76pVAN_VLVtwUgMBUd54CrCFFvpvNkZo6HTj5I_pPNkLAiV0ioPaRXJ68lLoRvPyWIBmVcALJk1A-OQYBErzWXpecCgybstJ75Sayvn01Q";
+		dapsToken = generateToken(1000*60*60);
 		when(dapsService.getJwtToken()).thenReturn(dapsToken);
-		
+
 	}
-	
+
 	@Test
 	public void tokenNullTest() {
 		String token = dapsTokenProviderServiceImpl.provideToken();
 		assertNotNull(token);
 		verify(dapsService).getJwtToken();
-
 
 	}
 
@@ -57,7 +54,6 @@ public class DapsTokenProviderServiceImplTest {
 		assertNotNull(token);
 		verify(dapsService).getJwtToken();
 
-
 	}
 
 	@Test
@@ -68,7 +64,7 @@ public class DapsTokenProviderServiceImplTest {
 		assertNotNull(token);
 		verify(dapsService, times(0)).getJwtToken();
 	}
-	
+
 	@Test
 	public void tokenCachingOffTest() {
 		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "tokenCaching", false);
@@ -77,6 +73,23 @@ public class DapsTokenProviderServiceImplTest {
 		String token = dapsTokenProviderServiceImpl.provideToken();
 		assertNotNull(token);
 		verify(dapsService).getJwtToken();
+	}
+
+	private String generateToken(long expiration) throws ParseException {
+		String id = "";
+		String issuer = "demo_token";
+		String subject = "demo token subject";
+		long nowMillis = System.currentTimeMillis();
+		Date now = new Date(nowMillis);
+
+		// Let's set the JWT Claims
+		JwtBuilder builder = Jwts.builder().setId(id).setIssuedAt(now).setSubject(subject).setIssuer(issuer);
+
+		long expMillis = nowMillis + expiration;
+		Date exp = new Date(expMillis);
+		builder.setExpiration(exp);
+
+		return builder.compact();
 	}
 
 }

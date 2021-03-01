@@ -6,6 +6,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import com.nimbusds.jwt.JWTParser;
@@ -32,6 +34,9 @@ public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 
 	@Value("${application.tokenCaching}")
 	private boolean tokenCaching;
+	
+	@Value("${application.fetchTokenOnStartup}")
+	private boolean fetchTokenOnStartup;
 
 	@Override
 	public String provideToken() {
@@ -52,6 +57,15 @@ public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 		} else {
 			//Always new token
 			return dapsService.getJwtToken();
+		}
+	}
+	
+	
+	@EventListener(ApplicationReadyEvent.class)
+	public void fetchTokenOnStartup() {
+		logger.info("Fetching new token on startup");
+		if (fetchTokenOnStartup) {
+			provideToken();
 		}
 	}
 
