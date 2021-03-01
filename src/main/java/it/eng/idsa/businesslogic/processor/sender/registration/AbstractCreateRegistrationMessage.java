@@ -17,6 +17,8 @@ import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
+import it.eng.idsa.multipart.domain.MultipartMessage;
 
 public abstract class AbstractCreateRegistrationMessage implements Processor {
 	
@@ -39,16 +41,24 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 		Message connectorAvailable = getConnectorMessage();
 
 		String  registrationMessage = geObjectAsString(connectorAvailable);
+		MultipartMessage multipartMessage = null;
 		multipartMessageParts.put("header", registrationMessage );
 		logger.debug("Message for sending towards Broker - header\n{}", registrationMessage);
 		logger.debug("Message for sending towards Broker - payload\n{}", connector);
 
 		if (connector != null) {
-			multipartMessageParts.put("payload", connector);
+			multipartMessage = new MultipartMessageBuilder()
+					.withHeaderContent(connectorAvailable)
+					.withPayloadContent(connector)
+					.build();
+		}else {
+			multipartMessage = new MultipartMessageBuilder()
+					.withHeaderContent(connectorAvailable)
+					.build();
 		}
 		// Return exchange
 		exchange.getMessage().setHeaders(headersParts);
-		exchange.getMessage().setBody(multipartMessageParts);
+		exchange.getMessage().setBody(multipartMessage);
 
 	}
 
