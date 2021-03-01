@@ -17,6 +17,8 @@ import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
+import it.eng.idsa.multipart.domain.MultipartMessage;
 
 public abstract class AbstractCreateRegistrationMessage implements Processor {
 	
@@ -33,22 +35,28 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 
 		headersParts.put("Forward-To", receivedDataHeader.get("Forward-To").toString());
 
-		Map<String, Object> multipartMessageParts = new HashMap<String, Object>();
 
-		String selfDescription = selfDescriptionService.getConnectorAsString();
+		String connector = selfDescriptionService.getConnectorAsString();
 		Message connectorAvailable = getConnectorMessage();
 
 		String  registrationMessage = geObjectAsString(connectorAvailable);
-		multipartMessageParts.put("header", registrationMessage );
+		MultipartMessage multipartMessage = null;
 		logger.debug("Message for sending towards Broker - header\n{}", registrationMessage);
-		logger.debug("Message for sending towards Broker - payload\n{}", selfDescription);
+		logger.debug("Message for sending towards Broker - payload\n{}", connector);
 
-		if (selfDescription != null) {
-			multipartMessageParts.put("payload", selfDescription);
+		if (connector != null) {
+			multipartMessage = new MultipartMessageBuilder()
+					.withHeaderContent(connectorAvailable)
+					.withPayloadContent(connector)
+					.build();
+		}else {
+			multipartMessage = new MultipartMessageBuilder()
+					.withHeaderContent(connectorAvailable)
+					.build();
 		}
 		// Return exchange
 		exchange.getMessage().setHeaders(headersParts);
-		exchange.getMessage().setBody(multipartMessageParts);
+		exchange.getMessage().setBody(multipartMessage);
 
 	}
 
