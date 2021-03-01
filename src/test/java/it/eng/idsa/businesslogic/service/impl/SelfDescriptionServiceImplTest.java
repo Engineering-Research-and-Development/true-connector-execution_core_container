@@ -26,7 +26,7 @@ import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 
 public class SelfDescriptionServiceImplTest {
-	
+
 	@Mock
 	private ResourceDataAppServiceImpl dataAppService;
 	@Mock
@@ -36,14 +36,14 @@ public class SelfDescriptionServiceImplTest {
 
 	private String infoModelVersion = "4.0.0";
 	private URI connectorURI = URI.create("http://connectorURI");
-	private URI curratorURI =URI.create("http://curratorURI");
-	private URI maintainerURI =URI.create("http://maintainerURI");
+	private URI curratorURI = URI.create("http://curratorURI");
+	private URI maintainerURI = URI.create("http://maintainerURI");
 	private String title = "Self desctiption title";
 	private String description = "Self desctiption desctiption";
 
 	private String RESOURCE_TITLE = "Resource title";
 	private String RESOURCE_DESCRIPTION = "Resource description";
-	private URI endpointUri=URI.create("https://defaultEndpoint");
+	private URI endpointUri = URI.create("https://defaultEndpoint");
 
 	@BeforeEach
 	public void setup() throws ConstraintViolationException, URISyntaxException {
@@ -56,7 +56,7 @@ public class SelfDescriptionServiceImplTest {
 		when(configuration.getDefaultEndpoint()).thenReturn(endpointUri);
 		when(configuration.getMaintainer()).thenReturn(maintainerURI);
 
-		selfDefinitionService = new SelfDescriptionServiceImpl( configuration, dataAppService);
+		selfDefinitionService = new SelfDescriptionServiceImpl(configuration, dataAppService);
 		selfDefinitionService.initConnector();
 	}
 
@@ -64,7 +64,7 @@ public class SelfDescriptionServiceImplTest {
 	public void getConnectionString() throws IOException {
 		String selfDescription = selfDefinitionService.getConnectorAsString();
 		assertNotNull(selfDescription);
-	//	System.out.println(selfDescription);
+		// System.out.println(selfDescription);
 
 		assertTrue(selfDescription.contains("ids:BaseConnector"));
 		assertTrue(selfDescription.contains("\"@type\" : \"ids:BaseConnector\""));
@@ -79,37 +79,41 @@ public class SelfDescriptionServiceImplTest {
 //		assertTrue(selfDescription.contains("ids:hasEndpoint"));
 		assertTrue(selfDescription.contains("ids:hasDefaultEndpoint"));
 	}
-	
+
 	@Test
-	public void connectorAvailabilityMessage() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
+	public void connectorAvailabilityMessage()
+			throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
 		Message availabilityMessage = selfDefinitionService.getConnectorAvailbilityMessage();
 		assertNotNull(availabilityMessage);
 //		String ss = geObjectAsString(availabilityMessage);
 //		System.out.println(ss);
 	}
-	
+
 	@Test
-	public void connectorInactiveMessage() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
+	public void connectorInactiveMessage()
+			throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
 		Message inactiveMessage = selfDefinitionService.getConnectorInactiveMessage();
 		assertNotNull(inactiveMessage);
 	}
 
 	@Test
-	public void connectorUpdateMessage() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
+	public void connectorUpdateMessage()
+			throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
 		Message updateMessage = selfDefinitionService.getConnectorUpdateMessage();
 		assertNotNull(updateMessage);
 	}
-	
+
 	@Test
-	public void connectorUnavailableMessage() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
+	public void connectorUnavailableMessage()
+			throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
 		Message unavailableMessage = selfDefinitionService.getConnectorUnavailableMessage();
 		assertNotNull(unavailableMessage);
 	}
-	
+
 	private void mockDataAppCalls() {
 		when(dataAppService.getResourceFromDataApp()).thenReturn(getResource());
 	}
-	
+
 	private Resource getResource() {
 		Resource offeredResource = (new ResourceBuilder())
 				._title_(Util.asList(
