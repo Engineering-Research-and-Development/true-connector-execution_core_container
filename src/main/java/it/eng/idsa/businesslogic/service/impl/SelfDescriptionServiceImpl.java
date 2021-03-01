@@ -226,10 +226,10 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	@Override
 	public Message getConnectorQueryMessage()
 			throws ConstraintViolationException, DatatypeConfigurationException {
-//		DynamicAttributeToken securityToken = getJwToken();
+		DynamicAttributeToken securityToken = getJwToken();
 		
 		return new QueryMessageBuilder()
-//				._securityToken_(securityToken)
+				._securityToken_(securityToken)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)

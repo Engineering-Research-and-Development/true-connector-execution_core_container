@@ -8,20 +8,21 @@ import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
-import it.eng.idsa.businesslogic.service.SelfRegistrationService;
+import it.eng.idsa.businesslogic.service.BrokerService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
 @Service
-public class SelfRegistrationServiceImpl implements SelfRegistrationService {
+public class BrokerServiceImpl implements BrokerService {
 	
-	private static final Logger logger = LogManager.getLogger(SelfRegistrationServiceImpl.class);
+	private static final Logger logger = LogManager.getLogger(BrokerServiceImpl.class);
 	
 	@Autowired
 	private SendDataToBusinessLogicService sendDataToBusinessLogicService;
@@ -31,10 +32,14 @@ public class SelfRegistrationServiceImpl implements SelfRegistrationService {
 	
 	@Autowired
 	private MultipartMessageService multiPartMessageService;
+	
+	@Value("${application.selfdescription.brokerURL}")
+	private String brokerURL;
+	
+	private CloseableHttpResponse response;
 
 	@Override
-	public void sendRegistrationRequest(Message message, String selfDescription, String brokerURL) {
-		CloseableHttpResponse response = null;
+	public void sendBrokerRequest(Message message, String selfDescription) {
 		Map<String, Object> headers = new HashMap<String, Object>();
 		headers.put("Payload-Content-Type", ContentType.APPLICATION_JSON);
 		try {
@@ -49,11 +54,12 @@ public class SelfRegistrationServiceImpl implements SelfRegistrationService {
 			response = sendDataToBusinessLogicService.sendMessageBinary(brokerURL, multipartMessage, headers, true);
 			if (response != null) {
 				String responseString = new String(response.getEntity().getContent().readAllBytes());
-				logger.info("Registration request is succesfull {}", responseString);
+				logger.info("Broker responded with {}", responseString);
+			} else {
+				logger.error("Broker response is null");
 			}
 		} catch (Exception e) {
-			logger.error("Registration request unsuccesfull with broker response: {}", response);
-			logger.error("Exception reason = {}", e.getMessage());
+			logger.error("Broker request failed exception reason = {}", e.getMessage());
 			
 		}
 		
