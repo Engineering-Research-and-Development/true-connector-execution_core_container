@@ -35,14 +35,12 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 
 		headersParts.put("Forward-To", receivedDataHeader.get("Forward-To").toString());
 
-		Map<String, Object> multipartMessageParts = new HashMap<String, Object>();
 
-		String connector = selfDescriptionService.getConnectorAsString();
+		String connector = selfDescriptionService.getConnectorSelfDescription();
 		Message connectorAvailable = getConnectorMessage();
 
 		String  registrationMessage = geObjectAsString(connectorAvailable);
 		MultipartMessage multipartMessage = null;
-		multipartMessageParts.put("header", registrationMessage );
 		logger.debug("Message for sending towards Broker - header\n{}", registrationMessage);
 		logger.debug("Message for sending towards Broker - payload\n{}", connector);
 

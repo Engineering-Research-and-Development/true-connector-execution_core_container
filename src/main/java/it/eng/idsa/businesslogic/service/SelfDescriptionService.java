@@ -16,7 +16,7 @@ public interface SelfDescriptionService {
 	 * Returns String representation of BaseConnector class instance
 	 * @return
 	 */
-    String getConnectorAsString();
+    String getConnectorSelfDescription();
     
     /**
      * Create String instance of {@link de.fraunhofer.iais.eis.ConnectorAvailableMessage}

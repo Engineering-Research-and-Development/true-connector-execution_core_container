@@ -62,7 +62,7 @@ public class SelfDescriptionServiceImplTest {
 
 	@Test
 	public void getConnectionString() throws IOException {
-		String selfDescription = selfDefinitionService.getConnectorAsString();
+		String selfDescription = selfDefinitionService.getConnectorSelfDescription();
 		assertNotNull(selfDescription);
 		// System.out.println(selfDescription);
 
