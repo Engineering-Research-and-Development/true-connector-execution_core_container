@@ -35,7 +35,7 @@ public class AutoSelfRegistration{
 		logger.info("Starting AutoSelfRegistration");
 
 		brokerService.sendBrokerRequest(selfDescriptionService.getConnectorAvailbilityMessage(),
-				selfDescriptionService.getConnectorAsString());
+				selfDescriptionService.getConnectorSelfDescription());
 
 		logger.info("AutoSelfRegistration finished");
 	}
@@ -45,7 +45,7 @@ public class AutoSelfRegistration{
 		logger.info("Starting sign out process from broker");
 
 		brokerService.sendBrokerRequest(selfDescriptionService.getConnectorInactiveMessage(),
-				selfDescriptionService.getConnectorAsString());
+				selfDescriptionService.getConnectorSelfDescription());
 
 		logger.info("Sign out process finished");
 

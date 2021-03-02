@@ -39,7 +39,7 @@ public class BrokerServiceImpl implements BrokerService {
 	private CloseableHttpResponse response;
 
 	@Override
-	public void sendBrokerRequest(Message message, String selfDescription) {
+	public void sendBrokerRequest(Message message, String payload) {
 		Map<String, Object> headers = new HashMap<String, Object>();
 		headers.put("Payload-Content-Type", ContentType.APPLICATION_JSON);
 		try {
@@ -48,7 +48,7 @@ public class BrokerServiceImpl implements BrokerService {
 			
 			MultipartMessage multipartMessage = new MultipartMessageBuilder()
 					.withHeaderContent(requestMessage)
-					.withPayloadContent(selfDescription)
+					.withPayloadContent(payload)
 					.build();
 			
 			response = sendDataToBusinessLogicService.sendMessageBinary(brokerURL, multipartMessage, headers, true);

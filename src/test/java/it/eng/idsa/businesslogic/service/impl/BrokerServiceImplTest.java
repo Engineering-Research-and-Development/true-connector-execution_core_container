@@ -2,6 +2,7 @@ package it.eng.idsa.businesslogic.service.impl;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -86,16 +87,30 @@ public class BrokerServiceImplTest {
 	
 	@Test
 	public void succesfullRequestTest() throws UnsupportedOperationException, IOException {
-		succesfullResponse();
+		String responseMessage = "Registration succesfull";
+		mockResponse(responseMessage);
 		when(sendDataToBusinessLogicService.sendMessageBinary(brokerURL, multipartMessage, headers, true)).thenReturn(response);
 		brokerServiceImpl.sendBrokerRequest(messageWithoutToken, selfDescription);
 		assertDoesNotThrow(() -> { 
 			brokerServiceImpl.sendBrokerRequest(messageWithoutToken, selfDescription);
 			});
+		assertEquals(responseMessage, new String(((CloseableHttpResponse)ReflectionTestUtils.getField(brokerServiceImpl, "response")).getEntity().getContent().readAllBytes()));
 	}
 	
 	@Test
 	public void failedRequestTest() throws UnsupportedOperationException, IOException {
+		String responseMessage = "Could not register";
+		mockResponse(responseMessage);
+		when(sendDataToBusinessLogicService.sendMessageBinary(brokerURL, multipartMessage, headers, true)).thenReturn(response);
+		brokerServiceImpl.sendBrokerRequest(messageWithoutToken, selfDescription);
+		assertDoesNotThrow(() -> { 
+			brokerServiceImpl.sendBrokerRequest(messageWithoutToken, selfDescription);
+			});
+		assertEquals(responseMessage, new String(((CloseableHttpResponse)ReflectionTestUtils.getField(brokerServiceImpl, "response")).getEntity().getContent().readAllBytes()));
+	}
+	
+	@Test
+	public void responseIsNullTest() throws UnsupportedOperationException, IOException {
 		when(sendDataToBusinessLogicService.sendMessageBinary(brokerURL, multipartMessage, headers, true)).thenReturn(null);
 		brokerServiceImpl.sendBrokerRequest(messageWithoutToken, selfDescription);
 		assertNull(ReflectionTestUtils.getField(brokerServiceImpl, "response"));
@@ -104,10 +119,10 @@ public class BrokerServiceImplTest {
 
 
 
-	private void succesfullResponse() throws UnsupportedOperationException, IOException {
+	private void mockResponse(String responseMessage) throws UnsupportedOperationException, IOException {
 		when(response.getEntity()).thenReturn(httpEntity);
 		when(httpEntity.getContent()).thenReturn(is);
-		when(is.readAllBytes()).thenReturn("Registration succesfull".getBytes());
+		when(is.readAllBytes()).thenReturn(responseMessage.getBytes());
 		when(response.getStatusLine()).thenReturn(statusLine);
 		when(statusLine.getStatusCode()).thenReturn(200);
 	}

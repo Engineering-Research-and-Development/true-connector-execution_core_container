@@ -36,7 +36,7 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 		headersParts.put("Forward-To", receivedDataHeader.get("Forward-To").toString());
 
 
-		String connector = selfDescriptionService.getConnectorAsString();
+		String connector = selfDescriptionService.getConnectorSelfDescription();
 		Message connectorAvailable = getConnectorMessage();
 
 		String  registrationMessage = geObjectAsString(connectorAvailable);
