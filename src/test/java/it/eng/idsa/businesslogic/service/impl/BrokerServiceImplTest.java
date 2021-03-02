@@ -3,10 +3,13 @@ package it.eng.idsa.businesslogic.service.impl;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -90,20 +93,13 @@ public class BrokerServiceImplTest {
 		String responseMessage = "Registration succesfull";
 		mockResponse(responseMessage);
 		when(sendDataToBusinessLogicService.sendMessageBinary(brokerURL, multipartMessage, headers, true)).thenReturn(response);
-		brokerServiceImpl.sendBrokerRequest(messageWithoutToken, selfDescription);
-		assertDoesNotThrow(() -> { 
-			brokerServiceImpl.sendBrokerRequest(messageWithoutToken, selfDescription);
-			});
 		assertEquals(responseMessage, new String(((CloseableHttpResponse)ReflectionTestUtils.getField(brokerServiceImpl, "response")).getEntity().getContent().readAllBytes()));
 	}
 	
 	@Test
 	public void failedRequestTest() throws UnsupportedOperationException, IOException {
-		String responseMessage = "Could not register";
-		mockResponse(responseMessage);
-		when(sendDataToBusinessLogicService.sendMessageBinary(brokerURL, multipartMessage, headers, true)).thenReturn(response);
-		brokerServiceImpl.sendBrokerRequest(messageWithoutToken, selfDescription);
-		assertEquals(responseMessage, new String(((CloseableHttpResponse)ReflectionTestUtils.getField(brokerServiceImpl, "response")).getEntity().getContent().readAllBytes()));
+		when(sendDataToBusinessLogicService.sendMessageBinary(brokerURL, multipartMessage, headers, true)).thenThrow(new UnsupportedEncodingException("Something went wrong"));
+		verify(response, times(0)).getEntity();
 	}
 	
 
