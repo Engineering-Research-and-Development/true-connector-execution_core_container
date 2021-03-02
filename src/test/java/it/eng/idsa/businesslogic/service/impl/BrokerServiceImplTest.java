@@ -103,9 +103,6 @@ public class BrokerServiceImplTest {
 		mockResponse(responseMessage);
 		when(sendDataToBusinessLogicService.sendMessageBinary(brokerURL, multipartMessage, headers, true)).thenReturn(response);
 		brokerServiceImpl.sendBrokerRequest(messageWithoutToken, selfDescription);
-		assertDoesNotThrow(() -> { 
-			brokerServiceImpl.sendBrokerRequest(messageWithoutToken, selfDescription);
-			});
 		assertEquals(responseMessage, new String(((CloseableHttpResponse)ReflectionTestUtils.getField(brokerServiceImpl, "response")).getEntity().getContent().readAllBytes()));
 	}
 	
