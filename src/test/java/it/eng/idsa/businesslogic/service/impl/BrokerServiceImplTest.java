@@ -109,15 +109,6 @@ public class BrokerServiceImplTest {
 		assertEquals(responseMessage, new String(((CloseableHttpResponse)ReflectionTestUtils.getField(brokerServiceImpl, "response")).getEntity().getContent().readAllBytes()));
 	}
 	
-	@Test
-	public void responseIsNullTest() throws UnsupportedOperationException, IOException {
-		when(sendDataToBusinessLogicService.sendMessageBinary(brokerURL, multipartMessage, headers, true)).thenReturn(null);
-		brokerServiceImpl.sendBrokerRequest(messageWithoutToken, selfDescription);
-		assertNull(ReflectionTestUtils.getField(brokerServiceImpl, "response"));
-	}
-
-
-
 
 	private void mockResponse(String responseMessage) throws UnsupportedOperationException, IOException {
 		when(response.getEntity()).thenReturn(httpEntity);
