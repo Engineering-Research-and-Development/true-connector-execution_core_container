@@ -24,12 +24,8 @@ import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import de.fraunhofer.iais.eis.util.TypedLiteral;
 import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
-import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 
 public class SelfDescriptionServiceImplTest {
-	
-	@Mock
-	private DapsTokenProviderService dapsTokenProviderService;
 	@Mock
 	private ResourceDataAppServiceImpl dataAppService;
 	@Mock
@@ -38,86 +34,84 @@ public class SelfDescriptionServiceImplTest {
 	private SelfDescriptionServiceImpl selfDefinitionService;
 
 	private String infoModelVersion = "4.0.0";
-	private String connectorURI = "http://connectorURI";
-	private String curratorURI = "http://curratorURI";
-	private String maintainerURI = "http://maintainerURI";
+	private URI connectorURI = URI.create("http://connectorURI");
+	private URI curratorURI = URI.create("http://curratorURI");
+	private URI maintainerURI = URI.create("http://maintainerURI");
 	private String title = "Self desctiption title";
 	private String description = "Self desctiption desctiption";
 
 	private String RESOURCE_TITLE = "Resource title";
 	private String RESOURCE_DESCRIPTION = "Resource description";
-	private String endpointUri="https://defaultEndpoint" ;
+	private URI endpointUri = URI.create("https://defaultEndpoint");
 
 	@BeforeEach
 	public void setup() throws ConstraintViolationException, URISyntaxException {
 		MockitoAnnotations.initMocks(this);
-		when(dapsTokenProviderService.provideToken()).thenReturn("mockTokenValue");
 		when(configuration.getInformationModelVersion()).thenReturn(infoModelVersion);
-		when(configuration.getConnectorURI()).thenReturn(URI.create(connectorURI));
+		when(configuration.getConnectorURI()).thenReturn(connectorURI);
 		when(configuration.getTitle()).thenReturn(title);
 		when(configuration.getDescription()).thenReturn(description);
-		when(configuration.getCurator()).thenReturn(URI.create(curratorURI));
-		when(configuration.getMaintainer()).thenReturn(URI.create(maintainerURI));
-		when(configuration.getDefaultEndpoint()).thenReturn(URI.create(endpointUri));
+		when(configuration.getCurator()).thenReturn(curratorURI);
+		when(configuration.getDefaultEndpoint()).thenReturn(endpointUri);
+		when(configuration.getMaintainer()).thenReturn(maintainerURI);
 
-		selfDefinitionService = new SelfDescriptionServiceImpl(dapsTokenProviderService, configuration, dataAppService);
 		selfDefinitionService.initConnector();
 	}
 
 	@Test
 	public void getConnectionString() throws IOException {
-		String connectionString = selfDefinitionService.getConnectorAsString();
-		assertNotNull(connectionString);
-//		System.out.println(MultipartMessageProcessor.serializeToJsonLD(connectionString));
+		String selfDescription = selfDefinitionService.getConnectorSelfDescription();
+		assertNotNull(selfDescription);
+		// System.out.println(selfDescription);
 
-		assertTrue(connectionString.contains("ids:BaseConnector"));
-		assertTrue(connectionString.contains("\"@type\" : \"ids:BaseConnector\""));
-//		assertTrue(connectionString.contains("ids:resourceCatalog"));
-		assertTrue(connectionString.contains("ids:inboundModelVersion"));
-		assertTrue(connectionString.contains("ids:outboundModelVersion"));
-		assertTrue(connectionString.contains("ids:description"));
-		assertTrue(connectionString.contains("ids:maintainer"));
-		assertTrue(connectionString.contains("ids:curator"));
-		assertTrue(connectionString.contains("ids:title"));
-		assertTrue(connectionString.contains("ids:securityProfile"));
-//		assertTrue(connectionString.contains("ids:hasEndpoint"));
-		assertTrue(connectionString.contains("ids:hasDefaultEndpoint"));
+		assertTrue(selfDescription.contains("ids:BaseConnector"));
+		assertTrue(selfDescription.contains("\"@type\" : \"ids:BaseConnector\""));
+//		assertTrue(selfDescription.contains("ids:resourceCatalog"));
+		assertTrue(selfDescription.contains("ids:inboundModelVersion"));
+		assertTrue(selfDescription.contains("ids:outboundModelVersion"));
+		assertTrue(selfDescription.contains("ids:description"));
+		assertTrue(selfDescription.contains("ids:maintainer"));
+		assertTrue(selfDescription.contains("ids:curator"));
+		assertTrue(selfDescription.contains("ids:title"));
+		assertTrue(selfDescription.contains("ids:securityProfile"));
+//		assertTrue(selfDescription.contains("ids:hasEndpoint"));
+		assertTrue(selfDescription.contains("ids:hasDefaultEndpoint"));
 	}
-	
+
 	@Test
-	public void connectorAvailabilityMessage() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
+	public void connectorAvailabilityMessage()
+			throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
 		Message availabilityMessage = selfDefinitionService.getConnectorAvailbilityMessage();
 		assertNotNull(availabilityMessage);
-		assertNotNull(availabilityMessage.getSecurityToken());
 //		String ss = geObjectAsString(availabilityMessage);
 //		System.out.println(ss);
 	}
-	
+
 	@Test
-	public void connectorInactiveMessage() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
+	public void connectorInactiveMessage()
+			throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
 		Message inactiveMessage = selfDefinitionService.getConnectorInactiveMessage();
-		assertNotNull(inactiveMessage.getSecurityToken());
 		assertNotNull(inactiveMessage);
 	}
 
 	@Test
-	public void connectorUpdateMessage() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
+	public void connectorUpdateMessage()
+			throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
 		Message updateMessage = selfDefinitionService.getConnectorUpdateMessage();
-		assertNotNull(updateMessage.getSecurityToken());
 		assertNotNull(updateMessage);
 	}
-	
+
 	@Test
-	public void connectorUnavailableMessage() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
+	public void connectorUnavailableMessage()
+			throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
 		Message unavailableMessage = selfDefinitionService.getConnectorUnavailableMessage();
-		assertNotNull(unavailableMessage.getSecurityToken());
 		assertNotNull(unavailableMessage);
 	}
-	
+
 	private void mockDataAppCalls() {
 		when(dataAppService.getResourceFromDataApp()).thenReturn(getResource());
 	}
-	
+
 	private Resource getResource() {
 		Resource offeredResource = (new ResourceBuilder())
 				._title_(Util.asList(

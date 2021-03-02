@@ -21,8 +21,6 @@ import de.fraunhofer.iais.eis.Connector;
 import de.fraunhofer.iais.eis.ConnectorEndpointBuilder;
 import de.fraunhofer.iais.eis.ConnectorUnavailableMessageBuilder;
 import de.fraunhofer.iais.eis.ConnectorUpdateMessageBuilder;
-import de.fraunhofer.iais.eis.DynamicAttributeToken;
-import de.fraunhofer.iais.eis.DynamicAttributeTokenBuilder;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.QueryLanguage;
 import de.fraunhofer.iais.eis.QueryMessageBuilder;
@@ -31,13 +29,11 @@ import de.fraunhofer.iais.eis.Resource;
 import de.fraunhofer.iais.eis.ResourceCatalog;
 import de.fraunhofer.iais.eis.ResourceCatalogBuilder;
 import de.fraunhofer.iais.eis.SecurityProfile;
-import de.fraunhofer.iais.eis.TokenFormat;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import de.fraunhofer.iais.eis.util.TypedLiteral;
 import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
-import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.ResourceDataAppService;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
 
@@ -52,16 +48,13 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	
 	private SelfDescriptionConfiguration selfDescriptionConfiguration;
 	private Connector connector;
-	private DapsTokenProviderService dapsTokenProviderService;
 	private URI issuerConnectorURI;
 	private ResourceDataAppService dataAppService;
 
 	@Autowired
 	public SelfDescriptionServiceImpl(
-			DapsTokenProviderService dapsTokenProviderService,
 			SelfDescriptionConfiguration selfDescriptionConfiguration,
 			ResourceDataAppService dataAppService) {
-		this.dapsTokenProviderService = dapsTokenProviderService;
 		this.selfDescriptionConfiguration = selfDescriptionConfiguration;
 		this.dataAppService = dataAppService;
 	}
@@ -93,7 +86,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	}
 
 	@Override
-	public String getConnectorAsString() {
+	public String getConnectorSelfDescription() {
 		final Serializer serializer = new Serializer();
 		String result = null;
 		try {
@@ -151,10 +144,8 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 
 	@Override
 	public Message getConnectorAvailbilityMessage() throws ConstraintViolationException, DatatypeConfigurationException {
-		DynamicAttributeToken securityToken = getJwToken();
 
 		return new ConnectorUpdateMessageBuilder()
-			._securityToken_(securityToken)
 			._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 			._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
 			._issuerConnector_(issuerConnectorURI)
@@ -163,6 +154,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 			.build();
 	}
 
+<<<<<<< HEAD
 	private DynamicAttributeToken getJwToken() {
 		String jwToken = dapsTokenProviderService.provideToken();
 		DynamicAttributeToken securityToken = 
@@ -173,14 +165,14 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		return securityToken;
 	}
 
+=======
+>>>>>>> refs/remotes/origin/master
 	@Override
 	public Message getConnectorUpdateMessage()
 			throws ConstraintViolationException, DatatypeConfigurationException {
 		
-		DynamicAttributeToken securityToken = getJwToken();
 	
 		return new ConnectorUpdateMessageBuilder()
-				._securityToken_(securityToken)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)
@@ -193,7 +185,6 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	public Message getConnectorUnavailableMessage()
 			throws ConstraintViolationException, DatatypeConfigurationException {
 
-		DynamicAttributeToken securityToken = getJwToken();
 		// Mandatory fields are: affectedConnector, securityToken, issuerConnector, senderAgent, modelVersion, issued
 		
 		return new ConnectorUnavailableMessageBuilder()
@@ -201,7 +192,6 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._affectedConnector_(connector.getId())
 				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)
-				._securityToken_(securityToken)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
 				.build();
@@ -211,14 +201,11 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	public Message getConnectorInactiveMessage()
 			throws ConstraintViolationException, DatatypeConfigurationException {
 		
-		DynamicAttributeToken securityToken = getJwToken();
-		
 		return new ConnectorUnavailableMessageBuilder()
 				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
-				._securityToken_(securityToken)
 				._affectedConnector_(connector.getId())
 				.build();
 	}
@@ -226,10 +213,8 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	@Override
 	public Message getConnectorQueryMessage()
 			throws ConstraintViolationException, DatatypeConfigurationException {
-		DynamicAttributeToken securityToken = getJwToken();
 		
 		return new QueryMessageBuilder()
-				._securityToken_(securityToken)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)

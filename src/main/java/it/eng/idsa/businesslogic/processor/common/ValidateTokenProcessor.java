@@ -37,7 +37,7 @@ public class ValidateTokenProcessor implements Processor {
     private boolean isEnabledDapsInteraction;
 	
 	@Autowired
-	DapsService dapsService;
+	private DapsService dapsService;
 	
 	@Autowired
 	private MultipartMessageService multipartMessageService;
