@@ -55,9 +55,7 @@ public class BrokerServiceImpl implements BrokerService {
 			if (response != null) {
 				String responseString = new String(response.getEntity().getContent().readAllBytes());
 				logger.info("Broker responded with {}", responseString);
-			} else {
-				logger.error("Broker response is null");
-			}
+			} 
 		} catch (Exception e) {
 			logger.error("Broker request failed exception reason = {}", e.getMessage());
 			
