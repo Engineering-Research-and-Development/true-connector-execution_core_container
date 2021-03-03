@@ -42,7 +42,7 @@ public class DapsTokenProviderServiceImplTest {
 	}
 
 	@Test
-	public void tokenNullTest() {
+	public void fetchNewTokenIfCachedTokenIsNullTest() {
 		assertNotNull(dapsTokenProviderServiceImpl.provideToken());
 		verify(dapsService).getJwtToken();
 
@@ -54,24 +54,22 @@ public class DapsTokenProviderServiceImplTest {
 		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "cachedToken", dapsToken);
 		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "expirationTime", expired);
 		assertNotNull(dapsTokenProviderServiceImpl.provideToken());
-		assertTrue(expired <(long) ReflectionTestUtils.getField(dapsTokenProviderServiceImpl, "expirationTime"));
 		verify(dapsService).getJwtToken();
 
 	}
 	
 	@Test
-	public void tokenExpiredAndFailedFetchingNewTokenTest() {
+	public void fetchNewTokenWhenExpiredTest() {
 		when(dapsService.getJwtToken()).thenReturn("ABC");
 		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "cachedToken", dapsToken);
 		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "expirationTime", 1613643693000L);
 		assertNull(dapsTokenProviderServiceImpl.provideToken());
-		assertEquals(0L	, ReflectionTestUtils.getField(dapsTokenProviderServiceImpl, "expirationTime"));
 		verify(dapsService).getJwtToken();
 
 	}
 
 	@Test
-	public void tokenNotExpiredTest() {
+	public void failedToFetchNewTokenWhenExpiredTest() {
 		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "cachedToken", dapsToken);
 		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "expirationTime", 2613643693000L);
 		assertNotNull(dapsTokenProviderServiceImpl.provideToken());
