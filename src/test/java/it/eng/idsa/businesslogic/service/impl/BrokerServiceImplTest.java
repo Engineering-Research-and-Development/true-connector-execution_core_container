@@ -1,7 +1,5 @@
 package it.eng.idsa.businesslogic.service.impl;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -25,7 +23,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.service.DapsService;
+import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
@@ -41,7 +39,7 @@ public class BrokerServiceImplTest {
 	private SendDataToBusinessLogicService sendDataToBusinessLogicService;
 	
 	@Mock
-	private DapsService dapsService;
+	private DapsTokenProviderService dapsTokenProviderService;
 	
 	@Mock
 	private MultipartMessageService multiPartMessageService;
@@ -72,7 +70,7 @@ public class BrokerServiceImplTest {
 		MockitoAnnotations.initMocks(this);
 		brokerURL = "mockBrokerURL";
 		ReflectionTestUtils.setField(brokerServiceImpl, "brokerURL", brokerURL);
-		when(dapsService.getJwtToken()).thenReturn(TestUtilMessageService.getDynamicAttributeToken().getTokenValue());
+		when(dapsTokenProviderService.provideToken()).thenReturn(TestUtilMessageService.getDynamicAttributeToken().getTokenValue());
 		messageWithToken = TestUtilMessageService.getArtifactRequestMessageWithToken();
 		messageWithoutToken = TestUtilMessageService.getArtifactRequestMessage();
 		selfDescription = "connectorSelfDescription";

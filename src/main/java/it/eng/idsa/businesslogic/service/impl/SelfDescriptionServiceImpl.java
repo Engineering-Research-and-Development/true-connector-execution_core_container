@@ -154,19 +154,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 			.build();
 	}
 
-<<<<<<< HEAD
-	private DynamicAttributeToken getJwToken() {
-		String jwToken = dapsTokenProviderService.provideToken();
-		DynamicAttributeToken securityToken = 
-				new DynamicAttributeTokenBuilder()
-				._tokenValue_(jwToken)
-				._tokenFormat_(TokenFormat.JWT)
-				.build();
-		return securityToken;
-	}
 
-=======
->>>>>>> refs/remotes/origin/master
 	@Override
 	public Message getConnectorUpdateMessage()
 			throws ConstraintViolationException, DatatypeConfigurationException {

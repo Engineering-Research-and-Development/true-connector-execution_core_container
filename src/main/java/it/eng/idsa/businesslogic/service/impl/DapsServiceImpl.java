@@ -80,7 +80,7 @@ public class DapsServiceImpl implements DapsService {
     private Key privKey;
     private Certificate cert;
 
-    private String token = "";
+    private String token = null;
 
     @Value("${application.targetDirectory}")
     private Path targetDirectory;
@@ -183,7 +183,7 @@ public class DapsServiceImpl implements DapsService {
 
             if (node.has("access_token")) {
                 token = node.get("access_token").asText();
-                logger.info("access_token: {}", () -> token.toString());
+                logger.info("access_token: {}", () -> token);
             }
             logger.info("access_token: {}", body);
 

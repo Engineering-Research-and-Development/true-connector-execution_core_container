@@ -12,9 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.service.DapsService;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.BrokerService;
+import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -28,7 +28,7 @@ public class BrokerServiceImpl implements BrokerService {
 	private SendDataToBusinessLogicService sendDataToBusinessLogicService;
 	
 	@Autowired
-	private DapsService dapsService;
+	private DapsTokenProviderService dapsTokenProviderService;
 	
 	@Autowired
 	private MultipartMessageService multiPartMessageService;
@@ -44,7 +44,7 @@ public class BrokerServiceImpl implements BrokerService {
 		headers.put("Payload-Content-Type", ContentType.APPLICATION_JSON);
 		try {
 			
-			String requestMessage = multiPartMessageService.addToken(message, dapsService.getJwtToken());
+			String requestMessage = multiPartMessageService.addToken(message, dapsTokenProviderService.provideToken());
 			
 			MultipartMessage multipartMessage = new MultipartMessageBuilder()
 					.withHeaderContent(requestMessage)

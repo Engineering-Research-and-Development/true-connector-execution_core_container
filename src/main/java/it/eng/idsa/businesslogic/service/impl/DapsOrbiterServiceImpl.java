@@ -46,7 +46,7 @@ public class DapsOrbiterServiceImpl implements DapsService {
     private static final Logger logger = LogManager.getLogger(DapsOrbiterServiceImpl.class);
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    private String token = "";
+    private String token = null;
 
     @Value("${application.dapsUrl}")
     private String dapsUrl;
@@ -102,7 +102,7 @@ public class DapsOrbiterServiceImpl implements DapsService {
 
             if (node.has("response")) {
                 token = node.get("response").asText();
-                logger.info("access_token: {}", token.toString());
+                logger.info("access_token: {}", token);
             }
             logger.info("access_token: {}", jwtString);
         } catch (KeyStoreException
