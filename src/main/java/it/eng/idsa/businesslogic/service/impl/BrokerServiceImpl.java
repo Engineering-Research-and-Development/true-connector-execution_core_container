@@ -3,6 +3,7 @@ package it.eng.idsa.businesslogic.service.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.LogManager;
@@ -15,7 +16,9 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.BrokerService;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
@@ -37,14 +40,22 @@ public class BrokerServiceImpl implements BrokerService {
 	private String brokerURL;
 	
 	private CloseableHttpResponse response;
+	
+	@Autowired
+	private RejectionMessageService rejectionMessageService;
 
 	@Override
 	public void sendBrokerRequest(Message message, String payload) {
 		Map<String, Object> headers = new HashMap<String, Object>();
 		headers.put("Payload-Content-Type", ContentType.APPLICATION_JSON);
 		try {
-			
-			String requestMessage = multiPartMessageService.addToken(message, dapsTokenProviderService.provideToken());
+			String requestMessage = null;
+			String token = dapsTokenProviderService.provideToken();
+			if(StringUtils.isNotEmpty(token)) {
+				requestMessage = multiPartMessageService.addToken(message, token);
+			} else {
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN_LOCAL_ISSUES, message);
+			}
 			
 			MultipartMessage multipartMessage = new MultipartMessageBuilder()
 					.withHeaderContent(requestMessage)
