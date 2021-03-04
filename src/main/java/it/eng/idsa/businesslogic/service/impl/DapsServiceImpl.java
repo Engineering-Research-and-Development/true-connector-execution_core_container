@@ -34,6 +34,7 @@ import javax.net.ssl.X509TrustManager;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -57,6 +58,8 @@ import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import it.eng.idsa.businesslogic.service.DapsService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -96,9 +99,11 @@ public class DapsServiceImpl implements DapsService {
     private String connectorUUID;
     @Value("${application.dapsJWKSUrl}")
     private String dapsJWKSUrl;
+    
+    @Autowired
+	private RejectionMessageService rejectionMessageService;
 
-    @Override
-    public String getJwtToken() {
+    private String getJwtTokenInternal() {
 
         logger.debug("Get properties");
 
@@ -327,5 +332,19 @@ public class DapsServiceImpl implements DapsService {
             "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9", "da", "db", "dc", "dd", "de", "df", "e0", "e1",
             "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", "ea", "eb", "ec", "ed", "ee", "ef", "f0", "f1", "f2", "f3",
             "f4", "f5", "f6", "f7", "f8", "f9", "fa", "fb", "fc", "fd", "fe", "ff",};
+
+	@Override
+	public String getJwtToken() {
+		
+		token = getJwtTokenInternal();
+		
+		if(validateToken(token)) {
+			logger.info("Token is valid: "+ token);
+		}else {
+			logger.info("Token is invalid");
+			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN, null);
+		}
+		return token;
+	}
 
 }
