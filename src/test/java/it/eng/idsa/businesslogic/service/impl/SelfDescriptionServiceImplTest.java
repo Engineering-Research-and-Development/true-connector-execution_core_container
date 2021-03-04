@@ -26,7 +26,6 @@ import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 
 public class SelfDescriptionServiceImplTest {
-
 	@Mock
 	private ResourceDataAppServiceImpl dataAppService;
 	@Mock
@@ -55,7 +54,6 @@ public class SelfDescriptionServiceImplTest {
 		when(configuration.getCurator()).thenReturn(curratorURI);
 		when(configuration.getDefaultEndpoint()).thenReturn(endpointUri);
 		when(configuration.getMaintainer()).thenReturn(maintainerURI);
-
 		selfDefinitionService = new SelfDescriptionServiceImpl(configuration, dataAppService);
 		selfDefinitionService.initConnector();
 	}

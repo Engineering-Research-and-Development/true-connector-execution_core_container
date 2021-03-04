@@ -23,7 +23,7 @@ import org.springframework.web.client.HttpServerErrorException.InternalServerErr
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
-import it.eng.idsa.businesslogic.service.DapsService;
+import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
@@ -39,7 +39,7 @@ public class GetTokenFromDapsProcessorTest {
 	private Exchange exchange;
 
 	@Mock
-	private DapsService dapsService;
+	private DapsTokenProviderService dapsTokenProviderService;
 	@Mock
 	private MultipartMessageService multipartMessageService;
 
@@ -74,19 +74,19 @@ public class GetTokenFromDapsProcessorTest {
 
 		processor.process(exchange);
 
-		verify(dapsService, times(0)).getJwtToken();
+		verify(dapsTokenProviderService, times(0)).provideToken();
 	}
 
 	@Test
 	public void getJwTokenSuccess() throws Exception {
 		mockExchangeHeaderAndBody();
-		when(dapsService.getJwtToken()).thenReturn(TestUtilMessageService.TOKEN_VALUE);
+		when(dapsTokenProviderService.provideToken()).thenReturn(TestUtilMessageService.TOKEN_VALUE);
 		messageAsString = TestUtilMessageService.getMessageAsString(messageWithToken);
 		when(multipartMessageService.addToken(message, TestUtilMessageService.TOKEN_VALUE)).thenReturn(messageAsString);
 		
 		processor.process(exchange);
 		
-		verify(dapsService).getJwtToken();
+		verify(dapsTokenProviderService).provideToken();
 		verify(multipartMessageService).addToken(message, TestUtilMessageService.TOKEN_VALUE);
 	}
 	
@@ -95,7 +95,7 @@ public class GetTokenFromDapsProcessorTest {
 		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", "http-header", String.class);
 
 		mockExchangeHeaderAndBody();
-		when(dapsService.getJwtToken()).thenReturn(TestUtilMessageService.TOKEN_VALUE);
+		when(dapsTokenProviderService.provideToken()).thenReturn(TestUtilMessageService.TOKEN_VALUE);
 		messageAsString = TestUtilMessageService.getMessageAsString(messageWithToken);
 		when(multipartMessageService.addToken(message, TestUtilMessageService.TOKEN_VALUE)).thenReturn(messageAsString);
 		
@@ -104,7 +104,7 @@ public class GetTokenFromDapsProcessorTest {
 		verify(camelMessage).setBody(argCaptorMultipartMessage.capture());
 		assertEquals(TestUtilMessageService.TOKEN_VALUE, argCaptorMultipartMessage.getValue().getToken());
 		
-		verify(dapsService).getJwtToken();
+		verify(dapsTokenProviderService).provideToken();
 		verify(multipartMessageService, times(0)).addToken(message, TestUtilMessageService.TOKEN_VALUE);
 	}
 	
@@ -116,13 +116,13 @@ public class GetTokenFromDapsProcessorTest {
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
 				rejectionMessageService, RejectionMessageService.class);
 		
-		doThrow(InternalServerError.class).when(dapsService).getJwtToken();
+		doThrow(InternalServerError.class).when(dapsTokenProviderService).provideToken();
 		
 		assertThrows(ExceptionForProcessor.class,
 	            ()->{
 	            	processor.process(exchange);
 	            });
-		verify(dapsService).getJwtToken();
+		verify(dapsTokenProviderService).provideToken();
 	}
 	
 	@Test
@@ -133,13 +133,13 @@ public class GetTokenFromDapsProcessorTest {
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
 				rejectionMessageService, RejectionMessageService.class);
 		
-		when(dapsService.getJwtToken()).thenReturn(null);
+		when(dapsTokenProviderService.provideToken()).thenReturn(null);
 		
 		assertThrows(ExceptionForProcessor.class,
 	            ()->{
 	            	processor.process(exchange);
 	            });
-		verify(dapsService).getJwtToken();
+		verify(dapsTokenProviderService).provideToken();
 	}
 	
 	@Test
@@ -150,13 +150,13 @@ public class GetTokenFromDapsProcessorTest {
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
 				rejectionMessageService, RejectionMessageService.class);
 		
-		when(dapsService.getJwtToken()).thenReturn("");
+		when(dapsTokenProviderService.provideToken()).thenReturn("");
 		
 		assertThrows(ExceptionForProcessor.class,
 	            ()->{
 	            	processor.process(exchange);
 	            });
-		verify(dapsService).getJwtToken();
+		verify(dapsTokenProviderService).provideToken();
 	}
 
 	private void mockExchangeHeaderAndBody() {
