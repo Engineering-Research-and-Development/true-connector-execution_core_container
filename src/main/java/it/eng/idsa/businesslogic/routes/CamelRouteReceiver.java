@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import de.fhg.aisec.ids.camel.idscp2.processors.IdsMessageTypeExtractionProcessor;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
@@ -19,6 +20,7 @@ import it.eng.idsa.businesslogic.processor.receiver.ReceiverMultiPartMessageProc
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverParseReceivedConnectorRequestProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverSendDataToBusinessLogicProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverSendDataToDataAppProcessor;
+import it.eng.idsa.businesslogic.processor.receiver.ReceiverStaticResponseMessageProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverUsageControlProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverWebSocketSendDataToDataAppProcessor;
 
@@ -68,6 +70,13 @@ public class CamelRouteReceiver extends RouteBuilder {
 
 	@Autowired
 	ReceiverUsageControlProcessor receiverUsageControlProcessor;
+	
+	@Autowired
+	IdsMessageTypeExtractionProcessor IdsMessageTypeExtractionProcessor;
+	
+	@Autowired
+	ReceiverStaticResponseMessageProcessor receiverStaticResponseMessageProcessor;
+	
 
 	@Autowired
 	CamelContext camelContext;
@@ -77,7 +86,13 @@ public class CamelRouteReceiver extends RouteBuilder {
 
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
-
+	
+	@Value("${application.idscp2.isEnabled}")
+	private boolean isEnabledIdscp2;
+	
+	@Value("${application.isReceiver}")
+	private boolean receiver;
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void configure() throws Exception {
@@ -133,6 +148,94 @@ public class CamelRouteReceiver extends RouteBuilder {
                 .process(registerTransactionToCHProcessor)
 				.process(sendDataToBusinessLogicProcessor);
 			//@formatter:on
+		}
+		
+		if (isEnabledIdscp2 && receiver) {
+			logger.info("Starting IDSCP v2 route");
+
+			from("idscp2server://0.0.0.0:29292?sslContextParameters=#sslContext&useIdsMessages=true")
+				.process(IdsMessageTypeExtractionProcessor)
+					.choice()
+						.when()
+						
+						.simple("${exchangeProperty.ids-type} == 'ArtifactRequestMessage'")
+						.log("### IDSCP2 SERVER RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
+						//.log("###LOG :\n${body}\n### Header: ###\n${headers[idscp2-header]}")
+						.log("### Handle ArtifactRequestMessage ###")
+						.process(receiverStaticResponseMessageProcessor)
+						.delay().constant(5000)
+					.endChoice()
+					.otherwise()
+						.log("### IDSCP2 SERVER RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
+						.log("### Server received (otherwise branch):\n${body}\n### Header: ###\n${headers[idscp2-header]}")
+						.removeHeader("idscp2-header")
+							.setBody()
+							.simple("${null}");
+					
+			
+		
+			 
+			 //passive (receiving) server
+			/* from("idscp2server://0.0.0.0:29292?sslContextParameters=#serverSslContext")		   
+	         .log("Server received: ${body} (idscp2.type: ${headers[idscp2.type]})")
+	         .setBody()
+	             .simple("PONG")
+	         .setHeader("idscp2.type")
+	             .simple("pong")
+	         .log("Server response: ${body} (idscp2.type: ${headers[idscp2.type]})");*/
+		
+			 
+			 //active (sending) server
+			 /*from("timer://tenSecondsTimer?fixedRate=true&period=10000")
+			 .id("idscp2Server")
+	         .log("Server received: ${body} (idscp2.type: ${headers[idscp2.type]})")
+	         .setBody()
+	             .simple("BROADCAST")
+	         .setHeader("idscp2.type")
+	             .simple("broadcast")
+	         .log("Server broadcast to connected clients: ${body} (idscp2.type: ${headers[idscp2.type]})")
+	         .to("idscp2server://0.0.0.0:29292?sslContextParameters=#serverSslContext");*/
+			 
+			 //DEMO_ROUTES
+             //TODO manage the other IDS message types
+			 /*
+			 from("idscp2server://0.0.0.0:29292?sslContextParameters=#serverSslContext&useIdsMessages=true")
+	         .process("TypeExtractionProcessor")
+	         .log("### SERVER RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
+	         .choice()
+	         	.when()
+	         		//<!-- ContractRequestMessage -->
+			         .simple("${exchangeProperty.ids-type} == 'ContractRequestMessage'")
+			         .log("### Handle ContractRequestMessage ###")
+			         .setProperty("containerUri")
+			         .constant("https://hub.docker.com/layers/jmalloc/echo-server/latest/images/sha256-c461e7e54d947a8777413aaf9c624b4ad1f1bac5d8272475da859ae82c1abd7d#8080")
+			         .process("ContractRequestProcessor")
+			         .endChoice()
+			
+			         //<!-- ContractAgreementMessage -->
+			    .when()
+			    	 .simple("${exchangeProperty.ids-type} == 'ContractAgreementMessage'")
+			    	 .log("### Handle ContractAgreementMessage ###")
+			    	 .process("ContractAgreementReceiverProcessor")
+			    	 .removeHeader("idscp2-header")
+			    	 .setBody()
+			    	 	.simple("${null}")
+			    	 .endChoice()
+			 	
+			    	//<!-- ArtifactRequestMessage -->
+			    .when()
+				   	 .simple("${exchangeProperty.ids-type} == 'ArtifactRequestMessage'")
+				   	 .log("### Handle ArtifactRequestMessage ###")
+				   	 .process("ArtifactRequestProcessor")
+				   	.endChoice()
+			
+			 		//<!-- all other messages -->
+				 .otherwise()
+				 	.log("### Server received (otherwise branch):\n${body}\n### Header: ###\n${headers[idscp2-header]}")
+				 	.removeHeader("idscp2-header")
+				 	.setBody()
+				 		.simple("${null}");*/
+			
 		}
 
 	}
