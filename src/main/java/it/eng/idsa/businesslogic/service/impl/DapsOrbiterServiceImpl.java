@@ -8,6 +8,7 @@ import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,10 +86,16 @@ public class DapsOrbiterServiceImpl implements DapsService {
 			String jsonString = gson.toJson(jsonObject);
 			RequestBody formBody = RequestBody.create(JSON, jsonString); // new
 
-			Request requestDaps = new Request.Builder().url(dapsUrl).header("Host", "ecc-receiver")
-					.header("accept", "application/json").header("Content-Type", "application/json").post(formBody)
+			// @formatter:off
+			Request requestDaps = new Request.Builder()
+					.url(dapsUrl)
+					.header("Host", "ecc-receiver")
+					.header("accept", "application/json")
+					.header("Content-Type", "application/json")
+					.post(formBody)
 					.build();
-
+			// @formatter:on
+			
 			jwtResponse = client.newCall(requestDaps).execute();
 			if (!jwtResponse.isSuccessful()) {
 				throw new IOException("Unexpected code " + jwtResponse);
@@ -139,8 +146,12 @@ public class DapsOrbiterServiceImpl implements DapsService {
 			RequestBody formBody = RequestBody.create(JSON, jsonString); // new
 
 			// @formatter:off
-			Request requestDaps = new Request.Builder().url(dapsUrl + "/validate").header("Host", "ecc-receiver")
-					.header("accept", "application/json").header("Content-Type", "application/json").post(formBody)
+			Request requestDaps = new Request.Builder()
+					.url(dapsUrl + "/validate")
+					.header("Host", "ecc-receiver")
+					.header("accept", "application/json")
+					.header("Content-Type", "application/json")
+					.post(formBody)
 					.build();
 			// @formatter:on
 
@@ -184,7 +195,7 @@ public class DapsOrbiterServiceImpl implements DapsService {
 
 		token = getJwtTokenInternal();
 
-		if (validateToken(token)) {
+		if (StringUtils.isNotBlank(token) && validateToken(token)) {
 			logger.info("Token is valid: " + token);
 		} else {
 			logger.info("Token is invalid");
