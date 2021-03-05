@@ -131,6 +131,53 @@ public class DapsOrbiterServiceImplTest {
 	}
 	
 	@Test
+	public void testSuccesfulTokenResponseValidationFailed() throws IOException {
+		rejectionMessageService = new RejectionMessageServiceImpl();
+		ReflectionTestUtils.setField(dapsOrbiterServiceImpl, "rejectionMessageService", 
+				rejectionMessageService, RejectionMessageService.class);
+		
+		response =  new Response.Builder()
+				.request(requestDaps)
+				.protocol(Protocol.HTTP_1_1)
+				.message("ABC")
+				.body(ResponseBody.create(MediaType.get("application/json; charset=utf-8"), JSONAnswer))
+				.code(200)
+				.build();
+		
+		Map<String, String> jsonObject = new HashMap<>();
+        jsonObject.put("token", "mockToken");
+        Gson gson = new GsonBuilder().create();
+        String jsonStringValidate = gson.toJson(jsonObject);
+        RequestBody formBodyValidate = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonStringValidate);
+        
+        Request requestDapsValidate = new Request.Builder()
+				.url(dapsUrl + "/validate")
+				.header("Host", "ecc-receiver")
+				.header("accept", "application/json")
+				.header("Content-Type", "application/json")
+				.post(formBodyValidate)
+				.build();
+		// @formatter:on
+        
+        String tokenResponseValid = "{ \"response\": \"false\",\r\n" + 
+        		" \"description\": \"Token DID NOT valdated\"\r\n" + 
+        		" }";
+        Response responseValidate =  new Response.Builder()
+				.request(requestDapsValidate)
+				.protocol(Protocol.HTTP_1_1)
+				.message("ABC_Validate")
+				.body(ResponseBody.create(MediaType.get("application/json; charset=utf-8"), tokenResponseValid))
+				.code(200)
+				.build();
+		
+		when(call.execute()).thenReturn(response).thenReturn(responseValidate);
+		assertThrows(ExceptionForProcessor.class,
+	            ()->{
+	            	dapsOrbiterServiceImpl.getJwtToken();
+	            });
+	}
+	
+	@Test
 	public void testResponseStringInsteadOfJson() throws IOException {
 		rejectionMessageService = new RejectionMessageServiceImpl();
 		ReflectionTestUtils.setField(dapsOrbiterServiceImpl, "rejectionMessageService", 
