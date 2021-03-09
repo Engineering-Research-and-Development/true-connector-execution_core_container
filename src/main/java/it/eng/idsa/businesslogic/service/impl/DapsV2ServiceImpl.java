@@ -29,6 +29,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
 import org.bouncycastle.asn1.x509.Extension;
@@ -476,13 +477,12 @@ public class DapsV2ServiceImpl implements DapsService {
 		
 		token = getJwtTokenInternal();
 		
-		if(validateToken(token)) {
-			logger.info("Token is valid: "+ token);
-		}else {
+		if (StringUtils.isNotBlank(token) && validateToken(token)) {
+			logger.info("Token is valid: " + token);
+		} else {
 			logger.info("Token is invalid");
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN, null);
 		}
 		return token;
 	}
-
 }
