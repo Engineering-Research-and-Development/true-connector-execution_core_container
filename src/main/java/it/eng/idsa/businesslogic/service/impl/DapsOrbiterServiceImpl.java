@@ -49,7 +49,7 @@ public class DapsOrbiterServiceImpl implements DapsService {
 	private static final Logger logger = LogManager.getLogger(DapsOrbiterServiceImpl.class);
 	public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-	private String token = "";
+	private String token = null;
 
 	@Value("${application.dapsUrl}")
 	private String dapsUrl;
@@ -108,26 +108,29 @@ public class DapsOrbiterServiceImpl implements DapsService {
 			logger.info("Response body of token request:\n{}", jwtString);
 			ObjectNode node = new ObjectMapper().readValue(jwtString, ObjectNode.class);
 
-			if (node.has("response")) {
-				token = node.get("response").asText();
-				logger.info("access_token: {}", token.toString());
+			 if (node.has("response")) {
+	                token = node.get("response").asText();
+	                logger.info("access_token: {}", token);
+	            }
+	            logger.info("access_token: {}", jwtString);
+	        } catch (KeyStoreException
+	                | NoSuchAlgorithmException
+	                | CertificateException
+	                | UnrecoverableKeyException e) {
+	            logger.error("Cannot acquire token:", e);
+	        } catch (JsonParseException e) {
+	            logger.error("JSON not received as response", e);
+	        } catch (IOException e) {
+	            logger.error("Error retrieving token:", e);
+	        } catch (Exception e) {
+	            logger.error("Something else went wrong:", e);
+			} finally {
+				if (jwtResponse != null) {
+					jwtResponse.close();
+				}
 			}
-			logger.info("access_token: {}", jwtString);
-		} catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException e) {
-			logger.error("Cannot acquire token:", e);
-		} catch (JsonParseException e) {
-			logger.error("JSON not received as response", e);
-		} catch (IOException e) {
-			logger.error("Error retrieving token:", e);
-		} catch (Exception e) {
-			logger.error("Something else went wrong:", e);
-		} finally {
-			if (jwtResponse != null) {
-				jwtResponse.close();
-			}
-		}
-		return token;
-	}
+	        return token;
+	    }
 
 	@Override
 	/**

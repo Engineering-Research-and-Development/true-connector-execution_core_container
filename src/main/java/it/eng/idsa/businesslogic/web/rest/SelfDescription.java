@@ -22,6 +22,6 @@ public class SelfDescription {
     @GetMapping("/")
     @ResponseBody
     public String selfDescriptions() {
-        return selfDescriptionService.getConnectorAsString();
+        return selfDescriptionService.getConnectorSelfDescription();
     }
 }

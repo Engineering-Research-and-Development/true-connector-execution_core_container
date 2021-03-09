@@ -86,7 +86,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	}
 
 	@Override
-	public String getConnectorAsString() {
+	public String getConnectorSelfDescription() {
 		final Serializer serializer = new Serializer();
 		String result = null;
 		try {
@@ -153,6 +153,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 			._affectedConnector_(connector.getId())
 			.build();
 	}
+
 
 	@Override
 	public Message getConnectorUpdateMessage()

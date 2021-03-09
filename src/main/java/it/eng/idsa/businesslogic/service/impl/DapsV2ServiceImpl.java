@@ -80,7 +80,7 @@ public class DapsV2ServiceImpl implements DapsService {
     private static final Logger logger = LoggerFactory.getLogger(DapsV2ServiceImpl.class);
 
     private SSLSocketFactory sslSocketFactory = null;
-    private String token = "";
+    private String token = null;
     @Value("${application.targetDirectory}")
     private Path targetDirectory;
     @Value("${application.dapsUrl}")
