@@ -11,12 +11,12 @@ import org.springframework.stereotype.Component;
 import de.fhg.aisec.ids.camel.idscp2.processors.IdsMessageTypeExtractionProcessor;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
+import it.eng.idsa.businesslogic.processor.common.MapMultipartToIDSCP2;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverFileRecreatorProcessor;
-import it.eng.idsa.businesslogic.processor.receiver.ReceiverMapMultipartToIDSCP2;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverMultiPartMessageProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverParseReceivedConnectorRequestProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverSendDataToBusinessLogicProcessor;
@@ -83,7 +83,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 	SenderMapIDSCP2toMultipart senderMapIDSCP2toMultipart;
 	
 	@Autowired
-	ReceiverMapMultipartToIDSCP2 receiverMapMultipartToIDSCP2;
+	MapMultipartToIDSCP2 mapMultipartToIDSCP2;
 
 	
 	@Autowired
@@ -179,7 +179,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 						.process(multiPartMessageProcessor)
 						.process(receiverUsageControlProcessor)
 						
-						.process(receiverMapMultipartToIDSCP2)
+						.process(mapMultipartToIDSCP2)
 		                
 						//TODO delete it, just for test purpose
 						//.process(receiverStaticResponseMessageProcessor)

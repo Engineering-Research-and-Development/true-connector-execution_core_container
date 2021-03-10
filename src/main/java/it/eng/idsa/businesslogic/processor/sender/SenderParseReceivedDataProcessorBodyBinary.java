@@ -29,7 +29,7 @@ import it.eng.idsa.multipart.util.MultipartMessageKey;
 public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 
 	private static final Logger logger = LogManager.getLogger(SenderParseReceivedDataProcessorBodyBinary.class);
-	
+
 	@Value("${application.idscp2.isEnabled}")
 	private boolean isEnabledIdscp2;
 
@@ -54,7 +54,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 
 		try {
 			MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
-			message= multipartMessage.getHeaderContent();
+			message = multipartMessage.getHeaderContent();
 			if (!checkHeaderContentType(
 					multipartMessage.getHeaderHeader().get(MultipartMessageKey.CONTENT_TYPE.label))) {
 				logger.error("Content type of the header must be application/json or application/json UTF-8");
@@ -66,18 +66,9 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 					multipartMessage.getPayloadHeader().get(MultipartMessageKey.CONTENT_TYPE.label));
 
 			// Return exchange
-			if(isEnabledIdscp2) {
-				//exchange for IDSCP2
-				exchange.getMessage().setBody(multipartMessage.getPayloadContent());
-			    exchange.getMessage().setHeader("idscp2-header", message);
-			    //ids-type not mandatory, autodetected by message type
-			    exchange.setProperty("domain","idscp2client://"+exchange.getMessage().getHeaders().get("Host").toString().split(":")[0]+":29292?connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true");
-			    
-			}
-			else {
-				exchange.getMessage().setBody(multipartMessage);
-				exchange.getMessage().setHeaders(headesParts);
-			}
+			exchange.getMessage().setBody(multipartMessage);
+			exchange.getMessage().setHeaders(headesParts);
+
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
@@ -86,12 +77,12 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 
 	/**
 	 * Check if header content type is application/json; UTF-8 or application/json
+	 * 
 	 * @param contentType
 	 * @return
 	 */
 	private boolean checkHeaderContentType(String contentType) {
-		if (contentType != null && (contentType
-				.equals(ContentType.APPLICATION_JSON.toString())
+		if (contentType != null && (contentType.equals(ContentType.APPLICATION_JSON.toString())
 				|| contentType.equals(ContentType.create("application/json").toString())
 				|| contentType.equals(ContentType.create("application/json+ld").toString()))) {
 			return true;
