@@ -25,8 +25,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import it.eng.idsa.businesslogic.service.DapsService;
-import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -63,8 +61,6 @@ public class DapsOrbiterServiceImpl implements DapsService {
 
 	@Autowired
 	private DapsOrbiterProvider dapsOrbiterProvider;
-	@Autowired
-	private RejectionMessageService rejectionMessageService;
 
 	private String getJwtTokenInternal() {
 		// Try clause for setup phase (loading keys, building trust manager)
@@ -202,7 +198,7 @@ public class DapsOrbiterServiceImpl implements DapsService {
 			logger.info("Token is valid: " + token);
 		} else {
 			logger.info("Token is invalid");
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN, null);
+			return null;
 		}
 		return token;
 	}

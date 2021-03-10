@@ -36,7 +36,6 @@ import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -60,8 +59,6 @@ import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import it.eng.idsa.businesslogic.service.DapsService;
-import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -94,9 +91,6 @@ public class DapsV2ServiceImpl implements DapsService {
     @Value("${application.dapsJWKSUrl}")
     private String dapsJWKSUrl;
     
-    @Autowired
-   	private RejectionMessageService rejectionMessageService;
-
     private String getJwtTokenInternal() {
 
         String targetAudience = "idsc:IDS_CONNECTORS_ALL";
@@ -481,7 +475,7 @@ public class DapsV2ServiceImpl implements DapsService {
 			logger.info("Token is valid: " + token);
 		} else {
 			logger.info("Token is invalid");
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN, null);
+			return null;
 		}
 		return token;
 	}

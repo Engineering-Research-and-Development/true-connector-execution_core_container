@@ -35,7 +35,6 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -59,8 +58,6 @@ import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import it.eng.idsa.businesslogic.service.DapsService;
-import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -101,10 +98,6 @@ public class DapsServiceImpl implements DapsService {
 	@Value("${application.dapsJWKSUrl}")
 	private String dapsJWKSUrl;
   
-
-	@Autowired
-	private RejectionMessageService rejectionMessageService;
-
 	private String getJwtTokenInternal() {
 
 		logger.debug("Get properties");
@@ -352,7 +345,7 @@ public class DapsServiceImpl implements DapsService {
 			logger.info("Token is valid: " + token);
 		} else {
 			logger.info("Token is invalid");
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN, null);
+			return null;
 		}
 		return token;
 	}
