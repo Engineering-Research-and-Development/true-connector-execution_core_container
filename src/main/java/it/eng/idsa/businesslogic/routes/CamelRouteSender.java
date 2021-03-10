@@ -16,7 +16,9 @@ import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorSender;
+import it.eng.idsa.businesslogic.processor.receiver.ReceiverMapMultipartToIDSCP2;
 import it.eng.idsa.businesslogic.processor.sender.SenderFileRecreatorProcessor;
+import it.eng.idsa.businesslogic.processor.sender.SenderMapIDSCP2toMultipart;
 import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataFromDAppProcessorBodyBinary;
 import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataProcessorBodyBinary;
 import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataProcessorBodyFormData;
@@ -87,6 +89,11 @@ public class CamelRouteSender extends RouteBuilder {
 
 	@Autowired
 	SenderUsageControlProcessor senderUsageControlProcessor;
+	
+	@Autowired
+	SenderMapIDSCP2toMultipart senderMapIDSCP2toMultipart;
+	
+	
 
 	@Autowired
 	CamelContext camelContext;
@@ -105,6 +112,10 @@ public class CamelRouteSender extends RouteBuilder {
 	private IdsMessageTypeExtractionProcessor idsMessageTypeExtractionProcessor;
 	@Autowired
 	private SenderReadAndSaveFileProcessor senderReadAndSaveFileProcessor;
+	@Autowired
+	ReceiverMapMultipartToIDSCP2 receiverMapMultipartToIDSCP2;
+	
+	
 	
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledDataAppWebSocket;
@@ -154,14 +165,18 @@ public class CamelRouteSender extends RouteBuilder {
 						
 			if(isEnabledIdscp2 && !receiver) {
 			// Camel SSL - Endpoint: A - Body binary
+			logger.info("Starting IDSCP v2 client sender route");
+			
             from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyBinary")
             	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
-            	
             	.process(parseReceivedDataProcessorBodyBinary)
-            	.to("idscp2client://localhost:29292?connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
+            	.toD("${exchangeProperty.domain}")
+            	.process(senderMapIDSCP2toMultipart)
+            	.process(registerTransactionToCHProcessor)
             	.delay()
                 .constant(5000);
-                 
+            
+            logger.info("Starting IDSCP v2 client receiver route");
             from("idscp2client://localhost:29292?connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
         		.process(idsMessageTypeExtractionProcessor)
         		.log("### CLIENT RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
@@ -169,9 +184,14 @@ public class CamelRouteSender extends RouteBuilder {
         			.when()
         			.simple("${exchangeProperty.ids-type} == 'ArtifactResponseMessage'")
         			.log("### Handle ArtifactResponseMessage ###")
-        			//.to("http://172.17.0.2:8080")
-        	   		//	.log("Response body\n\n${body} Header: ###\\n${headers[idscp2-header]}")
-        	   		.process(senderReadAndSaveFileProcessor)
+        			
+        			.process(senderMapIDSCP2toMultipart)
+        			
+                    .process(registerTransactionToCHProcessor)
+                    .process(senderUsageControlProcessor)                    
+                    .process(sendResponseToDataAppProcessor)
+        			//TODO delete it, just for test purpose
+        	   		//.process(senderReadAndSaveFileProcessor)
         	   		.removeHeader("idscp2-header")
         	   		.setBody().simple("${null}")
         	   		.endChoice()
@@ -179,18 +199,7 @@ public class CamelRouteSender extends RouteBuilder {
         	   				.log("### Client received (otherwise branch):\n${body}\n### Header: ###\n${headers[idscp2-header]}")
         	   		        .removeHeader("idscp2-header")
         	   		        .setBody().simple("${null}");
-        		
-           /*     
-                //.process(registerTransactionToCHProcessor) //TODO prepare message for CHP
-                 // Send data to Endpoint B
-                .process(sendDataToBusinessLogicProcessor)
-                .process(parseReceivedResponseMessage)
-                
-                //.process(registerTransactionToCHProcessor) //TODO prepare message for CHP
-                //.process(senderUsageControlProcessor)
-                .process(sendResponseToDataAppProcessor);
-				*/
-            
+        	
           
             	/***************EXAMPLES***************/
 		               

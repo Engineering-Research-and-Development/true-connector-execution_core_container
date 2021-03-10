@@ -46,6 +46,9 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 	
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean isEnabledDapsInteraction;
+	
+	@Value("${application.idscp2.isEnabled}")
+	private boolean isEnabledIdscp2;
 
 	@Autowired(required = false)
 	WebSocketServerConfigurationA webSocketServerConfiguration;
@@ -84,9 +87,10 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 				httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
             	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
 				responseString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
-				Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(responseString);
-				contentType = "multipart/mixed; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
-				headerParts.put(Exchange.CONTENT_TYPE, contentType);
+				if(!isEnabledIdscp2) {
+					Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(responseString);
+					contentType = "multipart/mixed; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
+					headerParts.put(Exchange.CONTENT_TYPE, contentType);}
 				exchange.getMessage().setBody(responseString);
 				break;
 			case "http-header":

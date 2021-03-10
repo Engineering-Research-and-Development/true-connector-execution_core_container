@@ -1,6 +1,5 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,11 +68,11 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 			// Return exchange
 			if(isEnabledIdscp2) {
 				//exchange for IDSCP2
-				
-				exchange.getMessage().setBody(multipartMessage.getPayloadContent(), Base64.class);
+				exchange.getMessage().setBody(multipartMessage.getPayloadContent());
 			    exchange.getMessage().setHeader("idscp2-header", message);
 			    //ids-type not mandatory, autodetected by message type
-			    exchange.setProperty("ids-type", "ArtifactRequestMessage");
+			    exchange.setProperty("domain","idscp2client://"+exchange.getMessage().getHeaders().get("Host").toString().split(":")[0]+":29292?connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true");
+			    
 			}
 			else {
 				exchange.getMessage().setBody(multipartMessage);

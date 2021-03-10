@@ -16,6 +16,7 @@ import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverFileRecreatorProcessor;
+import it.eng.idsa.businesslogic.processor.receiver.ReceiverMapMultipartToIDSCP2;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverMultiPartMessageProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverParseReceivedConnectorRequestProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverSendDataToBusinessLogicProcessor;
@@ -23,6 +24,7 @@ import it.eng.idsa.businesslogic.processor.receiver.ReceiverSendDataToDataAppPro
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverStaticResponseMessageProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverUsageControlProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverWebSocketSendDataToDataAppProcessor;
+import it.eng.idsa.businesslogic.processor.sender.SenderMapIDSCP2toMultipart;
 
 /**
  * 
@@ -77,7 +79,13 @@ public class CamelRouteReceiver extends RouteBuilder {
 	@Autowired
 	ReceiverStaticResponseMessageProcessor receiverStaticResponseMessageProcessor;
 	
+	@Autowired
+	SenderMapIDSCP2toMultipart senderMapIDSCP2toMultipart;
+	
+	@Autowired
+	ReceiverMapMultipartToIDSCP2 receiverMapMultipartToIDSCP2;
 
+	
 	@Autowired
 	CamelContext camelContext;
 
@@ -151,7 +159,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 		}
 		
 		if (isEnabledIdscp2 && receiver) {
-			logger.info("Starting IDSCP v2 route");
+			logger.info("Starting IDSCP v2 Server route");
 
 			from("idscp2server://0.0.0.0:29292?sslContextParameters=#sslContext&useIdsMessages=true")
 				.process(IdsMessageTypeExtractionProcessor)
@@ -162,7 +170,20 @@ public class CamelRouteReceiver extends RouteBuilder {
 						.log("### IDSCP2 SERVER RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
 						//.log("###LOG :\n${body}\n### Header: ###\n${headers[idscp2-header]}")
 						.log("### Handle ArtifactRequestMessage ###")
-						.process(receiverStaticResponseMessageProcessor)
+						
+						.process(senderMapIDSCP2toMultipart)
+						
+		                .process(registerTransactionToCHProcessor)
+						// Send to the Endpoint: F
+		                .process(sendDataToDataAppProcessor)
+						.process(multiPartMessageProcessor)
+						.process(receiverUsageControlProcessor)
+						
+						.process(receiverMapMultipartToIDSCP2)
+		                
+						//TODO delete it, just for test purpose
+						//.process(receiverStaticResponseMessageProcessor)
+		                
 						.delay().constant(5000)
 					.endChoice()
 					.otherwise()
