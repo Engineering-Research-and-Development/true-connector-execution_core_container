@@ -1,106 +1,140 @@
 package it.eng.idsa.businesslogic.service.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
-import java.security.KeyFactory;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.cert.CertificateException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.time.Instant;
-import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.core.io.ClassPathResource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-@Disabled
+import okhttp3.Call;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+
 public class DapsOrbiterServiceImplTest {
+	private String dapsUrl = "https://mockaddress.com";
 
-	private String eccReceiver = "2a62eda0-50bd-4640-9847-b0ea946f89bf";
-	private String eccSender = "805f80f9-3170-4615-b80a-e93f2a4708e5";
+	@Mock
+	private OkHttpClient client;
 	
-	@Test
-	public void generateJwTokenSender() {
-		try {
-			Date expiryDate = Date.from(Instant.now().plusSeconds(86400));
-            JwtBuilder jwtb =
-                    Jwts.builder()
-                            .claim("id", eccSender)
-                            .setExpiration(expiryDate)
-                            .setIssuedAt(Date.from(Instant.now()))
-                            .setAudience("idsc:IDS_CONNECTORS_ALL")
-                            .setNotBefore(Date.from(Instant.now()));
-			String jws = jwtb.signWith(SignatureAlgorithm.RS256, getOrbiterPrivateKey("ecc-sender.key")).compact();
-			System.out.println("Sender key:\n" + jws);
-		} catch (KeyStoreException e) {
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (CertificateException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	@Mock
+	private DapsOrbiterProvider dapsOrbiterProvider;
+	
+	@InjectMocks
+	private DapsOrbiterServiceImpl dapsOrbiterServiceImpl;
+	
+	private Request requestDaps;
+	
+	private String JSONAnswer;
+	
+	private String stringAnswer;
+	
+	@Mock
+	private Call call;
+	@Mock
+	private Call callValidate;
+	
+	private Response response; 
+	
+	private String jws;
+	
+	
+	@BeforeEach
+	public void setup() throws  IOException, GeneralSecurityException {
+		MockitoAnnotations.initMocks(this);
+		
+		jws = "ABC";
+		when(dapsOrbiterProvider.provideJWS()).thenReturn(jws);
+		JSONAnswer = "{\"response\":\"mockToken\"}";
+		stringAnswer = "Token can not be retrieved";
+		
+		Map<String, String> jsonObject = new HashMap<>();
+        jsonObject.put("grant_type", "client_credentials");
+        jsonObject.put("client_assertion_type", "jwt-bearer");
+        jsonObject.put("client_assertion", jws);
+        jsonObject.put("scope", "all");
+        Gson gson = new GsonBuilder().create();
+        String jsonString = gson.toJson(jsonObject);
+        RequestBody formBody = RequestBody
+        		.create(MediaType.get("application/json; charset=utf-8"), jsonString); // new
+
+        requestDaps = new Request.Builder()
+        		.url(dapsUrl)
+        		.header("Host", "ecc-receiver")
+				.header("accept", "application/json")
+				.header("Content-Type", "application/json")
+                .post(formBody)
+                .build();
+        when(client.newCall(any(Request.class))).thenReturn(call);
+		ReflectionTestUtils.setField(dapsOrbiterServiceImpl, "dapsUrl", dapsUrl);
 	}
 	
 	@Test
-	public void generateJwTokenReceiver() {
-		try {
-			Date expiryDate = Date.from(Instant.now().plusSeconds(86400));
-            JwtBuilder jwtb =
-                    Jwts.builder()
-                            .claim("id", eccReceiver)
-                            .setExpiration(expiryDate)
-                            .setIssuedAt(Date.from(Instant.now()))
-                            .setAudience("idsc:IDS_CONNECTORS_ALL")
-                            .setNotBefore(Date.from(Instant.now()));
-			String jws = jwtb.signWith(SignatureAlgorithm.RS256, getOrbiterPrivateKey("ecc-receiver.key")).compact();
-			System.out.println("Receiver jwt:\n" + jws);
-		} catch (KeyStoreException e) {
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (CertificateException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public void testSuccesfulTokenResponse() throws IOException {
+		response =  new Response.Builder()
+				.request(requestDaps)
+				.protocol(Protocol.HTTP_1_1)
+				.message("ABC")
+				.body(ResponseBody.create(MediaType.get("application/json; charset=utf-8"), JSONAnswer))
+				.code(200)
+				.build();
+		
+		Map<String, String> jsonObject = new HashMap<>();
+        jsonObject.put("token", "mockToken");
+        Gson gson = new GsonBuilder().create();
+        String jsonStringValidate = gson.toJson(jsonObject);
+        RequestBody formBodyValidate = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonStringValidate);
+        
+        Request requestDapsValidate = new Request.Builder()
+				.url(dapsUrl + "/validate")
+				.header("Host", "ecc-receiver")
+				.header("accept", "application/json")
+				.header("Content-Type", "application/json")
+				.post(formBodyValidate)
+				.build();
+		// @formatter:on
+        
+        String tokenResponseValid = "{ \"response\": \"true\",\r\n" + 
+        		" \"description\": \"Token successfully validated\"\r\n" + 
+        		" }";
+        Response responseValidate =  new Response.Builder()
+				.request(requestDapsValidate)
+				.protocol(Protocol.HTTP_1_1)
+				.message("ABC_Validate")
+				.body(ResponseBody.create(MediaType.get("application/json; charset=utf-8"), tokenResponseValid))
+				.code(200)
+				.build();
+		
+		when(call.execute()).thenReturn(response).thenReturn(responseValidate);
+		assertEquals("mockToken", dapsOrbiterServiceImpl.getJwtToken());
 	}
 	
-	/**
-	 * Reads Orbiter private key from file, removes header and footer and creates java PrivateKey object
-	 * @return
-	 * @throws IOException
-	 * @throws GeneralSecurityException
-	 */
-	private PrivateKey getOrbiterPrivateKey(String keyFile) throws IOException, GeneralSecurityException {
-		InputStream orbiterPrivateKeyInputStream = null;
-		try {
-			orbiterPrivateKeyInputStream = new ClassPathResource(keyFile).getInputStream();
-			String privateKeyPEM = IOUtils.toString(orbiterPrivateKeyInputStream, StandardCharsets.UTF_8.name());
-			privateKeyPEM = privateKeyPEM.replace("-----BEGIN PRIVATE KEY-----\n", "");
-			privateKeyPEM = privateKeyPEM.replace("-----END PRIVATE KEY-----", "");
-			byte[] encoded = org.apache.commons.codec.binary.Base64.decodeBase64(privateKeyPEM);
-			KeyFactory kf = KeyFactory.getInstance("RSA");
-			PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
-			return (PrivateKey) kf.generatePrivate(keySpec);
-		} finally {
-			if(orbiterPrivateKeyInputStream != null) {
-				orbiterPrivateKeyInputStream.close();
-			}
-		}
+	@Test
+	public void testResponseStringInsteadOfJson() throws IOException {
+		response =  new Response.Builder()
+				.request(requestDaps)
+				.protocol(Protocol.HTTP_1_1)
+				.message("ABC")
+				.body(ResponseBody.create(MediaType.get("text/plain"), stringAnswer))
+				.code(200).build();
+		when(call.execute()).thenReturn(response);
+		assertEquals(null, dapsOrbiterServiceImpl.getJwtToken());
 	}
 }
