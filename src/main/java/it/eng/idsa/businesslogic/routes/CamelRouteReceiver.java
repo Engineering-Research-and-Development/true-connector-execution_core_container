@@ -161,32 +161,31 @@ public class CamelRouteReceiver extends RouteBuilder {
 			logger.info("Starting IDSCP v2 Server route");
 
 			from("idscp2server://0.0.0.0:29292?sslContextParameters=#sslContext&useIdsMessages=true")
-					.process(IdsMessageTypeExtractionProcessor).choice().when()
-
-					.simple("${exchangeProperty.ids-type} == 'ArtifactRequestMessage'")
-					.log("### IDSCP2 SERVER RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
-					// .log("###LOG :\n${body}\n### Header: ###\n${headers[idscp2-header]}")
-					.log("### Handle ArtifactRequestMessage ###")
-
-					.process(senderMapIDSCP2toMultipart)
-
-					.process(registerTransactionToCHProcessor)
-					// Send to the Endpoint: F
-
-					.process(sendDataToDataAppProcessor)
-					.process(multiPartMessageProcessor)
-					.process(registerTransactionToCHProcessor)
-					.process(receiverUsageControlProcessor)
-
-					.process(mapMultipartToIDSCP2)
-
-					// TODO delete it, just for test purpose
-					// .process(receiverStaticResponseMessageProcessor)
-
-					.delay().constant(5000).endChoice().otherwise()
-					.log("### IDSCP2 SERVER RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
-					.log("### Server received (otherwise branch):\n${body}\n### Header: ###\n${headers[idscp2-header]}")
-					.removeHeader("idscp2-header").setBody().simple("${null}");
+					.process(IdsMessageTypeExtractionProcessor)
+					.choice()
+						.when()
+	
+						.simple("${exchangeProperty.ids-type} == 'ArtifactRequestMessage'")
+						.log("### IDSCP2 SERVER RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
+						// .log("###LOG :\n${body}\n### Header: ###\n${headers[idscp2-header]}")
+						.log("### Handle ArtifactRequestMessage ###")
+	
+						.process(senderMapIDSCP2toMultipart)
+	
+						.process(registerTransactionToCHProcessor)
+						// Send to the Endpoint: F
+						.process(sendDataToDataAppProcessor)
+						.process(multiPartMessageProcessor)
+						.process(registerTransactionToCHProcessor)
+						.process(receiverUsageControlProcessor)
+	
+						.process(mapMultipartToIDSCP2)
+						.delay().constant(5000)
+					.endChoice()
+					.otherwise()
+						.log("### IDSCP2 SERVER RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
+						.log("### Server received (otherwise branch):\n${body}\n### Header: ###\n${headers[idscp2-header]}")
+						.removeHeader("idscp2-header").setBody().simple("${null}");
 
 		}
 
