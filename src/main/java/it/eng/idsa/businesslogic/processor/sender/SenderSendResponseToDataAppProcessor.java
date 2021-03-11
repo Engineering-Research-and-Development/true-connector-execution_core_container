@@ -29,7 +29,7 @@ import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 @Component
 public class SenderSendResponseToDataAppProcessor implements Processor {
-	
+
 	private static final Logger logger = LogManager.getLogger(SenderSendResponseToDataAppProcessor.class);
 
 	@Autowired
@@ -43,19 +43,19 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
-	
+
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean isEnabledDapsInteraction;
-	
+
 	@Value("${application.idscp2.isEnabled}")
 	private boolean isEnabledIdscp2;
 
 	@Autowired(required = false)
 	WebSocketServerConfigurationA webSocketServerConfiguration;
-	
+
 	@Autowired
 	private HttpHeaderService httpHeaderService;
-	
+
 	@Autowired
 	private HeaderCleaner headerCleaner;
 
@@ -69,45 +69,48 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 		String contentType = null;
 
 		if (isEnabledDapsInteraction) {
-			//remove token before sending the response
+			// remove token before sending the response
 			multipartMessage = multipartMessageService.removeTokenFromMultipart(multipartMessage);
 		}
-			switch (openDataAppReceiverRouter) {
-			case "form":
-				httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
-            	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
-				HttpEntity resultEntity = multipartMessageService.createMultipartMessage(multipartMessage.getHeaderContentString(), 
-						multipartMessage.getPayloadContent(),
-						null, ContentType.APPLICATION_JSON);
-				contentType = resultEntity.getContentType().getValue();
+		switch (openDataAppReceiverRouter) {
+		case "form":
+			httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
+			httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
+			HttpEntity resultEntity = multipartMessageService.createMultipartMessage(
+					multipartMessage.getHeaderContentString(), multipartMessage.getPayloadContent(), null,
+					ContentType.APPLICATION_JSON);
+			contentType = resultEntity.getContentType().getValue();
+			headerParts.put(Exchange.CONTENT_TYPE, contentType);
+			exchange.getMessage().setBody(resultEntity.getContent());
+			break;
+		case "mixed":
+			httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
+			httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
+			responseString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
+			if (!isEnabledIdscp2) {
+				Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(responseString);
+				contentType = "multipart/mixed; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
 				headerParts.put(Exchange.CONTENT_TYPE, contentType);
-				exchange.getMessage().setBody(resultEntity.getContent());
-				break;
-			case "mixed":
-				httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
-            	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
-				responseString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
-				if(!isEnabledIdscp2) {
-					Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(responseString);
-					contentType = "multipart/mixed; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
-					headerParts.put(Exchange.CONTENT_TYPE, contentType);}
-				exchange.getMessage().setBody(responseString);
-				break;
-			case "http-header":
-				responseString = multipartMessage.getPayloadContent();
-				exchange.getMessage().setBody(responseString);
-				break;
 			}
-			logger.info("Sending response to DataApp");
+			exchange.getMessage().setBody(responseString);
+			break;
+		case "http-header":
+			responseString = multipartMessage.getPayloadContent();
+			exchange.getMessage().setBody(responseString);
+			break;
+		}
+		logger.info("Sending response to DataApp");
 
-			headerCleaner.removeTechnicalHeaders(headerParts);
-			exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
-		
-		if(isEnabledWebSocket ) {
-			String responseMultipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
-			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration.responseMessageBufferWebSocket();
+		headerCleaner.removeTechnicalHeaders(headerParts);
+		exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
+
+		if (isEnabledWebSocket) {
+			String responseMultipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage,
+					false);
+			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration
+					.responseMessageBufferWebSocket();
 			responseMessageServerBean.add(responseMultipartMessageString.getBytes());
 		}
 	}
-	
+
 }
