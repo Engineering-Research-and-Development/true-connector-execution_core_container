@@ -5,6 +5,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,10 +18,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -62,7 +66,8 @@ public class DapsOrbiterServiceImpl implements DapsService {
 	@Autowired
 	private DapsOrbiterProvider dapsOrbiterProvider;
 
-	private String getJwtTokenInternal() {
+	@VisibleForTesting
+	String getJwTokenInternal() {
 		// Try clause for setup phase (loading keys, building trust manager)
 		Response jwtResponse = null;
 		try {
@@ -136,6 +141,11 @@ public class DapsOrbiterServiceImpl implements DapsService {
 		boolean isValid = false;
 
 		logger.debug("Validating Orbiter token");
+
+		if(checkIfTokenExpired(tokenValue)) {
+			return false;
+		}
+		
 		Response jwtResponse = null;
 		try {
 			Map<String, String> jsonObject = new HashMap<>();
@@ -189,10 +199,19 @@ public class DapsOrbiterServiceImpl implements DapsService {
 		return isValid;
 	}
 
+	private boolean checkIfTokenExpired(String tokenValue) {
+		DecodedJWT jwt = JWT.decode(tokenValue);
+		if (jwt.getExpiresAt().before(new Date())) {
+			logger.warn("Token expired");
+			return true;
+		}
+		return false;
+	}
+
 	@Override
 	public String getJwtToken() {
 
-		token = getJwtTokenInternal();
+		token = getJwTokenInternal();
 
 		if (StringUtils.isNotBlank(token) && validateToken(token)) {
 			logger.info("Token is valid: " + token);

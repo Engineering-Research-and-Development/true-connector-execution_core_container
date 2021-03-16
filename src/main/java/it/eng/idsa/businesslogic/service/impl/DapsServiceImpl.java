@@ -98,7 +98,7 @@ public class DapsServiceImpl implements DapsService {
 	@Value("${application.dapsJWKSUrl}")
 	private String dapsJWKSUrl;
   
-	private String getJwtTokenInternal() {
+	private String getJwTokenInternal() {
 
 		logger.debug("Get properties");
 
@@ -120,9 +120,13 @@ public class DapsServiceImpl implements DapsService {
 			// Create expiry date one day (86400 seconds) from now
 			Date expiryDate = Date.from(Instant.now().plusSeconds(86400));
 			// @formatter:off
-			JwtBuilder jwtb = Jwts.builder().setIssuer(connectorUUID).setSubject(connectorUUID)
-					.setExpiration(expiryDate).setIssuedAt(Date.from(Instant.now()))
-					.setAudience("https://api.localhost").setNotBefore(Date.from(Instant.now()));
+			JwtBuilder jwtb = Jwts.builder()
+					.setIssuer(connectorUUID)
+					.setSubject(connectorUUID)
+					.setExpiration(expiryDate)
+					.setIssuedAt(Date.from(Instant.now()))
+					.setAudience("https://api.localhost")
+					.setNotBefore(Date.from(Instant.now()));
 			// @formatter:on
 			String jws = jwtb.signWith(SignatureAlgorithm.RS256, privKey).compact();
 			/*
@@ -339,7 +343,7 @@ public class DapsServiceImpl implements DapsService {
 	@Override
 	public String getJwtToken() {
 
-		token = getJwtTokenInternal();
+		token = getJwTokenInternal();
 
 		if (StringUtils.isNotBlank(token) && validateToken(token)) {
 			logger.info("Token is valid: " + token);
