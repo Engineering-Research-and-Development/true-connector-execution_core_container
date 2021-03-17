@@ -18,11 +18,11 @@ public class SenderMapIDSCP2toMultipart implements Processor {
 		
 		MultipartMessage multipartMessage = new MultipartMessageBuilder()
 											.withHeaderContent((Message) exchange.getMessage().getHeader("idscp2-header"))
-											.withPayloadContent(exchange.getMessage().getBody().toString())
+											.withPayloadContent(exchange.getMessage().getBody(String.class))
 											.build();
 			
 		exchange.getMessage().setBody(multipartMessage);
-		//exchange.getMessage().setHeaders(null);
+		
 		
 	}
 

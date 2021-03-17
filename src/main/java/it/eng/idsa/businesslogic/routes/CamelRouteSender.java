@@ -269,6 +269,50 @@ public class CamelRouteSender extends RouteBuilder {
 		                .process(sendResponseToDataAppProcessor)
 						.removeHeaders("Camel*");}
             } else {
+            	
+            	if(isEnabledIdscp2 && !receiver) {
+		        			
+		                    logger.info("Starting IDSCP v2 client receiver route");
+		                    from("idscp2client://localhost:29292?connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
+		                		.process(idsMessageTypeExtractionProcessor)
+		                		.log("### CLIENT RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
+		                		.choice()
+		                			.when()
+		                			.simple("${exchangeProperty.ids-type} == 'ArtifactResponseMessage'")
+		                			.log("### Handle ArtifactResponseMessage ###")
+		                			
+		                			.process(senderMapIDSCP2toMultipart)
+		                			
+		                			.process(sendDataToBusinessLogicProcessor)
+		    						.process(parseReceivedResponseMessage)
+		    		                .process(registerTransactionToCHProcessor)
+		    		                .process(senderUsageControlProcessor)
+		    						.process(sendResponseToDataAppProcessor)
+		                			
+		                	   		.removeHeader("idscp2-header")
+		                	   		.setBody().simple("${null}")
+		                	   		.endChoice()
+		                	   		.otherwise()
+		                	   				.log("### Client received (otherwise branch):\n${body}\n### Header: ###\n${headers[idscp2-header]}")
+		                	   		        .removeHeader("idscp2-header")
+		                	   		        .setBody().simple("${null}");
+                	
+        				logger.info("Starting IDSCP v2 client sender route");
+        				logger.info("WSS communication between ECC and dataApp");
+        				
+        	            from("timer://timerEndpointA?repeatCount=-1")
+        	            	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
+        	            	.process(fileRecreatorProcessor)
+    						.process(parseReceivedDataFromDAppProcessorBodyBinary)
+    		                .process(registerTransactionToCHProcessor)
+        	            	.process(mapMultipartToIDSCP2)
+        	            	//.toD("idscp2client://localhost:29292?connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
+        	            	.to("idscp2client://localhost:29292?connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
+        	            	.process(senderMapIDSCP2toMultipart)
+        	            	.process(registerTransactionToCHProcessor)
+        	            	.delay()
+        	                .constant(5000);}
+            	else {
 					// End point A. Communication between Data App and ECC Sender.
 					//fixedRate=true&period=10s
 					from("timer://timerEndpointA?repeatCount=-1") //EndPoint A
@@ -284,6 +328,7 @@ public class CamelRouteSender extends RouteBuilder {
 		                .process(senderUsageControlProcessor)
 						.process(sendResponseToDataAppProcessor);
 				//@formatter:on
+            	}
 		}
 	}
 
