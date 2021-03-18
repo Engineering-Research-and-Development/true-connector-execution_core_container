@@ -141,38 +141,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 				.removeHeaders("Camel*");
 		} else if ((isEnabledIdscp || isEnabledWebSocket)) {
 			
-			if(isEnabledIdscp2 && receiver && isEnabledDataAppWebSocket) {
-				from("idscp2server://0.0.0.0:29292?sslContextParameters=#sslContext&useIdsMessages=true")
-				.process(IdsMessageTypeExtractionProcessor)
-				.choice()
-					.when()
-
-					.simple("${exchangeProperty.ids-type} == 'ArtifactRequestMessage'")
-					.log("### IDSCP2 SERVER RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
-					// .log("###LOG :\n${body}\n### Header: ###\n${headers[idscp2-header]}")
-					.log("### Handle ArtifactRequestMessage ###")
-
-					.process(senderMapIDSCP2toMultipart)
-					
-					.process(fileRecreatorProcessor)
-					.process(connectorRequestProcessor)
-	                .process(registerTransactionToCHProcessor)
-					// Send to the Endpoint: F
-					.process(sendDataToDataAppProcessorOverWS)
-					.process(multiPartMessageProcessor)
-					.process(receiverUsageControlProcessor)
-	                .process(registerTransactionToCHProcessor)
-
-					.process(mapMultipartToIDSCP2)
-					.delay().constant(5000)
-				.endChoice()
-				.otherwise()
-					.log("### IDSCP2 SERVER RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
-					.log("### Server received (otherwise branch):\n${body}\n### Header: ###\n${headers[idscp2-header]}")
-					.removeHeader("idscp2-header").setBody().simple("${null}");
-				
-			}
-			else {
 			// End point B. ECC communication (Web Socket or IDSCP)
 			from("timer://timerEndpointB?repeatCount=-1") //EndPoint B
 				.process(fileRecreatorProcessor)
@@ -192,11 +160,11 @@ public class CamelRouteReceiver extends RouteBuilder {
                 .process(registerTransactionToCHProcessor)
 				.process(sendDataToBusinessLogicProcessor);
 			//@formatter:on
-			}
+			
 		}
 		
 		
-		if (isEnabledIdscp2 && receiver) {
+		if (isEnabledIdscp2 && receiver && !isEnabledDataAppWebSocket) {
 			logger.info("Starting IDSCP v2 Server route");
 
 			from("idscp2server://0.0.0.0:29292?sslContextParameters=#sslContext&useIdsMessages=true")
@@ -226,6 +194,37 @@ public class CamelRouteReceiver extends RouteBuilder {
 						.log("### Server received (otherwise branch):\n${body}\n### Header: ###\n${headers[idscp2-header]}")
 						.removeHeader("idscp2-header").setBody().simple("${null}");
 
+		}
+		
+		if(isEnabledIdscp2 && receiver && isEnabledDataAppWebSocket) {
+			
+			from("idscp2server://0.0.0.0:29292?sslContextParameters=#sslContext&useIdsMessages=true")
+			.process(IdsMessageTypeExtractionProcessor)
+			.choice()
+				.when()
+
+				.simple("${exchangeProperty.ids-type} == 'ArtifactRequestMessage'")
+				.log("### IDSCP2 SERVER RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
+				.log("### Handle ArtifactRequestMessage ###")
+
+				.process(senderMapIDSCP2toMultipart)
+
+				
+                .process(registerTransactionToCHProcessor)
+				// Send to the Endpoint: F
+				.process(sendDataToDataAppProcessorOverWS)
+				.process(multiPartMessageProcessor)
+				.process(receiverUsageControlProcessor)
+                .process(registerTransactionToCHProcessor)
+
+				.process(mapMultipartToIDSCP2)
+				.delay().constant(5000)
+			.endChoice()
+			.otherwise()
+				.log("### IDSCP2 SERVER RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
+				.log("### Server received (otherwise branch):\n${body}\n### Header: ###\n${headers[idscp2-header]}")
+				.removeHeader("idscp2-header").setBody().simple("${null}");
+			
 		}
 
 	}

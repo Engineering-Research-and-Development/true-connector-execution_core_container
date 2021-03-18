@@ -283,7 +283,6 @@ public class CamelRouteSender extends RouteBuilder {
 		                			
 		                			.process(senderMapIDSCP2toMultipart)
 		                			
-		                			.process(sendDataToBusinessLogicProcessor)
 		    						.process(parseReceivedResponseMessage)
 		    		                .process(registerTransactionToCHProcessor)
 		    		                .process(senderUsageControlProcessor)
@@ -306,7 +305,6 @@ public class CamelRouteSender extends RouteBuilder {
     						.process(parseReceivedDataFromDAppProcessorBodyBinary)
     		                .process(registerTransactionToCHProcessor)
         	            	.process(mapMultipartToIDSCP2)
-        	            	//.toD("idscp2client://localhost:29292?connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
         	            	.to("idscp2client://localhost:29292?connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
         	            	.process(senderMapIDSCP2toMultipart)
         	            	.process(registerTransactionToCHProcessor)
