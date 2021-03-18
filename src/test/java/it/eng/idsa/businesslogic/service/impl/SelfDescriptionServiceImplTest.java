@@ -24,6 +24,7 @@ import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import de.fraunhofer.iais.eis.util.TypedLiteral;
 import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
+import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 
 public class SelfDescriptionServiceImplTest {
 	@Mock
@@ -125,5 +126,11 @@ public class SelfDescriptionServiceImplTest {
 				._language_(Util.asList(Language.EN, Language.IT))
 				.build();
 		return offeredResource;
+	}
+	
+	@Test
+	public void igor() {
+		Message cam = TestUtilMessageService.createContractAgreementMessage();
+		System.out.println(TestUtilMessageService.getMessageAsString(cam));
 	}
 }

@@ -12,6 +12,8 @@ import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactRequestMessageBuilder;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessageBuilder;
+import de.fraunhofer.iais.eis.ContractAgreementMessage;
+import de.fraunhofer.iais.eis.ContractAgreementMessageBuilder;
 import de.fraunhofer.iais.eis.DescriptionRequestMessage;
 import de.fraunhofer.iais.eis.DescriptionRequestMessageBuilder;
 import de.fraunhofer.iais.eis.DynamicAttributeToken;
@@ -89,6 +91,16 @@ public class TestUtilMessageService {
 				._issued_(ISSUED)
 				._issuerConnector_(ISSUER_CONNECTOR)
 				._modelVersion_(MODEL_VERSION)
+				.build();
+	}
+	
+	public static ContractAgreementMessage createContractAgreementMessage() {
+		return new ContractAgreementMessageBuilder()
+				._modelVersion_(MODEL_VERSION)
+				._transferContract_(URI.create("http://transferedContract"))
+				._correlationMessage_(URI.create("http://correlationMessage"))
+				._issued_(ISSUED)
+				._issuerConnector_(ISSUER_CONNECTOR)
 				.build();
 	}
 
