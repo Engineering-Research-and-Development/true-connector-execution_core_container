@@ -157,75 +157,41 @@ public class CamelRouteSender extends RouteBuilder {
 			
 						
 			if(isEnabledIdscp2 && !receiver) {
-			//CLIENT Received used for all input services
-            logger.info("Starting IDSCP v2 client receiver route");
-            from("idscp2client://localhost:29292?connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
-        		.process(idsMessageTypeExtractionProcessor)
-        		.log("### CLIENT RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
-        		.choice()
-        			.when()
-        			.simple("${exchangeProperty.ids-type} == 'ArtifactResponseMessage'")
-        			.log("### Handle ArtifactResponseMessage ###")
-        			
-        			.process(senderMapIDSCP2toMultipart)
-        			
-                    .process(registerTransactionToCHProcessor)
-                    .process(senderUsageControlProcessor)                    
-                    .process(sendResponseToDataAppProcessor)
-        			
-        	   		.removeHeader("idscp2-header")
-        	   		.setBody().simple("${null}")
-        	   		.endChoice()
-        	   		.otherwise()
-        	   				.log("### Client received (otherwise branch):\n${body}\n### Header: ###\n${headers[idscp2-header]}")
-        	   		        .removeHeader("idscp2-header")
-        	   		        .setBody().simple("${null}");
-        	
-            	//IDSCP2 flow triggered by multipartMessageBodyBinary
-				// Camel SSL - Endpoint: A - Body binary
-				logger.info("Starting IDSCP v2 client sender route");
 				
-	            from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyBinary")
-	            	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
-	            	.process(parseReceivedDataProcessorBodyBinary)
-	            	.process(mapMultipartToIDSCP2)
-	            	//.toD("idscp2client://localhost:29292?connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
-	            	.to("idscp2client://localhost:29292?connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
-	            	.process(senderMapIDSCP2toMultipart)
-	            	.process(registerTransactionToCHProcessor)
-	            	.delay()
-	                .constant(5000);
-	      
-			
+				//IDSCP2 flow triggered by multipartMessageBodyBinary
+				// Camel SSL - Endpoint: A - Body binary
+				from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyBinary")
+				.process(parseReceivedDataProcessorBodyBinary)
+				.to("direct:IDSCP2");
+				
 				//IDSCP2 flow triggered by multipartMessageBodyFormData
 				// Camel SSL - Endpoint: A - Body binary
-				logger.info("Starting IDSCP v2 client sender route");
-				
 				from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyFormData")
-	            	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
-	            	.process(parseReceivedDataProcessorBodyFormData)
-	            	.process(mapMultipartToIDSCP2)
-	            	.to("idscp2client://localhost:29292?connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
-	            	.process(senderMapIDSCP2toMultipart)
-	            	.process(registerTransactionToCHProcessor)
-	            	.delay()
-	                .constant(5000);
-				
+				.process(parseReceivedDataProcessorBodyFormData)
+				.to("direct:IDSCP2");
 				
 				//IDSCP2 flow triggered by multipartMessageHttpHeader
 				// Camel SSL - Endpoint: A - Body binary
+				from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageHttpHeader" + "?httpMethodRestrict=POST")
+            	.process(parseReceivedDataProcessorHttpHeader)
+            	.to("direct:IDSCP2");
+        	
 				logger.info("Starting IDSCP v2 client sender route");
 				
-				from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageHttpHeader" + "?httpMethodRestrict=POST")
+	            from("direct:IDSCP2")
 	            	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
-	            	.process(parseReceivedDataProcessorHttpHeader)
-	            	.process(mapMultipartToIDSCP2)
-	            	.to("idscp2client://localhost:29292?connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
-	            	.process(senderMapIDSCP2toMultipart)
 	            	.process(registerTransactionToCHProcessor)
-	            	.delay()
-	                .constant(5000);
-				
+	            	.process(mapMultipartToIDSCP2)
+	            	.to("idscp2client://localhost:29292?awaitResponse=true&connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
+	                .process(idsMessageTypeExtractionProcessor)
+	        		.log("### CLIENT RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
+	        		.log("### Handle ${exchangeProperty.ids-type} ###")
+	        		.process(senderMapIDSCP2toMultipart)
+	                .process(registerTransactionToCHProcessor)
+	                .process(senderUsageControlProcessor)
+	                .process(sendResponseToDataAppProcessor)
+	                .removeHeader("idscp2-header");
+	      
 				}else {
 					// Camel SSL - Endpoint: A - Body binary
 					from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyBinary")
@@ -271,46 +237,26 @@ public class CamelRouteSender extends RouteBuilder {
             } else {
             	
             	if(isEnabledIdscp2 && !receiver) {
-		        			
-		                    logger.info("Starting IDSCP v2 client receiver route");
-		                    from("idscp2client://localhost:29292?connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
-		                		.process(idsMessageTypeExtractionProcessor)
-		                		.log("### CLIENT RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
-		                		.choice()
-		                			.when()
-		                			.simple("${exchangeProperty.ids-type} == 'ArtifactResponseMessage'")
-		                			.log("### Handle ArtifactResponseMessage ###")
-		                			
-		                			.process(senderMapIDSCP2toMultipart)
-		                			
-		    						.process(parseReceivedResponseMessage)
-		    		                .process(registerTransactionToCHProcessor)
-		    		                .process(senderUsageControlProcessor)
-		    						.process(sendResponseToDataAppProcessor)
-		                			
-		                	   		.removeHeader("idscp2-header")
-		                	   		.setBody().simple("${null}")
-		                	   		.endChoice()
-		                	   		.otherwise()
-		                	   				.log("### Client received (otherwise branch):\n${body}\n### Header: ###\n${headers[idscp2-header]}")
-		                	   		        .removeHeader("idscp2-header")
-		                	   		        .setBody().simple("${null}");
-                	
-        				logger.info("Starting IDSCP v2 client sender route");
-        				logger.info("WSS communication between ECC and dataApp");
-        				
-        	            from("timer://timerEndpointA?repeatCount=-1")
-        	            	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
-        	            	.process(fileRecreatorProcessor)
-    						.process(parseReceivedDataFromDAppProcessorBodyBinary)
-    		                .process(registerTransactionToCHProcessor)
-        	            	.process(mapMultipartToIDSCP2)
-        	            	.to("idscp2client://localhost:29292?connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
-        	            	.process(senderMapIDSCP2toMultipart)
-        	            	.process(registerTransactionToCHProcessor)
-        	            	.delay()
-        	                .constant(5000);}
-            	else {
+		        	               	
+        		logger.info("Starting IDSCP v2 client sender route");
+        		logger.info("WSS communication between ECC and dataApp");
+        			    
+        	    from("timer://timerEndpointA?repeatCount=-1")
+    	        	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
+    	            .process(fileRecreatorProcessor)
+					.process(parseReceivedDataFromDAppProcessorBodyBinary)
+		            .process(registerTransactionToCHProcessor)		                
+    	            .process(mapMultipartToIDSCP2)
+    	            .to("idscp2client://localhost:29292?awaitResponse=true&connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
+    	            .process(idsMessageTypeExtractionProcessor)
+    	            .log("### CLIENT RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
+    	        	.log("### Handle ${exchangeProperty.ids-type} ###")
+    	        	.process(senderMapIDSCP2toMultipart)
+    		        .process(registerTransactionToCHProcessor)
+    		        .process(senderUsageControlProcessor)
+    				.process(sendResponseToDataAppProcessor);
+    	                	
+        	    }else {
 					// End point A. Communication between Data App and ECC Sender.
 					//fixedRate=true&period=10s
 					from("timer://timerEndpointA?repeatCount=-1") //EndPoint A

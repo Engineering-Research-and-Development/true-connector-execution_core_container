@@ -169,61 +169,33 @@ public class CamelRouteReceiver extends RouteBuilder {
 
 			from("idscp2server://0.0.0.0:29292?sslContextParameters=#sslContext&useIdsMessages=true")
 					.process(IdsMessageTypeExtractionProcessor)
-					.choice()
-						.when()
-	
-						.simple("${exchangeProperty.ids-type} == 'ArtifactRequestMessage'")
-						.log("### IDSCP2 SERVER RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
-						// .log("###LOG :\n${body}\n### Header: ###\n${headers[idscp2-header]}")
-						.log("### Handle ArtifactRequestMessage ###")
-	
-						.process(senderMapIDSCP2toMultipart)
-	
-						.process(registerTransactionToCHProcessor)
-						// Send to the Endpoint: F
-						.process(sendDataToDataAppProcessor)
-						.process(multiPartMessageProcessor)
-						.process(registerTransactionToCHProcessor)
-						.process(receiverUsageControlProcessor)
-	
-						.process(mapMultipartToIDSCP2)
-						.delay().constant(5000)
-					.endChoice()
-					.otherwise()
-						.log("### IDSCP2 SERVER RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
-						.log("### Server received (otherwise branch):\n${body}\n### Header: ###\n${headers[idscp2-header]}")
-						.removeHeader("idscp2-header").setBody().simple("${null}");
+					.log("### IDSCP2 SERVER RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
+					.log("### Handle ${exchangeProperty.ids-type} ###")
+					.process(senderMapIDSCP2toMultipart)
+					.process(registerTransactionToCHProcessor)
+					// Send to the Endpoint: F
+					.process(sendDataToDataAppProcessor)
+					.process(multiPartMessageProcessor)
+					.process(registerTransactionToCHProcessor)
+					.process(receiverUsageControlProcessor)
+					.process(mapMultipartToIDSCP2);
 
 		}
 		
 		if(isEnabledIdscp2 && receiver && isEnabledDataAppWebSocket) {
 			
 			from("idscp2server://0.0.0.0:29292?sslContextParameters=#sslContext&useIdsMessages=true")
-			.process(IdsMessageTypeExtractionProcessor)
-			.choice()
-				.when()
-
-				.simple("${exchangeProperty.ids-type} == 'ArtifactRequestMessage'")
+				.process(IdsMessageTypeExtractionProcessor)
 				.log("### IDSCP2 SERVER RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
-				.log("### Handle ArtifactRequestMessage ###")
-
+				.log("### Handle ${exchangeProperty.ids-type} ###")
 				.process(senderMapIDSCP2toMultipart)
-
-				
                 .process(registerTransactionToCHProcessor)
 				// Send to the Endpoint: F
 				.process(sendDataToDataAppProcessorOverWS)
 				.process(multiPartMessageProcessor)
 				.process(receiverUsageControlProcessor)
                 .process(registerTransactionToCHProcessor)
-
-				.process(mapMultipartToIDSCP2)
-				.delay().constant(5000)
-			.endChoice()
-			.otherwise()
-				.log("### IDSCP2 SERVER RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
-				.log("### Server received (otherwise branch):\n${body}\n### Header: ###\n${headers[idscp2-header]}")
-				.removeHeader("idscp2-header").setBody().simple("${null}");
+				.process(mapMultipartToIDSCP2);
 			
 		}
 
