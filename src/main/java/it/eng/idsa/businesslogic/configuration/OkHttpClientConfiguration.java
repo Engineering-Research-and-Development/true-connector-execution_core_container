@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Configuration;
 import okhttp3.OkHttpClient;
 
 @Configuration
-public class DapsOrbiterConfiguration {
+public class OkHttpClientConfiguration {
 	
 	@Value("${application.disableSslVerification:false}") 
 	boolean disableSslVerification;

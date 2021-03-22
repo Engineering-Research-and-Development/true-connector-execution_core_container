@@ -27,8 +27,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 @Service
-public class DapsV2Provider {
-    private static final Logger logger = LoggerFactory.getLogger(DapsV2Provider.class);
+public class DapsUtilityProvider {
+    private static final Logger logger = LoggerFactory.getLogger(DapsUtilityProvider.class);
 
     @Autowired
     private KeystoreProvider keystoreProvider;
@@ -91,8 +91,8 @@ public class DapsV2Provider {
         SubjectKeyIdentifier ski = SubjectKeyIdentifier.getInstance(ski0c.getOctets());
         byte[] subjectKeyIdentifier = ski.getKeyIdentifier();
 
-        String aki_result = beatifyHex(encodeHexString(authorityKeyIdentifier).toUpperCase());
-        String ski_result = beatifyHex(encodeHexString(subjectKeyIdentifier).toUpperCase());
+        String aki_result = beautifyHex(encodeHexString(authorityKeyIdentifier).toUpperCase());
+        String ski_result = beautifyHex(encodeHexString(subjectKeyIdentifier).toUpperCase());
 
         String connectorUUID = ski_result + "keyid:" + aki_result.substring(0, aki_result.length() - 1);
 
@@ -130,7 +130,7 @@ public class DapsV2Provider {
      * @param hexString HexString to be beautified
      * @return beautifiedHex result
      */
-    private String beatifyHex(String hexString) {
+    private String beautifyHex(String hexString) {
         String[] splitString = split(hexString, 2);
         StringBuffer sb = new StringBuffer();
         for(int i =0; i < splitString.length; i++) {

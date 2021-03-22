@@ -46,7 +46,7 @@ public class DapsV2ServiceImplTest {
 	private DapsV2ServiceImpl dapsV2Service;
 	
 	@Mock
-    private DapsV2Provider dapsV2Provider;
+    private DapsUtilityProvider dapsUtilityProvider;
 	@Mock
 	private OkHttpClient client;
 	@Mock
@@ -57,7 +57,7 @@ public class DapsV2ServiceImplTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		when(dapsV2Provider.getJws()).thenReturn(jws);
+		when(dapsUtilityProvider.getJws()).thenReturn(jws);
 		ReflectionTestUtils.setField(dapsV2Service, "dapsUrl", dapsUrl);
 	}
 	
@@ -104,7 +104,7 @@ public class DapsV2ServiceImplTest {
 	public void validateTokenSuccess() throws ParseException {
 		String tokenValue = JwTokenUtil.generateToken(false);
 		
-		when(dapsV2Provider.provideAlgorithm(tokenValue)).thenReturn(algorithm);
+		when(dapsUtilityProvider.provideAlgorithm(tokenValue)).thenReturn(algorithm);
 		doNothing().when(algorithm).verify(any(DecodedJWT.class));
 		
 		boolean valid = dapsV2Service.validateToken(tokenValue);
@@ -115,7 +115,7 @@ public class DapsV2ServiceImplTest {
 	public void validateTokenButExpired() throws ParseException {
 		String tokenValue = JwTokenUtil.generateToken(true);
 		
-		when(dapsV2Provider.provideAlgorithm(tokenValue)).thenReturn(algorithm);
+		when(dapsUtilityProvider.provideAlgorithm(tokenValue)).thenReturn(algorithm);
 		doNothing().when(algorithm).verify(any(DecodedJWT.class));
 		
 		boolean valid = dapsV2Service.validateToken(tokenValue);
@@ -126,7 +126,7 @@ public class DapsV2ServiceImplTest {
 	public void validateTokenFailed() throws ParseException {
 		String tokenValue = JwTokenUtil.generateToken(false);
 		
-		when(dapsV2Provider.provideAlgorithm(tokenValue)).thenReturn(algorithm);
+		when(dapsUtilityProvider.provideAlgorithm(tokenValue)).thenReturn(algorithm);
 		doThrow(SignatureVerificationException.class).when(algorithm).verify(any(DecodedJWT.class));
 		
 		boolean valid = dapsV2Service.validateToken(tokenValue);

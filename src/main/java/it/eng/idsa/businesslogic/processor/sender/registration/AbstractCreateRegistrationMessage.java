@@ -39,7 +39,7 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 		String connector = selfDescriptionService.getConnectorSelfDescription();
 		Message connectorAvailable = getConnectorMessage();
 
-		String  registrationMessage = geObjectAsString(connectorAvailable);
+		String  registrationMessage = getObjectAsString(connectorAvailable);
 		MultipartMessage multipartMessage = null;
 		logger.debug("Message for sending towards Broker - header\n{}", registrationMessage);
 		logger.debug("Message for sending towards Broker - payload\n{}", connector);
@@ -62,7 +62,7 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 
 	abstract Message getConnectorMessage() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException;
 
-	private String geObjectAsString(Object toSerialize) {
+	private String getObjectAsString(Object toSerialize) {
 		final Serializer serializer = new Serializer();
 		String result = null;
 		try {

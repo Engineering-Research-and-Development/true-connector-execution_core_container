@@ -44,7 +44,7 @@ public class DapsV2ServiceImpl implements DapsService {
 	@Autowired
 	private OkHttpClient client;
 	@Autowired
-	private DapsV2Provider dapsV2Provider;
+	private DapsUtilityProvider dapsUtilityProvider;
 
 	private String token = null;
 
@@ -58,7 +58,7 @@ public class DapsV2ServiceImpl implements DapsService {
 		try {
 			logger.info("Retrieving Dynamic Attribute Token...");
 
-			String jws = dapsV2Provider.getJws();
+			String jws = dapsUtilityProvider.getJws();
 			logger.info("Request token: " + jws);
 
 			// build form body to embed client assertion into post request
@@ -110,7 +110,7 @@ public class DapsV2ServiceImpl implements DapsService {
 		boolean valid = false;
 		DecodedJWT jwt = JWT.decode(tokenValue);
 		try {
-			Algorithm algorithm = dapsV2Provider.provideAlgorithm(tokenValue);
+			Algorithm algorithm = dapsUtilityProvider.provideAlgorithm(tokenValue);
 			algorithm.verify(jwt);
 			valid = true;
 			if (jwt.getExpiresAt().before(new Date())) {
