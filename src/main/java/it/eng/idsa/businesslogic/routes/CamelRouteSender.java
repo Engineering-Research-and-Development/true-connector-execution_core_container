@@ -12,12 +12,12 @@ import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.common.MapMultipartToIDSCP2;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
+import it.eng.idsa.businesslogic.processor.common.MapIDSCP2toMultipart;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorSender;
 import it.eng.idsa.businesslogic.processor.sender.SenderFileRecreatorProcessor;
-import it.eng.idsa.businesslogic.processor.sender.SenderMapIDSCP2toMultipart;
 import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataFromDAppProcessorBodyBinary;
 import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataProcessorBodyBinary;
 import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataProcessorBodyFormData;
@@ -89,9 +89,6 @@ public class CamelRouteSender extends RouteBuilder {
 	SenderUsageControlProcessor senderUsageControlProcessor;
 
 	@Autowired
-	SenderMapIDSCP2toMultipart senderMapIDSCP2toMultipart;
-
-	@Autowired
 	CamelContext camelContext;
 
 	@Autowired
@@ -104,9 +101,10 @@ public class CamelRouteSender extends RouteBuilder {
 	private SenderCreatePassivateMessageProcessor createPassivateMessageSender;
 	@Autowired
 	private SenderCreateQueryBrokerMessageProcessor createBrokerQueryMessageSender;
-	
 	@Autowired
 	private MapMultipartToIDSCP2 mapMultipartToIDSCP2;
+	@Autowired
+	private MapIDSCP2toMultipart mapIDSCP2toMultipart;
 
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledDataAppWebSocket;
@@ -132,19 +130,19 @@ public class CamelRouteSender extends RouteBuilder {
 		if(!isEnabledDataAppWebSocket) {
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/selfRegistration/register")
 				.process(createRegistratioMessageSender)
-			.to("direct:registrationProcess");
+				.to("direct:registrationProcess");
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/selfRegistration/update")
 				.process(createUpdateMessageSender)
-			.to("direct:registrationProcess");
+				.to("direct:registrationProcess");
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/selfRegistration/delete")
 				.process(createDeleteMessageSender)
-			.to("direct:registrationProcess");
+				.to("direct:registrationProcess");
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/selfRegistration/passivate")
 				.process(createPassivateMessageSender)
-			.to("direct:registrationProcess");
+				.to("direct:registrationProcess");
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/selfRegistration/query")
 				.process(createBrokerQueryMessageSender)
-			.to("direct:registrationProcess");
+				.to("direct:registrationProcess");
 			
 			from("direct:registrationProcess")
 				.process(getTokenFromDapsProcessor)
@@ -155,24 +153,26 @@ public class CamelRouteSender extends RouteBuilder {
 			
 						
 			if(isEnabledIdscp2 && !receiver) {
+				// End point B. ECC communication (dataApp-ECC communication with http
+				// and communication between ECCs with IDSCP2)
 				
 				//IDSCP2 flow triggered by multipartMessageBodyBinary
 				// Camel SSL - Endpoint: A - Body binary
 				from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyBinary")
-				.process(parseReceivedDataProcessorBodyBinary)
-				.to("direct:IDSCP2");
+					.process(parseReceivedDataProcessorBodyBinary)
+					.to("direct:IDSCP2");
 				
 				//IDSCP2 flow triggered by multipartMessageBodyFormData
 				// Camel SSL - Endpoint: A - Body binary
 				from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyFormData")
-				.process(parseReceivedDataProcessorBodyFormData)
-				.to("direct:IDSCP2");
+					.process(parseReceivedDataProcessorBodyFormData)
+					.to("direct:IDSCP2");
 				
 				//IDSCP2 flow triggered by multipartMessageHttpHeader
 				// Camel SSL - Endpoint: A - Body binary
 				from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageHttpHeader" + "?httpMethodRestrict=POST")
-            	.process(parseReceivedDataProcessorHttpHeader)
-            	.to("direct:IDSCP2");
+	            	.process(parseReceivedDataProcessorHttpHeader)
+	            	.to("direct:IDSCP2");
         	
 				logger.info("Starting IDSCP v2 client sender route");
 				
@@ -182,7 +182,7 @@ public class CamelRouteSender extends RouteBuilder {
 	            	.process(mapMultipartToIDSCP2)
 	            	.toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
 	        		.log("### CLIENT RECEIVER: Detected Message")
-	        		.process(senderMapIDSCP2toMultipart)
+	        		.process(mapIDSCP2toMultipart)
 	                .process(registerTransactionToCHProcessor)
 	                .process(senderUsageControlProcessor)
 	                .process(sendResponseToDataAppProcessor)
@@ -191,48 +191,36 @@ public class CamelRouteSender extends RouteBuilder {
 				}else {
 					// Camel SSL - Endpoint: A - Body binary
 					from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyBinary")
-		        		.process(parseReceivedDataProcessorBodyBinary)
-		                .process(getTokenFromDapsProcessor)
-		                .process(registerTransactionToCHProcessor)
-		                 // Send data to Endpoint B
-		                .process(sendDataToBusinessLogicProcessor)
-		                .process(parseReceivedResponseMessage)
-		                .process(validateTokenProcessor)
-		                .process(registerTransactionToCHProcessor)
-		                .process(senderUsageControlProcessor)
-		                .process(sendResponseToDataAppProcessor)
-						.removeHeaders("Camel*");
-				
+						.process(parseReceivedDataProcessorBodyBinary)
+						.to("direct:HTTP");
+					
 		            // Camel SSL - Endpoint: A - Body form-data
 		            from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyFormData")
 						.process(parseReceivedDataProcessorBodyFormData)
-		                .process(getTokenFromDapsProcessor)
-		                .process(registerTransactionToCHProcessor)
-		                 // Send data to Endpoint B
-		                .process(sendDataToBusinessLogicProcessor)
-		                .process(parseReceivedResponseMessage)
-		                .process(validateTokenProcessor)
-		                .process(registerTransactionToCHProcessor)
-		                .process(senderUsageControlProcessor)
-		                .process(sendResponseToDataAppProcessor)
-						.removeHeaders("Camel*");
+						.to("direct:HTTP");
 		            
 		            // Camel SSL - Endpoint: A - Http-header
 		            from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageHttpHeader" + "?httpMethodRestrict=POST")
 		        		.process(parseReceivedDataProcessorHttpHeader)
+		        		.to("direct:HTTP");
+
+					from("direct:HTTP")
 		                .process(getTokenFromDapsProcessor)
 		                .process(registerTransactionToCHProcessor)
-		                // Send data to Endpoint B
+		                 // Send data to Endpoint B
 		                .process(sendDataToBusinessLogicProcessor)
 		                .process(parseReceivedResponseMessage)
 		                .process(validateTokenProcessor)
 		                .process(registerTransactionToCHProcessor)
 		                .process(senderUsageControlProcessor)
 		                .process(sendResponseToDataAppProcessor)
-						.removeHeaders("Camel*");}
+						.removeHeaders("Camel*");
+		              }
             } else {
             	
             	if(isEnabledIdscp2 && !receiver) {
+            	// End point B. ECC communication (dataApp-ECC communication with WebSocket
+        		// and communication between ECCs with IDSCP2)
 		        	               	
         		logger.info("Starting IDSCP v2 client sender route");
         		logger.info("WSS communication between ECC and dataApp");
@@ -245,7 +233,7 @@ public class CamelRouteSender extends RouteBuilder {
     	            .process(mapMultipartToIDSCP2)
     	            .toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
     	            .log("### CLIENT RECEIVER: Detected Message")
-    	        	.process(senderMapIDSCP2toMultipart)
+    	        	.process(mapIDSCP2toMultipart)
     		        .process(registerTransactionToCHProcessor)
     		        .process(senderUsageControlProcessor)
     				.process(sendResponseToDataAppProcessor);
@@ -266,8 +254,7 @@ public class CamelRouteSender extends RouteBuilder {
 		                .process(senderUsageControlProcessor)
 						.process(sendResponseToDataAppProcessor);
 				//@formatter:on
-            	}
+			}
 		}
 	}
-
 }

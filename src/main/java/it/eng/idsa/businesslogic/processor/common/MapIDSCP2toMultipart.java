@@ -1,4 +1,4 @@
-package it.eng.idsa.businesslogic.processor.sender;
+package it.eng.idsa.businesslogic.processor.common;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -10,7 +10,7 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
 
 
 @Component
-public class SenderMapIDSCP2toMultipart implements Processor {
+public class MapIDSCP2toMultipart implements Processor {
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
