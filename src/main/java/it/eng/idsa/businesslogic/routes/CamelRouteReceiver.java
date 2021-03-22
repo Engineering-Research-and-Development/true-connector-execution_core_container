@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import de.fhg.aisec.ids.camel.idscp2.processors.IdsMessageTypeExtractionProcessor;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.common.MapMultipartToIDSCP2;
@@ -72,9 +71,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 
 	@Autowired
 	ReceiverUsageControlProcessor receiverUsageControlProcessor;
-
-	@Autowired
-	IdsMessageTypeExtractionProcessor IdsMessageTypeExtractionProcessor;
 
 	@Autowired
 	ReceiverStaticResponseMessageProcessor receiverStaticResponseMessageProcessor;
@@ -168,9 +164,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 			logger.info("Starting IDSCP v2 Server route");
 
 			from("idscp2server://0.0.0.0:29292?sslContextParameters=#sslContext&useIdsMessages=true")
-					.process(IdsMessageTypeExtractionProcessor)
-					.log("### IDSCP2 SERVER RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
-					.log("### Handle ${exchangeProperty.ids-type} ###")
+					.log("### IDSCP2 SERVER RECEIVER: Detected Message")
 					.process(senderMapIDSCP2toMultipart)
 					.process(registerTransactionToCHProcessor)
 					// Send to the Endpoint: F
@@ -185,9 +179,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 		if(isEnabledIdscp2 && receiver && isEnabledDataAppWebSocket) {
 			
 			from("idscp2server://0.0.0.0:29292?sslContextParameters=#sslContext&useIdsMessages=true")
-				.process(IdsMessageTypeExtractionProcessor)
-				.log("### IDSCP2 SERVER RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
-				.log("### Handle ${exchangeProperty.ids-type} ###")
+				.log("### IDSCP2 SERVER RECEIVER: Detected Message")
 				.process(senderMapIDSCP2toMultipart)
                 .process(registerTransactionToCHProcessor)
 				// Send to the Endpoint: F

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import de.fhg.aisec.ids.camel.idscp2.processors.IdsMessageTypeExtractionProcessor;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.common.MapMultipartToIDSCP2;
@@ -105,8 +104,7 @@ public class CamelRouteSender extends RouteBuilder {
 	private SenderCreatePassivateMessageProcessor createPassivateMessageSender;
 	@Autowired
 	private SenderCreateQueryBrokerMessageProcessor createBrokerQueryMessageSender;
-	@Autowired
-	private IdsMessageTypeExtractionProcessor idsMessageTypeExtractionProcessor;
+	
 	@Autowired
 	private MapMultipartToIDSCP2 mapMultipartToIDSCP2;
 
@@ -183,9 +181,7 @@ public class CamelRouteSender extends RouteBuilder {
 	            	.process(registerTransactionToCHProcessor)
 	            	.process(mapMultipartToIDSCP2)
 	            	.toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
-	                .process(idsMessageTypeExtractionProcessor)
-	        		.log("### CLIENT RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
-	        		.log("### Handle ${exchangeProperty.ids-type} ###")
+	        		.log("### CLIENT RECEIVER: Detected Message")
 	        		.process(senderMapIDSCP2toMultipart)
 	                .process(registerTransactionToCHProcessor)
 	                .process(senderUsageControlProcessor)
@@ -248,9 +244,7 @@ public class CamelRouteSender extends RouteBuilder {
 		            .process(registerTransactionToCHProcessor)		                
     	            .process(mapMultipartToIDSCP2)
     	            .toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
-    	            .process(idsMessageTypeExtractionProcessor)
-    	            .log("### CLIENT RECEIVER: Detected Message type: ${exchangeProperty.ids-type}")
-    	        	.log("### Handle ${exchangeProperty.ids-type} ###")
+    	            .log("### CLIENT RECEIVER: Detected Message")
     	        	.process(senderMapIDSCP2toMultipart)
     		        .process(registerTransactionToCHProcessor)
     		        .process(senderUsageControlProcessor)
