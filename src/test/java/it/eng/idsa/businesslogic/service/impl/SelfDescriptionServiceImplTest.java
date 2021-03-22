@@ -127,10 +127,4 @@ public class SelfDescriptionServiceImplTest {
 				.build();
 		return offeredResource;
 	}
-	
-	@Test
-	public void igor() {
-		Message cam = TestUtilMessageService.createContractAgreementMessage();
-		System.out.println(TestUtilMessageService.getMessageAsString(cam));
-	}
 }
