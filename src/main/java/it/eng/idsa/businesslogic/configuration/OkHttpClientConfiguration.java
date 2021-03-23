@@ -7,18 +7,23 @@ import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.apache.http.conn.ssl.DefaultHostnameVerifier;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import okhttp3.OkHttpClient;
 
 @Configuration
-public class DapsOrbiterConfiguration {
+public class OkHttpClientConfiguration {
+	
+	@Value("${application.disableSslVerification:false}") 
+	boolean disableSslVerification;
 	
 	@Bean
 	public OkHttpClient getClient() throws KeyManagementException, NoSuchAlgorithmException {
@@ -30,18 +35,20 @@ public class DapsOrbiterConfiguration {
 	
 	private OkHttpClient createHttpClient(final TrustManager[] trustAllCerts, final SSLSocketFactory sslSocketFactory) {
 		OkHttpClient client;
+		
+		HostnameVerifier hostnameVerifier;
+		if(disableSslVerification) {
+			hostnameVerifier = new NoopHostnameVerifier();
+		} else {
+			hostnameVerifier = new DefaultHostnameVerifier();
+		}
 		//@formatter:off
 		client = new OkHttpClient.Builder()
 				.connectTimeout(60, TimeUnit.SECONDS)
 		        .writeTimeout(60, TimeUnit.SECONDS)
 		        .readTimeout(60, TimeUnit.SECONDS)
 		        .sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
-		        .hostnameVerifier(new HostnameVerifier() {
-		            @Override
-		            public boolean verify(String hostname, SSLSession session) {
-		                return true;
-		            }
-		        })
+		        .hostnameVerifier(hostnameVerifier)
 		        .build();
 		//@formatter:on
 		return client;

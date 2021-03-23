@@ -5,13 +5,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,15 +55,8 @@ public class SslValidatingConfiguration {
 			sc.init(null, trustAllCerts, new java.security.SecureRandom());
 			HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 
-			// Create all-trusting host name verifier
-			HostnameVerifier allHostsValid = new HostnameVerifier() {
-				public boolean verify(String hostname, SSLSession session) {
-					return true;
-				}
-			};
-
 			// Install the all-trusting host verifier
-			HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+			HttpsURLConnection.setDefaultHostnameVerifier(new NoopHostnameVerifier());
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		} catch (KeyManagementException e) {

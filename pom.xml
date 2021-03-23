@@ -34,7 +34,7 @@
 			<url>http://maven.iais.fraunhofer.de/artifactory/eis-ids-public</url>
 		</repository>
 	</repositories>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
@@ -233,6 +233,16 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
+		</dependency>
+		<dependency>
+		  <groupId>com.auth0</groupId>
+		  <artifactId>java-jwt</artifactId>
+		  <version>3.14.0</version>
+		</dependency>
+		<dependency>
+		  <groupId>com.auth0</groupId>
+		  <artifactId>jwks-rsa</artifactId>
+		  <version>0.17.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>

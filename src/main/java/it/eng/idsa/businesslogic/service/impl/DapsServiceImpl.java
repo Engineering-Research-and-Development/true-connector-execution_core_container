@@ -3,18 +3,15 @@ package it.eng.idsa.businesslogic.service.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Key;
 import java.security.KeyFactory;
-import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.Signature;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -23,36 +20,22 @@ import java.security.spec.RSAPublicKeySpec;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.jwk.source.RemoteJWKSet;
-import com.nimbusds.jose.proc.JWSKeySelector;
-import com.nimbusds.jose.proc.JWSVerificationKeySelector;
-import com.nimbusds.jose.proc.SecurityContext;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
-import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
@@ -82,6 +65,12 @@ public class DapsServiceImpl implements DapsService {
 	private Certificate cert;
 
 	private String token = null;
+	
+	@Autowired
+	private DapsUtilityProvider dapsUtilityProvider;
+	
+	@Autowired
+	private OkHttpClient client;
 
 	@Value("${application.targetDirectory}")
 	private Path targetDirectory;
@@ -98,7 +87,7 @@ public class DapsServiceImpl implements DapsService {
 	@Value("${application.dapsJWKSUrl}")
 	private String dapsJWKSUrl;
   
-	private String getJwtTokenInternal() {
+	private String getJwTokenInternal() {
 
 		logger.debug("Get properties");
 
@@ -110,62 +99,21 @@ public class DapsServiceImpl implements DapsService {
 			store.load(jksInputStream, keyStorePassword.toCharArray());
 			// get private key
 			privKey = (PrivateKey) store.getKey(keystoreAliasName, keyStorePassword.toCharArray());
-			// Get certificate of public key
-			setCert(store.getCertificate(keystoreAliasName));
-
-			// byte[] encodedPublicKey = publicKey.getEncoded();
-			// String b64PublicKey = Base64.getEncoder().encodeToString(encodedPublicKey);
 
 			// create signed JWT (JWS)
 			// Create expiry date one day (86400 seconds) from now
 			Date expiryDate = Date.from(Instant.now().plusSeconds(86400));
 			// @formatter:off
-			JwtBuilder jwtb = Jwts.builder().setIssuer(connectorUUID).setSubject(connectorUUID)
-					.setExpiration(expiryDate).setIssuedAt(Date.from(Instant.now()))
-					.setAudience("https://api.localhost").setNotBefore(Date.from(Instant.now()));
+			JwtBuilder jwtb = Jwts.builder()
+					.setIssuer(connectorUUID)
+					.setSubject(connectorUUID)
+					.setExpiration(expiryDate)
+					.setIssuedAt(Date.from(Instant.now()))
+					.setAudience("https://api.localhost")
+					.setNotBefore(Date.from(Instant.now()));
 			// @formatter:on
 			String jws = jwtb.signWith(SignatureAlgorithm.RS256, privKey).compact();
-			/*
-			 * String json = "{\"\": \"\"," +
-			 * "\"\":\"urn:ietf:params:oauth:client-assertion-type:jwt-bearer\"," +
-			 * "\"\":\"" + jws + "\"," + "\"\":\"\"," + "}";
-			 */
-
-			OkHttpClient client = null;
-			final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-				@Override
-				public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType)
-						throws CertificateException {
-				}
-
-				@Override
-				public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType)
-						throws CertificateException {
-				}
-
-				@Override
-				public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-					return new java.security.cert.X509Certificate[0];
-				}
-			} };
-
-			// Install the all-trusting trust manager
-			final SSLContext sslContext = SSLContext.getInstance("SSL");
-			sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-			// Create an ssl socket factory with our all-trusting manager
-			final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-
-			client = new OkHttpClient.Builder()
-					.connectTimeout(60, TimeUnit.SECONDS)
-					.writeTimeout(60, TimeUnit.SECONDS)
-					.readTimeout(60, TimeUnit.SECONDS)
-					.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
-					.hostnameVerifier(new HostnameVerifier() {
-						@Override
-						public boolean verify(String hostname, SSLSession session) {
-							return true;
-						}
-					}).build();
+			
 			// @formatter:off
 			RequestBody formBody = new FormBody.Builder()
 					.add("grant_type", "client_credentials")
@@ -187,18 +135,10 @@ public class DapsServiceImpl implements DapsService {
 			ObjectNode node = new ObjectMapper().readValue(body, ObjectNode.class);
             if (node.has("access_token")) {
                 token = node.get("access_token").asText();
-                logger.info("access_token: {}", () -> token);
+                logger.info("access_token: {}", token);
             }
-            logger.info("access_token: {}", body);
 
-			if (node.has("access_token")) {
-				token = node.get("access_token").asText();
-				logger.info("access_token: {}", () -> token.toString());
-			}
-			logger.info("access_token: {}", body);
-
-		} catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException
-				| KeyManagementException | UnrecoverableKeyException e) {
+		} catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException e) {
 			logger.error(e);
 			return null;
 		} finally {
@@ -209,81 +149,23 @@ public class DapsServiceImpl implements DapsService {
 		return token;
 	}
 
+	
 	@Override
 	public boolean validateToken(String tokenValue) {
-		boolean isValid = false;
-
-		logger.debug("Get properties");
-
+		boolean valid = false;
+		DecodedJWT jwt = JWT.decode(tokenValue);
 		try {
-			// Set up a JWT processor to parse the tokens and then check their signature
-			// and validity time window (bounded by the "iat", "nbf" and "exp" claims)
-			ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<SecurityContext>();
-
-			// The public RSA keys to validate the signatures will be sourced from the
-			// OAuth 2.0 server's JWK set, published at a well-known URL. The RemoteJWKSet
-			// object caches the retrieved keys to speed up subsequent look-ups and can
-			// also gracefully handle key-rollover
-			JWKSource<SecurityContext> keySource = new RemoteJWKSet<SecurityContext>(new URL(dapsJWKSUrl));
-
-			// Load JWK set from URL
-			JWKSet publicKeys = null;
-
-			publicKeys = JWKSet.load(new URL(dapsJWKSUrl));
-
-			RSAKey key = (RSAKey) publicKeys.getKeyByKeyId("default");
-
-			// The expected JWS algorithm of the access tokens (agreed out-of-band)
-			JWSAlgorithm expectedJWSAlg = JWSAlgorithm.RS256;
-
-			// Configure the JWT processor with a key selector to feed matching public
-			// RSA keys sourced from the JWK set URL
-			JWSKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<SecurityContext>(
-					expectedJWSAlg, keySource);
-			jwtProcessor.setJWSKeySelector(keySelector);
-
-			// Validate signature
-			String exponentB64u = key.getPublicExponent().toString();
-			String modulusB64u = key.getModulus().toString();
-
-			// Build the public key from modulus and exponent
-			PublicKey publicKey = getPublicKey(modulusB64u, exponentB64u);
-
-			// print key as PEM (base64 and headers)
-			String publicKeyPEM = "-----BEGIN PUBLIC KEY-----\n"
-					+ Base64.getEncoder().encodeToString(publicKey.getEncoded()) + "\n" + "-----END PUBLIC KEY-----";
-
-			logger.debug("publicKeyPEM: {}", () -> publicKeyPEM);
-
-			// get signed data and signature from JWT
-			String signedData = tokenValue.substring(0, tokenValue.lastIndexOf("."));
-			String signatureB64u = tokenValue.substring(tokenValue.lastIndexOf(".") + 1, tokenValue.length());
-			byte signature[] = Base64.getUrlDecoder().decode(signatureB64u);
-
-			// verify Signature
-			Signature sig = Signature.getInstance("SHA256withRSA");
-			sig.initVerify(publicKey);
-			sig.update(signedData.getBytes());
-			boolean v = sig.verify(signature);
-			logger.debug("result_validation_signature = ", () -> v);
-
-			if (v == false) {
-				isValid = false;
-			} else {
-				// Process the token
-				SecurityContext ctx = null; // optional context parameter, not required here
-				JWTClaimsSet claimsSet = jwtProcessor.process(tokenValue, ctx);
-
-				logger.debug("claimsSet = ", () -> claimsSet.toJSONObject());
-
-				isValid = true;
+			Algorithm algorithm = dapsUtilityProvider.provideAlgorithm(tokenValue);
+			algorithm.verify(jwt);
+			valid = true;
+			if (jwt.getExpiresAt().before(new Date())) {
+				valid = false;
+				logger.warn("Token expired");
 			}
-
-		} catch (Exception e) {
-			logger.error(e);
+		} catch (SignatureVerificationException e) {
+			logger.info("Token did not verified, {}", e);
 		}
-
-		return isValid;
+		return valid;
 	}
 
 	// Build the public key from modulus and exponent
@@ -339,7 +221,7 @@ public class DapsServiceImpl implements DapsService {
 	@Override
 	public String getJwtToken() {
 
-		token = getJwtTokenInternal();
+		token = getJwTokenInternal();
 
 		if (StringUtils.isNotBlank(token) && validateToken(token)) {
 			logger.info("Token is valid: " + token);
