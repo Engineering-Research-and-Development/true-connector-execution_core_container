@@ -56,7 +56,7 @@ public class DapsUtilityProvider {
                           .setNotBefore(Date.from(Instant.now()));
 
         //@formatter:on
-          String jws = jwtb.signWith(SignatureAlgorithm.RS256, keystoreProvider.getPrivteKey()).compact();
+          String jws = jwtb.signWith(SignatureAlgorithm.RS256, keystoreProvider.getPrivateKey()).compact();
           logger.info("Request token: " + jws);
           return jws;
     }

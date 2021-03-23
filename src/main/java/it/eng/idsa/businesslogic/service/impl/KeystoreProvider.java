@@ -58,7 +58,7 @@ public class KeystoreProvider {
 		}
 	}
 	
-	public Key getPrivteKey() {
+	public Key getPrivateKey() {
 		try {
 			return keystore.getKey(keystoreAlias, keyStorePwd.toCharArray());
 		} catch (UnrecoverableKeyException | KeyStoreException | NoSuchAlgorithmException e) {

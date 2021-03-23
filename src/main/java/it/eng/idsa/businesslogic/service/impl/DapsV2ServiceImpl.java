@@ -43,6 +43,7 @@ public class DapsV2ServiceImpl implements DapsService {
 
 	@Autowired
 	private OkHttpClient client;
+	
 	@Autowired
 	private DapsUtilityProvider dapsUtilityProvider;
 
