@@ -18,6 +18,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 import de.fraunhofer.iais.eis.ContractAgreementMessage;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.CommunicationService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
@@ -38,6 +40,7 @@ public class ContractAgreementProcessorTest {
 	@Mock
 	private MultipartMessage multipartMessage;
 
+	private RejectionMessageService rejectionMessageService;
 	private ContractAgreementMessage contractAggreAgreementMessage;
 	
 	private String usageControlDataAppURL = "http://ucdata.app.mock";
@@ -69,6 +72,10 @@ public class ContractAgreementProcessorTest {
 	
 	@Test
 	public void verifyContractAgreementFailed_NoPayload() throws Exception {
+		rejectionMessageService = new RejectionMessageServiceImpl();
+		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
+				rejectionMessageService, RejectionMessageService.class);
+		
 		when(exchange.getMessage()).thenReturn(camelMessage);
 		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
 		when(multipartMessage.getHeaderContent()).thenReturn(contractAggreAgreementMessage);

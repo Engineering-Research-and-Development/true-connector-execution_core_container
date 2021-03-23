@@ -9,8 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.ContractAgreementMessage;
-import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.CommunicationService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
 /**
@@ -26,13 +27,16 @@ public class ContractAgreementProcessor implements Processor {
 	private CommunicationService communicationService;
 	private String usageControlDataAppURL;
 	private String addPolicyEndpoint;
+	private RejectionMessageService rejectionMessageService;
 	
 	public ContractAgreementProcessor(CommunicationService communicationService, 
 			@Value("${spring.ids.ucapp.baseUrl}") String usageControlDataAppURL,
-			@Value("${spring.ids.ucapp.addPolicyEndpoint}") String addPolicyEndpoint) {
+			@Value("${spring.ids.ucapp.addPolicyEndpoint}") String addPolicyEndpoint,
+			RejectionMessageService rejectionMessageService) {
 		this.communicationService = communicationService;
 		this.usageControlDataAppURL = usageControlDataAppURL;
 		this.addPolicyEndpoint = addPolicyEndpoint;
+		this.rejectionMessageService = rejectionMessageService;
 	}
 
 	@Override
@@ -47,7 +51,7 @@ public class ContractAgreementProcessor implements Processor {
 				logger.info("UsageControl DataApp response {}", response);
 			} else {
 				logger.warn("Payload not present but mandatory for this logic");
-				throw new ExceptionForProcessor("Payload not present but mandatory for this logic");
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, multipartMessage.getHeaderContent());
 			}
 		} else {
 			logger.info("Not ContractAgreementMessage - skipping logic and continuing with the flow");
