@@ -115,6 +115,9 @@ public class CamelRouteSender extends RouteBuilder {
 	@Value("${application.isReceiver}")
 	private boolean receiver;
 
+	@Value("${application.websocket.isEnabled}")
+	private boolean isEnabledWebSocket;
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void configure() throws Exception {
@@ -150,111 +153,110 @@ public class CamelRouteSender extends RouteBuilder {
 				.process(parseReceivedResponseMessage)
 				.process(validateTokenProcessor)
 				.process(sendResponseToDataAppProcessor);
-			
-						
-			if(isEnabledIdscp2 && !receiver) {
-				// End point B. ECC communication (dataApp-ECC communication with http
-				// and communication between ECCs with IDSCP2)
-				
-				//IDSCP2 flow triggered by multipartMessageBodyBinary
-				// Camel SSL - Endpoint: A - Body binary
-				from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyBinary")
-					.process(parseReceivedDataProcessorBodyBinary)
-					.to("direct:IDSCP2");
-				
-				//IDSCP2 flow triggered by multipartMessageBodyFormData
-				// Camel SSL - Endpoint: A - Body binary
-				from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyFormData")
-					.process(parseReceivedDataProcessorBodyFormData)
-					.to("direct:IDSCP2");
-				
-				//IDSCP2 flow triggered by multipartMessageHttpHeader
-				// Camel SSL - Endpoint: A - Body binary
-				from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageHttpHeader" + "?httpMethodRestrict=POST")
-	            	.process(parseReceivedDataProcessorHttpHeader)
-	            	.to("direct:IDSCP2");
-        	
-				logger.info("Starting IDSCP v2 client sender route");
-				
-	            from("direct:IDSCP2")
-	            	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
-	            	.process(registerTransactionToCHProcessor)
-	            	.process(mapMultipartToIDSCP2)
-	            	.toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
-	        		.log("### CLIENT RECEIVER: Detected Message")
-	        		.process(mapIDSCP2toMultipart)
-	                .process(registerTransactionToCHProcessor)
-	                .process(senderUsageControlProcessor)
-	                .process(sendResponseToDataAppProcessor)
-	                .removeHeader("idscp2-header");
-	      
-				}else {
-					// Camel SSL - Endpoint: A - Body binary
-					from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyBinary")
-						.process(parseReceivedDataProcessorBodyBinary)
-						.to("direct:HTTP");
+		}
+		
+		if(!isEnabledDataAppWebSocket && !isEnabledIdscp2) {
+			// Camel SSL - Endpoint: A - Body binary
+			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyBinary")
+				.process(parseReceivedDataProcessorBodyBinary)
+				.to("direct:HTTP");
 					
-		            // Camel SSL - Endpoint: A - Body form-data
-		            from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyFormData")
-						.process(parseReceivedDataProcessorBodyFormData)
-						.to("direct:HTTP");
+		    // Camel SSL - Endpoint: A - Body form-data
+		    from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyFormData")
+				.process(parseReceivedDataProcessorBodyFormData)
+				.to("direct:HTTP");
 		            
-		            // Camel SSL - Endpoint: A - Http-header
-		            from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageHttpHeader" + "?httpMethodRestrict=POST")
-		        		.process(parseReceivedDataProcessorHttpHeader)
-		        		.to("direct:HTTP");
+		    // Camel SSL - Endpoint: A - Http-header
+		    from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageHttpHeader" + "?httpMethodRestrict=POST")
+		    	.process(parseReceivedDataProcessorHttpHeader)
+		    	.to("direct:HTTP");
 
-					from("direct:HTTP")
-		                .process(getTokenFromDapsProcessor)
-		                .process(registerTransactionToCHProcessor)
-		                 // Send data to Endpoint B
-		                .process(sendDataToBusinessLogicProcessor)
-		                .process(parseReceivedResponseMessage)
-		                .process(validateTokenProcessor)
-		                .process(registerTransactionToCHProcessor)
-		                .process(senderUsageControlProcessor)
-		                .process(sendResponseToDataAppProcessor)
-						.removeHeaders("Camel*");
-		              }
-            } else {
-            	
-            	if(isEnabledIdscp2 && !receiver) {
-            	// End point B. ECC communication (dataApp-ECC communication with WebSocket
-        		// and communication between ECCs with IDSCP2)
-		        	               	
-        		logger.info("Starting IDSCP v2 client sender route");
-        		logger.info("WSS communication between ECC and dataApp");
-        			    
-        	    from("timer://timerEndpointA?repeatCount=-1")
-    	        	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
-    	            .process(fileRecreatorProcessor)
-					.process(parseReceivedDataFromDAppProcessorBodyBinary)
-		            .process(registerTransactionToCHProcessor)		                
-    	            .process(mapMultipartToIDSCP2)
-    	            .toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
-    	            .log("### CLIENT RECEIVER: Detected Message")
-    	        	.process(mapIDSCP2toMultipart)
-    		        .process(registerTransactionToCHProcessor)
-    		        .process(senderUsageControlProcessor)
-    				.process(sendResponseToDataAppProcessor);
-    	                	
-        	    }else {
-					// End point A. Communication between Data App and ECC Sender.
-					//fixedRate=true&period=10s
-					from("timer://timerEndpointA?repeatCount=-1") //EndPoint A
-						.process(fileRecreatorProcessor)
-						.process(parseReceivedDataFromDAppProcessorBodyBinary)
-						.process(getTokenFromDapsProcessor)
-		                .process(registerTransactionToCHProcessor)
-						// Send data to Endpoint B
-						.process(sendDataToBusinessLogicProcessor)
-						.process(parseReceivedResponseMessage)
-						.process(validateTokenProcessor)
-		                .process(registerTransactionToCHProcessor)
-		                .process(senderUsageControlProcessor)
-						.process(sendResponseToDataAppProcessor);
-				//@formatter:on
+			from("direct:HTTP")
+		        .process(getTokenFromDapsProcessor)
+		        .process(registerTransactionToCHProcessor)
+		        // Send data to Endpoint B
+		        .process(sendDataToBusinessLogicProcessor)
+		        .process(parseReceivedResponseMessage)
+		        .process(validateTokenProcessor)
+		        .process(registerTransactionToCHProcessor)
+		        .process(senderUsageControlProcessor)
+		        .process(sendResponseToDataAppProcessor)
+				.removeHeaders("Camel*");
+            } 
+        
+		if(isEnabledIdscp2 && !receiver && !isEnabledDataAppWebSocket) {
+			// End point B. ECC communication (dataApp-ECC communication with http
+			// and communication between ECCs with IDSCP2)
+			
+			//IDSCP2 flow triggered by multipartMessageBodyBinary
+			// Camel SSL - Endpoint: A - Body binary
+			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyBinary")
+				.process(parseReceivedDataProcessorBodyBinary)
+				.to("direct:IDSCP2");
+			
+			//IDSCP2 flow triggered by multipartMessageBodyFormData
+			// Camel SSL - Endpoint: A - Body binary
+			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyFormData")
+				.process(parseReceivedDataProcessorBodyFormData)
+				.to("direct:IDSCP2");
+			
+			//IDSCP2 flow triggered by multipartMessageHttpHeader
+			// Camel SSL - Endpoint: A - Body binary
+			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageHttpHeader" + "?httpMethodRestrict=POST")
+            	.process(parseReceivedDataProcessorHttpHeader)
+            	.to("direct:IDSCP2");
+    	
+			logger.info("Starting IDSCP v2 client sender route");
+			
+            from("direct:IDSCP2")
+            	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
+            	.process(registerTransactionToCHProcessor)
+            	.process(mapMultipartToIDSCP2)
+            	.toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
+        		.log("### CLIENT RECEIVER: Detected Message")
+        		.process(mapIDSCP2toMultipart)
+                .process(registerTransactionToCHProcessor)
+                .process(senderUsageControlProcessor)
+                .process(sendResponseToDataAppProcessor)
+                .removeHeader("idscp2-header");
 			}
+		
+		if(isEnabledIdscp2 && !receiver && isEnabledDataAppWebSocket && !isEnabledWebSocket) {
+        	// End point B. ECC communication (dataApp-ECC communication with WebSocket
+    		// and communication between ECCs with IDSCP2)
+	        	               	
+    		logger.info("Starting IDSCP v2 client sender route");
+    		logger.info("WSS communication between ECC and dataApp");
+    			    
+    	    from("timer://timerEndpointA?repeatCount=-1")
+	        	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
+	            .process(fileRecreatorProcessor)
+				.process(parseReceivedDataFromDAppProcessorBodyBinary)
+	            .process(registerTransactionToCHProcessor)		                
+	            .process(mapMultipartToIDSCP2)
+	            .toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
+	            .log("### CLIENT RECEIVER: Detected Message")
+	        	.process(mapIDSCP2toMultipart)
+		        .process(registerTransactionToCHProcessor)
+		        .process(senderUsageControlProcessor)
+				.process(sendResponseToDataAppProcessor);	                	
+    	    }
+		
+		if(!isEnabledIdscp2 && !receiver && isEnabledDataAppWebSocket && isEnabledWebSocket) {
+			// End point A. Communication between Data App and ECC Sender.
+			//fixedRate=true&period=10s
+			from("timer://timerEndpointA?repeatCount=-1") //EndPoint A
+				.process(fileRecreatorProcessor)
+				.process(parseReceivedDataFromDAppProcessorBodyBinary)
+				.process(getTokenFromDapsProcessor)
+                .process(registerTransactionToCHProcessor)
+				// Send data to Endpoint B
+				.process(sendDataToBusinessLogicProcessor)
+				.process(parseReceivedResponseMessage)
+				.process(validateTokenProcessor)
+                .process(registerTransactionToCHProcessor)
+                .process(senderUsageControlProcessor)
+				.process(sendResponseToDataAppProcessor);
 		}
 	}
 }
