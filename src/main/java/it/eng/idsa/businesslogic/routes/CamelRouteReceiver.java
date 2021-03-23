@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import it.eng.idsa.businesslogic.processor.common.ContractAgreementProcessor;
 import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
@@ -44,6 +45,9 @@ public class CamelRouteReceiver extends RouteBuilder {
 
 	@Autowired
 	ValidateTokenProcessor validateTokenProcessor;
+	
+	@Autowired
+	ContractAgreementProcessor contractAgreementProcessor;
 	
 	@Autowired
 	ReceiverMultiPartMessageProcessor multiPartMessageProcessor;
@@ -98,6 +102,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/data")
 				.process(connectorRequestProcessor)
 				.process(validateTokenProcessor)
+				.process(contractAgreementProcessor)
                 .process(registerTransactionToCHProcessor)
 				// Send to the Endpoint: F
 				.choice()
@@ -119,6 +124,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 				.process(fileRecreatorProcessor)
 				.process(connectorRequestProcessor)
 				.process(validateTokenProcessor)
+				.process(contractAgreementProcessor)
                 .process(registerTransactionToCHProcessor)
 				// Send to the Endpoint: F
 				.choice()
@@ -134,6 +140,5 @@ public class CamelRouteReceiver extends RouteBuilder {
 				.process(sendDataToBusinessLogicProcessor);
 			//@formatter:on
 		}
-
 	}
 }

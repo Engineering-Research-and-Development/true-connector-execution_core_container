@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
+import it.eng.idsa.businesslogic.processor.common.ContractAgreementProcessor;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
@@ -61,6 +62,9 @@ public class CamelRouteSender extends RouteBuilder {
 
 	@Autowired
 	RegisterTransactionToCHProcessor registerTransactionToCHProcessor;
+	
+	@Autowired
+	ContractAgreementProcessor contractAgreementProcessor;
 
 	@Autowired
 	SenderSendDataToBusinessLogicProcessor sendDataToBusinessLogicProcessor;
@@ -142,6 +146,7 @@ public class CamelRouteSender extends RouteBuilder {
 			// Camel SSL - Endpoint: A - Body binary
             from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyBinary")
         		.process(parseReceivedDataProcessorBodyBinary)
+        		.process(contractAgreementProcessor)
                 .process(getTokenFromDapsProcessor)
                 .process(registerTransactionToCHProcessor)
                  // Send data to Endpoint B
@@ -156,6 +161,7 @@ public class CamelRouteSender extends RouteBuilder {
             // Camel SSL - Endpoint: A - Body form-data
             from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyFormData")
 				.process(parseReceivedDataProcessorBodyFormData)
+				.process(contractAgreementProcessor)
                 .process(getTokenFromDapsProcessor)
                 .process(registerTransactionToCHProcessor)
                  // Send data to Endpoint B
@@ -170,6 +176,7 @@ public class CamelRouteSender extends RouteBuilder {
          // Camel SSL - Endpoint: A - Http-header
             from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageHttpHeader" + "?httpMethodRestrict=POST")
         		.process(parseReceivedDataProcessorHttpHeader)
+        		.process(contractAgreementProcessor)
                 .process(getTokenFromDapsProcessor)
                 .process(registerTransactionToCHProcessor)
                 // Send data to Endpoint B
@@ -186,6 +193,7 @@ public class CamelRouteSender extends RouteBuilder {
 				from("timer://timerEndpointA?repeatCount=-1") //EndPoint A
 					.process(fileRecreatorProcessor)
 					.process(parseReceivedDataFromDAppProcessorBodyBinary)
+					.process(contractAgreementProcessor)
 					.process(getTokenFromDapsProcessor)
 	                .process(registerTransactionToCHProcessor)
 					// Send data to Endpoint B
