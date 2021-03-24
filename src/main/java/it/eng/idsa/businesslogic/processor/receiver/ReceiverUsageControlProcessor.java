@@ -100,11 +100,12 @@ public class ReceiverUsageControlProcessor implements Processor {
                 isUsageControlObject = false;
             }
             if (isUsageControlObject) {
+            	logger.info("Proceeding with Usage control enforcement");
                 String payloadToEnforce = createUsageControlObject(artifactRequestMessage.getRequestedArtifact(),
                         multipartMessage.getPayloadContent());
                 logger.info("from: " + exchange.getFromEndpoint());
                 logger.debug("Message Body: " + payloadToEnforce);
-                logger.info("Message Body Out: " + exchange.getMessage().getBody(String.class));
+//                logger.info("Message Body Out: " + exchange.getMessage().getBody(String.class));
 
                 MultipartMessage reponseMultipartMessage = new MultipartMessageBuilder()
                 		.withHttpHeader(multipartMessage.getHttpHeaders()).withHeaderHeader(multipartMessage.getHeaderHeader())

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import it.eng.idsa.businesslogic.processor.common.ContractAgreementProcessor;
 import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.common.MapMultipartToIDSCP2;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
@@ -63,6 +64,9 @@ public class CamelRouteSender extends RouteBuilder {
 
 	@Autowired
 	RegisterTransactionToCHProcessor registerTransactionToCHProcessor;
+	
+	@Autowired
+	ContractAgreementProcessor contractAgreementProcessor;
 
 	@Autowired
 	SenderSendDataToBusinessLogicProcessor sendDataToBusinessLogicProcessor;
@@ -178,6 +182,7 @@ public class CamelRouteSender extends RouteBuilder {
 		        .process(sendDataToBusinessLogicProcessor)
 		        .process(parseReceivedResponseMessage)
 		        .process(validateTokenProcessor)
+		        .process(contractAgreementProcessor)
 		        .process(registerTransactionToCHProcessor)
 		        .process(senderUsageControlProcessor)
 		        .process(sendResponseToDataAppProcessor)
@@ -215,6 +220,7 @@ public class CamelRouteSender extends RouteBuilder {
             	.toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
         		.log("### CLIENT RECEIVER: Detected Message")
         		.process(mapIDSCP2toMultipart)
+        		.process(contractAgreementProcessor)
                 .process(registerTransactionToCHProcessor)
                 .process(senderUsageControlProcessor)
                 .process(sendResponseToDataAppProcessor)
@@ -232,6 +238,7 @@ public class CamelRouteSender extends RouteBuilder {
 	        	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
 	            .process(fileRecreatorProcessor)
 				.process(parseReceivedDataFromDAppProcessorBodyBinary)
+				.process(contractAgreementProcessor)
 	            .process(registerTransactionToCHProcessor)		                
 	            .process(mapMultipartToIDSCP2)
 	            .toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
@@ -248,6 +255,7 @@ public class CamelRouteSender extends RouteBuilder {
 			from("timer://timerEndpointA?repeatCount=-1") //EndPoint A
 				.process(fileRecreatorProcessor)
 				.process(parseReceivedDataFromDAppProcessorBodyBinary)
+				.process(contractAgreementProcessor)
 				.process(getTokenFromDapsProcessor)
                 .process(registerTransactionToCHProcessor)
 				// Send data to Endpoint B

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import it.eng.idsa.businesslogic.processor.common.ContractAgreementProcessor;
 import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.common.MapMultipartToIDSCP2;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
@@ -47,6 +48,9 @@ public class CamelRouteReceiver extends RouteBuilder {
 	@Autowired
 	ValidateTokenProcessor validateTokenProcessor;
 
+	@Autowired
+	ContractAgreementProcessor contractAgreementProcessor;
+	
 	@Autowired
 	ReceiverMultiPartMessageProcessor multiPartMessageProcessor;
 
@@ -112,11 +116,10 @@ public class CamelRouteReceiver extends RouteBuilder {
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/data")
 				.process(connectorRequestProcessor)
 				.process(validateTokenProcessor)
+				.process(contractAgreementProcessor)
                 .process(registerTransactionToCHProcessor)
 				// Send to the Endpoint: F
-				.removeHeaders("Camel*")
 				.process(sendDataToDataAppProcessor)
-				.end()
 				.process(multiPartMessageProcessor)
 				.process(getTokenFromDapsProcessor)
 				.process(receiverUsageControlProcessor)
@@ -132,6 +135,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 				.process(fileRecreatorProcessor)
 				.process(connectorRequestProcessor)
 				.process(validateTokenProcessor)
+				.process(contractAgreementProcessor)
                 .process(registerTransactionToCHProcessor)
 				// Send to the Endpoint: F
 				.process(sendDataToDataAppProcessorOverWS)
@@ -142,7 +146,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 				.process(sendDataToBusinessLogicProcessor);
 			//@formatter:on
 		}
-
 		if (isEnabledIdscp2 && receiver && !isEnabledDataAppWebSocket) {
 			logger.info("Starting IDSCP v2 Server route");
 			// End point B. ECC communication (dataApp-ECC communication with http

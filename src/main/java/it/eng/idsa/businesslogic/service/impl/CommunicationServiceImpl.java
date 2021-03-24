@@ -3,9 +3,12 @@
  */
 package it.eng.idsa.businesslogic.service.impl;
 
-import org.apache.http.HttpEntity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
@@ -25,7 +28,7 @@ public class CommunicationServiceImpl implements CommunicationService {
 
 	@Override
 	@Deprecated
-	public String sendData(String endpoint, HttpEntity data) {
+	public String sendData(String endpoint, org.apache.http.HttpEntity data) {
 		RestTemplate restTemplate = new RestTemplate();
 
 		String result;
@@ -52,7 +55,7 @@ public class CommunicationServiceImpl implements CommunicationService {
 		}
 		return result;
 	}
-
+	
 	@Override
 	public String sendData(String endpoint, String data) {
 		RestTemplate restTemplate = new RestTemplate();
@@ -65,6 +68,25 @@ public class CommunicationServiceImpl implements CommunicationService {
 			return null;
 		}
 		return result;
+	}
+
+	@Override
+	public String sendDataAsJson(String endpoint, String data) {
+		RestTemplate restTemplate = new RestTemplate();
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Content-Type", "application/ld+json;charset=UTF-8");
+
+		HttpEntity<String> entity = new HttpEntity<>(data, headers);
+		
+		ResponseEntity<String> result;
+		try {
+			result = restTemplate.exchange(endpoint, HttpMethod.POST, entity, String.class);
+		} catch (RestClientException e) {
+			logger.error(e);
+			return null;
+		}
+		return result.getBody();
 	}
 
 }

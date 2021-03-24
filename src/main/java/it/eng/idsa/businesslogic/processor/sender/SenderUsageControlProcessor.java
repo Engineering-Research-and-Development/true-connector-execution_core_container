@@ -91,6 +91,7 @@ public class SenderUsageControlProcessor implements Processor {
                     && null != ucObj
                     && null != ucObj.getMeta()
                     && null != ucObj.getPayload()) {
+            	logger.info("Proceeding with Usage control enforcement");
                 String targetArtifactId = ucObj.getMeta().getTargetArtifact().getId().toString();
                 IdsMsgTarget idsMsgTarget = getIdsMsgTarget();
                 if (null != ucObj.getPayload() && !(CachedOutputStream.class.equals(ucObj.getPayload().getClass().getEnclosingClass()))) {
@@ -125,7 +126,7 @@ public class SenderUsageControlProcessor implements Processor {
             headerCleaner.removeTechnicalHeaders(exchange.getMessage().getHeaders());
             exchange.getMessage().setBody(multipartMessageResponse);
             exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
-    		logger.info("Sending response to DataApp");
+    		logger.info("Usage control policy enforcementd - completed");
 
         } catch (Exception e) {
             logger.error("Usage Control Enforcement has failed with MESSAGE: {}", e.getMessage());

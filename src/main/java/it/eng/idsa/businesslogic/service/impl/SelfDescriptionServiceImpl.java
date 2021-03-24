@@ -154,6 +154,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 			.build();
 	}
 
+
 	@Override
 	public Message getConnectorUpdateMessage()
 			throws ConstraintViolationException, DatatypeConfigurationException {
