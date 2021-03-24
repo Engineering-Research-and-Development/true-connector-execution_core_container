@@ -41,7 +41,7 @@ Furthermore, just for testing it will expose (http and https):
 ## Configuration
 The ECC supports three different way to exchange data:
 *  **REST endpoints** enabled if *IDSCP2=false* and *WS_OVER_HTTPS=false*
-*  **IDSCP2** enabled if *IDSCP2=true* and *WS_OVER_HTTPS=false*
+*  **IDSCP2** enabled if *IDSCP2=true* and *WS_OVER_HTTPS=false* (to start communication using REST endpoints) or *IDSCP2=true* and *WS_OVER_HTTPS=true* only between dataApp and ECC (to start communication using Web Socket)
 *  **Web Socket over HTTPS** enabled if *WS_OVER_HTTPS=true* and *IDSCP2=false*
 
 ## How to Test
@@ -238,7 +238,7 @@ The receiver connector will receive the request to the specified "*Forward-To*" 
 The data will be sent to the Data App using a body request as specified by the MULTIPART environment variable in the docker-compose.
 
 ### IDSCP2
-Follow the REST endpoint examples, taking care to set the property "*application.isReceiver*" as true if the ECC is running as receiver, else set it to false.
+IDSCP2 is used only between ECCs, the communication can start using Web Socket or following the REST endpoint examples, taking care to set the property "*application.isReceiver*" as true if the ECC is running as receiver, else set it to false.
 
 ### Web Socket over HTTPS
 Follow the REST endpoint examples, taking care to use *wss://{RECEIVER_IP_ADDRESS}:{WS_PUBLIC_PORT}* in the Forward-To header.
