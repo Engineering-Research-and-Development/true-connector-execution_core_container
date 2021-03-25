@@ -92,7 +92,10 @@ public class DapsV2ServiceImpl implements DapsService {
 			} else {
 				logger.info("jwtResponse: {}", jwtResponse.toString());
 			}
-		} catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException e) {
+		} catch (KeyStoreException 
+				| NoSuchAlgorithmException 
+				| CertificateException 
+				| UnrecoverableKeyException e) {
 			logger.error("Cannot acquire token:", e);
 		} catch (IOException e) {
 			logger.error("Error retrieving token:", e);

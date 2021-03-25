@@ -34,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
-import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -143,7 +143,11 @@ public class DapsServiceImpl implements DapsService {
                 logger.info("access_token: {}", token);
             }
 
-		} catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException e) {
+		} catch (IOException 
+				| KeyStoreException 
+				| NoSuchAlgorithmException 
+				| CertificateException 
+				| UnrecoverableKeyException e) {
 			logger.error(e);
 			return null;
 		} finally {
@@ -159,7 +163,6 @@ public class DapsServiceImpl implements DapsService {
 	public boolean validateToken(String tokenValue) {
 		boolean valid = false;
 		DecodedJWT jwt = JWT.decode(tokenValue);
-		
 		try {
 			Algorithm algorithm = dapsUtilityProvider.provideAlgorithm(tokenValue);
 			algorithm.verify(jwt);
@@ -168,7 +171,7 @@ public class DapsServiceImpl implements DapsService {
 				valid = false;
 				logger.warn("Token expired");
 			}
-		} catch (JWTVerificationException  e) {
+		} catch (SignatureVerificationException e) {
 			logger.info("Token did not verified, {}", e);
 		}
 		return valid;
