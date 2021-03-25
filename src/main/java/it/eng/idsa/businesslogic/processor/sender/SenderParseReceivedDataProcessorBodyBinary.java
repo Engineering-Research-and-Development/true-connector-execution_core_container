@@ -79,8 +79,8 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 	 */
 	private boolean checkHeaderContentType(String contentType) {
 		if (ContentType.APPLICATION_JSON.toString().equals(contentType)
-				|| contentType.equals(ContentType.create("application/json").toString())
-				|| contentType.equals(ContentType.create("application/json+ld").toString())) {
+				|| (ContentType.create("application/json").toString()).equals(contentType)
+				|| (ContentType.create("application/json+ld").toString()).equals(contentType)) {
 			return true;
 		}
 		return false;
