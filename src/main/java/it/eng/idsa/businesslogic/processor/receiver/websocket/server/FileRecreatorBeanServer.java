@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 
 /**
@@ -23,9 +22,6 @@ public class FileRecreatorBeanServer implements Runnable {
 
 	// @Autowired
 	private WebSocketServerConfiguration webSocketServerConfiguration;
-
-	@Value("${application.websocket.isEnabled}")
-	private boolean isEnabledWebSocket;
 
 	private FrameBufferBean frameBuffer;
 	private ArrayList<byte[]> fileByteArray = new ArrayList<byte[]>();
