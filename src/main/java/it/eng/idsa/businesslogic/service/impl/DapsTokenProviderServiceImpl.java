@@ -1,6 +1,6 @@
 package it.eng.idsa.businesslogic.service.impl;
 
-import java.text.ParseException;
+import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -11,7 +11,8 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-import com.nimbusds.jwt.JWTParser;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 
 import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
@@ -26,7 +27,7 @@ public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 
 	private String cachedToken;
 
-	private long expirationTime;
+	private Date expirationTime;
 
 	@Value("${application.tokenCaching}")
 	private boolean tokenCaching;
@@ -39,17 +40,17 @@ public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 		logger.info("Requesting token");
 		if (tokenCaching) {
 			//Checking if cached token is still valid
-			if (cachedToken == null || System.currentTimeMillis() > expirationTime) {
+			if (cachedToken == null || expirationTime.before(new Date())) {
 				logger.info("Fetching new token");
 				cachedToken = dapsService.getJwtToken();
 				if (cachedToken != null) {
 					try {
-						expirationTime = JWTParser.parse(cachedToken).getJWTClaimsSet().getExpirationTime().getTime();
-					} catch (ParseException e) {
+						expirationTime = JWT.decode(cachedToken).getExpiresAt();
+					} catch (JWTDecodeException e) {
 						logger.error("Could not get token expiration time {}", e.getMessage());
 						//Setting to default values since the JWT token was not correct
 						cachedToken = null;
-						expirationTime = 0;
+						expirationTime = null;
 					} 
 				} 
 			}

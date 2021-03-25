@@ -15,6 +15,7 @@ import java.security.PublicKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.time.Instant;
@@ -32,14 +33,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import it.eng.idsa.businesslogic.service.DapsService;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
@@ -104,16 +103,22 @@ public class DapsServiceImpl implements DapsService {
 			// Create expiry date one day (86400 seconds) from now
 			Date expiryDate = Date.from(Instant.now().plusSeconds(86400));
 			// @formatter:off
-			JwtBuilder jwtb = Jwts.builder()
-					.setIssuer(connectorUUID)
-					.setSubject(connectorUUID)
-					.setExpiration(expiryDate)
-					.setIssuedAt(Date.from(Instant.now()))
-					.setAudience("https://api.localhost")
-					.setNotBefore(Date.from(Instant.now()));
-			// @formatter:on
-			String jws = jwtb.signWith(SignatureAlgorithm.RS256, privKey).compact();
 			
+			String jws = null;
+			try {
+				Algorithm algorithm = Algorithm.RSA256(null, (RSAPrivateKey) privKey);
+				jws = JWT.create()
+						.withIssuer(connectorUUID)
+						.withSubject(connectorUUID)
+						.withExpiresAt(expiryDate)
+						.withIssuedAt(Date.from(Instant.now()))
+						.withAudience("https://api.localhost")
+						.withNotBefore(Date.from(Instant.now()))
+						.sign(algorithm);
+			} catch (JWTCreationException exception) {
+				logger.error("Token creation error: {}", exception.getMessage());
+			}
+			logger.info("Request token: " + jws);
 			// @formatter:off
 			RequestBody formBody = new FormBody.Builder()
 					.add("grant_type", "client_credentials")
@@ -154,6 +159,7 @@ public class DapsServiceImpl implements DapsService {
 	public boolean validateToken(String tokenValue) {
 		boolean valid = false;
 		DecodedJWT jwt = JWT.decode(tokenValue);
+		
 		try {
 			Algorithm algorithm = dapsUtilityProvider.provideAlgorithm(tokenValue);
 			algorithm.verify(jwt);
@@ -162,7 +168,7 @@ public class DapsServiceImpl implements DapsService {
 				valid = false;
 				logger.warn("Token expired");
 			}
-		} catch (SignatureVerificationException e) {
+		} catch (JWTVerificationException  e) {
 			logger.info("Token did not verified, {}", e);
 		}
 		return valid;

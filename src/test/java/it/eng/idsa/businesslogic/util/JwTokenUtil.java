@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 
 public class JwTokenUtil {
 	
@@ -15,13 +15,6 @@ public class JwTokenUtil {
 		String subject = "demo token subject";
 		Date currentDate = new Date();
 
-		// Let's set the JWT Claims
-		JwtBuilder builder = Jwts.builder()
-				.setId(id)
-				.setIssuedAt(currentDate)
-				.setSubject(subject)
-				.setIssuer(issuer);
-		
 		LocalDateTime localDateTime = currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 		if(!expired) {
 			localDateTime = localDateTime.plusMinutes(30);
@@ -30,8 +23,16 @@ public class JwTokenUtil {
 		}
 		
 		Date exp = new Date(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()).getTime());
-		builder.setExpiration(exp);
+		
+		// Let's set the JWT Claims
+		String token = JWT.create()
+				.withJWTId(id)
+				.withIssuedAt(currentDate)
+				.withSubject(subject)
+				.withIssuer(issuer)
+				.withExpiresAt(exp)
+				.sign(Algorithm.none());
 
-		return builder.compact();
+		return token;
 	}
 }
