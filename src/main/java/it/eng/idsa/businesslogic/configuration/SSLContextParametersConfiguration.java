@@ -4,6 +4,7 @@ package it.eng.idsa.businesslogic.configuration;
 import org.apache.camel.support.jsse.KeyManagersParameters;
 
 
+
 import org.apache.camel.support.jsse.KeyStoreParameters;
 import org.apache.camel.support.jsse.SSLContextClientParameters;
 import org.apache.camel.support.jsse.SSLContextParameters;
@@ -11,6 +12,8 @@ import org.apache.camel.support.jsse.TrustManagersParameters;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.nio.file.FileSystems;
 
 @Configuration
 public class SSLContextParametersConfiguration {
@@ -35,7 +38,7 @@ public class SSLContextParametersConfiguration {
 	@Bean
 	public SSLContextParameters sslContext() {
         final KeyStoreParameters ksp = new KeyStoreParameters();
-        ksp.setResource(targetDirectory +"\\"+ keyStoreName);
+        ksp.setResource(targetDirectory +FileSystems.getDefault().getSeparator()+ keyStoreName);
         ksp.setPassword(keyStorePassword);
        // ksp.setType("RSA");
         
@@ -53,7 +56,7 @@ public class SSLContextParametersConfiguration {
 
         // so that the client trusts the self-signed server certificate
         final KeyStoreParameters trustStoreParams = new KeyStoreParameters();
-        trustStoreParams.setResource(targetDirectory +"\\"+ trustStoreName);
+        trustStoreParams.setResource(targetDirectory +FileSystems.getDefault().getSeparator()+ trustStoreName);
         trustStoreParams.setPassword(trustStorePassword);
                 
         final TrustManagersParameters tmp = new TrustManagersParameters();
