@@ -1,13 +1,23 @@
 package it.eng.idsa.businesslogic.configuration;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
@@ -18,19 +28,74 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SslValidatingConfiguration {
-
+	
 	private static final Logger logger = LogManager.getLogger(SslValidatingConfiguration.class);
 
+	private KeyStore keystore;
+	private KeyStore trustManagerKeyStore;
+	
 	public SslValidatingConfiguration(
-			@Value("${application.disableSslVerification:false}") boolean disableSslVerification) {
+				@Value("${application.disableSslVerification:false}") boolean disableSslVerification,
+				@Value("${application.targetDirectory}") Path targetDirectory,
+				@Value("${application.keyStoreName}") String keyStoreName, 
+				@Value("${application.keyStorePassword}") String keyStorePassword, 
+				@Value("${application.trustStoreName}") String trustStoreName, 
+				@Value("${application.trustStorePassword}") String trustStorePwd) 
+					throws KeyManagementException, NoSuchAlgorithmException, UnrecoverableKeyException {
 		if (disableSslVerification) {
 			logger.info("Disabling ssl validation");
 			disableSslVerification();
 		} else {
 			logger.info("Using default ssl validation");
+			setTrustStore(targetDirectory, keyStoreName, keyStorePassword, trustStoreName, trustStorePwd);
 		}
 	}
 
+	/**
+	 * Needed because URLJwsProvider uses URL.openConnection() and we need to set trustStore
+	 * @param targetDirectory
+	 * @param keyStoreName
+	 * @param keyStorePassword
+	 * @param trustStoreName
+	 * @param trustStorePwd
+	 * @throws KeyManagementException
+	 * @throws NoSuchAlgorithmException
+	 * @throws UnrecoverableKeyException
+	 */
+	private void setTrustStore(Path targetDirectory, String keyStoreName, String keyStorePassword, 
+			String trustStoreName, String trustStorePwd) throws KeyManagementException, NoSuchAlgorithmException, UnrecoverableKeyException {
+		SSLContext sslCtx = SSLContext.getInstance("TLS");
+		KeyManagerFactory kmf = null;
+		TrustManagerFactory trustFactory = null;
+		try {
+			InputStream jksKeyStoreInputStream = Files.newInputStream(targetDirectory.resolve(keyStoreName));
+			keystore = KeyStore.getInstance("JKS");
+			logger.info("Loading key store: " + keyStoreName);
+			logger.info("Loading trust store: " + keyStoreName);
+			keystore.load(jksKeyStoreInputStream, keyStorePassword.toCharArray());
+			kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+			kmf.init(keystore, keyStorePassword.toCharArray());
+			
+			InputStream jksTrustStoreInputStream = Files.newInputStream(targetDirectory.resolve(trustStoreName));
+			trustManagerKeyStore = KeyStore.getInstance("JKS");
+			trustManagerKeyStore.load(jksTrustStoreInputStream, trustStorePwd.toCharArray());
+			java.security.cert.Certificate[] certs = trustManagerKeyStore.getCertificateChain("ca");
+			logger.info("Cert chain: " + Arrays.toString(certs));
+			
+			trustFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustFactory.init(trustManagerKeyStore);
+			
+			logger.info("LOADED CA CERT: " + trustManagerKeyStore.getCertificate("ca"));
+			jksKeyStoreInputStream.close();
+			jksTrustStoreInputStream.close();
+		} catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
+			logger.error("Error while loading keystore and truststore, {}", e);
+		}
+		
+		sslCtx.init(kmf.getKeyManagers(), trustFactory.getTrustManagers(), new java.security.SecureRandom());
+		HttpsURLConnection.setDefaultSSLSocketFactory(sslCtx.getSocketFactory());
+	}
+	
 	private void disableSslVerification() {
 		try {
 			// Create a trust manager that does not validate certificate chains

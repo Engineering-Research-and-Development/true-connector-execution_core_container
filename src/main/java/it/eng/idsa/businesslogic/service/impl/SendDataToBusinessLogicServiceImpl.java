@@ -29,6 +29,7 @@ import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.communication.HttpClientGenerator;
+import it.eng.idsa.businesslogic.util.communication.HttpClientProvider;
 import it.eng.idsa.businesslogic.util.config.keystore.AcceptAllTruststoreConfig;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
@@ -57,6 +58,9 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 
 	@Autowired
 	private HeaderCleaner headerCleaner;
+	
+	@Autowired
+	private HttpClientProvider httpProvider;
 
 	@Override
 	public CloseableHttpResponse sendMessageBinary(String address, MultipartMessage multipartMessage,
@@ -110,7 +114,8 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 
 		CloseableHttpResponse response = null;
 		try {
-			response = getHttpClient().execute(httpPost);
+//			response = getHttpClient().execute(httpPost);
+			response = httpProvider.get().execute(httpPost);
 		} catch (IOException e) {
 			logger.error(e);
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,

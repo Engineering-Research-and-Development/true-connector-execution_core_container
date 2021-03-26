@@ -56,6 +56,7 @@ public class HttpClientGenerator {
 
 			SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
 					sslcontextBuilder.build(), (HostnameVerifier) NoopHostnameVerifier.INSTANCE);
+			
 			httpClient = HttpClients.custom()
 					.setSSLSocketFactory((LayeredConnectionSocketFactory) sslConnectionSocketFactory).build();
 			logger.info("Created Http Client with IDS truststore.");

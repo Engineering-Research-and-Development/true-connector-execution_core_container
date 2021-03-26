@@ -27,18 +27,20 @@ public class KeystoreProvider {
 	private KeyStore trustManagerKeyStore;
 	private String keyStorePwd;
 	private String keystoreAlias;
-
+	
 	public KeystoreProvider(@Value("${application.targetDirectory}") Path targetDirectory,
 							@Value("${application.keyStoreName}") String keyStoreName, 
 							@Value("${application.keyStorePassword}") String keyStorePassword, 
-							@Value("${application.keystoreAliasName}") String keystoreAliasName) {
+							@Value("${application.keystoreAliasName}") String keystoreAliasName,
+							@Value("${application.trustStoreName}") String trustStoreName, 
+							@Value("${application.trustStorePassword}") String trustStorePwd) {
 		
 		keyStorePwd = keyStorePassword;
 		keystoreAlias = keystoreAliasName;
 		
 		try {
 			InputStream jksKeyStoreInputStream = Files.newInputStream(targetDirectory.resolve(keyStoreName));
-			InputStream jksTrustStoreInputStream = Files.newInputStream(targetDirectory.resolve(keyStoreName));
+			InputStream jksTrustStoreInputStream = Files.newInputStream(targetDirectory.resolve(trustStoreName));
 			
 			keystore = KeyStore.getInstance("JKS");
 			trustManagerKeyStore = KeyStore.getInstance("JKS");
@@ -46,7 +48,7 @@ public class KeystoreProvider {
 			logger.info("Loading key store: " + keyStoreName);
 			logger.info("Loading trust store: " + keyStoreName);
 			keystore.load(jksKeyStoreInputStream, keyStorePassword.toCharArray());
-			trustManagerKeyStore.load(jksTrustStoreInputStream, keyStorePassword.toCharArray());
+			trustManagerKeyStore.load(jksTrustStoreInputStream, trustStorePwd.toCharArray());
 			java.security.cert.Certificate[] certs = trustManagerKeyStore.getCertificateChain("ca");
 			logger.info("Cert chain: " + Arrays.toString(certs));
 			
