@@ -59,7 +59,7 @@ public class DapsV2ServiceImpl implements DapsService {
 		try {
 			logger.info("Retrieving Dynamic Attribute Token...");
 
-			String jws = dapsUtilityProvider.getJws();
+			String jws = dapsUtilityProvider.getDapsV2Jws();
 			logger.info("Request token: " + jws);
 
 			// build form body to embed client assertion into post request

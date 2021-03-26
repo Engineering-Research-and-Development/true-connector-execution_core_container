@@ -40,7 +40,7 @@ public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 		logger.info("Requesting token");
 		if (tokenCaching) {
 			//Checking if cached token is still valid
-			if (cachedToken == null || expirationTime.before(new Date())) {
+			if (cachedToken == null || new Date().after(expirationTime)) {
 				logger.info("Fetching new token");
 				cachedToken = dapsService.getJwtToken();
 				if (cachedToken != null) {
