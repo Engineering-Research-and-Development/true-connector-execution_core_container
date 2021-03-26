@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.text.ParseException;
-import java.util.Date;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +47,7 @@ public class DapsTokenProviderServiceImplTest {
 	@Test
 	public void tokenExpiredAndFetchedNewTokenTest() {
 		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "cachedToken", dapsToken);
-		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "expirationTime", new Date(1613643693000L));
+		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "expirationTime", JwTokenUtil.isExpired(true));
 		assertNotNull(dapsTokenProviderServiceImpl.provideToken());
 		verify(dapsService).getJwtToken();
 
@@ -58,7 +57,7 @@ public class DapsTokenProviderServiceImplTest {
 	public void fetchNewTokenWhenExpiredTest() {
 		when(dapsService.getJwtToken()).thenReturn("ABC");
 		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "cachedToken", dapsToken);
-		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "expirationTime", new Date(1613643693000L));
+		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "expirationTime", JwTokenUtil.isExpired(true));
 		assertNull(dapsTokenProviderServiceImpl.provideToken());
 		verify(dapsService).getJwtToken();
 
@@ -67,7 +66,7 @@ public class DapsTokenProviderServiceImplTest {
 	@Test
 	public void failedToFetchNewTokenWhenExpiredTest() {
 		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "cachedToken", dapsToken);
-		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "expirationTime", new Date(2613643693000L));
+		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "expirationTime", JwTokenUtil.isExpired(false));
 		assertNotNull(dapsTokenProviderServiceImpl.provideToken());
 		verify(dapsService, times(0)).getJwtToken();
 	}

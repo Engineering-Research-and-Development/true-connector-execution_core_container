@@ -15,14 +15,7 @@ public class JwTokenUtil {
 		String subject = "demo token subject";
 		Date currentDate = new Date();
 
-		LocalDateTime localDateTime = currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-		if(!expired) {
-			localDateTime = localDateTime.plusMinutes(30);
-		} else {
-			localDateTime = localDateTime.minusMinutes(30);
-		}
-		
-		Date exp = new Date(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()).getTime());
+		Date exp = isExpired(expired);
 		
 		// Let's set the JWT Claims
 		String token = JWT.create()
@@ -35,4 +28,18 @@ public class JwTokenUtil {
 
 		return token;
 	}
+
+	public static Date isExpired(boolean expired) {
+		Date currentDate = new Date();
+		LocalDateTime localDateTime = currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+		if(!expired) {
+			localDateTime = localDateTime.plusMinutes(30);
+		} else {
+			localDateTime = localDateTime.minusMinutes(30);
+		}
+		
+		Date exp = new Date(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()).getTime());
+		return exp;
+	}
+	
 }
