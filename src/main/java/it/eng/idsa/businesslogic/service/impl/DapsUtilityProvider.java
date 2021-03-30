@@ -1,5 +1,16 @@
 package it.eng.idsa.businesslogic.service.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
 import java.util.Date;
@@ -20,11 +31,9 @@ import com.auth0.jwk.JwkProvider;
 import com.auth0.jwk.UrlJwkProvider;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 
 @Service
 public class DapsUtilityProvider {
@@ -35,31 +44,84 @@ public class DapsUtilityProvider {
     
 	@Value("${application.dapsJWKSUrl}")
 	private String dapsJWKSUrl;
+	
+	@Value("${application.connectorUUID}")
+	private String DapsV1connectorUUID;
+	
+	@Value("${application.targetDirectory}")
+	private Path targetDirectory;
+	@Value("${application.dapsUrl}")
+	private String dapsUrl;
+	@Value("${application.keyStoreName}")
+	private String keyStoreName;
+	@Value("${application.keyStorePassword}")
+	private String keyStorePassword;
+	@Value("${application.keystoreAliasName}")
+	private String keystoreAliasName;
 
     private String targetAudience = "idsc:IDS_CONNECTORS_ALL";
     
-    public String getJws() {
+    public String getDapsV1Jws() {
+    	
+    	
+    	// create signed JWT (JWS)
+		// Create expiry date one day (86400 seconds) from now
+		Date expiryDate = Date.from(Instant.now().plusSeconds(86400));
+		// @formatter:off
+		
+		String jws = null;
+		try {
+			InputStream jksInputStream = Files.newInputStream(targetDirectory.resolve(keyStoreName));
+			KeyStore store = KeyStore.getInstance("JKS");
+			store.load(jksInputStream, keyStorePassword.toCharArray());
+			// get private key
+			PrivateKey privKey = (PrivateKey) store.getKey(keystoreAliasName, keyStorePassword.toCharArray());
+			Algorithm algorithm = Algorithm.RSA256(null, (RSAPrivateKey) privKey);
+			jws = JWT.create()
+					.withIssuer(DapsV1connectorUUID)
+					.withSubject(DapsV1connectorUUID)
+					.withExpiresAt(expiryDate)
+					.withIssuedAt(Date.from(Instant.now()))
+					.withAudience("https://api.localhost")
+					.withNotBefore(Date.from(Instant.now()))
+					.sign(algorithm);
+		} catch (JWTCreationException e) {
+			logger.error("Token creation error: {}", e.getMessage());
+			return null;
+		} catch (IOException 
+				| KeyStoreException 
+				| NoSuchAlgorithmException 
+				| CertificateException 
+				| UnrecoverableKeyException e) {
+			logger.error("Could not retrieve private key: {}", e.getMessage());
+			return null;
+		}
+		return jws;
+    }
+    
+	public String getDapsV2Jws() {
 		String connectorUUID = getConnectorUUID();
 		// create signed JWT (JWS)
 		// Create expiry date one day (86400 seconds) from now
 		Date expiryDate = Date.from(Instant.now().plusSeconds(86400));
-    	//@formatter:off
-          JwtBuilder jwtb =
-                  Jwts.builder()
-                          .setIssuer(connectorUUID)
-                          .setSubject(connectorUUID)
-                          .claim("@context", "https://w3id.org/idsa/contexts/context.jsonld")
-                          .claim("@type", "ids:DatRequestToken")
-                          .setExpiration(expiryDate)
-                          .setIssuedAt(Date.from(Instant.now()))
-                          .setAudience(targetAudience)
-                          .setNotBefore(Date.from(Instant.now()));
-
-        //@formatter:on
-          String jws = jwtb.signWith(SignatureAlgorithm.RS256, keystoreProvider.getPrivateKey()).compact();
-          logger.info("Request token: " + jws);
-          return jws;
-    }
+		String jws = null;
+		try {
+			Algorithm algorithm = Algorithm.RSA256(null,  (RSAPrivateKey) keystoreProvider.getPrivateKey());
+			jws = JWT.create()
+					.withIssuer(connectorUUID)
+					.withSubject(connectorUUID)
+					.withClaim("@context", "https://w3id.org/idsa/contexts/context.jsonld")
+					.withClaim("@type", "ids:DatRequestToken")
+					.withExpiresAt(expiryDate)
+					.withIssuedAt(Date.from(Instant.now()))
+					.withAudience(targetAudience)
+					.withNotBefore(Date.from(Instant.now()))
+					.sign(algorithm);
+		} catch (JWTCreationException exception) {
+			logger.error("Token creation error: {}", exception.getMessage());
+		}
+		return jws;
+	}
     
     public Algorithm provideAlgorithm(String tokenValue) {
     	DecodedJWT jwt = JWT.decode(tokenValue);
