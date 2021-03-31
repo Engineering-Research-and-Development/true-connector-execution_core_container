@@ -23,7 +23,7 @@ public class OkHttpSenderClientServiceImpl implements SenderClientService {
 	private OkHttpClient client;
 	
 	@Override
-	public Response sendMultipartMixRequest(RequestBody requestBody, String targetURL, Headers httpHeaders) throws IOException {
+	public Response sendMultipartMixRequest(String targetURL, Headers httpHeaders, RequestBody requestBody) throws IOException {
 		  Request request = new Request.Builder()
 				  .headers(httpHeaders)
 			      .url(targetURL)
@@ -51,9 +51,17 @@ public class OkHttpSenderClientServiceImpl implements SenderClientService {
 	}
 
 	@Override
-	public Response sendHttpHeaderRequest(MultipartMessage message, String targetURL) {
-		// TODO Auto-generated method stub
-		return null;
+	public Response sendHttpHeaderRequest(String targetURL, Headers httpHeaders, String payload, String payloadContentType) throws IOException {
+		RequestBody body = RequestBody.create(
+			      MediaType.parse(payloadContentType != null ? payloadContentType : "application/json"), 
+			     payload);
+		
+		Request request = new Request.Builder()
+				  .headers(httpHeaders)
+			      .url(targetURL)
+			      .post(body)
+			      .build();
+			 return client.newCall(request).execute();
 	}
 
 	@Override
