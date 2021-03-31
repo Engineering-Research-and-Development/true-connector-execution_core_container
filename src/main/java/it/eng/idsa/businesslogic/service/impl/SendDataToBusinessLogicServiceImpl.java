@@ -2,6 +2,7 @@ package it.eng.idsa.businesslogic.service.impl;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.HttpEntity;
@@ -32,6 +33,9 @@ import it.eng.idsa.businesslogic.util.communication.HttpClientGenerator;
 import it.eng.idsa.businesslogic.util.communication.HttpClientProvider;
 import it.eng.idsa.businesslogic.util.config.keystore.AcceptAllTruststoreConfig;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import okhttp3.Headers;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 @Service
 public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLogicService {
@@ -61,6 +65,9 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 	
 	@Autowired
 	private HttpClientProvider httpProvider;
+	
+	@Autowired
+	private OkHttpSenderClientServiceImpl okHttpClient;
 
 	@Override
 	public CloseableHttpResponse sendMessageBinary(String address, MultipartMessage multipartMessage,
@@ -130,7 +137,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 			Map<String, Object> headerParts, boolean eccCommunication) throws IOException {
 		logger.info("Forwarding Message: http-header");
 
-		if(!openDataAppReceiverRouter.equals("http-header")) {
+		if(!"http-header".equals(openDataAppReceiverRouter)) {
 			// DataApp endpoint not http-header, must convert message to http headers
 			headerParts.putAll(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));
 		}
@@ -188,7 +195,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		headerCleaner.removeTechnicalHeaders(headesParts);
 
 		headesParts.forEach((name, value) -> {
-			if (!name.equals("Content-Length") && !name.equals("Content-Type")) {
+			if (!"Content-Length".equals(name) && !"Content-Type".equals(name)) {
 				if (value != null) {
 					httpPost.setHeader(name, value.toString());
 				} else {
@@ -201,47 +208,54 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 
 
 	@Override
-	public CloseableHttpResponse sendMessageFormData(String address, MultipartMessage multipartMessage,
+	public Response sendMessageFormData(String address, MultipartMessage multipartMessage,
 			Map<String, Object> headerParts, boolean eccCommunication) throws UnsupportedEncodingException {
 		
 		logger.info("Forwarding Message: Body: form-data");
 		
-		String header = null;
-		String payload = multipartMessage.getPayloadContent();
 		Message messageForException = multipartMessage.getHeaderContent();
 		
 		if(!eccCommunication) {
 			// sending to DataApp, remove token from message
-			header = multipartMessageService.removeToken(multipartMessage.getHeaderContent());
-		} else {
-			header = multipartMessage.getHeaderContentString();
+			multipartMessage = multipartMessageService.removeTokenFromMultipart(multipartMessage);
 		}
 		
-		HttpPost httpPost = new HttpPost(address);
-		ContentType ctPayload;
-		if (headerParts.get("payload.org.eclipse.jetty.servlet.contentType") != null) {
-			ctPayload = ContentType
-					.parse(headerParts.get("payload.org.eclipse.jetty.servlet.contentType").toString());
+		String ctPayload;
+		if (null != headerParts.get("Payload-Content-Type")) {
+			ctPayload = (String) headerParts.get("Payload-Content-Type");
 		} else {
-			ctPayload = ContentType.TEXT_PLAIN;
+			ctPayload = ContentType.TEXT_PLAIN.getMimeType();
 		}
-		if (multipartMessage.getPayloadContent() != null) {
-			StringEntity payloadEntity = new StringEntity(multipartMessage.getPayloadContent(),ctPayload);
-			httpPost.setEntity(payloadEntity);
-		}
-		addHeadersToHttpPost(headerParts, httpPost);
-		HttpEntity reqEntity = multipartMessageService.createMultipartMessage(header, payload, null,ctPayload);
-		httpPost.setEntity(reqEntity);
-		CloseableHttpResponse response=null;
 		
+		Headers headers = fillHeaders(headerParts);
+
+		RequestBody body = okHttpClient.createMultipartFormRequest(multipartMessage, ctPayload);
+
+		Response response=null;		
 		try {
-			response = getHttpClient().execute(httpPost);
+			response = okHttpClient.sendMultipartFormRequest(body, address, headers);
 		} catch (IOException e) {
 			logger.error(e);
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
 					messageForException);
 		}
 		return response;
+	}
+
+	private Headers fillHeaders(Map<String, Object> headerParts) {
+		headerCleaner.removeTechnicalHeaders(headerParts);
+		
+		Map<String, String> mapAsString = new HashMap<>();
+		
+		headerParts.forEach((name, value) -> {
+			if (!"Content-Length".equals(name) && !"Content-Type".equals(name)) {
+				if (value != null) {
+					mapAsString.put(name, value.toString());
+				}
+
+			}
+		});
+		return Headers.of(mapAsString);
 	}
 
 }

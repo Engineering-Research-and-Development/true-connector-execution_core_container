@@ -9,6 +9,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import okhttp3.Response;
 
 public interface SendDataToBusinessLogicService {
 
@@ -19,7 +20,7 @@ public interface SendDataToBusinessLogicService {
 	CloseableHttpResponse sendMessageHttpHeader(String address, MultipartMessage multipartMessage,
 			Map<String, Object> headerParts, boolean eccCommunication) throws IOException;
 	
-	CloseableHttpResponse sendMessageFormData(String address, MultipartMessage message,
+	Response sendMessageFormData(String address, MultipartMessage message,
 			Map<String, Object> headerParts, boolean eccCommunication) throws UnsupportedEncodingException;
 
 }

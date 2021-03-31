@@ -57,17 +57,17 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 
 		headersParts.put("Is-Enabled-DataApp-WebSocket", isEnabledDataAppWebSocket);
 		
-		if (eccHttpSendRouter.equals("http-header")) { 
+		if ("http-header".equals(eccHttpSendRouter)) { 
 			// create Message object from IDS-* headers, needs for UsageControl flow
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
 			header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
 			message = multipartMessageService.getMessage(header);
-			if(message==null) {
+			if(null==message) {
 				logger.error("Message could not be created - check if all required headers are present.");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
 			}
 			
-			if (headersParts.get("IDS-SecurityToken-TokenValue") != null) {
+			if (null != headersParts.get("IDS-SecurityToken-TokenValue")) {
 				token = headersParts.get("IDS-SecurityToken-TokenValue").toString();
 			}
 			payload = exchange.getMessage().getBody(String.class);
@@ -83,7 +83,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 
-			if (headersParts.get("header") == null) {
+			if (null == headersParts.get("header")) {
 				logger.error("Multipart message header is null");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
@@ -101,7 +101,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 				}
 				
 				message = multipartMessageService.getMessage(header);
-				if(headersParts.get("payload")!=null) {
+				if(null != headersParts.get("payload")) {
 					payload = headersParts.get("payload").toString();
 				}
 				
