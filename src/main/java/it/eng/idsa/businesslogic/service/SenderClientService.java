@@ -23,13 +23,13 @@ public interface SenderClientService {
 	 /**
 	  * Sends multiaprt form request. </br>
 	  * For creating correct form request body {@link #createMultipartFormRequest}
-	  * @param requestBody
 	  * @param targetURL
 	  * @param httpHeaders
+	  * @param requestBody
 	  * @return
 	  * @throws IOException
 	  */
-	 Response sendMultipartFormRequest(RequestBody requestBody, String targetURL, Headers httpHeaders) throws IOException;
+	 Response sendMultipartFormRequest(String targetURL, Headers httpHeaders, RequestBody requestBody) throws IOException;
 	 
 	 /**
 	  * Create header request with request from multipartMessage.payload with correct payload content type

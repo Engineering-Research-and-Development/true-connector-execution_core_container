@@ -18,7 +18,8 @@ import okhttp3.Response;
 @Service
 public class OkHttpSenderClientServiceImpl implements SenderClientService {
 
-	private static final String MEDIA_TYPE_HEADER = "application/json+ld";
+	private static final String MEDIA_TYPE_HEADER_JSON_LD = "application/json+ld";
+	
 	@Autowired
 	private OkHttpClient client;
 	
@@ -33,7 +34,7 @@ public class OkHttpSenderClientServiceImpl implements SenderClientService {
 	}
 
 	@Override
-	public Response sendMultipartFormRequest(RequestBody requestBody, String targetURL, Headers httpHeaders) throws IOException {
+	public Response sendMultipartFormRequest(String targetURL, Headers httpHeaders, RequestBody requestBody) throws IOException {
 //		 Request request = new Request.Builder()
 //				  .url("https://localhost:8887/incoming-data-app/multipartMessageBodyBinary")
 //				  .method("POST", body)
@@ -53,7 +54,7 @@ public class OkHttpSenderClientServiceImpl implements SenderClientService {
 	@Override
 	public Response sendHttpHeaderRequest(String targetURL, Headers httpHeaders, String payload, String payloadContentType) throws IOException {
 		RequestBody body = RequestBody.create(
-			      MediaType.parse(payloadContentType != null ? payloadContentType : "application/json"), 
+			      MediaType.parse(payloadContentType != null ? payloadContentType : javax.ws.rs.core.MediaType.TEXT_PLAIN), 
 			     payload);
 		
 		Request request = new Request.Builder()
@@ -76,7 +77,7 @@ public class OkHttpSenderClientServiceImpl implements SenderClientService {
 			      .setType(MultipartBody.FORM)
 			      .addPart(
 			          Headers.of("Content-Disposition", "form-data; name=\"header\""),
-			          RequestBody.create(MediaType.parse(MEDIA_TYPE_HEADER), message.getHeaderContentString()))
+			          RequestBody.create(MediaType.parse(MEDIA_TYPE_HEADER_JSON_LD), message.getHeaderContentString()))
 			      .addPart(
 			          Headers.of("Content-Disposition", "form-data; name=\"payload\""),
 			          RequestBody.create(MediaType.parse(payloadContentType), message.getPayloadContent()))

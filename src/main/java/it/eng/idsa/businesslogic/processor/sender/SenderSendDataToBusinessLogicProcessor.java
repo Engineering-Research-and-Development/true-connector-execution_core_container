@@ -29,7 +29,7 @@ import it.eng.idsa.businesslogic.processor.sender.websocket.client.IdscpClientBe
 import it.eng.idsa.businesslogic.processor.sender.websocket.client.MessageWebSocketOverHttpSender;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.SendDataToBusinessLogicServiceImpl;
+import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -71,7 +71,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	private RejectionMessageService rejectionMessageService;
 
 	@Autowired
-	private SendDataToBusinessLogicServiceImpl sendDataToBusinessLogicService;
+	private SendDataToBusinessLogicService sendDataToBusinessLogicService;
 
 	@Autowired
 	private WebSocketClientConfiguration webSocketClientConfiguration;
