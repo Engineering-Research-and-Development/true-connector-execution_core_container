@@ -86,8 +86,8 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", "http-header", String.class);
 		mockExchangeHeaderAndBody();
 		
-		when(sendDataToBusinessLogicService.sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers, true))
-			.thenReturn(response);
+//		when(sendDataToBusinessLogicService.sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers, true))
+//			.thenReturn(response);
 		mockHandleResponsePart(200);
 		
 		processor.process(exchange);
@@ -104,8 +104,8 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 
 		mockExchangeHeaderAndBody();
 		
-		when(sendDataToBusinessLogicService.sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers, true))
-			.thenReturn(response);
+//		when(sendDataToBusinessLogicService.sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers, true))
+//			.thenReturn(response);
 		mockHandleResponsePart(404);
 	
 		assertThrows(ExceptionForProcessor.class,

@@ -98,8 +98,8 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 				break;
 			}
 			case "http-header": {
-//				response = sendDataToBusinessLogicService.sendMessageHttpHeader(configuration.getOpenDataAppReceiver(),
-//						multipartMessage, headerParts, false);
+				response = sendDataToBusinessLogicService.sendMessageHttpHeader(configuration.getOpenDataAppReceiver(),
+						multipartMessage, headerParts, false);
 				break;
 			}
 			default: {

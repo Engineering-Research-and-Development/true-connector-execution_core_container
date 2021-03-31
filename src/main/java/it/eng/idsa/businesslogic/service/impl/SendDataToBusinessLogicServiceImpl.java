@@ -9,11 +9,9 @@ import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +28,7 @@ import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.service.SenderClientService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
-import it.eng.idsa.businesslogic.util.communication.HttpClientGenerator;
 import it.eng.idsa.businesslogic.util.communication.HttpClientProvider;
-import it.eng.idsa.businesslogic.util.config.keystore.AcceptAllTruststoreConfig;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import okhttp3.Headers;
 import okhttp3.RequestBody;
@@ -134,7 +130,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 	}
 
 	@Override
-	public CloseableHttpResponse sendMessageHttpHeader(String address, MultipartMessage multipartMessage,
+	public Response sendMessageHttpHeader(String address, MultipartMessage multipartMessage,
 			Map<String, Object> headerParts, boolean eccCommunication) throws IOException {
 		logger.info("Forwarding Message: http-header");
 
@@ -146,29 +142,15 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		if (eccCommunication && isEnabledDapsInteraction) {
 			headerParts.putAll(headerService.transformJWTTokenToHeaders(multipartMessage.getToken()));
 		}
-		// Set F address
-		HttpPost httpPost = new HttpPost(address);
 
-		ContentType ctPayload;
-		if (headerParts.get("Payload-Content-Type") != null) {
-			ctPayload = ContentType
-					.parse(headerParts.get("Payload-Content-Type").toString());
-		} else {
-			ctPayload = ContentType.TEXT_PLAIN;
-		}
-		if (multipartMessage.getPayloadContent() != null) {
-			StringEntity payloadEntity = new StringEntity(multipartMessage.getPayloadContent(),ctPayload);
-			httpPost.setEntity(payloadEntity);
-		}
+		String ctPayload = getPayloadContentType(headerParts);
 		
-		headerParts.putAll(multipartMessage.getHttpHeaders());
-		addHeadersToHttpPost(headerParts, httpPost);
+		Headers httpHeaders = fillHeaders(headerParts);
 		
-
-		CloseableHttpResponse response;
+		Response response;
 
 		try {
-			response = getHttpClient().execute(httpPost);
+			response = okHttpClient.sendHttpHeaderRequest(address, httpHeaders, multipartMessage.getPayloadContent(), ctPayload);
 		} catch (IOException e) {
 			logger.error("Error while calling Receiver", e);
 			return null;
@@ -176,36 +158,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		return response;
 	}
 
-	private ContentBody convertToContentBody(String value, ContentType contentType, String valueName)
-			throws UnsupportedEncodingException {
-		byte[] valueBiteArray = value.getBytes("utf-8");
-		ContentBody cbValue = new ByteArrayBody(valueBiteArray, contentType, valueName);
-		return cbValue;
-	}
-
-	private CloseableHttpClient getHttpClient() {
-		AcceptAllTruststoreConfig config = new AcceptAllTruststoreConfig();
-
-		CloseableHttpClient httpClient = HttpClientGenerator.get(config, isJettySSLEnabled);
-		logger.warn("Created Accept-All Http Client");
-
-		return httpClient;
-	}
-
-	private void addHeadersToHttpPost(Map<String, Object> headesParts, HttpPost httpPost) {
-		headerCleaner.removeTechnicalHeaders(headesParts);
-
-		headesParts.forEach((name, value) -> {
-			if (!"Content-Length".equals(name) && !"Content-Type".equals(name)) {
-				if (value != null) {
-					httpPost.setHeader(name, value.toString());
-				} else {
-					httpPost.setHeader(name, null);
-				}
-
-			}
-		});
-	}
+	
 
 
 	@Override
@@ -221,12 +174,8 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 			multipartMessage = multipartMessageService.removeTokenFromMultipart(multipartMessage);
 		}
 		
-		String ctPayload;
-		if (null != headerParts.get("Payload-Content-Type")) {
-			ctPayload = (String) headerParts.get("Payload-Content-Type");
-		} else {
-			ctPayload = ContentType.TEXT_PLAIN.getMimeType();
-		}
+		String ctPayload = getPayloadContentType(headerParts);
+		
 		
 		Headers headers = fillHeaders(headerParts);
 
@@ -257,6 +206,38 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 			}
 		});
 		return Headers.of(mapAsString);
+	}
+	
+	private String getPayloadContentType(Map<String, Object> headerParts) {
+		String ctPayload = null;
+		if (null != headerParts.get("Payload-Content-Type")) {
+			ctPayload = (String) headerParts.get("Payload-Content-Type");
+		} else {
+			ctPayload = ContentType.TEXT_PLAIN.getMimeType();
+		}
+		return ctPayload;
+	}
+
+	private ContentBody convertToContentBody(String value, ContentType contentType, String valueName)
+			throws UnsupportedEncodingException {
+		byte[] valueBiteArray = value.getBytes("utf-8");
+		ContentBody cbValue = new ByteArrayBody(valueBiteArray, contentType, valueName);
+		return cbValue;
+	}
+
+	private void addHeadersToHttpPost(Map<String, Object> headesParts, HttpPost httpPost) {
+		headerCleaner.removeTechnicalHeaders(headesParts);
+
+		headesParts.forEach((name, value) -> {
+			if (!"Content-Length".equals(name) && !"Content-Type".equals(name)) {
+				if (value != null) {
+					httpPost.setHeader(name, value.toString());
+				} else {
+					httpPost.setHeader(name, null);
+				}
+
+			}
+		});
 	}
 
 }
