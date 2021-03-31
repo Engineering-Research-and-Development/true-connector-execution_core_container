@@ -4,17 +4,16 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.http.Header;
 import org.apache.http.ParseException;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.asynchttpclient.ws.WebSocket;
@@ -35,6 +34,8 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
+import okhttp3.Headers;
+import okhttp3.Response;
 
 /**
  * @author Milan Karajovic and Gabriele De Luca
@@ -127,7 +128,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 			this.handleResponseWebSocket(exchange, message, response, forwardTo);
 		} else {
 			// Send MultipartMessage HTTPS
-			CloseableHttpResponse response = this.sendMultipartMessage(headerParts,	forwardTo, message,  multipartMessage);
+			Response response = this.sendMultipartMessage(headerParts,	forwardTo, message,  multipartMessage);
 			// Handle response
 			this.handleResponse(exchange, message, response, forwardTo);
 
@@ -137,14 +138,14 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		}
 	}
 
-	private CloseableHttpResponse sendMultipartMessage(Map<String, Object> headerParts, String forwardTo, Message message, MultipartMessage multipartMessage)
+	private Response sendMultipartMessage(Map<String, Object> headerParts, String forwardTo, Message message, MultipartMessage multipartMessage)
 			throws IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException,
 			ExecutionException, UnsupportedEncodingException {
-		CloseableHttpResponse response = null;
+		Response response = null;
 		// -- Send message using HTTPS
 			switch (eccHttpSendRouter) {
 			case "mixed": {
-				response = sendDataToBusinessLogicService.sendMessageBinary(forwardTo, multipartMessage, headerParts, true);
+//				response = sendDataToBusinessLogicService.sendMessageBinary(forwardTo, multipartMessage, headerParts, true);
 				break;
 			}
 			case "form": {
@@ -152,7 +153,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 				break;
 			}
 			case "http-header": {
-				response = sendDataToBusinessLogicService.sendMessageHttpHeader(forwardTo, multipartMessage, headerParts, true);
+//				response = sendDataToBusinessLogicService.sendMessageHttpHeader(forwardTo, multipartMessage, headerParts, true);
 				break;
 			}
 			default:
@@ -164,16 +165,16 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	}
 
 
-	private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response, String forwardTo) throws UnsupportedOperationException, IOException {
+	private void handleResponse(Exchange exchange, Message message, Response response, String forwardTo) throws UnsupportedOperationException, IOException {
 		if (response == null) {
 			logger.info("...communication error");
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
 					message);
 		} else {
-			String responseString = new String(response.getEntity().getContent().readAllBytes());
+			String responseString = response.body().string();
 			logger.info("response received from the DataAPP=" + responseString);
 
-			int statusCode = response.getStatusLine().getStatusCode();
+			int statusCode = response.code();
 			logger.info("status code of the response message is: " + statusCode);
 			if (statusCode >= 300) {
 				if (statusCode == 404) {
@@ -188,8 +189,8 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 //				logger.info("Successful response: " + responseString);
 				
 				//TODO make the MultipartMessage here or in the ProducerParseReceivedResponseMessage
-				exchange.getMessage().setHeaders(returnHeadersAsMap(response.getAllHeaders()));
-				if (eccHttpSendRouter.equals("http-header")) {
+				exchange.getMessage().setHeaders(returnHeadersAsMap(response.headers()));
+				if ("http-header".equals(eccHttpSendRouter)) {
 					exchange.getMessage().setBody(responseString);
 				}else {
 					exchange.getMessage().setHeader("header", multipartMessageService.getHeaderContentString(responseString));
@@ -200,12 +201,13 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		}
 	}
 
-	private Map<String, Object> returnHeadersAsMap(Header[] allHeaders) {
-		Map<String, Object> headersMap = new HashMap<>();
-		for (Header header : allHeaders) {
-			headersMap.put(header.getName(), header.getValue());
-		}
-		return headersMap;
+	private Map<String, Object> returnHeadersAsMap(Headers headers) {
+		Map<String, List<String>> multiMap = headers.toMultimap();
+		Map<String, Object> result = 
+				multiMap.entrySet()
+			           .stream()
+			           .collect(Collectors.toMap(Map.Entry::getKey, e -> String.join(", ", e.getValue())));
+		return result;
 	}
 
 	private void handleResponseWebSocket(Exchange exchange, Message message, String responseString, String forwardTo) {
