@@ -17,7 +17,7 @@ public interface SendDataToBusinessLogicService {
 			boolean eccCommunication)
 			throws UnsupportedEncodingException, JsonProcessingException;
 
-	CloseableHttpResponse sendMessageHttpHeader(String address, MultipartMessage multipartMessage,
+	Response sendMessageHttpHeader(String address, MultipartMessage multipartMessage,
 			Map<String, Object> headerParts, boolean eccCommunication) throws IOException;
 	
 	Response sendMessageFormData(String address, MultipartMessage message,

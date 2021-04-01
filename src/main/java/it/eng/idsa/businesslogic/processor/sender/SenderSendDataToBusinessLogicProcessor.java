@@ -153,7 +153,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 				break;
 			}
 			case "http-header": {
-//				response = sendDataToBusinessLogicService.sendMessageHttpHeader(forwardTo, multipartMessage, headerParts, true);
+				response = sendDataToBusinessLogicService.sendMessageHttpHeader(forwardTo, multipartMessage, headerParts, true);
 				break;
 			}
 			default:
