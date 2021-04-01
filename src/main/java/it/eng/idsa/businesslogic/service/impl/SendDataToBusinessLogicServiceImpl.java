@@ -5,14 +5,10 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.ByteArrayBody;
-import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,8 +27,8 @@ import it.eng.idsa.businesslogic.service.SenderClientService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.communication.HttpClientGenerator;
-import it.eng.idsa.businesslogic.util.communication.HttpClientProvider;
 import it.eng.idsa.businesslogic.util.config.keystore.AcceptAllTruststoreConfig;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import okhttp3.Headers;
 import okhttp3.RequestBody;
@@ -65,72 +61,74 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 	private HeaderCleaner headerCleaner;
 	
 	@Autowired
-	private HttpClientProvider httpProvider;
-	
-	@Autowired
 	private SenderClientService okHttpClient;
 
 	@Override
-	public CloseableHttpResponse sendMessageBinary(String address, MultipartMessage multipartMessage,
+	public Response sendMessageBinary(String address, MultipartMessage multipartMessage,
 			Map<String, Object> headerParts, boolean eccCommunication) throws UnsupportedEncodingException, JsonProcessingException {
 
-		String header = null;
-		String payload = multipartMessage.getPayloadContent();
-		Message messageForExcepiton = multipartMessage.getHeaderContent();
-
 		logger.info("Forwarding Message: Body: binary");
-		
+		MultipartMessage multiMessage ;
 		if(!eccCommunication) {
 			// sending to DataApp, remove token from message
-			header = multipartMessageService.removeToken(multipartMessage.getHeaderContent());
+			String header = multipartMessageService.removeToken(multipartMessage.getHeaderContent());
+			multiMessage = new MultipartMessageBuilder()
+					.withHttpHeader(multipartMessage.getHttpHeaders())
+					.withHeaderHeader(multipartMessage.getHeaderHeader())
+					.withHeaderContent(header)
+					.withPayloadHeader(multipartMessage.getPayloadHeader())
+					.withPayloadContent(multipartMessage.getPayloadContent())
+					.build();
 		} else {
-			header = multipartMessage.getHeaderContentString();
+			multiMessage = multipartMessage;
 		}
-		ContentType ctPayload;
-		if (headerParts.get("Payload-Content-Type") != null) {
-			ctPayload = ContentType
-					.parse(headerParts.get("Payload-Content-Type").toString());
-		} else {
-			ctPayload = ContentType.TEXT_PLAIN;
-		}
+//		ContentType ctPayload;
+//		if (headerParts.get("Payload-Content-Type") != null) {
+//			ctPayload = ContentType
+//					.parse(headerParts.get("Payload-Content-Type").toString());
+//		} else {
+//			ctPayload = ContentType.TEXT_PLAIN;
+//		}
 		// Covert to ContentBody
-		ContentType ctHeader;
-		if(multipartMessage.getHeaderHeader().containsKey("Content-Type")) {
-			ctHeader = ContentType.parse(multipartMessage.getHeaderHeader().get("Content-Type"));
-		} else {
-			ctHeader = ContentType.APPLICATION_JSON;
-		}
-		ContentBody cbHeader = this.convertToContentBody(header, ctHeader, "header");
-		ContentBody cbPayload = null;
-
-		if (payload != null) {
-			cbPayload = convertToContentBody(payload, ctPayload, "payload");
-		}
+//		ContentType ctHeader;
+//		if(multipartMessage.getHeaderHeader().containsKey("Content-Type")) {
+//			ctHeader = ContentType.parse(multipartMessage.getHeaderHeader().get("Content-Type"));
+//		} else {
+//			ctHeader = ContentType.APPLICATION_JSON;
+//		}
+//		ContentBody cbHeader = this.convertToContentBody(header, ctHeader, "header");
+//		ContentBody cbPayload = null;
+//
+//		if (payload != null) {
+//			cbPayload = convertToContentBody(payload, ctPayload, "payload");
+//		}
 
 		// Set F address
-		HttpPost httpPost = new HttpPost(address);
+//		HttpPost httpPost = new HttpPost(address);
 
-		addHeadersToHttpPost(headerParts, httpPost);
+//		addHeadersToHttpPost(headerParts, httpPost);
+		Headers headers = fillHeaders(headerParts);
 
 //		httpPost.addHeader("headerHeaders", headerHeadersAsString);
 //		httpPost.addHeader("payloadHeaders", payloadHeadersAsString);
 
-		HttpEntity reqEntity = payload == null ? MultipartEntityBuilder.create().addPart("header", cbHeader).build()
-				: MultipartEntityBuilder.create().addPart("header", cbHeader).addPart("payload", cbPayload).build();
+//		HttpEntity reqEntity = payload == null ? MultipartEntityBuilder.create().addPart("header", cbHeader).build()
+//				: MultipartEntityBuilder.create().addPart("header", cbHeader).addPart("payload", cbPayload).build();
 
-		httpPost.setEntity(reqEntity);
-
-		CloseableHttpResponse response = null;
-		try {
-//			response = getHttpClient().execute(httpPost);
-			response = httpProvider.get().execute(httpPost);
-		} catch (IOException e) {
-			logger.error(e);
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-					messageForExcepiton);
+//		httpPost.setEntity(reqEntity);
+		String payloadContentType;
+		if (headerParts.get("Payload-Content-Type") != null) {
+			payloadContentType = headerParts.get("Payload-Content-Type").toString();
+		} else {
+			payloadContentType = javax.ws.rs.core.MediaType.TEXT_PLAIN.toString();
 		}
-
-		return response;
+		RequestBody requestBody = okHttpClient.createMultipartMixRequest(multiMessage, payloadContentType);
+		try {
+			return okHttpClient.sendMultipartMixRequest(address, headers, requestBody);
+		} catch (IOException e) {
+			logger.error("Error while calling Receiver", e);
+		}
+		return null;
 	}
 
 	@Override
@@ -174,13 +172,6 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 			return null;
 		}
 		return response;
-	}
-
-	private ContentBody convertToContentBody(String value, ContentType contentType, String valueName)
-			throws UnsupportedEncodingException {
-		byte[] valueBiteArray = value.getBytes("utf-8");
-		ContentBody cbValue = new ByteArrayBody(valueBiteArray, contentType, valueName);
-		return cbValue;
 	}
 
 	private CloseableHttpClient getHttpClient() {

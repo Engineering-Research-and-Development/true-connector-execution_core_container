@@ -35,14 +35,6 @@ public class OkHttpSenderClientServiceImpl implements SenderClientService {
 
 	@Override
 	public Response sendMultipartFormRequest(String targetURL, Headers httpHeaders, RequestBody requestBody) throws IOException {
-//		 Request request = new Request.Builder()
-//				  .url("https://localhost:8887/incoming-data-app/multipartMessageBodyBinary")
-//				  .method("POST", body)
-//				  .addHeader("Content-Type", "multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6")
-//				  .addHeader("Forward-To", "https://localhost:8890/incoming-data-channel/receivedMessage")
-//				  .build();
-//				Response response = client.newCall(request).execute();
-
 		Request request = new Request.Builder()
 			  .headers(httpHeaders)
 		      .url(targetURL)
@@ -52,9 +44,10 @@ public class OkHttpSenderClientServiceImpl implements SenderClientService {
 	}
 
 	@Override
-	public Response sendHttpHeaderRequest(String targetURL, Headers httpHeaders, String payload, String payloadContentType) throws IOException {
+	public Response sendHttpHeaderRequest(String targetURL, Headers httpHeaders, String payload, String payloadContentType) 
+			throws IOException {
 		RequestBody body = RequestBody.create(
-			      MediaType.parse(payloadContentType != null ? payloadContentType : javax.ws.rs.core.MediaType.TEXT_PLAIN), 
+			     MediaType.parse(payloadContentType != null ? payloadContentType : javax.ws.rs.core.MediaType.TEXT_PLAIN), 
 			     payload);
 		
 		Request request = new Request.Builder()
@@ -66,9 +59,19 @@ public class OkHttpSenderClientServiceImpl implements SenderClientService {
 	}
 
 	@Override
-	public RequestBody createMultipartMixRequest(String multipartMessage, String payloadContentType) {
-		MediaType mediaType = MediaType.parse("multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6");
-		return RequestBody.create(mediaType, multipartMessage);
+	public RequestBody createMultipartMixRequest(MultipartMessage message, String payloadContentType) {
+//		Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(multipartMessage);
+//		MediaType mediaType = MediaType.parse("multipart/mixed; boundary=" + boundary.get());
+//		return RequestBody.create(mediaType, multipartMessage);
+		return new  MultipartBody.Builder()
+			      .setType(MultipartBody.MIXED)
+			      .addPart(
+			          Headers.of("Content-Disposition", "form-data; name=\"header\""),
+			          RequestBody.create(MediaType.parse(MEDIA_TYPE_HEADER_JSON_LD), message.getHeaderContentString()))
+			      .addPart(
+			          Headers.of("Content-Disposition", "form-data; name=\"payload\""),
+			          RequestBody.create(MediaType.parse(payloadContentType), message.getPayloadContent()))
+			      .build();
 	}
 
 	@Override

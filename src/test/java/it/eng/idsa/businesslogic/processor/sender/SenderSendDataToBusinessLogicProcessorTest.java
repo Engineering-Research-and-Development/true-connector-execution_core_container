@@ -32,6 +32,7 @@ import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.service.impl.SendDataToBusinessLogicServiceImpl;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import okhttp3.Response;
 
 public class SenderSendDataToBusinessLogicProcessorTest {
 
@@ -63,6 +64,9 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	
 	@Mock
 	private CloseableHttpResponse response;
+	
+	@Mock
+	private Response responseOkHttp;
 	@Mock
 	private HttpEntity httpEntity;
 	@Mock
@@ -141,7 +145,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 		mockExchangeHeaderAndBody();
 		
 		when(sendDataToBusinessLogicService.sendMessageBinary(FORWARD_TO, multipartMessage, headers, true))
-			.thenReturn(response);
+			.thenReturn(responseOkHttp);
 		mockHandleResponsePart(200);
 		when(multipartMessageService.getHeaderContentString(PAYLOAD_RESPONSE)).thenReturn(HEADER_MESSAGE_STRING);
 		when(multipartMessageService.getPayloadContent(PAYLOAD_RESPONSE)).thenReturn(PAYLOAD);

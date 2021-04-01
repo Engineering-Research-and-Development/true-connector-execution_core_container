@@ -13,7 +13,7 @@ import okhttp3.Response;
 
 public interface SendDataToBusinessLogicService {
 
-	CloseableHttpResponse sendMessageBinary(String address, MultipartMessage message, Map<String, Object> httpHeaders,
+	Response sendMessageBinary(String address, MultipartMessage message, Map<String, Object> httpHeaders,
 			boolean eccCommunication)
 			throws UnsupportedEncodingException, JsonProcessingException;
 

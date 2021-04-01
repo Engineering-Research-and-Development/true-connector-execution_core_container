@@ -48,18 +48,17 @@ public interface SenderClientService {
 	  */
 	 
 	 /**
-	  * Create request with from multipart message 
+	  * Create multipart/mixed request from multipart message 
+	  * @param multipartMessage
+	  * @return
+	  */
+	 RequestBody createMultipartMixRequest(MultipartMessage multipartMessage, String payloadContentType);
+	 
+	 /**
+	  * Create multipart form request with 2 fields - header and payload, with corresponding contents
 	  * @param multipartMessage
 	  * @param payloadContentType
 	  * @return
 	  */
-	 RequestBody createMultipartMixRequest(String multipartMessage, String payloadContentType);
-	 
-	 /**
-	  * Create multipart form request with 2 fields - header and payload, with corresponding contents
-	  * @param message
-	  * @param payloadContentType
-	  * @return
-	  */
-	 RequestBody createMultipartFormRequest(MultipartMessage message, String payloadContentType);
+	 RequestBody createMultipartFormRequest(MultipartMessage multipartMessage, String payloadContentType);
 }
