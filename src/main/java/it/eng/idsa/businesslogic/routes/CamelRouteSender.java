@@ -189,7 +189,7 @@ public class CamelRouteSender extends RouteBuilder {
 				.removeHeaders("Camel*");
             } 
         
-		if(isEnabledIdscp2 && !receiver && !isEnabledDataAppWebSocket) {
+		if(isEnabledIdscp2 && !receiver && !isEnabledDataAppWebSocket) {			
 			// End point B. ECC communication (dataApp-ECC communication with http
 			// and communication between ECCs with IDSCP2)
 			
@@ -217,7 +217,7 @@ public class CamelRouteSender extends RouteBuilder {
             	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
             	.process(registerTransactionToCHProcessor)
             	.process(mapMultipartToIDSCP2)
-            	.toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
+            	.toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&sslContextParameters=#sslContext")
         		.log("### CLIENT RECEIVER: Detected Message")
         		.process(mapIDSCP2toMultipart)
         		.process(contractAgreementProcessor)
@@ -241,7 +241,7 @@ public class CamelRouteSender extends RouteBuilder {
 				.process(contractAgreementProcessor)
 	            .process(registerTransactionToCHProcessor)		                
 	            .process(mapMultipartToIDSCP2)
-	            .toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&connectionShareId=pingPongConnection&sslContextParameters=#sslContext&useIdsMessages=true")
+	            .toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&sslContextParameters=#sslContext")
 	            .log("### CLIENT RECEIVER: Detected Message")
 	        	.process(mapIDSCP2toMultipart)
 		        .process(registerTransactionToCHProcessor)

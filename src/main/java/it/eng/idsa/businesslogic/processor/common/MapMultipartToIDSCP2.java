@@ -9,7 +9,7 @@ import org.apache.camel.Processor;
 
 @Component
 public class MapMultipartToIDSCP2 implements Processor {
-	
+
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledDataAppWebSocket;
 
@@ -24,9 +24,9 @@ public class MapMultipartToIDSCP2 implements Processor {
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 
 		exchange.getMessage().setBody(multipartMessage.getPayloadContent());
-		exchange.getMessage().setHeader("idscp2-header", multipartMessage.getHeaderContent());
-		
-		if(isEnabledIdscp2 && !receiver && isEnabledDataAppWebSocket) {
+		exchange.getMessage().setHeader("idscp2-header", multipartMessage.getHeaderContentString());
+
+		if (isEnabledIdscp2 && !receiver && isEnabledDataAppWebSocket) {
 			String host = exchange.getMessage().getHeaders().get("Forward-To").toString().split("//")[1].split(":")[0];
 			exchange.setProperty("host", host);
 		}
