@@ -245,7 +245,6 @@
 			<version>0.17.0</version>
 		</dependency>
 
-
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
@@ -263,11 +262,6 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-text</artifactId>
 			<version>1.8</version>
-		</dependency>
-		<dependency>
-			<groupId>com.nimbusds</groupId>
-			<artifactId>nimbus-jose-jwt</artifactId>
-			<version>8.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
