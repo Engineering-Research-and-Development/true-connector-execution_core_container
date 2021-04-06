@@ -25,6 +25,7 @@
 		<information.model.version>4.0.0</information.model.version>
 		<application.basedir>${basedir}</application.basedir>
 		<multipart.message.processor.version>1.0.7-SNAPSHOT</multipart.message.processor.version>
+		<idscp2.libraries.version>0.4.0</idscp2.libraries.version>
 	</properties>
 
 	<repositories>
@@ -324,17 +325,17 @@
 		<dependency>
 			<groupId>de.fhg.aisec.ids</groupId>
 			<artifactId>camel-idscp2</artifactId>
-			<version>0.4.0</version>
+			<version>${idscp2.libraries.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>de.fhg.aisec.ids</groupId>
 			<artifactId>idscp2-app-layer</artifactId>
-			<version>0.4.0</version>
+			<version>${idscp2.libraries.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>de.fhg.aisec.ids</groupId>
 			<artifactId>idscp2</artifactId>
-			<version>0.4.0</version>
+			<version>${idscp2.libraries.version}</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api -->
