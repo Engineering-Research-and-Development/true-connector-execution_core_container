@@ -1,5 +1,6 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.KeyManagementException;
@@ -129,6 +130,8 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		} else {
 			// Send MultipartMessage HTTPS
 			Response response = this.sendMultipartMessage(headerParts,	forwardTo, message,  multipartMessage);
+			// Check response
+			sendDataToBusinessLogicService.checkResponse(message, response, forwardTo);
 			// Handle response
 			this.handleResponse(exchange, message, response, forwardTo);
 
@@ -165,49 +168,20 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	}
 
 
-	private void handleResponse(Exchange exchange, Message message, Response response, String forwardTo) throws UnsupportedOperationException, IOException {
-		if (response == null) {
-			logger.info("...communication error");
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-					message);
+	private void handleResponse(Exchange exchange, Message message, Response response, String forwardTo)
+			throws UnsupportedOperationException, IOException {
+		String responseString = getResponseBodyAsString(response);
+		logger.info("data received from destination " + forwardTo);
+		logger.info("response received from the DataAPP=" + responseString);
+
+		exchange.getMessage().setHeaders(returnHeadersAsMap(response.headers()));
+		if ("http-header".equals(eccHttpSendRouter)) {
+			exchange.getMessage().setBody(responseString);
 		} else {
-			String responseString = response.body().string();
-			logger.info("response received from the DataAPP=" + responseString);
+			exchange.getMessage().setHeader("header", multipartMessageService.getHeaderContentString(responseString));
+			exchange.getMessage().setHeader("payload", multipartMessageService.getPayloadContent(responseString));
 
-			int statusCode = response.code();
-			logger.info("status code of the response message is: " + statusCode);
-			if (statusCode >= 300) {
-				if (statusCode == 404) {
-					logger.info("...communication error - bad forwardTo URL " + forwardTo);
-					rejectionMessageService
-							.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, message);
-				}
-				logger.info("data sent unuccessfully to destination " + forwardTo);
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
-			} else {
-				logger.info("data received from destination " + forwardTo);
-//				logger.info("Successful response: " + responseString);
-				
-				//TODO make the MultipartMessage here or in the ProducerParseReceivedResponseMessage
-				exchange.getMessage().setHeaders(returnHeadersAsMap(response.headers()));
-				if ("http-header".equals(eccHttpSendRouter)) {
-					exchange.getMessage().setBody(responseString);
-				}else {
-					exchange.getMessage().setHeader("header", multipartMessageService.getHeaderContentString(responseString));
-					exchange.getMessage().setHeader("payload", multipartMessageService.getPayloadContent(responseString));
-
-				}
-			}
 		}
-	}
-
-	private Map<String, Object> returnHeadersAsMap(Headers headers) {
-		Map<String, List<String>> multiMap = headers.toMultimap();
-		Map<String, Object> result = 
-				multiMap.entrySet()
-			           .stream()
-			           .collect(Collectors.toMap(Map.Entry::getKey, e -> String.join(", ", e.getValue())));
-		return result;
 	}
 
 	private void handleResponseWebSocket(Exchange exchange, Message message, String responseString, String forwardTo) {
@@ -299,5 +273,24 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		} catch (Exception e) {
 			logger.error(e);
 		}
+	}
+	
+	private String getResponseBodyAsString(Response response) throws IOException, UnsupportedEncodingException {
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		for (int length; (length = response.body().byteStream().read(buffer)) != -1;) {
+			outputStream.write(buffer, 0, length);
+		}
+		String responseString = outputStream.toString("UTF-8");
+		return responseString;
+	}
+
+	private Map<String, Object> returnHeadersAsMap(Headers headers) {
+		Map<String, List<String>> multiMap = headers.toMultimap();
+		Map<String, Object> result = 
+				multiMap.entrySet()
+			           .stream()
+			           .collect(Collectors.toMap(Map.Entry::getKey, e -> String.join(", ", e.getValue())));
+		return result;
 	}
 }

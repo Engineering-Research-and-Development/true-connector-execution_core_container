@@ -170,4 +170,24 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		return ctPayload;
 	}
 
+	@Override
+	public void checkResponse(Message message, Response response, String forwardTo) {
+		if (response == null) {
+			logger.info("...communication error");
+			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
+					message);
+		} else {
+			int statusCode = response.code();
+			logger.info("status code of the response message is: " + statusCode);
+			if (statusCode >= 300) {
+				if (statusCode == 404) {
+					logger.info("...communication error - bad forwardTo URL " + forwardTo);
+					rejectionMessageService
+							.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, message);
+				}
+				logger.info("data sent unuccessfully to destination " + forwardTo);
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+			}
+		}
+	}
 }

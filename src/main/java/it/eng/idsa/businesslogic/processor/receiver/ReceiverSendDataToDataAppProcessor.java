@@ -1,6 +1,8 @@
 package it.eng.idsa.businesslogic.processor.receiver;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -107,7 +109,9 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 			}
 		}
-
+		
+		// Check response
+		sendDataToBusinessLogicService.checkResponse(message, response, configuration.getOpenDataAppReceiver());
 		// Handle response
 		handleResponse(exchange, message, response, configuration.getOpenDataAppReceiver());
 
@@ -116,40 +120,33 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		}
 	}
 
-	private void handleResponse(Exchange exchange, Message message, Response response,
-			String openApiDataAppAddress) throws UnsupportedOperationException, IOException {
-		if (response == null) {
-			logger.info("...communication error with: " + openApiDataAppAddress);
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-					message);
+	private void handleResponse(Exchange exchange, Message message, Response response, String openApiDataAppAddress)
+			throws UnsupportedOperationException, IOException {
+		String responseString = getResponseBodyAsString(response);
+		logger.info("data sent to destination: " + openApiDataAppAddress);
+		logger.info("response received from the DataAPP=" + responseString);
+
+		exchange.getMessage().setHeaders(returnHeadersAsMap(response.headers()));
+		if ("http-header".equals(openDataAppReceiverRouter)) {
+			exchange.getMessage().setBody(responseString);
 		} else {
-			String responseString = response.body().string();
-			logger.info("content type response received from the DataAPP=" + response.header("Content-Type"));
-			logger.info("response received from the DataAPP=" + responseString);
-
-			int statusCode = response.code();
-			logger.info("status code of the response message is: " + statusCode);
-			if (statusCode >= 300) {
-				logger.info("data sent to destination: " + openApiDataAppAddress);
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
-			} else {
-				logger.info("data sent to destination: " + openApiDataAppAddress);
-//				logger.info("Successful response from DataApp: " + responseString);
-
-				exchange.getMessage().setHeaders(returnHeadersAsMap(response.headers()));
-				if ("http-header".equals(openDataAppReceiverRouter)) {
-					exchange.getMessage().setBody(responseString);
-				} else {
-					exchange.getMessage().setHeader("header",
-							multipartMessageService.getHeaderContentString(responseString));
-					exchange.getMessage().setHeader("payload", multipartMessageService.getPayloadContent(responseString));
-				}
-
-				if (isEnabledUsageControl) {
-					exchange.getMessage().setHeader("Original-Message-Header", originalHeader);
-				}
-			}
+			exchange.getMessage().setHeader("header", multipartMessageService.getHeaderContentString(responseString));
+			exchange.getMessage().setHeader("payload", multipartMessageService.getPayloadContent(responseString));
 		}
+
+		if (isEnabledUsageControl) {
+			exchange.getMessage().setHeader("Original-Message-Header", originalHeader);
+		}
+	}
+	
+	private String getResponseBodyAsString(Response response) throws IOException, UnsupportedEncodingException {
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		for (int length; (length = response.body().byteStream().read(buffer)) != -1;) {
+			outputStream.write(buffer, 0, length);
+		}
+		String responseString = outputStream.toString("UTF-8");
+		return responseString;
 	}
 
 	private Map<String, Object> returnHeadersAsMap(Headers headers) {
