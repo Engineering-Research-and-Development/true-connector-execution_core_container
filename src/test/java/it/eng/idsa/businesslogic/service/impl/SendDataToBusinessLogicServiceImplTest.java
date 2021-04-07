@@ -58,6 +58,8 @@ public class SendDataToBusinessLogicServiceImplTest {
 	
 	private MultipartMessage multipartMessage;
 	
+	Map<String, Object> messageAsMap;
+	
 	private boolean eccCommunication = true;
 
 	private String URL = "https://mock.address.com";
@@ -74,6 +76,7 @@ public class SendDataToBusinessLogicServiceImplTest {
 		payload = "{\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"}";
 		headerParts = new HashMap<>();
 		multipartMessage = createMultipartMessage();
+		messageAsMap = TestUtilMessageService.getArtifactResponseMessageAsMap();
 	}
 	
 	private MultipartMessage createMultipartMessage() {
@@ -171,9 +174,8 @@ public class SendDataToBusinessLogicServiceImplTest {
 
 	@Test
 	public void sendMessageHeaderSuccess() throws IOException {
-		Map<String, Object> messageAsMap = getMessageAsMap();
-		
 		RequestBody headerRequestBody = RequestResponseUtil.createRequestBody(payload); 
+		
 		Response response = RequestResponseUtil.createResponse(
 				RequestResponseUtil.createRequest(URL, headerRequestBody), 
 				RESPONSE_SUCCESFULL_MESSAGE, 
@@ -196,9 +198,8 @@ public class SendDataToBusinessLogicServiceImplTest {
 	
 	@Test
 	public void sendMessageHeaderFail() throws IOException {
-		Map<String, Object> messageAsMap = getMessageAsMap();
-		
 		RequestBody headerRequestBody = RequestResponseUtil.createRequestBody(payload); 
+		
 		Response response = RequestResponseUtil.createResponse(
 				RequestResponseUtil.createRequest(URL, headerRequestBody), 
 				RESPONSE_FAILED_MESSAGE, 
@@ -219,14 +220,4 @@ public class SendDataToBusinessLogicServiceImplTest {
 		verify(okHttpClient).sendHttpHeaderRequest(URL, headers, multipartMessage.getPayloadContent(), MediaType.TEXT_PLAIN.toString());
 	}
 
-	private Map<String, Object> getMessageAsMap() {
-		Map<String, Object> messageAsMap = new HashMap<>();
-		messageAsMap.put("IDS-Messagetype","ids:ArtifactResponseMessage");
-		messageAsMap.put("IDS-Issued","2021-04-07T13:09:42.306Z");
-		messageAsMap.put("IDS-IssuerConnector","http://true-connector.com");
-		messageAsMap.put("IDS-Id","https://w3id.org/idsa/autogen/artifactResponseMessage/eb3ab487-dfb0-4d18-b39a-585514dd044f");
-		messageAsMap.put("IDS-ModelVersion","4.0.0");
-		messageAsMap.put("IDS-RequestedArtifact", "http:/true-connector/artifact/1");
-		return messageAsMap;
-	}
 }
