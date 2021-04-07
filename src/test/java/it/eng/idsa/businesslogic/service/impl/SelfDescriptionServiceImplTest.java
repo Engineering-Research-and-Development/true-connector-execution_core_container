@@ -24,7 +24,6 @@ import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import de.fraunhofer.iais.eis.util.TypedLiteral;
 import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
-import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 
 public class SelfDescriptionServiceImplTest {
 	@Mock
