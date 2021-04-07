@@ -1,5 +1,6 @@
 package it.eng.idsa.businesslogic.service.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
@@ -60,7 +61,12 @@ public class SendDataToBusinessLogicServiceImplTest {
 	private boolean eccCommunication = true;
 
 	private String URL = "https://mock.address.com";
-	private static final String RESPONSE_MESSAGE = "response message OK";
+	
+	private static final String RESPONSE_SUCCESFULL_MESSAGE = "response message OK";
+	
+	private static final String RESPONSE_FAILED_MESSAGE = "bad request";
+	
+	private static final String RESPONSE_PAYLOAD = "response payload";
 	
 	@BeforeEach
 	void init() {
@@ -85,8 +91,8 @@ public class SendDataToBusinessLogicServiceImplTest {
 		Headers headers = Headers.of(new HashMap<>());
 		Response response = RequestResponseUtil.createResponse(
 				RequestResponseUtil.createRequest(URL, mixRequestBody), 
-				RESPONSE_MESSAGE, 
-				RequestResponseUtil.createResponseBodyJsonUTF8("response payload"), 
+				RESPONSE_SUCCESFULL_MESSAGE, 
+				RequestResponseUtil.createResponseBodyJsonUTF8(RESPONSE_PAYLOAD), 
 				200);
 		when(okHttpClient.sendMultipartMixRequest(URL, headers, mixRequestBody)).thenReturn(response);
 		
@@ -99,12 +105,33 @@ public class SendDataToBusinessLogicServiceImplTest {
 	}
 	
 	@Test
+	void sendMessageBinaryFail() throws IOException {
+		RequestBody mixRequestBody = RequestResponseUtil.createRequestBody(payload);
+		when(okHttpClient.createMultipartMixRequest(multipartMessage, MediaType.TEXT_PLAIN.toString()))
+			.thenReturn(mixRequestBody);
+		Headers headers = Headers.of(new HashMap<>());
+		Response response = RequestResponseUtil.createResponse(
+				RequestResponseUtil.createRequest(URL, mixRequestBody), 
+				RESPONSE_FAILED_MESSAGE, 
+				RequestResponseUtil.createResponseBodyJsonUTF8(RESPONSE_PAYLOAD), 
+				400);
+		when(okHttpClient.sendMultipartMixRequest(URL, headers, mixRequestBody)).thenReturn(response);
+		
+		Response result = service.sendMessageBinary(URL, multipartMessage, headerParts, eccCommunication);
+		
+		assertNotNull(result);
+		assertEquals(result.code(), 400);
+		
+		verify(okHttpClient).createMultipartMixRequest(multipartMessage, MediaType.TEXT_PLAIN.toString());
+	}
+	
+	@Test
 	public void sendMessageFormSuccess() throws IOException {
 		RequestBody formRequestBody = RequestResponseUtil.createRequestBody(payload); 
 		Response response = RequestResponseUtil.createResponse(
 				RequestResponseUtil.createRequest(URL, formRequestBody), 
-				RESPONSE_MESSAGE, 
-				RequestResponseUtil.createResponseBodyJsonUTF8("response payload"), 
+				RESPONSE_SUCCESFULL_MESSAGE, 
+				RequestResponseUtil.createResponseBodyJsonUTF8(RESPONSE_PAYLOAD), 
 				200);
 		Headers headers = Headers.of(new HashMap<>());
 
@@ -119,6 +146,28 @@ public class SendDataToBusinessLogicServiceImplTest {
 		
 		verify(okHttpClient).createMultipartFormRequest(multipartMessage, MediaType.TEXT_PLAIN.toString());
 	}
+	
+	@Test
+	public void sendMessageFormFail() throws IOException {
+		RequestBody formRequestBody = RequestResponseUtil.createRequestBody(payload); 
+		Response response = RequestResponseUtil.createResponse(
+				RequestResponseUtil.createRequest(URL, formRequestBody), 
+				RESPONSE_FAILED_MESSAGE, 
+				RequestResponseUtil.createResponseBodyJsonUTF8(RESPONSE_PAYLOAD), 
+				400);
+		Headers headers = Headers.of(new HashMap<>());
+
+		when(okHttpClient.createMultipartFormRequest(multipartMessage, MediaType.TEXT_PLAIN.toString()))
+			.thenReturn(formRequestBody);
+		when(okHttpClient.sendMultipartFormRequest(URL, headers, formRequestBody))
+			.thenReturn(response);
+		Response result = service.sendMessageFormData(URL, multipartMessage, headerParts, eccCommunication);
+		
+		assertNotNull(result);
+		assertEquals(result.code(), 400);
+		
+		verify(okHttpClient).createMultipartFormRequest(multipartMessage, MediaType.TEXT_PLAIN.toString());
+	}
 
 	@Test
 	public void sendMessageHeaderSuccess() throws IOException {
@@ -127,8 +176,8 @@ public class SendDataToBusinessLogicServiceImplTest {
 		RequestBody headerRequestBody = RequestResponseUtil.createRequestBody(payload); 
 		Response response = RequestResponseUtil.createResponse(
 				RequestResponseUtil.createRequest(URL, headerRequestBody), 
-				RESPONSE_MESSAGE, 
-				RequestResponseUtil.createResponseBodyJsonUTF8("response payload"), 
+				RESPONSE_SUCCESFULL_MESSAGE, 
+				RequestResponseUtil.createResponseBodyJsonUTF8(RESPONSE_PAYLOAD), 
 				200);
 		Headers headers = Headers.of(messageAsMap.entrySet().stream()
 				.collect(Collectors.toMap(Map.Entry::getKey, e -> (String)e.getValue())));
@@ -141,6 +190,31 @@ public class SendDataToBusinessLogicServiceImplTest {
 		
 		assertNotNull(result);
 		assertTrue(result.isSuccessful());
+		
+		verify(okHttpClient).sendHttpHeaderRequest(URL, headers, multipartMessage.getPayloadContent(), MediaType.TEXT_PLAIN.toString());
+	}
+	
+	@Test
+	public void sendMessageHeaderFail() throws IOException {
+		Map<String, Object> messageAsMap = getMessageAsMap();
+		
+		RequestBody headerRequestBody = RequestResponseUtil.createRequestBody(payload); 
+		Response response = RequestResponseUtil.createResponse(
+				RequestResponseUtil.createRequest(URL, headerRequestBody), 
+				RESPONSE_FAILED_MESSAGE, 
+				RequestResponseUtil.createResponseBodyJsonUTF8(RESPONSE_PAYLOAD), 
+				400);
+		Headers headers = Headers.of(messageAsMap.entrySet().stream()
+				.collect(Collectors.toMap(Map.Entry::getKey, e -> (String)e.getValue())));
+		
+		when(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage)).thenReturn(messageAsMap);
+		when(okHttpClient.sendHttpHeaderRequest(URL, headers, multipartMessage.getPayloadContent(), MediaType.TEXT_PLAIN.toString()))
+			.thenReturn(response);
+		
+		Response result = service.sendMessageHttpHeader(URL, multipartMessage, headerParts, eccCommunication);
+		
+		assertNotNull(result);
+		assertEquals(result.code(), 400);
 		
 		verify(okHttpClient).sendHttpHeaderRequest(URL, headers, multipartMessage.getPayloadContent(), MediaType.TEXT_PLAIN.toString());
 	}
