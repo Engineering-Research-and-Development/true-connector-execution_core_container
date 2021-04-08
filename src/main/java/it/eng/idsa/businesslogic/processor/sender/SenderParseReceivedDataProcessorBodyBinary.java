@@ -50,7 +50,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 
 		try {
 			MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
-			message= multipartMessage.getHeaderContent();
+			message = multipartMessage.getHeaderContent();
 			if (!checkHeaderContentType(
 					multipartMessage.getHeaderHeader().get(MultipartMessageKey.CONTENT_TYPE.label))) {
 				logger.error("Content type of the header must be application/json or application/json UTF-8");
@@ -64,6 +64,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 			// Return exchange
 			exchange.getMessage().setBody(multipartMessage);
 			exchange.getMessage().setHeaders(headesParts);
+
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
@@ -72,14 +73,14 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 
 	/**
 	 * Check if header content type is application/json; UTF-8 or application/json
+	 * 
 	 * @param contentType
 	 * @return
 	 */
 	private boolean checkHeaderContentType(String contentType) {
-		if (contentType != null && (contentType
-				.equals(ContentType.APPLICATION_JSON.toString())
-				|| contentType.equals(ContentType.create("application/json").toString())
-				|| contentType.equals(ContentType.create("application/json+ld").toString()))) {
+		if (ContentType.APPLICATION_JSON.toString().equals(contentType)
+				|| (ContentType.create("application/json").toString()).equals(contentType)
+				|| (ContentType.create("application/json+ld").toString()).equals(contentType)) {
 			return true;
 		}
 		return false;

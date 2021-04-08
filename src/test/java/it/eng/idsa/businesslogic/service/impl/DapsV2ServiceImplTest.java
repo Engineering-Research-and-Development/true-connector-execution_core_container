@@ -57,7 +57,7 @@ public class DapsV2ServiceImplTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		when(dapsUtilityProvider.getJws()).thenReturn(jws);
+		when(dapsUtilityProvider.getDapsV2Jws()).thenReturn(jws);
 		ReflectionTestUtils.setField(dapsV2Service, "dapsUrl", dapsUrl);
 	}
 	

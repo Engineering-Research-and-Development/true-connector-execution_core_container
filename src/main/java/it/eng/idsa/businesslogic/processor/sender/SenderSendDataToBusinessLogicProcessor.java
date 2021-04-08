@@ -14,27 +14,19 @@ import java.util.stream.Collectors;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.http.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.asynchttpclient.ws.WebSocket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import de.fhg.aisec.ids.comm.client.IdscpClient;
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
-import it.eng.idsa.businesslogic.processor.sender.websocket.client.FileStreamingBean;
-import it.eng.idsa.businesslogic.processor.sender.websocket.client.IdscpClientBean;
 import it.eng.idsa.businesslogic.processor.sender.websocket.client.MessageWebSocketOverHttpSender;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
-import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 import okhttp3.Headers;
 import okhttp3.Response;
 
@@ -46,12 +38,8 @@ import okhttp3.Response;
 public class SenderSendDataToBusinessLogicProcessor implements Processor {
 
 	private static final Logger logger = LogManager.getLogger(SenderSendDataToBusinessLogicProcessor.class);
-	// example for the webSocketURL: idscp://localhost:8099
-	public static final String REGEX_IDSCP = "(idscp://)([^:^/]*)(:)(\\d*)";
+	
 	public static final String REGEX_WSS = "(wss://)([^:^/]*)(:)(\\d*)";
-
-	@Value("${application.idscp.isEnabled}")
-	private boolean isEnabledIdscp;
 
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
@@ -75,9 +63,6 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	private SendDataToBusinessLogicService sendDataToBusinessLogicService;
 
 	@Autowired
-	private WebSocketClientConfiguration webSocketClientConfiguration;
-
-	@Autowired
 	private MessageWebSocketOverHttpSender messageWebSocketOverHttpSender;
 
 	private String webSocketHost;
@@ -98,21 +83,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 
 		String forwardTo = headerParts.get("Forward-To").toString();
 
-		if (isEnabledIdscp) {
-			// check & extract IDSCP WebSocket IP and Port
-			try {
-				this.extractWebSocketIPAndPort(forwardTo, REGEX_IDSCP);
-			} catch (Exception e) {
-				logger.info("... bad idscp URL - '{}' {}", forwardTo, e.getMessage());
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-						message);
-			}
-			// -- Send data using IDSCP - (Client) - WebSocket
-			String response = this.sendMultipartMessageWebSocket(this.webSocketHost, this.webSocketPort, header, payload,
-						message);
-			// Handle response
-			this.handleResponseWebSocket(exchange, message, response, forwardTo);
-		} else if (isEnabledWebSocket) {
+		if (isEnabledWebSocket) {
 			// check & exstract HTTPS WebSocket IP and Port
 			try {
 				this.extractWebSocketIPAndPort(forwardTo, REGEX_WSS);
@@ -200,61 +171,6 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		}
 	}
 
-	private String sendMultipartMessageWebSocket(String webSocketHost, Integer webSocketPort, String header,
-			String payload, Message message) throws Exception, ParseException, IOException, KeyManagementException,
-			NoSuchAlgorithmException, InterruptedException, ExecutionException {
-		// Create idscpClient
-		IdscpClientBean idscpClientBean = webSocketClientConfiguration.idscpClientServiceWebSocket();
-		this.initializeIdscpClient(message, idscpClientBean);
-		IdscpClient idscpClient = idscpClientBean.getClient();
-
-		MultipartMessage multipartMessage = new MultipartMessageBuilder().withHeaderContent(header)
-				.withPayloadContent(payload).build();
-		String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage);
-
-		// Send multipartMessage as a frames
-		FileStreamingBean fileStreamingBean = webSocketClientConfiguration.fileStreamingWebSocket();
-		WebSocket wsClient = this.createWebSocketConnection(idscpClient, webSocketHost, webSocketPort, message);
-		// Try to connect to the Server. Wait until you are not connected to the server.
-		wsClient.addWebSocketListener(webSocketClientConfiguration.inputStreamSocketListenerWebSocketClient());
-		fileStreamingBean.setup(wsClient);
-		fileStreamingBean.sendMultipartMessage(multipartMessageString);
-		// We don't have status of the response (is it 200 OK or not). We have only the
-		// content of the response.
-		String responseMessage = new String(
-				webSocketClientConfiguration.responseMessageBufferWebSocketClient().remove());
-		this.closeWSClient(wsClient);
-		logger.info("received response");
-		logger.debug("content: " + responseMessage);
-
-		return responseMessage;
-	}
-
-	private void initializeIdscpClient(Message message, IdscpClientBean idscpClientBean) {
-		try {
-			idscpClientBean.createIdscpClient();
-		} catch (Exception e) {
-			logger.info("... can not initilize the IdscpClient");
-			logger.error(e);
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-					message);
-		}
-	}
-
-	private WebSocket createWebSocketConnection(IdscpClient idscpClient, String webSocketHost, Integer webSocketPort,
-			Message message) {
-		WebSocket wsClient = null;
-		try {
-			wsClient = idscpClient.connect(webSocketHost, webSocketPort);
-		} catch (Exception e) {
-			logger.info("... can not create the WebSocket connection IDSCP");
-			logger.error(e);
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-					message);
-		}
-		return wsClient;
-	}
-
 	private void extractWebSocketIPAndPort(String forwardTo, String regexForwardTo) {
 		// Split URL into protocol, host, port
 		Pattern pattern = Pattern.compile(regexForwardTo);
@@ -265,16 +181,6 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		this.webSocketPort = Integer.parseInt(matcher.group(4));
 	}
 
-	private void closeWSClient(WebSocket wsClient) {
-		// Send the close frame 200 (OK), "Shutdown"; in this method we also close the
-		// wsClient.
-		try {
-			wsClient.sendCloseFrame(200, "Shutdown");
-		} catch (Exception e) {
-			logger.error(e);
-		}
-	}
-	
 	private String getResponseBodyAsString(Response response) throws IOException, UnsupportedEncodingException {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		byte[] buffer = new byte[1024];
