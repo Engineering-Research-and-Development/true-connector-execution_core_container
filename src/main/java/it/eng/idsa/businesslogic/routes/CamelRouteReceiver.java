@@ -168,6 +168,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 					.routeId("IDSCP2 - receiver - HTTP internal")
 					.log("### IDSCP2 SERVER RECEIVER: Detected Message")
 					.process(mapIDSCP2toMultipart)
+					.process(contractAgreementProcessor)
 					.process(registerTransactionToCHProcessor)
 					// Send to the Endpoint: F
 					.process(sendDataToDataAppProcessor)
@@ -185,6 +186,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 					.routeId("IDSCP2 - receiver - WSS internal")
 					.log("### IDSCP2 SERVER RECEIVER: Detected Message")
 					.process(mapIDSCP2toMultipart)
+					.process(contractAgreementProcessor)
 					.process(registerTransactionToCHProcessor)
 					// Send to the Endpoint: F
 					.process(sendDataToDataAppProcessorOverWS)
