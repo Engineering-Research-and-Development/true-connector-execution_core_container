@@ -4,14 +4,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.PKIXParameters;
+import java.security.cert.TrustAnchor;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
@@ -71,17 +78,29 @@ public class SslValidatingConfiguration {
 			InputStream jksKeyStoreInputStream = Files.newInputStream(targetDirectory.resolve(keyStoreName));
 			keystore = KeyStore.getInstance("JKS");
 			logger.info("Loading key store: " + keyStoreName);
-			logger.info("Loading trust store: " + keyStoreName);
 			keystore.load(jksKeyStoreInputStream, keyStorePassword.toCharArray());
 			kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 			kmf.init(keystore, keyStorePassword.toCharArray());
 			
+			logger.info("Loading trust store: " + trustStoreName);
 			InputStream jksTrustStoreInputStream = Files.newInputStream(targetDirectory.resolve(trustStoreName));
 			trustManagerKeyStore = KeyStore.getInstance("JKS");
 			trustManagerKeyStore.load(jksTrustStoreInputStream, trustStorePwd.toCharArray());
-			java.security.cert.Certificate[] certs = trustManagerKeyStore.getCertificateChain("ca");
-			logger.info("Cert chain: " + Arrays.toString(certs));
-			
+			if(logger.isDebugEnabled()) {
+				PKIXParameters params;
+				try {
+					params = new PKIXParameters(trustManagerKeyStore);
+					Set<TrustAnchor> trustAnchors = params.getTrustAnchors();
+					List<Certificate> certificates = trustAnchors.stream()
+							.map(TrustAnchor::getTrustedCert)
+							.collect(Collectors.toList());
+					logger.debug("Cert chain: " + certificates);
+				} catch (InvalidAlgorithmParameterException e) {
+					logger.error("Error while trying to read trusted certificates");
+				}
+			}
+			List<String> aliases = Collections.list(trustManagerKeyStore.aliases());
+			logger.info("Trusted certificate aliases: {}", aliases);
 			trustFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustFactory.init(trustManagerKeyStore);
 			
