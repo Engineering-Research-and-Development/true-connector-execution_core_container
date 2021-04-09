@@ -13,41 +13,55 @@ import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import it.eng.idsa.businesslogic.service.impl.KeystoreProvider;
 import okhttp3.OkHttpClient;
 
 @Configuration
 public class OkHttpClientConfiguration {
 	
+	private static final Logger logger = LogManager.getLogger(OkHttpClientConfiguration.class);
+	
 	@Value("${application.disableSslVerification:false}") 
 	boolean disableSslVerification;
 	
+	@Autowired
+	private KeystoreProvider keystoreProvider;
+	
 	@Bean
 	public OkHttpClient getClient() throws KeyManagementException, NoSuchAlgorithmException {
-		final TrustManager[] trustAllCerts = createTrustCertificates();
-		final SSLSocketFactory sslSocketFactory = sslSocketFactory(trustAllCerts);
-		OkHttpClient client = createHttpClient(trustAllCerts, sslSocketFactory);
-		return client;
+		return createHttpClient();
 	}
 	
-	private OkHttpClient createHttpClient(final TrustManager[] trustAllCerts, final SSLSocketFactory sslSocketFactory) {
+	private OkHttpClient createHttpClient() throws KeyManagementException, NoSuchAlgorithmException {
 		OkHttpClient client;
+		TrustManager[] trustManagers = null;
+		SSLSocketFactory sslSocketFactory;
 		
 		HostnameVerifier hostnameVerifier;
 		if(disableSslVerification) {
+			logger.info("Disabling SSL Validation");
 			hostnameVerifier = new NoopHostnameVerifier();
+			trustManagers = createTrustCertificates();
+			sslSocketFactory = sslSocketFactory(trustManagers);
 		} else {
+			logger.info("Using default SSL Validation with certificates from trust store");
 			hostnameVerifier = new DefaultHostnameVerifier();
+			trustManagers = keystoreProvider.getTrustManagerFactory().getTrustManagers();
+			sslSocketFactory = sslSocketFactory(trustManagers);
 		}
 		//@formatter:off
 		client = new OkHttpClient.Builder()
 				.connectTimeout(60, TimeUnit.SECONDS)
 		        .writeTimeout(60, TimeUnit.SECONDS)
 		        .readTimeout(60, TimeUnit.SECONDS)
-		        .sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
+		        .sslSocketFactory(sslSocketFactory, (X509TrustManager) trustManagers[0])
 		        .hostnameVerifier(hostnameVerifier)
 		        .build();
 		//@formatter:on
@@ -84,6 +98,4 @@ public class OkHttpClientConfiguration {
 		final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 		return sslSocketFactory;
 	}
-
-
 }
