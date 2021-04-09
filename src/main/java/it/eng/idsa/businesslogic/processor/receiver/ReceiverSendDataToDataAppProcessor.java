@@ -2,7 +2,6 @@ package it.eng.idsa.businesslogic.processor.receiver;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -139,13 +138,19 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		}
 	}
 	
-	private String getResponseBodyAsString(Response response) throws IOException, UnsupportedEncodingException {
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+	private String getResponseBodyAsString(Response response) {
+		// We used ByteArrayOutputStream instead of IOUtils.toString because it's faster.
+		// https://stackoverflow.com/questions/309424/how-do-i-read-convert-an-inputstream-into-a-string-in-java
 		byte[] buffer = new byte[1024];
-		for (int length; (length = response.body().byteStream().read(buffer)) != -1;) {
-			outputStream.write(buffer, 0, length);
+		String responseString = null;
+		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()){
+			for (int length; (length = response.body().byteStream().read(buffer)) != -1;) {
+				outputStream.write(buffer, 0, length);
+			}
+			responseString = outputStream.toString("UTF-8");
+		} catch (IOException e) {
+			logger.info("Error while parsing body, {}", e.getMessage());
 		}
-		String responseString = outputStream.toString("UTF-8");
 		return responseString;
 	}
 
