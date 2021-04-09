@@ -34,6 +34,7 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
+import it.eng.idsa.multipart.util.MultipartMessageKey;
 
 /**
  *
@@ -136,20 +137,20 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 			FormBodyPart bodyHeaderPart;
 			ContentBody headerBody = new StringBody(header, ContentType.APPLICATION_JSON);
 			bodyHeaderPart = FormBodyPartBuilder.create("header", headerBody).build();
-			bodyHeaderPart.addField("Content-Lenght", "" + header.length());
+			bodyHeaderPart.addField(MultipartMessageKey.CONTENT_LENGTH.label, "" + header.length());
 
 			FormBodyPart bodyPayloadPart = null;
 			if (payload != null) {
 				ContentBody payloadBody = new StringBody(payload, ctPayload);
 				bodyPayloadPart = FormBodyPartBuilder.create("payload", payloadBody).build();
-				bodyPayloadPart.addField("Content-Lenght", "" + payload.length());
+				bodyPayloadPart.addField(MultipartMessageKey.CONTENT_LENGTH.label, "" + payload.length());
 			}
 
 			FormBodyPart headerForwardTo = null;
 			if (frowardTo != null) {
 				ContentBody forwardToBody = new StringBody(frowardTo, ContentType.DEFAULT_TEXT);
 				headerForwardTo = FormBodyPartBuilder.create("forwardTo", forwardToBody).build();
-				headerForwardTo.addField("Content-Lenght", "" + frowardTo.length());
+				headerForwardTo.addField(MultipartMessageKey.CONTENT_LENGTH.label, "" + frowardTo.length());
 			}
 
 			if (frowardTo != null) {
