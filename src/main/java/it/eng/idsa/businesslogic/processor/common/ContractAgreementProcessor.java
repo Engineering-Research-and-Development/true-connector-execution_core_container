@@ -28,13 +28,16 @@ public class ContractAgreementProcessor implements Processor {
 	private String usageControlDataAppURL;
 	private String addPolicyEndpoint;
 	private RejectionMessageService rejectionMessageService;
+	private Boolean isEnabledUsageControl;
 	
 	public ContractAgreementProcessor(CommunicationService communicationService, 
 			@Value("${spring.ids.ucapp.baseUrl}") String usageControlDataAppURL,
 			@Value("${spring.ids.ucapp.addPolicyEndpoint}") String addPolicyEndpoint,
+			@Value("${application.isEnabledUsageControl:false}") Boolean isEnabledUsageControl,
 			RejectionMessageService rejectionMessageService) {
 		this.communicationService = communicationService;
 		this.usageControlDataAppURL = usageControlDataAppURL;
+		this.isEnabledUsageControl = isEnabledUsageControl;
 		this.addPolicyEndpoint = addPolicyEndpoint;
 		this.rejectionMessageService = rejectionMessageService;
 	}
@@ -43,7 +46,7 @@ public class ContractAgreementProcessor implements Processor {
 	public void process(Exchange exchange) throws Exception {
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		
-		if(multipartMessage.getHeaderContent() instanceof ContractAgreementMessage) {
+		if(isEnabledUsageControl && multipartMessage.getHeaderContent() instanceof ContractAgreementMessage) {
 			if(StringUtils.isNotBlank(multipartMessage.getPayloadContent())) {
 				String ucDataAppAddPolicyEndpoint = usageControlDataAppURL + addPolicyEndpoint;
 				logger.info("ContractAgreementMessage detected, sending payload to Usage Contol DataApp at '{}'", ucDataAppAddPolicyEndpoint);
@@ -54,7 +57,7 @@ public class ContractAgreementProcessor implements Processor {
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, multipartMessage.getHeaderContent());
 			}
 		} else {
-			logger.info("Not ContractAgreementMessage - skipping logic and continuing with the flow");
+			logger.info("IsEnabledUsegeControl is {} or Not ContractAgreementMessage - skipping logic and continuing with the flow", isEnabledUsageControl);
 		}
 	}
 }

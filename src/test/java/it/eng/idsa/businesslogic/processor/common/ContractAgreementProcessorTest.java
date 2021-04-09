@@ -53,6 +53,7 @@ public class ContractAgreementProcessorTest {
 		MockitoAnnotations.initMocks(this);
 		ReflectionTestUtils.setField(processor, "usageControlDataAppURL", usageControlDataAppURL, String.class);
 		ReflectionTestUtils.setField(processor, "addPolicyEndpoint", addPolicyEndpoint, String.class);
+		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", Boolean.TRUE, Boolean.class);
 		contractAggreAgreementMessage = TestUtilMessageService.createContractAgreementMessage();
 	}
 	

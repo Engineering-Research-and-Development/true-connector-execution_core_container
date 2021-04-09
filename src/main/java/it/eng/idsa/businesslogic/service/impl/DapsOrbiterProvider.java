@@ -13,15 +13,21 @@ import java.time.Instant;
 import java.util.Date;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.interfaces.RSAKeyProvider;
+
 
 @Component
 public class DapsOrbiterProvider {
+    private static final Logger logger = LoggerFactory.getLogger(DapsOrbiterProvider.class);
+
 	
     @Value("${application.targetDirectory}")
     private Path targetDirectory;
@@ -62,14 +68,20 @@ public class DapsOrbiterProvider {
 	 * @throws GeneralSecurityException
 	 */
 	public String provideJWS() throws IOException, GeneralSecurityException  {
-		  Date expiryDate = Date.from(Instant.now().plusSeconds(86400));
-          JwtBuilder jwtb =
-                  Jwts.builder()
-                          .claim("id", connectorUUID)
-                          .setExpiration(expiryDate)
-                          .setIssuedAt(Date.from(Instant.now()))
-                          .setAudience(targetAudience)
-                          .setNotBefore(Date.from(Instant.now()));
-          return jwtb.signWith(SignatureAlgorithm.RS256, getOrbiterPrivateKey()).compact();
+		Date expiryDate = Date.from(Instant.now().plusSeconds(86400));
+		String jws = null;
+		try {
+			Algorithm algorithm = Algorithm.RSA256((RSAKeyProvider) getOrbiterPrivateKey());
+			jws = JWT.create()
+					.withClaim("id", connectorUUID)
+					.withExpiresAt(expiryDate)
+					.withIssuedAt(Date.from(Instant.now()))
+					.withAudience(targetAudience)
+					.withNotBefore(Date.from(Instant.now()))
+					.sign(algorithm);
+		} catch (JWTCreationException exception) {
+			logger.error("Token creation error: {}", exception.getMessage());
+		}
+          return jws;
 	}
 }

@@ -62,11 +62,9 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 		Map<String, Object> headersParts = exchange.getMessage().getHeaders();
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		String responseString = null;
-		String contentType = null;
 
-		if (eccHttpSendRouter.equals("http-header")) {
+		if ("http-header".equals(eccHttpSendRouter)) {
 			responseString = multipartMessage.getPayloadContent();
-			contentType = headersParts.get("Payload-Content-Type").toString();
 			headersParts.putAll(multipartMessage.getHttpHeaders());
 			// DataApp endpoint not http-header, must convert message to http headers
 			headersParts.putAll(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));
@@ -81,7 +79,6 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 				responseString = MultipartMessageProcessor
 						.multipartMessagetoString(multipartMessage, false);
 			}
-			contentType = headersParts.getOrDefault("Content-Type", "multipart/mixed").toString();
 		}
 
 		if (isEnabledIdscp || isEnabledWebSocket) { // TODO Try to remove this config property

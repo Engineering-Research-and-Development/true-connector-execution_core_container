@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +20,7 @@ import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import okhttp3.Response;
 
 @Service
 public class BrokerServiceImpl implements BrokerService {
@@ -38,8 +38,6 @@ public class BrokerServiceImpl implements BrokerService {
 	
 	@Value("${application.selfdescription.brokerURL}")
 	private String brokerURL;
-	
-	private CloseableHttpResponse response;
 	
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
@@ -62,16 +60,15 @@ public class BrokerServiceImpl implements BrokerService {
 					.withPayloadContent(payload)
 					.build();
 			
-			response = sendDataToBusinessLogicService.sendMessageBinary(brokerURL, multipartMessage, headers, true);
-			if (response != null) {
-				String responseString = new String(response.getEntity().getContent().readAllBytes());
-				logger.info("Broker responded with {}", responseString);
-			} 
+			try(Response response = sendDataToBusinessLogicService.sendMessageBinary(brokerURL, multipartMessage, headers, true)) {
+				if (response != null) {
+					String responseString = new String(response.body().string());
+					logger.info("Broker responded with {}", responseString);
+				} 
+			}
 		} catch (Exception e) {
 			logger.error("Broker request failed exception reason = {}", e.getMessage());
-			
 		}
-		
 	}
 
 }

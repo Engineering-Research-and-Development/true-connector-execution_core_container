@@ -24,6 +24,7 @@ import it.eng.idsa.businesslogic.util.config.keystore.TruststoreConfig;
  *
  */
 
+@Deprecated
 public class HttpClientGenerator {
 
 	private static final Logger logger = LogManager.getLogger(HttpClientGenerator.class);
@@ -56,6 +57,7 @@ public class HttpClientGenerator {
 
 			SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
 					sslcontextBuilder.build(), (HostnameVerifier) NoopHostnameVerifier.INSTANCE);
+			
 			httpClient = HttpClients.custom()
 					.setSSLSocketFactory((LayeredConnectionSocketFactory) sslConnectionSocketFactory).build();
 			logger.info("Created Http Client with IDS truststore.");

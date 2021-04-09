@@ -4,22 +4,24 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import okhttp3.Response;
 
 public interface SendDataToBusinessLogicService {
 
-	CloseableHttpResponse sendMessageBinary(String address, MultipartMessage message, Map<String, Object> httpHeaders,
+	Response sendMessageBinary(String address, MultipartMessage message, Map<String, Object> httpHeaders,
 			boolean eccCommunication)
 			throws UnsupportedEncodingException, JsonProcessingException;
 
-	CloseableHttpResponse sendMessageHttpHeader(String address, MultipartMessage multipartMessage,
+	Response sendMessageHttpHeader(String address, MultipartMessage multipartMessage,
 			Map<String, Object> headerParts, boolean eccCommunication) throws IOException;
 	
-	CloseableHttpResponse sendMessageFormData(String address, MultipartMessage message,
+	Response sendMessageFormData(String address, MultipartMessage message,
 			Map<String, Object> headerParts, boolean eccCommunication) throws UnsupportedEncodingException;
+
+	void checkResponse(Message message, Response response, String forwardTo);
 
 }
