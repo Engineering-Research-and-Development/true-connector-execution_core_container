@@ -114,6 +114,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 		// Camel SSL - Endpoint: B communication http
 		if(!isEnabledDataAppWebSocket && !isEnabledWebSocket) {
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/data")
+				.routeId("data")
 				.process(connectorRequestProcessor)
 				.process(validateTokenProcessor)
 				.process(contractAgreementProcessor)
@@ -138,6 +139,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 			
 			// End point B. ECC communication (Web Socket)
 			from("timer://timerEndpointB?repeatCount=-1") //EndPoint B
+				.routeId("WSS")
 				.process(fileRecreatorProcessor)
 				.process(connectorRequestProcessor)
 				.process(validateTokenProcessor)
@@ -163,8 +165,10 @@ public class CamelRouteReceiver extends RouteBuilder {
 			// End point B. ECC communication (dataApp-ECC communication with http
 			// and communication between ECCs with IDSCP2)
 			from("idscp2server://0.0.0.0:29292?sslContextParameters=#sslContext")
+					.routeId("IDSCP2 - receiver - HTTP internal")
 					.log("### IDSCP2 SERVER RECEIVER: Detected Message")
 					.process(mapIDSCP2toMultipart)
+					.process(contractAgreementProcessor)
 					.process(registerTransactionToCHProcessor)
 					// Send to the Endpoint: F
 					.process(sendDataToDataAppProcessor)
@@ -179,8 +183,10 @@ public class CamelRouteReceiver extends RouteBuilder {
 			// and communication between ECCs with IDSCP2)
 
 			from("idscp2server://0.0.0.0:29292?sslContextParameters=#sslContext")
+					.routeId("IDSCP2 - receiver - WSS internal")
 					.log("### IDSCP2 SERVER RECEIVER: Detected Message")
 					.process(mapIDSCP2toMultipart)
+					.process(contractAgreementProcessor)
 					.process(registerTransactionToCHProcessor)
 					// Send to the Endpoint: F
 					.process(sendDataToDataAppProcessorOverWS)

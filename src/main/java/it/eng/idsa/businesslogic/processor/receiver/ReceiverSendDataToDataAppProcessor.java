@@ -1,13 +1,13 @@
 package it.eng.idsa.businesslogic.processor.receiver;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.http.Header;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +22,8 @@ import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.SendDataToBusinessLogicServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import okhttp3.Headers;
+import okhttp3.Response;
 
 /**
  * 
@@ -75,7 +77,7 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		
-		if (!openDataAppReceiverRouter.equals("http-header")) {
+		if (!"http-header".equals(openDataAppReceiverRouter)) {
         	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
 		}
 
@@ -84,7 +86,7 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 
 		this.originalHeader = multipartMessage.getHeaderContentString();
 		// Send data to the endpoint F for the Open API Data App
-		CloseableHttpResponse response = null;
+		Response response = null;
 		switch (openDataAppReceiverRouter) {
 			case "mixed": {
 				response = sendDataToBusinessLogicService.sendMessageBinary(configuration.getOpenDataAppReceiver(),
@@ -106,7 +108,9 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 			}
 		}
-
+		
+		// Check response
+		sendDataToBusinessLogicService.checkResponse(message, response, configuration.getOpenDataAppReceiver());
 		// Handle response
 		handleResponse(exchange, message, response, configuration.getOpenDataAppReceiver());
 
@@ -115,48 +119,48 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		}
 	}
 
-	private void handleResponse(Exchange exchange, Message message, CloseableHttpResponse response,
-			String openApiDataAppAddress) throws UnsupportedOperationException, IOException {
-		if (response == null) {
-			logger.info("...communication error with: " + openApiDataAppAddress);
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-					message);
+	private void handleResponse(Exchange exchange, Message message, Response response, String openApiDataAppAddress)
+			throws UnsupportedOperationException, IOException {
+		String responseString = getResponseBodyAsString(response);
+		logger.info("data sent to destination: " + openApiDataAppAddress);
+		logger.info("response received from the DataAPP=" + responseString);
+
+		exchange.getMessage().setHeaders(returnHeadersAsMap(response.headers()));
+		if ("http-header".equals(openDataAppReceiverRouter)) {
+			exchange.getMessage().setBody(responseString);
 		} else {
-			String responseString = new String(response.getEntity().getContent().readAllBytes());
-			logger.info("content type response received from the DataAPP=" + response.getFirstHeader("Content-Type"));
-			logger.info("response received from the DataAPP=" + responseString);
+			exchange.getMessage().setHeader("header", multipartMessageService.getHeaderContentString(responseString));
+			exchange.getMessage().setHeader("payload", multipartMessageService.getPayloadContent(responseString));
+		}
 
-			int statusCode = response.getStatusLine().getStatusCode();
-			logger.info("status code of the response message is: " + statusCode);
-			if (statusCode >= 300) {
-				logger.info("data sent to destination: " + openApiDataAppAddress);
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
-			} else {
-				logger.info("data sent to destination: " + openApiDataAppAddress);
-//				logger.info("Successful response from DataApp: " + responseString);
-
-				exchange.getMessage().setHeaders(returnHeadersAsMap(response.getAllHeaders()));
-				if (openDataAppReceiverRouter.equals("http-header")) {
-					exchange.getMessage().setBody(responseString);
-				} else {
-					exchange.getMessage().setHeader("header",
-							multipartMessageService.getHeaderContentString(responseString));
-					exchange.getMessage().setHeader("payload", multipartMessageService.getPayloadContent(responseString));
-				}
-
-				if (isEnabledUsageControl) {
-					exchange.getMessage().setHeader("Original-Message-Header", originalHeader);
-				}
-			}
+		if (isEnabledUsageControl) {
+			exchange.getMessage().setHeader("Original-Message-Header", originalHeader);
 		}
 	}
-
-	private Map<String, Object> returnHeadersAsMap(Header[] allHeaders) {
-		Map<String, Object> headersMap = new HashMap<>();
-		for (Header header : allHeaders) {
-			headersMap.put(header.getName(), header.getValue());
+	
+	private String getResponseBodyAsString(Response response) {
+		// We used ByteArrayOutputStream instead of IOUtils.toString because it's faster.
+		// https://stackoverflow.com/questions/309424/how-do-i-read-convert-an-inputstream-into-a-string-in-java
+		byte[] buffer = new byte[1024];
+		String responseString = null;
+		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()){
+			for (int length; (length = response.body().byteStream().read(buffer)) != -1;) {
+				outputStream.write(buffer, 0, length);
+			}
+			responseString = outputStream.toString("UTF-8");
+		} catch (IOException e) {
+			logger.info("Error while parsing body, {}", e.getMessage());
 		}
-		return headersMap;
+		return responseString;
+	}
+
+	private Map<String, Object> returnHeadersAsMap(Headers headers) {
+		Map<String, List<String>> multiMap = headers.toMultimap();
+		Map<String, Object> result = 
+				multiMap.entrySet()
+			           .stream()
+			           .collect(Collectors.toMap(Map.Entry::getKey, e -> String.join(", ", e.getValue())));
+		return result;
 	}
 
 }

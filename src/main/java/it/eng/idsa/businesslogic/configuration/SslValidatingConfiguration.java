@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
+import javax.annotation.PostConstruct;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -13,24 +14,47 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import it.eng.idsa.businesslogic.service.impl.KeystoreProvider;
+
 @Configuration
 public class SslValidatingConfiguration {
-
+	
 	private static final Logger logger = LogManager.getLogger(SslValidatingConfiguration.class);
 
-	public SslValidatingConfiguration(
-			@Value("${application.disableSslVerification:false}") boolean disableSslVerification) {
+	@Autowired
+	private KeystoreProvider keystoreProvider;
+	@Value("${application.disableSslVerification:false}") 
+	private boolean disableSslVerification;
+	
+	@PostConstruct
+	public void setupSSL() throws KeyManagementException, NoSuchAlgorithmException {
 		if (disableSslVerification) {
 			logger.info("Disabling ssl validation");
 			disableSslVerification();
 		} else {
 			logger.info("Using default ssl validation");
+			setTrustStore();
 		}
 	}
 
+	/**
+	 * Needed because URLJwsProvider uses URL.openConnection() and we need to set trustStore
+	 * @throws KeyManagementException
+	 * @throws NoSuchAlgorithmException
+	 */
+	private void setTrustStore() throws NoSuchAlgorithmException, KeyManagementException {
+		logger.info("Setting up truststore");
+		SSLContext sslCtx = SSLContext.getInstance("TLS");
+		sslCtx.init(keystoreProvider.getKeystoreFactory().getKeyManagers(), 
+				keystoreProvider.getTrustManagerFactory().getTrustManagers(), 
+				new java.security.SecureRandom());
+		HttpsURLConnection.setDefaultSSLSocketFactory(sslCtx.getSocketFactory());
+	}
+	
 	private void disableSslVerification() {
 		try {
 			// Create a trust manager that does not validate certificate chains
