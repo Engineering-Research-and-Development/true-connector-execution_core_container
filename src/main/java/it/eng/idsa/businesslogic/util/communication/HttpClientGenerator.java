@@ -24,6 +24,7 @@ import it.eng.idsa.businesslogic.util.config.keystore.TruststoreConfig;
  *
  */
 
+@Deprecated
 public class HttpClientGenerator {
 
 	private static final Logger logger = LogManager.getLogger(HttpClientGenerator.class);

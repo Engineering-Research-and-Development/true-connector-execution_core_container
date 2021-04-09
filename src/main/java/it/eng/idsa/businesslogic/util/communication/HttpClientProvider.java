@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Scope("singleton")
+@Deprecated
 public class HttpClientProvider {
 
 	private static final Logger logger = LogManager.getLogger(HttpClientProvider.class);

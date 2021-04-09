@@ -39,8 +39,6 @@ public class BrokerServiceImpl implements BrokerService {
 	@Value("${application.selfdescription.brokerURL}")
 	private String brokerURL;
 	
-	private Response response;
-	
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
 
@@ -62,16 +60,15 @@ public class BrokerServiceImpl implements BrokerService {
 					.withPayloadContent(payload)
 					.build();
 			
-			response = sendDataToBusinessLogicService.sendMessageBinary(brokerURL, multipartMessage, headers, true);
-			if (response != null) {
-				String responseString = new String(response.body().string());
-				logger.info("Broker responded with {}", responseString);
-			} 
+			try(Response response = sendDataToBusinessLogicService.sendMessageBinary(brokerURL, multipartMessage, headers, true)) {
+				if (response != null) {
+					String responseString = new String(response.body().string());
+					logger.info("Broker responded with {}", responseString);
+				} 
+			}
 		} catch (Exception e) {
 			logger.error("Broker request failed exception reason = {}", e.getMessage());
-			
 		}
-		
 	}
 
 }

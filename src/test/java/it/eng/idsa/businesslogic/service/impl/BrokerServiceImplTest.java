@@ -1,11 +1,10 @@
 package it.eng.idsa.businesslogic.service.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -29,7 +28,6 @@ import it.eng.idsa.businesslogic.util.RequestResponseUtil;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import okhttp3.Request;
-import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public class BrokerServiceImplTest {
@@ -88,8 +86,7 @@ public class BrokerServiceImplTest {
 
 		brokerServiceImpl.sendBrokerRequest(messageWithoutToken, payload);
 		
-		assertEquals(responseMessage,
-				((Response) ReflectionTestUtils.getField(brokerServiceImpl, "response")).message());
+		verify(sendDataToBusinessLogicService).sendMessageBinary(anyString(), any(MultipartMessage.class), anyMap(), anyBoolean());
 	}
 
 	@Test
@@ -99,7 +96,7 @@ public class BrokerServiceImplTest {
 		
 		brokerServiceImpl.sendBrokerRequest(messageWithoutToken, payload);
 		
-		assertNull((Response) ReflectionTestUtils.getField(brokerServiceImpl, "response"));
+		verify(sendDataToBusinessLogicService).sendMessageBinary(anyString(), any(MultipartMessage.class), anyMap(), anyBoolean());
 	}
 
 }
