@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,12 +50,6 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 		try {
 			MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
 			message = multipartMessage.getHeaderContent();
-			if (!checkHeaderContentType(
-					multipartMessage.getHeaderHeader().get(MultipartMessageKey.CONTENT_TYPE.label))) {
-				logger.error("Content type of the header must be application/json or application/json UTF-8");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES,
-						message);
-			}
 			// Create headers parts
 			headesParts.put("Payload-Content-Type",
 					multipartMessage.getPayloadHeader().get(MultipartMessageKey.CONTENT_TYPE.label));
@@ -70,20 +63,4 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		}
 	}
-
-	/**
-	 * Check if header content type is application/json; UTF-8 or application/json
-	 * 
-	 * @param contentType
-	 * @return
-	 */
-	private boolean checkHeaderContentType(String contentType) {
-		if (ContentType.APPLICATION_JSON.toString().equals(contentType)
-				|| (ContentType.create("application/json").toString()).equals(contentType)
-				|| (ContentType.create("application/json+ld").toString()).equals(contentType)) {
-			return true;
-		}
-		return false;
-	}
-
 }

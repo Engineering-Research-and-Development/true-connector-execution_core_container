@@ -33,9 +33,6 @@ public class HttpWebSocketServerBean {
     private int port;
     private Class messagingServlet;
 
-    @Value("${application.wss.server.port}")
-    private int wssServerPort;
-    
 	@Value("${server.ssl.key-store-type}")
 	private String keyStoreType;
     
