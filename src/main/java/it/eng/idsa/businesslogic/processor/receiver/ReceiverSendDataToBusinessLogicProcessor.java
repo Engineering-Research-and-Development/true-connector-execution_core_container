@@ -29,9 +29,6 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 	
 	private static final Logger logger = LogManager.getLogger(ReceiverSendDataToBusinessLogicProcessor.class);
 
-	@Value("${application.idscp.isEnabled}")
-	private boolean isEnabledIdscp;
-
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
 
@@ -81,7 +78,7 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 			}
 		}
 
-		if (isEnabledIdscp || isEnabledWebSocket) { // TODO Try to remove this config property
+		if (isEnabledWebSocket) { // TODO Try to remove this config property
 			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration
 					.responseMessageBufferWebSocket();
 			responseMessageServerBean.add(responseString.getBytes());

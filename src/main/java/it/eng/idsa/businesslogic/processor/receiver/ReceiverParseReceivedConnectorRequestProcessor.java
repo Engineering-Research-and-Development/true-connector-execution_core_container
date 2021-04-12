@@ -80,21 +80,23 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 					.withToken(token)
 					.build();
 			
-		} else if("mixed".equals(eccHttpSendRouter)) {
-			String receivedDataBodyBinary = MessageHelper.extractBodyAsString(exchange.getMessage());
-			multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
-			if (isEnabledDapsInteraction) {
-				token = multipartMessageService.getToken(multipartMessage.getHeaderContent());
-			}
-			multipartMessage = new MultipartMessageBuilder()
-					.withHttpHeader(multipartMessage.getHttpHeaders())
-					.withHeaderHeader(multipartMessage.getHeaderHeader())
-					.withHeaderContent(multipartMessage.getHeaderContent())
-					.withPayloadHeader(multipartMessage.getPayloadHeader())
-					.withPayloadContent(multipartMessage.getPayloadContent())
-					.withToken(token)
-					.build();
-		} else {
+		} 
+//		else if("mixed".equals(eccHttpSendRouter)) {
+//			String receivedDataBodyBinary = MessageHelper.extractBodyAsString(exchange.getMessage());
+//			multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
+//			if (isEnabledDapsInteraction) {
+//				token = multipartMessageService.getToken(multipartMessage.getHeaderContent());
+//			}
+//			multipartMessage = new MultipartMessageBuilder()
+//					.withHttpHeader(multipartMessage.getHttpHeaders())
+//					.withHeaderHeader(multipartMessage.getHeaderHeader())
+//					.withHeaderContent(multipartMessage.getHeaderContent())
+//					.withPayloadHeader(multipartMessage.getPayloadHeader())
+//					.withPayloadContent(multipartMessage.getPayloadContent())
+//					.withToken(token)
+//					.build();
+//		}
+		else {
 			if (!headersParts.containsKey("header")) {
 				logger.error("Multipart message header is missing");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);

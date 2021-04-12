@@ -62,9 +62,6 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 	@Autowired
 	private SendDataToBusinessLogicServiceImpl sendDataToBusinessLogicService;
 
-	@Value("${application.idscp.isEnabled}")
-	private boolean isEnabledIdscp;
-
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
 	
