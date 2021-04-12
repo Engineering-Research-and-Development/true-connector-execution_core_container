@@ -25,7 +25,7 @@ import java.util.Map;
 
 @Component
 @ConditionalOnExpression(
-		"${application.websocket.isEnabled:true} or ${application.idscp.isEnabled:true}"
+		"${application.websocket.isEnabled:true}"
 )
 public class ReceiverFileRecreatorProcessor implements Processor {
 
