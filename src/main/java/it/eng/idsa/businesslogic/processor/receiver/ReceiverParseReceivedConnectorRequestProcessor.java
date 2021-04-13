@@ -20,6 +20,7 @@ import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
+import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -59,7 +60,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 
 		headersParts.put("Is-Enabled-DataApp-WebSocket", isEnabledDataAppWebSocket);
 		
-		if ("http-header".equals(eccHttpSendRouter)) { 
+		if (RouterType.HTTP_HEADER.label.equals(eccHttpSendRouter)) { 
 			// create Message object from IDS-* headers, needs for UsageControl flow
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
 			header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
@@ -80,7 +81,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 					.withToken(token)
 					.build();
 			
-		} else if("mixed".equals(eccHttpSendRouter)) {
+		} else if(RouterType.MULTIPART_MIX.label.equals(eccHttpSendRouter)) {
 			String receivedDataBodyBinary = MessageHelper.extractBodyAsString(exchange.getMessage());
 			multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
 			if (isEnabledDapsInteraction) {

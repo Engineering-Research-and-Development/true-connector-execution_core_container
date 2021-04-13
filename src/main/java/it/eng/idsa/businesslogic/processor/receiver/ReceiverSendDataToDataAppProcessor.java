@@ -21,6 +21,7 @@ import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.SendDataToBusinessLogicServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
+import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import okhttp3.Headers;
 import okhttp3.Response;
@@ -77,7 +78,7 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		
-		if (!"http-header".equals(openDataAppReceiverRouter)) {
+		if (!RouterType.HTTP_HEADER.label.equals(openDataAppReceiverRouter)) {
         	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
 		}
 
@@ -126,7 +127,7 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		logger.info("response received from the DataAPP=" + responseString);
 
 		exchange.getMessage().setHeaders(returnHeadersAsMap(response.headers()));
-		if ("http-header".equals(openDataAppReceiverRouter)) {
+		if (RouterType.HTTP_HEADER.label.equals(openDataAppReceiverRouter)) {
 			exchange.getMessage().setBody(responseString);
 		} else {
 			exchange.getMessage().setHeader("header", multipartMessageService.getHeaderContentString(responseString));

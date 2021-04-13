@@ -15,6 +15,7 @@ import it.eng.idsa.businesslogic.processor.receiver.websocket.server.ResponseMes
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
+import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
@@ -63,7 +64,7 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		String responseString = null;
 
-		if ("http-header".equals(eccHttpSendRouter)) {
+		if (RouterType.HTTP_HEADER.label.equals(eccHttpSendRouter)) {
 			responseString = multipartMessage.getPayloadContent();
 			headersParts.putAll(multipartMessage.getHttpHeaders());
 			// DataApp endpoint not http-header, must convert message to http headers
