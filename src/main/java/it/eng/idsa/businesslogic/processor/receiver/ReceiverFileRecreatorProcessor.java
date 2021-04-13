@@ -1,11 +1,5 @@
 package it.eng.idsa.businesslogic.processor.receiver;
 
-import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationB;
-import it.eng.idsa.businesslogic.processor.receiver.websocket.server.FileRecreatorBeanServer;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
-import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.logging.log4j.LogManager;
@@ -14,8 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
+import de.fraunhofer.iais.eis.Message;
+import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationB;
+import it.eng.idsa.businesslogic.processor.receiver.websocket.server.FileRecreatorBeanServer;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
  *
@@ -25,7 +22,7 @@ import java.util.Map;
 
 @Component
 @ConditionalOnExpression(
-		"${application.websocket.isEnabled:true} or ${application.idscp.isEnabled:true}"
+		"${application.websocket.isEnabled:true}"
 )
 public class ReceiverFileRecreatorProcessor implements Processor {
 
@@ -35,42 +32,22 @@ public class ReceiverFileRecreatorProcessor implements Processor {
 	private WebSocketServerConfigurationB webSocketServerConfiguration;
 
 	@Autowired
-	private MultipartMessageService multipartMessageService;
-
-	@Autowired
 	private RejectionMessageService rejectionMessageService;
 
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
 
-		String header;
-		String payload;
 		Message message=null;
-		Map<String, Object> multipartMessageParts = new HashMap<String, Object>();
-
 		//  Receive and recreate Multipart message
 		FileRecreatorBeanServer fileRecreatorBean = webSocketServerConfiguration.fileRecreatorBeanWebSocket();
 		this.initializeServer(message, fileRecreatorBean);
 		Thread fileRecreatorBeanThread = new Thread(fileRecreatorBean, "FileRecreator_"+this.getClass().getSimpleName());
 		fileRecreatorBeanThread.start();
 		String recreatedMultipartMessage = webSocketServerConfiguration.recreatedMultipartMessageBeanWebSocket().remove();
-
-		// Extract header and payload from the multipart message
-		try {
-			header = multipartMessageService.getHeaderContentString(recreatedMultipartMessage);
-			multipartMessageParts.put("header", header);
-			payload = multipartMessageService.getPayloadContent(recreatedMultipartMessage);
-			if(payload!=null) {
-				multipartMessageParts.put("payload", payload);
-			}
-		} catch (Exception e) {
-			logger.error("Error parsing multipart message:", e);
-			// TODO: Send WebSocket rejection message
-		}
-
-		// Return exchange
-		exchange.getMessage().setHeaders(multipartMessageParts);
+		logger.debug("Received message over WSS , {}", recreatedMultipartMessage);
+		
+		exchange.getMessage().setBody(recreatedMultipartMessage, String.class);
 	}
 
 	private void initializeServer(Message message, FileRecreatorBeanServer fileRecreatorBean) {

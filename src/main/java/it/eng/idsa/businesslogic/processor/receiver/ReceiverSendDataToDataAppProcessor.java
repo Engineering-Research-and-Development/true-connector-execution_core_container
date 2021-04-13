@@ -62,9 +62,6 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 	@Autowired
 	private SendDataToBusinessLogicServiceImpl sendDataToBusinessLogicService;
 
-	@Value("${application.idscp.isEnabled}")
-	private boolean isEnabledIdscp;
-
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
 	
@@ -82,7 +79,7 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		}
 
 		// Get header, payload and message
-		Message message = null;
+		Message message = multipartMessage.getHeaderContent();
 
 		this.originalHeader = multipartMessage.getHeaderContentString();
 		// Send data to the endpoint F for the Open API Data App

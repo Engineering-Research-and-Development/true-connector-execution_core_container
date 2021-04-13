@@ -36,6 +36,9 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledDataAppWebSocket;
 
+	@Value("${application.websocket.isEnabled}")
+	private boolean isEnabledWebSocket;
+	
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
 
@@ -64,7 +67,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
 			header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
 			message = multipartMessageService.getMessage(header);
-			if(null==message) {
+			if(message == null) {
 				logger.error("Message could not be created - check if all required headers are present.");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
 			}
@@ -80,7 +83,8 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 					.withToken(token)
 					.build();
 			
-		} else if("mixed".equals(eccHttpSendRouter)) {
+		} 
+		else if("mixed".equals(eccHttpSendRouter)) {
 			String receivedDataBodyBinary = MessageHelper.extractBodyAsString(exchange.getMessage());
 			multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
 			if (isEnabledDapsInteraction) {
@@ -94,7 +98,8 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 					.withPayloadContent(multipartMessage.getPayloadContent())
 					.withToken(token)
 					.build();
-		} else {
+		}
+		else {
 			if (!headersParts.containsKey("header")) {
 				logger.error("Multipart message header is missing");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);

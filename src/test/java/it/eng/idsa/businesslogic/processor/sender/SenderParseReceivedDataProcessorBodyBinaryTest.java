@@ -1,6 +1,7 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -67,7 +68,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 		verify(messageOut).setBody(multipartMessage);
 
 	}
-
+	
 	@Test
 	public void processWithoutContentType() throws Exception {
 		mockExchangeGetHttpHeaders(exchange);
@@ -83,7 +84,8 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 
 		processor.process(exchange);
 
-		verify(rejectionMessageService).sendRejectionMessage(any(RejectionMessageType.class),
+		verify(messageOut).setBody(multipartMessage);
+		verify(rejectionMessageService,times(0)).sendRejectionMessage(any(RejectionMessageType.class),
 				any(de.fraunhofer.iais.eis.Message.class));
 	}
 
@@ -105,8 +107,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 
 		processor.process(exchange);
 
-		verify(rejectionMessageService).sendRejectionMessage(any(RejectionMessageType.class),
-				any(de.fraunhofer.iais.eis.Message.class));
+		verify(messageOut).setBody(multipartMessage);
 	}
 
 	private void mockExchangeGetHttpHeaders(Exchange exchange) {

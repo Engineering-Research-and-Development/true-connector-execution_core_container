@@ -60,10 +60,7 @@ public class OkHttpSenderClientServiceImpl implements SenderClientService {
 
 	@Override
 	public RequestBody createMultipartMixRequest(MultipartMessage message, String payloadContentType) {
-//		Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(multipartMessage);
-//		MediaType mediaType = MediaType.parse("multipart/mixed; boundary=" + boundary.get());
-//		return RequestBody.create(mediaType, multipartMessage);
-		return new  MultipartBody.Builder()
+		return new MultipartBody.Builder()
 			      .setType(MultipartBody.MIXED)
 			      .addPart(
 			          Headers.of("Content-Disposition", "form-data; name=\"header\""),

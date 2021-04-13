@@ -14,11 +14,11 @@ import org.springframework.context.annotation.Scope;
 
 @Configuration
 @ConditionalOnExpression(
-        "${application.websocket.isEnabled:true} or ${application.idscp.isEnabled:true}"
+        "${application.websocket.isEnabled:true}"
 )
 public class WebSocketServerConfigurationB implements WebSocketServerConfiguration {
 
-    @Value("${application.idscp.server.port}")
+    @Value("${application.wss.server.port}")
     private int port;
 
     @Override
