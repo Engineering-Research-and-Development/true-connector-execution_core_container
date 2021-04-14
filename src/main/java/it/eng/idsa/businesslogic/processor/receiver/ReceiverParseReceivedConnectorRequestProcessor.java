@@ -19,6 +19,7 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -96,12 +97,12 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 					.withToken(token)
 					.build();
 		} else {
-			if (!headersParts.containsKey("header")) {
+			if (!headersParts.containsKey(MessagePart.HEADER.label)) {
 				logger.error("Multipart message header is missing");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 
-			if (null == headersParts.get("header")) {
+			if (null == headersParts.get(MessagePart.HEADER.label)) {
 				logger.error("Multipart message header is null");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
@@ -111,16 +112,16 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 				if (headersParts.containsKey("Original-Message-Header")) {
 					headersParts.put("Original-Message-Header", headersParts.get("Original-Message-Header").toString());
 				}
-				if (headersParts.get("header") instanceof String) {
-					header = headersParts.get("header").toString();
+				if (headersParts.get(MessagePart.HEADER.label) instanceof String) {
+					header = headersParts.get(MessagePart.HEADER.label).toString();
 				} else {
-					DataHandler dtHeader = (DataHandler) headersParts.get("header");
+					DataHandler dtHeader = (DataHandler) headersParts.get(MessagePart.HEADER.label);
 					header = IOUtils.toString(dtHeader.getInputStream(), StandardCharsets.UTF_8);
 				}
 				
 				message = multipartMessageService.getMessage(header);
-				if(null != headersParts.get("payload")) {
-					payload = headersParts.get("payload").toString();
+				if(null != headersParts.get(MessagePart.PAYLOAD.label)) {
+					payload = headersParts.get(MessagePart.PAYLOAD.label).toString();
 				}
 				
 				if (isEnabledDapsInteraction) {

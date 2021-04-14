@@ -13,6 +13,7 @@ import it.eng.idsa.businesslogic.processor.receiver.websocket.server.ResponseMes
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
+import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -54,7 +55,7 @@ public class ExceptionProcessorSender implements Processor {
 				.withHeaderContent(message)
 				.build();
 
-		if (openDataAppReceiverRouter.equals("http-header")) {
+		if (RouterType.HTTP_HEADER.label.equals(openDataAppReceiverRouter)) {
 			// need to empty body here because it will contain response message received
 			exchange.getMessage().setBody(null);
 			exchange.getMessage().setHeaders(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));

@@ -27,6 +27,7 @@ import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
@@ -92,7 +93,7 @@ public class GetTokenFromDapsProcessorTest {
 	
 	@Test
 	public void getJwTokenSuccessHttpHeader() throws Exception {
-		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", "http-header", String.class);
+		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER.label, String.class);
 
 		mockExchangeHeaderAndBody();
 		when(dapsTokenProviderService.provideToken()).thenReturn(TestUtilMessageService.TOKEN_VALUE);

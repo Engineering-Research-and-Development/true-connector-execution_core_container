@@ -19,6 +19,7 @@ import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.sender.websocket.client.MessageWebSocketOverHttpSender;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
@@ -85,13 +86,13 @@ public class ReceiverWebSocketSendDataToDataAppProcessor implements Processor {
         	  logger.debug("response received from the DataAPP=" + response);
         	  String header = multipartMessageService.getHeaderContentString(response);
               String payload = multipartMessageService.getPayloadContent(response);
-              exchange.getMessage().setHeader("header", header);
+              exchange.getMessage().setHeader(MessagePart.HEADER.label, header);
               //Save original Header for Usage Control Enforcement
               if(isEnabledUsageControl) {
                   exchange.getMessage().setHeader("Original-Message-Header", originalHeader);
               }
               if (payload != null) {
-                  exchange.getMessage().setHeader("payload", payload);
+                  exchange.getMessage().setHeader(MessagePart.PAYLOAD.label, payload);
               }
           }
       }

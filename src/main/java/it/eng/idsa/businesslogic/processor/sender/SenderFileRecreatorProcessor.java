@@ -16,6 +16,7 @@ import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationA;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.FileRecreatorBeanServer;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
@@ -62,10 +63,10 @@ public void process(Exchange exchange) throws Exception {
 		// Extract header and payload from the multipart message
 		try {
 			header = multipartMessageService.getHeaderContentString(recreatedMultipartMessage);
-			multipartMessageParts.put("header", header);
+			multipartMessageParts.put(MessagePart.HEADER.label, header);
 			payload = multipartMessageService.getPayloadContent(recreatedMultipartMessage);
 			if(payload!=null) {
-				multipartMessageParts.put("payload", payload);
+				multipartMessageParts.put(MessagePart.PAYLOAD.label, payload);
 			}
 			Message msg = multipartMessageService.getMessage(header);
 			multipartMessage = new MultipartMessage(

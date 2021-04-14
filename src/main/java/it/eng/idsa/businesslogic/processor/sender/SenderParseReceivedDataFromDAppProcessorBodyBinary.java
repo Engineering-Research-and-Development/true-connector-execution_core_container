@@ -15,6 +15,7 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.HttpWebSocketMessagingLogicA;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
@@ -60,12 +61,12 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 			headesParts.put("Forward-To", forwardTo);
 
 			// Create multipart message parts
-			header = receivedDataHeader.get("header").toString();
-			multipartMessageParts.put("header", header);
-			if(receivedDataHeader.get("payload") != null) {
-				multipartMessageParts.put("payload", receivedDataHeader.get("payload").toString());
+			header = receivedDataHeader.get(MessagePart.HEADER.label).toString();
+			multipartMessageParts.put(MessagePart.HEADER.label, header);
+			if(null != receivedDataHeader.get(MessagePart.PAYLOAD.label)) {
+				multipartMessageParts.put(MessagePart.PAYLOAD.label, receivedDataHeader.get(MessagePart.PAYLOAD.label).toString());
 			}
-			message = multipartMessageService.getMessage(multipartMessageParts.get("header"));
+			message = multipartMessageService.getMessage(multipartMessageParts.get(MessagePart.HEADER.label));
 			
 			// Return exchange
 			exchange.getMessage().setHeaders(headesParts);

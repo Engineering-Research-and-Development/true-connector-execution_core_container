@@ -26,6 +26,7 @@ import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
@@ -68,7 +69,7 @@ public class SenderParseReceivedResponseMessageTest {
 	
 	@Test
 	public void parseHttpHeaderResponse() throws Exception {
-		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", "http-header", String.class);
+		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER.label, String.class);
 		mockExchangeHeaderAndBody();
 		
 		when(camelMessage.getBody(String.class)).thenReturn(PAYLOAD);
@@ -105,7 +106,7 @@ public class SenderParseReceivedResponseMessageTest {
 	@Test
 	public void parseResponseNoHeaderPresent() throws Exception {
 		mockExchangeHeaderAndBody();
-//		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", "http-header", String.class);
+//		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER.label, String.class);
 		
 		rejectionMessageService = new RejectionMessageServiceImpl();
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", 

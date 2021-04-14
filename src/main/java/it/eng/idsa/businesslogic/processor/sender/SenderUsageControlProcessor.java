@@ -26,6 +26,7 @@ import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationA;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverUsageControlProcessor;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
+import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -167,7 +168,7 @@ public class SenderUsageControlProcessor implements Processor {
 
     private String extractPayloadFromJson(JsonElement payload) {
         final JsonObject asJsonObject = payload.getAsJsonObject();
-        JsonElement payloadInner = asJsonObject.get("payload");
+        JsonElement payloadInner = asJsonObject.get(MessagePart.PAYLOAD.label);
         if (null != payloadInner) return payloadInner.getAsString();
         return payload.toString();
     }

@@ -19,6 +19,7 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -82,12 +83,12 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 
 		} else {
 
-			if (!headersParts.containsKey("header")) {
+			if (!headersParts.containsKey(MessagePart.HEADER.label)) {
 				logger.error("Multipart message header is missing");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 
-			if (headersParts.get("header") == null) {
+			if (null == headersParts.get(MessagePart.HEADER.label)) {
 				logger.error("Multipart message header is null");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
@@ -97,14 +98,14 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 				if (headersParts.containsKey("Original-Message-Header"))
 					headersParts.put("Original-Message-Header", headersParts.get("Original-Message-Header").toString());
 
-				if (headersParts.get("header") instanceof String) {
-					header = headersParts.get("header").toString();
+				if (headersParts.get(MessagePart.HEADER.label) instanceof String) {
+					header = headersParts.get(MessagePart.HEADER.label).toString();
 				} else {
-					DataHandler dtHeader = (DataHandler) headersParts.get("header");
+					DataHandler dtHeader = (DataHandler) headersParts.get(MessagePart.HEADER.label);
 					header = IOUtils.toString(dtHeader.getInputStream(), StandardCharsets.UTF_8);
 				}
-				if(headersParts.get("payload")!=null) {
-					payload = headersParts.get("payload").toString();
+				if(null != headersParts.get(MessagePart.PAYLOAD.label)) {
+					payload = headersParts.get(MessagePart.PAYLOAD.label).toString();
 				}
 
 				multipartMessage = new MultipartMessageBuilder().withHeaderContent(header).withPayloadContent(payload)

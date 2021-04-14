@@ -17,6 +17,7 @@ import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.CommunicationService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
@@ -55,7 +56,7 @@ public class ReceiverSendDataToDestinationProcessor implements Processor {
 		if(isTokenValid) {
 			logger.info("token is valid");
 			message = (Message) multipartMessageParts.get("message");
-			String payload = multipartMessageParts.get("payload").toString();
+			String payload = multipartMessageParts.get(MessagePart.PAYLOAD.label).toString();
 			String headerWithoutToken=multipartMessageService.removeToken(message);
 			HttpEntity entity = multipartMessageService.createMultipartMessage(headerWithoutToken,payload, null,ContentType.DEFAULT_TEXT);
 			String response = communicationService.sendData("http://"+configuration.getActivemqAddress()+"/api/message/outcoming?type=queue", entity);

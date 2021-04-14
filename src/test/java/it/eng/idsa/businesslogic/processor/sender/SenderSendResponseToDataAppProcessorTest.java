@@ -21,6 +21,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
+import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -66,7 +67,7 @@ public class SenderSendResponseToDataAppProcessorTest {
 	
 	@Test
 	public void sendDataToMultipartMixDapsDisabled() throws Exception {
-		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", "mixed");
+		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", RouterType.MULTIPART_MIX.label);
 		mockExchangeHeaderAndBody();
 		
 		processor.process(exchange);
@@ -83,7 +84,7 @@ public class SenderSendResponseToDataAppProcessorTest {
 	
 	@Test
 	public void sendDataToMultipartMixDapsEnabled() throws Exception {
-		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", "mixed");
+		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", RouterType.MULTIPART_MIX.label);
 		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", true);
 
 		mockExchangeHeaderAndBody();
@@ -103,7 +104,7 @@ public class SenderSendResponseToDataAppProcessorTest {
 	
 	@Test
 	public void sendDataToMultipartForm() throws Exception {
-		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", "form");
+		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", RouterType.MULTIPART_BODY_FORM.label);
 		mockExchangeHeaderAndBody();
 
 		when(multipartMessageService.createMultipartMessage(multipartMessage.getHeaderContentString(), 
@@ -123,7 +124,7 @@ public class SenderSendResponseToDataAppProcessorTest {
 	
 	@Test
 	public void sendDataToHttpHeader() throws Exception {
-		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", "http-header");
+		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", RouterType.HTTP_HEADER.label);
 		mockExchangeHeaderAndBody();
 
 		processor.process(exchange);

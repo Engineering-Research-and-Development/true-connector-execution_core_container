@@ -16,6 +16,7 @@ import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
+import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
@@ -81,7 +82,7 @@ public class ValidateTokenProcessor implements Processor {
 				.withPayloadContent(multipartMessage.getPayloadContent())
 				.withPayloadHeader(multipartMessage.getPayloadHeader()).build();
 		exchange.getMessage().setHeaders(headersParts);
-		if ("http-header".equals(eccHttpSendRouter)) {
+		if (RouterType.HTTP_HEADER.label.equals(eccHttpSendRouter)) {
 			exchange.getMessage().setBody(multipartMessage);
 		}else {
 			// not used

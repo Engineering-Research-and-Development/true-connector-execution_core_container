@@ -25,6 +25,7 @@ import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.RequestResponseUtil;
+import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import okhttp3.Request;
@@ -78,7 +79,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 				RequestResponseUtil.createResponseBodyJsonUTF8(PAYLOAD_RESPONSE), 
 				200);
 		
-		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", "http-header", String.class);
+		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER.label, String.class);
 		mockExchangeHeaderAndBody();
 		
 		when(sendDataToBusinessLogicService.sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers, true))
@@ -94,7 +95,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	@Test
 	public void sendHttpHeaderNotFound() throws Exception {
 		String jsonString = "aaaa";
-		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", "http-header", String.class);
+		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER.label, String.class);
 		rejectionMessageService = new RejectionMessageServiceImpl();
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", rejectionMessageService, RejectionMessageService.class);
 
@@ -121,7 +122,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 
 	@Test
 	public void sendHttpHeaderResponseNull() throws Exception {
-		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", "http-header", String.class);
+		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER.label, String.class);
 		rejectionMessageService = new RejectionMessageServiceImpl();
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", rejectionMessageService, RejectionMessageService.class);
 
@@ -141,7 +142,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	
 	@Test
 	public void sendBodyBinarySuccess() throws Exception {
-		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", "mixed", String.class);
+		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.MULTIPART_MIX.label, String.class);
 		mockExchangeHeaderAndBody();
 		
 		String jsonString = "aaaa";
@@ -167,7 +168,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	
 	@Test
 	public void sendFormSuccess() throws Exception {
-		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", "form", String.class);
+		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.MULTIPART_BODY_FORM.label, String.class);
 		mockExchangeHeaderAndBody();
 		
 		String jsonString = "aaaa";
