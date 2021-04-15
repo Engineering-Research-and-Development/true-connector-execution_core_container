@@ -24,6 +24,7 @@ import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RequestResponseUtil;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
@@ -162,8 +163,8 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 		processor.process(exchange);
 		
 		verify(sendDataToBusinessLogicService).sendMessageBinary(FORWARD_TO, multipartMessage, headers, true);
-		verify(camelMessage).setHeader("header", HEADER_MESSAGE_STRING);
-		verify(camelMessage).setHeader("payload", PAYLOAD);
+		verify(camelMessage).setHeader(MessagePart.HEADER.label, HEADER_MESSAGE_STRING);
+		verify(camelMessage).setHeader(MessagePart.PAYLOAD.label, PAYLOAD);
 	}
 	
 	@Test
@@ -187,8 +188,8 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 		processor.process(exchange);
 		
 		verify(sendDataToBusinessLogicService).sendMessageFormData(FORWARD_TO, multipartMessage, headers, true);
-		verify(camelMessage).setHeader("header", HEADER_MESSAGE_STRING);
-		verify(camelMessage).setHeader("payload", PAYLOAD);
+		verify(camelMessage).setHeader(MessagePart.HEADER.label, HEADER_MESSAGE_STRING);
+		verify(camelMessage).setHeader(MessagePart.PAYLOAD.label, PAYLOAD);
 	}
 	
 	private void mockExchangeHeaderAndBody() {

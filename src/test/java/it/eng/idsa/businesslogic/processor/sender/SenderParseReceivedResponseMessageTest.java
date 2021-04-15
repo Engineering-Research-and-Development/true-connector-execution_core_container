@@ -26,6 +26,7 @@ import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -88,8 +89,8 @@ public class SenderParseReceivedResponseMessageTest {
 		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", true);
 
 		mockExchangeHeaderAndBody();
-		headers.put("header", headerAsString);
-		headers.put("payload", PAYLOAD);
+		headers.put(MessagePart.HEADER.label, headerAsString);
+		headers.put(MessagePart.PAYLOAD.label, PAYLOAD);
 		
 		when(multipartMessageService.getMessage(headerAsString)).thenReturn(message);
 		when(multipartMessageService.getToken(message)).thenReturn(TestUtilMessageService.TOKEN_VALUE);

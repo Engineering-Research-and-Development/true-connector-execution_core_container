@@ -22,6 +22,7 @@ import com.sun.istack.ByteArrayDataSource;
 
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -74,9 +75,9 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 		headers.put("Content-Type", ContentType.APPLICATION_JSON);
 		headers.put("Forward-To", "https://forward.to.example");
 		ByteArrayDataSource headerBarrds = new ByteArrayDataSource(headerAsString.getBytes("UTF-8"), "application/json");
-		headers.put("header", new DataHandler(headerBarrds));
+		headers.put(MessagePart.HEADER.label, new DataHandler(headerBarrds));
 		ByteArrayDataSource payloadBarrds = new ByteArrayDataSource(PAYLOAD_STRING.getBytes("UTF-8"), "application/json");
-		headers.put("payload", new DataHandler(payloadBarrds));
+		headers.put(MessagePart.PAYLOAD.label, new DataHandler(payloadBarrds));
 		when(message.getHeaders()).thenReturn(headers);
 	}
 }
