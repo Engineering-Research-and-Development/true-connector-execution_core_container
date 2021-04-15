@@ -125,9 +125,9 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 	@Override
 	public HttpEntity createMultipartMessage(String header, String payload, String frowardTo, ContentType ctPayload) {
 		MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
-		multipartEntityBuilder.addTextBody(MessagePart.HEADER.label, header);
+		multipartEntityBuilder.addTextBody(MessagePart.HEADER, header);
 		if (payload != null) {
-			multipartEntityBuilder.addTextBody(MessagePart.PAYLOAD.label, payload);
+			multipartEntityBuilder.addTextBody(MessagePart.PAYLOAD, payload);
 		}
 		if (frowardTo != null) {
 			multipartEntityBuilder.addTextBody("forwardTo", frowardTo);
@@ -137,13 +137,13 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 		try {
 			FormBodyPart bodyHeaderPart;
 			ContentBody headerBody = new StringBody(header, ContentType.APPLICATION_JSON);
-			bodyHeaderPart = FormBodyPartBuilder.create(MessagePart.HEADER.label, headerBody).build();
+			bodyHeaderPart = FormBodyPartBuilder.create(MessagePart.HEADER, headerBody).build();
 			bodyHeaderPart.addField(MultipartMessageKey.CONTENT_LENGTH.label, String.valueOf(header.length()));
 
 			FormBodyPart bodyPayloadPart = null;
 			if (payload != null) {
 				ContentBody payloadBody = new StringBody(payload, ctPayload);
-				bodyPayloadPart = FormBodyPartBuilder.create(MessagePart.PAYLOAD.label, payloadBody).build();
+				bodyPayloadPart = FormBodyPartBuilder.create(MessagePart.PAYLOAD, payloadBody).build();
 				bodyPayloadPart.addField(MultipartMessageKey.CONTENT_LENGTH.label, String.valueOf(payload.length()));
 			}
 

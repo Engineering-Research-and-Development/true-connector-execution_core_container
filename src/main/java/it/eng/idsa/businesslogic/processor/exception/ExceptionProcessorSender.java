@@ -55,7 +55,7 @@ public class ExceptionProcessorSender implements Processor {
 				.withHeaderContent(message)
 				.build();
 
-		if (RouterType.HTTP_HEADER.label.equals(openDataAppReceiverRouter)) {
+		if (RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
 			// need to empty body here because it will contain response message received
 			exchange.getMessage().setBody(null);
 			exchange.getMessage().setHeaders(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));

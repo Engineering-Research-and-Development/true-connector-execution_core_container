@@ -1,14 +1,8 @@
 package it.eng.idsa.businesslogic.util;
 
-public enum MessagePart {
-	
-	HEADER("header"),
-	PAYLOAD("payload");
-	
-	public final String label;
+public interface MessagePart {
 
-	private MessagePart(String label) {
-		this.label = label;
-	}
-	
+	public static final String HEADER = "header";
+	public static final String PAYLOAD = "payload";
+
 }

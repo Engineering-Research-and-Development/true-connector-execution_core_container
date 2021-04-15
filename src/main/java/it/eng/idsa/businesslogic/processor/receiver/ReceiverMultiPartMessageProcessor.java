@@ -66,7 +66,7 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 
 		headersParts.put("Is-Enabled-DataApp-WebSocket", isEnabledDataAppWebSocket);
 		
-		if (RouterType.HTTP_HEADER.label.equals(dataAppSendRouter)) { 
+		if (RouterType.HTTP_HEADER.equals(dataAppSendRouter)) { 
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
 			if (exchange.getMessage().getBody() != null) {
 				payload = exchange.getMessage().getBody(String.class);
@@ -83,12 +83,12 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 
 		} else {
 
-			if (!headersParts.containsKey(MessagePart.HEADER.label)) {
+			if (!headersParts.containsKey(MessagePart.HEADER)) {
 				logger.error("Multipart message header is missing");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 
-			if (null == headersParts.get(MessagePart.HEADER.label)) {
+			if (null == headersParts.get(MessagePart.HEADER)) {
 				logger.error("Multipart message header is null");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
@@ -98,14 +98,14 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 				if (headersParts.containsKey("Original-Message-Header"))
 					headersParts.put("Original-Message-Header", headersParts.get("Original-Message-Header").toString());
 
-				if (headersParts.get(MessagePart.HEADER.label) instanceof String) {
-					header = headersParts.get(MessagePart.HEADER.label).toString();
+				if (headersParts.get(MessagePart.HEADER) instanceof String) {
+					header = headersParts.get(MessagePart.HEADER).toString();
 				} else {
-					DataHandler dtHeader = (DataHandler) headersParts.get(MessagePart.HEADER.label);
+					DataHandler dtHeader = (DataHandler) headersParts.get(MessagePart.HEADER);
 					header = IOUtils.toString(dtHeader.getInputStream(), StandardCharsets.UTF_8);
 				}
-				if(null != headersParts.get(MessagePart.PAYLOAD.label)) {
-					payload = headersParts.get(MessagePart.PAYLOAD.label).toString();
+				if(null != headersParts.get(MessagePart.PAYLOAD)) {
+					payload = headersParts.get(MessagePart.PAYLOAD).toString();
 				}
 
 				multipartMessage = new MultipartMessageBuilder().withHeaderContent(header).withPayloadContent(payload)

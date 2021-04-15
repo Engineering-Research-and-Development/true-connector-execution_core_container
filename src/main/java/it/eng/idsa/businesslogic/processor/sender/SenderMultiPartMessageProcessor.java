@@ -51,9 +51,9 @@ public class SenderMultiPartMessageProcessor implements Processor {
 			frowardTo=getForwardTo(multipartMessage);
 			multipartMessageParts.put("frowardTo", frowardTo);
 			header=multipartMessageService.getHeaderContentString(multipartMessage);
-			multipartMessageParts.put(MessagePart.HEADER.label, header);
+			multipartMessageParts.put(MessagePart.HEADER, header);
 			payload=multipartMessageService.getPayloadContent(multipartMessage);
-			multipartMessageParts.put(MessagePart.PAYLOAD.label, payload);
+			multipartMessageParts.put(MessagePart.PAYLOAD, payload);
 			message=multipartMessageService.getMessage(multipartMessage);
 			multipartMessageParts.put("message", message);
 		

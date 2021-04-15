@@ -82,7 +82,7 @@ public class ValidateTokenProcessor implements Processor {
 				.withPayloadContent(multipartMessage.getPayloadContent())
 				.withPayloadHeader(multipartMessage.getPayloadHeader()).build();
 		exchange.getMessage().setHeaders(headersParts);
-		if (RouterType.HTTP_HEADER.label.equals(eccHttpSendRouter)) {
+		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) {
 			exchange.getMessage().setBody(multipartMessage);
 		}else {
 			// not used

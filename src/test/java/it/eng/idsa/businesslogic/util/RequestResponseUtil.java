@@ -16,8 +16,8 @@ public class RequestResponseUtil {
 	public RequestBody getRequestBodyMultipart(MediaType type) {
 		return new MultipartBody.Builder()
 				.setType(type)
-				.addPart(getPartHeader(MessagePart.HEADER.label), getRequestBodyPart(null))
-				.addPart(getPartHeader(MessagePart.PAYLOAD.label), getRequestBodyPart(null))
+				.addPart(getPartHeader(MessagePart.HEADER), getRequestBodyPart(null))
+				.addPart(getPartHeader(MessagePart.PAYLOAD), getRequestBodyPart(null))
 				.build();
 	}
 	

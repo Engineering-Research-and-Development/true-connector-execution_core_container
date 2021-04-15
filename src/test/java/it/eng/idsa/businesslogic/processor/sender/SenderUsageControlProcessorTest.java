@@ -76,7 +76,7 @@ public class SenderUsageControlProcessorTest {
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", true);
 		mockExchangeHeaderAndBody();
 		when(multipartMessage.getPayloadContent()).thenReturn(mockUsageControlPayload());
-		ucResult.put(MessagePart.PAYLOAD.label, "Payload");
+		ucResult.put(MessagePart.PAYLOAD, "Payload");
 		when(ucService.enforceUsageControl(any(IdsUseObject.class))).thenReturn(ucResult);
 
 		processor.process(exchange);
@@ -96,7 +96,7 @@ public class SenderUsageControlProcessorTest {
 
 		mockExchangeHeaderAndBody();
 		when(multipartMessage.getPayloadContent()).thenReturn(mockUsageControlPayload());
-		ucResult.put(MessagePart.PAYLOAD.label, "Payload");
+		ucResult.put(MessagePart.PAYLOAD, "Payload");
 		when(ucService.enforceUsageControl(any(IdsUseObject.class))).thenReturn(ucResult);
 		doThrow(AccessDeniedException.class)
 			.when(ucService).enforceUsageControl(any(IdsUseObject.class));

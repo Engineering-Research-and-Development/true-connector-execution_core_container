@@ -56,7 +56,7 @@ public class ReceiverSendDataToDestinationProcessor implements Processor {
 		if(isTokenValid) {
 			logger.info("token is valid");
 			message = (Message) multipartMessageParts.get("message");
-			String payload = multipartMessageParts.get(MessagePart.PAYLOAD.label).toString();
+			String payload = multipartMessageParts.get(MessagePart.PAYLOAD).toString();
 			String headerWithoutToken=multipartMessageService.removeToken(message);
 			HttpEntity entity = multipartMessageService.createMultipartMessage(headerWithoutToken,payload, null,ContentType.DEFAULT_TEXT);
 			String response = communicationService.sendData("http://"+configuration.getActivemqAddress()+"/api/message/outcoming?type=queue", entity);

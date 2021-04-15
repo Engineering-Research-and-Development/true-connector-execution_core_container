@@ -63,10 +63,10 @@ public void process(Exchange exchange) throws Exception {
 		// Extract header and payload from the multipart message
 		try {
 			header = multipartMessageService.getHeaderContentString(recreatedMultipartMessage);
-			multipartMessageParts.put(MessagePart.HEADER.label, header);
+			multipartMessageParts.put(MessagePart.HEADER, header);
 			payload = multipartMessageService.getPayloadContent(recreatedMultipartMessage);
 			if(payload!=null) {
-				multipartMessageParts.put(MessagePart.PAYLOAD.label, payload);
+				multipartMessageParts.put(MessagePart.PAYLOAD, payload);
 			}
 			Message msg = multipartMessageService.getMessage(header);
 			multipartMessage = new MultipartMessage(

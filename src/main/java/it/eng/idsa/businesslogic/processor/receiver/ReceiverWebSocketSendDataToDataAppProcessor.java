@@ -86,13 +86,13 @@ public class ReceiverWebSocketSendDataToDataAppProcessor implements Processor {
         	  logger.debug("response received from the DataAPP=" + response);
         	  String header = multipartMessageService.getHeaderContentString(response);
               String payload = multipartMessageService.getPayloadContent(response);
-              exchange.getMessage().setHeader(MessagePart.HEADER.label, header);
+              exchange.getMessage().setHeader(MessagePart.HEADER, header);
               //Save original Header for Usage Control Enforcement
               if(isEnabledUsageControl) {
                   exchange.getMessage().setHeader("Original-Message-Header", originalHeader);
               }
               if (payload != null) {
-                  exchange.getMessage().setHeader(MessagePart.PAYLOAD.label, payload);
+                  exchange.getMessage().setHeader(MessagePart.PAYLOAD, payload);
               }
           }
       }

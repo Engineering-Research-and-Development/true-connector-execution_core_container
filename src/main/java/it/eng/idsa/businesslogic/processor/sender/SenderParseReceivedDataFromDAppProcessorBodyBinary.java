@@ -57,12 +57,12 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 			headesParts.put("Forward-To", forwardTo);
 
 			// Create multipart message parts
-			header = receivedDataHeader.get(MessagePart.HEADER.label).toString();
-			multipartMessageParts.put(MessagePart.HEADER.label, header);
-			if(null != receivedDataHeader.get(MessagePart.PAYLOAD.label)) {
-				multipartMessageParts.put(MessagePart.PAYLOAD.label, receivedDataHeader.get(MessagePart.PAYLOAD.label).toString());
+			header = receivedDataHeader.get(MessagePart.HEADER).toString();
+			multipartMessageParts.put(MessagePart.HEADER, header);
+			if(null != receivedDataHeader.get(MessagePart.PAYLOAD)) {
+				multipartMessageParts.put(MessagePart.PAYLOAD, receivedDataHeader.get(MessagePart.PAYLOAD).toString());
 			}
-			message = multipartMessageService.getMessage(multipartMessageParts.get(MessagePart.HEADER.label));
+			message = multipartMessageService.getMessage(multipartMessageParts.get(MessagePart.HEADER));
 			
 			// Return exchange
 			exchange.getMessage().setHeaders(headesParts);

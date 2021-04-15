@@ -50,8 +50,8 @@ public class SenderSendDataToDestinationProcessor implements Processor {
 		Map<String, Object> multipartMessageParts = exchange.getMessage().getBody(HashMap.class);
 		
 		String messageWithToken = multipartMessageParts.get("messageWithToken").toString();
-		String header = multipartMessageParts.get(MessagePart.HEADER.label).toString();
-		String payload = multipartMessageParts.get(MessagePart.PAYLOAD.label).toString();
+		String header = multipartMessageParts.get(MessagePart.HEADER).toString();
+		String payload = multipartMessageParts.get(MessagePart.PAYLOAD).toString();
 		String forwardTo = headesParts.get("Forward-To").toString();
 		Message message = multipartMessageService.getMessage(header);
 

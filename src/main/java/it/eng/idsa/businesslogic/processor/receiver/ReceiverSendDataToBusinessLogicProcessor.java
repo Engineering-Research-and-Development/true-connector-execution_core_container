@@ -61,7 +61,7 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		String responseString = null;
 
-		if (RouterType.HTTP_HEADER.label.equals(eccHttpSendRouter)) {
+		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) {
 			responseString = multipartMessage.getPayloadContent();
 			headersParts.putAll(multipartMessage.getHttpHeaders());
 			// DataApp endpoint not http-header, must convert message to http headers

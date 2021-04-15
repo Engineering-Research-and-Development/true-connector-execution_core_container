@@ -79,7 +79,7 @@ public class GetTokenFromDapsProcessor implements Processor {
 		}
 
 //		logger.info("token=" + token);
-		if (RouterType.HTTP_HEADER.label.equals(eccHttpSendRouter)) {
+		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) {
 			// TODO move this to SendDataToBussinessLogicServiceImpl
 			multipartMessage = new MultipartMessageBuilder().withHttpHeader(multipartMessage.getHttpHeaders())
 					.withHeaderHeader(multipartMessage.getHeaderHeader())

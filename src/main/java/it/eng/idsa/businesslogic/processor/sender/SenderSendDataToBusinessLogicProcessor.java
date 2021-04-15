@@ -148,11 +148,11 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		logger.info("response received from the DataAPP=" + responseString);
 
 		exchange.getMessage().setHeaders(returnHeadersAsMap(response.headers()));
-		if (RouterType.HTTP_HEADER.label.equals(eccHttpSendRouter)) {
+		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) {
 			exchange.getMessage().setBody(responseString);
 		} else {
-			exchange.getMessage().setHeader(MessagePart.HEADER.label, multipartMessageService.getHeaderContentString(responseString));
-			exchange.getMessage().setHeader(MessagePart.PAYLOAD.label, multipartMessageService.getPayloadContent(responseString));
+			exchange.getMessage().setHeader(MessagePart.HEADER, multipartMessageService.getHeaderContentString(responseString));
+			exchange.getMessage().setHeader(MessagePart.PAYLOAD, multipartMessageService.getPayloadContent(responseString));
 
 		}
 	}
@@ -168,8 +168,8 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 //			logger.info("Successful response: " + responseString);
 			// TODO:
 			// Set original body which is created using the original payload and header
-			exchange.getMessage().setHeader(MessagePart.HEADER.label, multipartMessageService.getHeaderContentString(responseString));
-			exchange.getMessage().setHeader(MessagePart.PAYLOAD.label, multipartMessageService.getPayloadContent(responseString));
+			exchange.getMessage().setHeader(MessagePart.HEADER, multipartMessageService.getHeaderContentString(responseString));
+			exchange.getMessage().setHeader(MessagePart.PAYLOAD, multipartMessageService.getPayloadContent(responseString));
 		}
 	}
 

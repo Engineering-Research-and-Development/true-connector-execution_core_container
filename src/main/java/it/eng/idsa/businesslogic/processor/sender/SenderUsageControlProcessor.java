@@ -168,7 +168,7 @@ public class SenderUsageControlProcessor implements Processor {
 
     private String extractPayloadFromJson(JsonElement payload) {
         final JsonObject asJsonObject = payload.getAsJsonObject();
-        JsonElement payloadInner = asJsonObject.get(MessagePart.PAYLOAD.label);
+        JsonElement payloadInner = asJsonObject.get(MessagePart.PAYLOAD);
         if (null != payloadInner) return payloadInner.getAsString();
         return payload.toString();
     }

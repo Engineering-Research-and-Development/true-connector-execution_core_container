@@ -67,7 +67,7 @@ public class SenderSendResponseToDataAppProcessorTest {
 	
 	@Test
 	public void sendDataToMultipartMixDapsDisabled() throws Exception {
-		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", RouterType.MULTIPART_MIX.label);
+		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", RouterType.MULTIPART_MIX);
 		mockExchangeHeaderAndBody();
 		
 		processor.process(exchange);
@@ -84,7 +84,7 @@ public class SenderSendResponseToDataAppProcessorTest {
 	
 	@Test
 	public void sendDataToMultipartMixDapsEnabled() throws Exception {
-		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", RouterType.MULTIPART_MIX.label);
+		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", RouterType.MULTIPART_MIX);
 		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", true);
 
 		mockExchangeHeaderAndBody();
@@ -104,7 +104,7 @@ public class SenderSendResponseToDataAppProcessorTest {
 	
 	@Test
 	public void sendDataToMultipartForm() throws Exception {
-		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", RouterType.MULTIPART_BODY_FORM.label);
+		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", RouterType.MULTIPART_BODY_FORM);
 		mockExchangeHeaderAndBody();
 
 		when(multipartMessageService.createMultipartMessage(multipartMessage.getHeaderContentString(), 
@@ -124,7 +124,7 @@ public class SenderSendResponseToDataAppProcessorTest {
 	
 	@Test
 	public void sendDataToHttpHeader() throws Exception {
-		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", RouterType.HTTP_HEADER.label);
+		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", RouterType.HTTP_HEADER);
 		mockExchangeHeaderAndBody();
 
 		processor.process(exchange);

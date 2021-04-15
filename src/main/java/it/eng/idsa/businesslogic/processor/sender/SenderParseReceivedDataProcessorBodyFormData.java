@@ -58,21 +58,21 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 			receivedDataHeader.put("Forward-To", forwardTo);
 
 			// Create multipart message parts
-			if (receivedDataHeader.containsKey(MessagePart.HEADER.label)) {
-				if(receivedDataHeader.get(MessagePart.HEADER.label) instanceof DataHandler) {
-					DataHandler dtHeader = (DataHandler) receivedDataHeader.get(MessagePart.HEADER.label);
+			if (receivedDataHeader.containsKey(MessagePart.HEADER)) {
+				if(receivedDataHeader.get(MessagePart.HEADER) instanceof DataHandler) {
+					DataHandler dtHeader = (DataHandler) receivedDataHeader.get(MessagePart.HEADER);
 					header = IOUtils.toString(dtHeader.getInputStream(), StandardCharsets.UTF_8);
 				} else {
-					header = (String) receivedDataHeader.get(MessagePart.HEADER.label);
+					header = (String) receivedDataHeader.get(MessagePart.HEADER);
 				}
 			} 
 			message = multipartMessageService.getMessage(header);
-			if (receivedDataHeader.containsKey(MessagePart.PAYLOAD.label)) {
-				if(receivedDataHeader.get(MessagePart.PAYLOAD.label) instanceof DataHandler) {
-					DataHandler dtPayload = (DataHandler) receivedDataHeader.get(MessagePart.PAYLOAD.label);
+			if (receivedDataHeader.containsKey(MessagePart.PAYLOAD)) {
+				if(receivedDataHeader.get(MessagePart.PAYLOAD) instanceof DataHandler) {
+					DataHandler dtPayload = (DataHandler) receivedDataHeader.get(MessagePart.PAYLOAD);
 					payload = IOUtils.toString(dtPayload.getInputStream(), StandardCharsets.UTF_8);
 				} else {
-					payload = (String) receivedDataHeader.get(MessagePart.PAYLOAD.label);
+					payload = (String) receivedDataHeader.get(MessagePart.PAYLOAD);
 				}
 			}
 

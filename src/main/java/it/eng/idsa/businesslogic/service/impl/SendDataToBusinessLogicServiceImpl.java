@@ -98,7 +98,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 			Map<String, Object> headerParts, boolean eccCommunication) throws IOException {
 		logger.info("Forwarding Message: http-header");
 
-		if(!RouterType.HTTP_HEADER.label.equals(openDataAppReceiverRouter)) {
+		if(!RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
 			// DataApp endpoint not http-header, must convert message to http headers
 			headerParts.putAll(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));
 		}

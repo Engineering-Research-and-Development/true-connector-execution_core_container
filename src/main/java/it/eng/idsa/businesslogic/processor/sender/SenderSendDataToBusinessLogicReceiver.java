@@ -44,8 +44,8 @@ public class SenderSendDataToBusinessLogicReceiver implements Processor {
 		// Get "multipartMessageParts" from the input "exchange"
 		Map<String, Object> multipartMessageParts = exchange.getMessage().getBody(HashMap.class);
 		
-		header = multipartMessageParts.get(MessagePart.HEADER.label).toString();
-		payload = multipartMessageParts.get(MessagePart.PAYLOAD.label).toString();
+		header = multipartMessageParts.get(MessagePart.HEADER).toString();
+		payload = multipartMessageParts.get(MessagePart.PAYLOAD).toString();
 		forwardTo = multipartMessageParts.get("frowardTo").toString();
 		
 		HttpEntity entity = multipartMessageService.createMultipartMessage(

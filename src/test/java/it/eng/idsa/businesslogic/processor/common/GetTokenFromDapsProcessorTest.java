@@ -93,7 +93,7 @@ public class GetTokenFromDapsProcessorTest {
 	
 	@Test
 	public void getJwTokenSuccessHttpHeader() throws Exception {
-		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER.label, String.class);
+		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER, String.class);
 
 		mockExchangeHeaderAndBody();
 		when(dapsTokenProviderService.provideToken()).thenReturn(TestUtilMessageService.TOKEN_VALUE);

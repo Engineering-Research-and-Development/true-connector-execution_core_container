@@ -76,7 +76,7 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		
-		if (!RouterType.HTTP_HEADER.label.equals(openDataAppReceiverRouter)) {
+		if (!RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
         	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
 		}
 
@@ -125,11 +125,11 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		logger.info("response received from the DataAPP=" + responseString);
 
 		exchange.getMessage().setHeaders(returnHeadersAsMap(response.headers()));
-		if (RouterType.HTTP_HEADER.label.equals(openDataAppReceiverRouter)) {
+		if (RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
 			exchange.getMessage().setBody(responseString);
 		} else {
-			exchange.getMessage().setHeader(MessagePart.HEADER.label, multipartMessageService.getHeaderContentString(responseString));
-			exchange.getMessage().setHeader(MessagePart.PAYLOAD.label, multipartMessageService.getPayloadContent(responseString));
+			exchange.getMessage().setHeader(MessagePart.HEADER, multipartMessageService.getHeaderContentString(responseString));
+			exchange.getMessage().setHeader(MessagePart.PAYLOAD, multipartMessageService.getPayloadContent(responseString));
 		}
 
 		if (isEnabledUsageControl) {

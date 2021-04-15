@@ -70,7 +70,7 @@ public class SenderParseReceivedResponseMessageTest {
 	
 	@Test
 	public void parseHttpHeaderResponse() throws Exception {
-		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER.label, String.class);
+		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER, String.class);
 		mockExchangeHeaderAndBody();
 		
 		when(camelMessage.getBody(String.class)).thenReturn(PAYLOAD);
@@ -89,8 +89,8 @@ public class SenderParseReceivedResponseMessageTest {
 		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", true);
 
 		mockExchangeHeaderAndBody();
-		headers.put(MessagePart.HEADER.label, headerAsString);
-		headers.put(MessagePart.PAYLOAD.label, PAYLOAD);
+		headers.put(MessagePart.HEADER, headerAsString);
+		headers.put(MessagePart.PAYLOAD, PAYLOAD);
 		
 		when(multipartMessageService.getMessage(headerAsString)).thenReturn(message);
 		when(multipartMessageService.getToken(message)).thenReturn(TestUtilMessageService.TOKEN_VALUE);
