@@ -26,7 +26,7 @@ public class MapMultipartToIDSCP2 implements Processor {
 		exchange.getMessage().setBody(multipartMessage.getPayloadContent());
 		exchange.getMessage().setHeader("idscp2-header", multipartMessage.getHeaderContentString());
 
-		if (isEnabledIdscp2 && !receiver && isEnabledDataAppWebSocket) {
+		if (isEnabledIdscp2 && !receiver) {
 			String host = exchange.getMessage().getHeaders().get("Forward-To").toString().split("//")[1].split(":")[0];
 			exchange.setProperty("host", host);
 		}
