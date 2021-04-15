@@ -17,7 +17,9 @@
 	<description>Market4.0 execution core container Business Logic
 	</description>
 	<properties>
-		<java.version>11</java.version>
+		<project.java.version>11</project.java.version>
+	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    	<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<start-class>it.eng.idsa.businesslogic.Application</start-class>
 		<camel.version>3.7.0</camel.version>
 		<camel.version.rc>3.0.0-RC3</camel.version.rc>
@@ -384,6 +386,22 @@
 
 	<build>
 		<plugins>
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${project.java.version}</source>
+                    <target>${project.java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>

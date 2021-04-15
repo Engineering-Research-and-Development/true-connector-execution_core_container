@@ -8,7 +8,6 @@ import org.apache.camel.Processor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
@@ -28,9 +27,6 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Processor {
 
 	private static final Logger logger = LogManager.getLogger(SenderParseReceivedDataFromDAppProcessorBodyBinary.class);
-
-	@Value("${application.idscp.isEnabled}")
-	private boolean isEnabledIdscp;
 
 	@Autowired
 	private MultipartMessageService multipartMessageService;

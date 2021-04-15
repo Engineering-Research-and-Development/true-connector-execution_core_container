@@ -49,8 +49,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 
 		try {
 			MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
-			message= multipartMessage.getHeaderContent();
-			logger.info("Incoming request message: {}", receivedDataBodyBinary);
+			message = multipartMessage.getHeaderContent();
 			// Create headers parts
 			headesParts.put("Payload-Content-Type",
 					multipartMessage.getPayloadHeader().get(MultipartMessageKey.CONTENT_TYPE.label));
@@ -58,6 +57,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 			// Return exchange
 			exchange.getMessage().setBody(multipartMessage);
 			exchange.getMessage().setHeaders(headesParts);
+
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);

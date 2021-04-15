@@ -23,6 +23,7 @@ import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
+import it.eng.idsa.multipart.util.MultipartMessageKey;
 
 public class SenderParseReceivedDataProcessorBodyBinaryTest {
 
@@ -40,6 +41,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	private MultipartMessage multipartMessage;
 	private String receivedDataBodyBinary;
 	private Map<String, Object> httpHeaders;
+	private Map<String, String> headerHeader;
 
 	@InjectMocks
 	private SenderParseReceivedDataProcessorBodyBinary processor;
@@ -66,7 +68,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 		verify(messageOut).setBody(multipartMessage);
 
 	}
-
+	
 	@Test
 	public void processWithoutContentType() throws Exception {
 		mockExchangeGetHttpHeaders(exchange);
@@ -82,8 +84,30 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 
 		processor.process(exchange);
 
+		verify(messageOut).setBody(multipartMessage);
 		verify(rejectionMessageService,times(0)).sendRejectionMessage(any(RejectionMessageType.class),
 				any(de.fraunhofer.iais.eis.Message.class));
+	}
+
+	@Test
+	public void processWithInvalidContentTypeAndWithoutDaps() throws Exception {
+		mockExchangeGetHttpHeaders(exchange);
+		headerHeader = new HashMap<String, String>();
+		headerHeader.put(MultipartMessageKey.CONTENT_DISPOSITION.label, "form-data; name=\"header\"");
+		headerHeader.put(MultipartMessageKey.CONTENT_TYPE.label, ContentType.APPLICATION_XML.toString());
+		headerHeader.put(MultipartMessageKey.CONTENT_LENGTH.label, "333");
+		msg = TestUtilMessageService.getArtifactRequestMessage();
+		multipartMessage = new MultipartMessageBuilder()
+				.withHeaderContent(msg)
+				.withHeaderHeader(headerHeader)
+				.withPayloadContent("foo bar").build();
+		receivedDataBodyBinary = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
+		when(exchange.getMessage()).thenReturn(messageOut);
+		when(messageOut.getBody(String.class)).thenReturn(receivedDataBodyBinary);
+
+		processor.process(exchange);
+
+		verify(messageOut).setBody(multipartMessage);
 	}
 
 	private void mockExchangeGetHttpHeaders(Exchange exchange) {

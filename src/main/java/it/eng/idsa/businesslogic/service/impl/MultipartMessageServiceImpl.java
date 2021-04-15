@@ -138,20 +138,20 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 			FormBodyPart bodyHeaderPart;
 			ContentBody headerBody = new StringBody(header, ContentType.APPLICATION_JSON);
 			bodyHeaderPart = FormBodyPartBuilder.create(MessagePart.HEADER.label, headerBody).build();
-			bodyHeaderPart.addField(MultipartMessageKey.CONTENT_LENGTH.label, "" + header.length());
+			bodyHeaderPart.addField(MultipartMessageKey.CONTENT_LENGTH.label, String.valueOf(header.length()));
 
 			FormBodyPart bodyPayloadPart = null;
 			if (payload != null) {
 				ContentBody payloadBody = new StringBody(payload, ctPayload);
 				bodyPayloadPart = FormBodyPartBuilder.create(MessagePart.PAYLOAD.label, payloadBody).build();
-				bodyPayloadPart.addField(MultipartMessageKey.CONTENT_LENGTH.label, "" + payload.length());
+				bodyPayloadPart.addField(MultipartMessageKey.CONTENT_LENGTH.label, String.valueOf(payload.length()));
 			}
 
 			FormBodyPart headerForwardTo = null;
 			if (frowardTo != null) {
 				ContentBody forwardToBody = new StringBody(frowardTo, ContentType.DEFAULT_TEXT);
 				headerForwardTo = FormBodyPartBuilder.create("forwardTo", forwardToBody).build();
-				headerForwardTo.addField(MultipartMessageKey.CONTENT_LENGTH.label, "" + frowardTo.length());
+				headerForwardTo.addField(MultipartMessageKey.CONTENT_LENGTH.label, String.valueOf(frowardTo.length()));
 			}
 
 			if (frowardTo != null) {
