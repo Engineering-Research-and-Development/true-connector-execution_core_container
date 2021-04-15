@@ -11,7 +11,6 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,6 +21,7 @@ import org.springframework.context.annotation.Configuration;
 
 import it.eng.idsa.businesslogic.service.impl.KeystoreProvider;
 import okhttp3.OkHttpClient;
+import okhttp3.internal.tls.OkHostnameVerifier;
 
 @Configuration
 public class OkHttpClientConfiguration {
@@ -52,7 +52,7 @@ public class OkHttpClientConfiguration {
 			sslSocketFactory = sslSocketFactory(trustManagers);
 		} else {
 			logger.info("Using default SSL Validation with certificates from trust store");
-			hostnameVerifier = new DefaultHostnameVerifier();
+			hostnameVerifier = OkHostnameVerifier.INSTANCE;
 			trustManagers = keystoreProvider.getTrustManagerFactory().getTrustManagers();
 			sslSocketFactory = sslSocketFactory(trustManagers);
 		}
@@ -92,7 +92,7 @@ public class OkHttpClientConfiguration {
 	
 	private SSLSocketFactory sslSocketFactory(final TrustManager[] trustAllCerts)
 			throws NoSuchAlgorithmException, KeyManagementException {
-		final SSLContext sslContext = SSLContext.getInstance("SSL");
+		final SSLContext sslContext = SSLContext.getInstance("TLS");
 		sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
 		// Create an ssl socket factory with our all-trusting manager
 		final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
