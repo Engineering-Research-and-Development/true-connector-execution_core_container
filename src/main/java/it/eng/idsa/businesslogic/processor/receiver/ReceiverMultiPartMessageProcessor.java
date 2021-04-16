@@ -89,7 +89,7 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 
-			if (null == headersParts.get(MessagePart.HEADER) && StringUtils.isBlank(MessagePart.HEADER)) {
+			if (StringUtils.isBlank(MessagePart.HEADER)) {
 				logger.error("Multipart message header is null");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
@@ -105,7 +105,7 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 					DataHandler dtHeader = (DataHandler) headersParts.get(MessagePart.HEADER);
 					header = IOUtils.toString(dtHeader.getInputStream(), StandardCharsets.UTF_8);
 				}
-				if(null != headersParts.get(MessagePart.PAYLOAD) && StringUtils.isNotBlank(MessagePart.PAYLOAD)) {
+				if(StringUtils.isNotBlank(MessagePart.PAYLOAD)) {
 					payload = headersParts.get(MessagePart.PAYLOAD).toString();
 				}
 

@@ -60,7 +60,7 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 			// Create multipart message parts
 			header = receivedDataHeader.get(MessagePart.HEADER).toString();
 			multipartMessageParts.put(MessagePart.HEADER, header);
-			if(null != receivedDataHeader.get(MessagePart.PAYLOAD) && StringUtils.isNotBlank(MessagePart.PAYLOAD)) {
+			if(StringUtils.isNotBlank(MessagePart.PAYLOAD)) {
 				multipartMessageParts.put(MessagePart.PAYLOAD, receivedDataHeader.get(MessagePart.PAYLOAD).toString());
 			}
 			message = multipartMessageService.getMessage(multipartMessageParts.get(MessagePart.HEADER));
