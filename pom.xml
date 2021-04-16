@@ -18,8 +18,8 @@
 	</description>
 	<properties>
 		<project.java.version>11</project.java.version>
-	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    	<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<start-class>it.eng.idsa.businesslogic.Application</start-class>
 		<camel.version>3.7.0</camel.version>
 		<camel.version.rc>3.0.0-RC3</camel.version.rc>
@@ -27,7 +27,7 @@
 		<information.model.version>4.0.0</information.model.version>
 		<application.basedir>${basedir}</application.basedir>
 		<multipart.message.processor.version>1.0.7-SNAPSHOT</multipart.message.processor.version>
-		<idscp2.libraries.version>0.4.0</idscp2.libraries.version>
+		<idscp2.libraries.version>0.4.1</idscp2.libraries.version>
 	</properties>
 
 	<repositories>
@@ -318,6 +318,7 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- IDSCP2 -->
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-stdlib</artifactId>
@@ -329,23 +330,32 @@
 			<artifactId>camel-idscp2</artifactId>
 			<version>${idscp2.libraries.version}</version>
 		</dependency>
+
 		<dependency>
 			<groupId>de.fhg.aisec.ids</groupId>
 			<artifactId>idscp2-app-layer</artifactId>
 			<version>${idscp2.libraries.version}</version>
 		</dependency>
+
 		<dependency>
 			<groupId>de.fhg.aisec.ids</groupId>
 			<artifactId>idscp2</artifactId>
 			<version>${idscp2.libraries.version}</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.11.2</version>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
 		<dependency>
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
-<!-- 			<version>4.9.1</version> -->
-		</dependency> 
+			<version>4.9.1</version>
+		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.json/json -->
 		<dependency>
@@ -361,12 +371,13 @@
 			<version>0.7.6</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/com.squareup.okio/okio -->
 		<dependency>
-			<groupId>com.squareup.okio</groupId>
-			<artifactId>okio</artifactId>
-			<version>2.8.0</version>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protoc</artifactId>
+			<version>3.15.5</version>
+			<type>pom</type>
 		</dependency>
+		<!-- IDSCP2 -->
 
 		<!-- https://mvnrepository.com/artifact/org.jetbrains/annotations -->
 		<dependency>
@@ -375,33 +386,41 @@
 			<version>13.0</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/com.squareup.okio/okio -->
 		<dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protoc</artifactId>
-			<version>3.15.5</version>
-			<type>pom</type>
+			<groupId>com.squareup.okio</groupId>
+			<artifactId>okio</artifactId>
+			<version>2.8.0</version>
 		</dependency>
 
 	</dependencies>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<excludes>
+					<exclude>ssl-server.jks</exclude>
+				</excludes>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${project.java.version}</source>
-                    <target>${project.java.version}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <configuration>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${project.java.version}</source>
+					<target>${project.java.version}</target>
+					<encoding>${project.build.sourceEncoding}</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<configuration>
+					<encoding>${project.build.sourceEncoding}</encoding>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
