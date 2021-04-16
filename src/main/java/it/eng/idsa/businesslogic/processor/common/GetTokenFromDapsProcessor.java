@@ -15,6 +15,7 @@ import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
+import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
@@ -78,7 +79,7 @@ public class GetTokenFromDapsProcessor implements Processor {
 		}
 
 //		logger.info("token=" + token);
-		if ("http-header".equals(eccHttpSendRouter)) {
+		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) {
 			// TODO move this to SendDataToBussinessLogicServiceImpl
 			multipartMessage = new MultipartMessageBuilder().withHttpHeader(multipartMessage.getHttpHeaders())
 					.withHeaderHeader(multipartMessage.getHeaderHeader())

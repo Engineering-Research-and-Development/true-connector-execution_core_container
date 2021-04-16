@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -57,21 +58,21 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 			receivedDataHeader.put("Forward-To", forwardTo);
 
 			// Create multipart message parts
-			if (receivedDataHeader.containsKey("header")) {
-				if(receivedDataHeader.get("header") instanceof DataHandler) {
-					DataHandler dtHeader = (DataHandler) receivedDataHeader.get("header");
+			if (receivedDataHeader.containsKey(MessagePart.HEADER)) {
+				if(receivedDataHeader.get(MessagePart.HEADER) instanceof DataHandler) {
+					DataHandler dtHeader = (DataHandler) receivedDataHeader.get(MessagePart.HEADER);
 					header = IOUtils.toString(dtHeader.getInputStream(), StandardCharsets.UTF_8);
 				} else {
-					header = (String) receivedDataHeader.get("header");
+					header = (String) receivedDataHeader.get(MessagePart.HEADER);
 				}
 			} 
 			message = multipartMessageService.getMessage(header);
-			if (receivedDataHeader.containsKey("payload")) {
-				if(receivedDataHeader.get("payload") instanceof DataHandler) {
-					DataHandler dtPayload = (DataHandler) receivedDataHeader.get("payload");
+			if (receivedDataHeader.containsKey(MessagePart.PAYLOAD)) {
+				if(receivedDataHeader.get(MessagePart.PAYLOAD) instanceof DataHandler) {
+					DataHandler dtPayload = (DataHandler) receivedDataHeader.get(MessagePart.PAYLOAD);
 					payload = IOUtils.toString(dtPayload.getInputStream(), StandardCharsets.UTF_8);
 				} else {
-					payload = (String) receivedDataHeader.get("payload");
+					payload = (String) receivedDataHeader.get(MessagePart.PAYLOAD);
 				}
 			}
 

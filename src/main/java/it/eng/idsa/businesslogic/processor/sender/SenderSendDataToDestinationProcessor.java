@@ -17,6 +17,7 @@ import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.CommunicationService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
@@ -49,8 +50,8 @@ public class SenderSendDataToDestinationProcessor implements Processor {
 		Map<String, Object> multipartMessageParts = exchange.getMessage().getBody(HashMap.class);
 		
 		String messageWithToken = multipartMessageParts.get("messageWithToken").toString();
-		String header = multipartMessageParts.get("header").toString();
-		String payload = multipartMessageParts.get("payload").toString();
+		String header = multipartMessageParts.get(MessagePart.HEADER).toString();
+		String payload = multipartMessageParts.get(MessagePart.PAYLOAD).toString();
 		String forwardTo = headesParts.get("Forward-To").toString();
 		Message message = multipartMessageService.getMessage(header);
 

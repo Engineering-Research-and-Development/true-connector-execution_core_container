@@ -9,6 +9,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.support.MessageHelper;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,9 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
+import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -62,7 +65,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 
 		headersParts.put("Is-Enabled-DataApp-WebSocket", isEnabledDataAppWebSocket);
 		
-		if ("http-header".equals(eccHttpSendRouter)) { 
+		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) { 
 			// create Message object from IDS-* headers, needs for UsageControl flow
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
 			header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
@@ -84,7 +87,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 					.build();
 			
 		} 
-		else if("mixed".equals(eccHttpSendRouter)) {
+		else if(RouterType.MULTIPART_MIX.equals(eccHttpSendRouter)) {
 			String receivedDataBodyBinary = MessageHelper.extractBodyAsString(exchange.getMessage());
 			multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
 			if (isEnabledDapsInteraction) {
@@ -100,12 +103,12 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 					.build();
 		}
 		else {
-			if (!headersParts.containsKey("header")) {
+			if (!headersParts.containsKey(MessagePart.HEADER)) {
 				logger.error("Multipart message header is missing");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 
-			if (null == headersParts.get("header")) {
+			if (StringUtils.isBlank(MessagePart.HEADER)) {
 				logger.error("Multipart message header is null");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
@@ -115,16 +118,16 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 				if (headersParts.containsKey("Original-Message-Header")) {
 					headersParts.put("Original-Message-Header", headersParts.get("Original-Message-Header").toString());
 				}
-				if (headersParts.get("header") instanceof String) {
-					header = headersParts.get("header").toString();
+				if (headersParts.get(MessagePart.HEADER) instanceof String) {
+					header = headersParts.get(MessagePart.HEADER).toString();
 				} else {
-					DataHandler dtHeader = (DataHandler) headersParts.get("header");
+					DataHandler dtHeader = (DataHandler) headersParts.get(MessagePart.HEADER);
 					header = IOUtils.toString(dtHeader.getInputStream(), StandardCharsets.UTF_8);
 				}
 				
 				message = multipartMessageService.getMessage(header);
-				if(null != headersParts.get("payload")) {
-					payload = headersParts.get("payload").toString();
+				if(StringUtils.isNotBlank(MessagePart.PAYLOAD)) {
+					payload = headersParts.get(MessagePart.PAYLOAD).toString();
 				}
 				
 				if (isEnabledDapsInteraction) {

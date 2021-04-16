@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
@@ -50,9 +51,9 @@ public class SenderMultiPartMessageProcessor implements Processor {
 			frowardTo=getForwardTo(multipartMessage);
 			multipartMessageParts.put("frowardTo", frowardTo);
 			header=multipartMessageService.getHeaderContentString(multipartMessage);
-			multipartMessageParts.put("header", header);
+			multipartMessageParts.put(MessagePart.HEADER, header);
 			payload=multipartMessageService.getPayloadContent(multipartMessage);
-			multipartMessageParts.put("payload", payload);
+			multipartMessageParts.put(MessagePart.PAYLOAD, payload);
 			message=multipartMessageService.getMessage(multipartMessage);
 			multipartMessageParts.put("message", message);
 		

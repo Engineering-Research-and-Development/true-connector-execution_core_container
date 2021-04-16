@@ -26,6 +26,8 @@ import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.util.MessagePart;
+import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
@@ -68,7 +70,7 @@ public class SenderParseReceivedResponseMessageTest {
 	
 	@Test
 	public void parseHttpHeaderResponse() throws Exception {
-		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", "http-header", String.class);
+		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER, String.class);
 		mockExchangeHeaderAndBody();
 		
 		when(camelMessage.getBody(String.class)).thenReturn(PAYLOAD);
@@ -87,8 +89,8 @@ public class SenderParseReceivedResponseMessageTest {
 		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", true);
 
 		mockExchangeHeaderAndBody();
-		headers.put("header", headerAsString);
-		headers.put("payload", PAYLOAD);
+		headers.put(MessagePart.HEADER, headerAsString);
+		headers.put(MessagePart.PAYLOAD, PAYLOAD);
 		
 		when(multipartMessageService.getMessage(headerAsString)).thenReturn(message);
 		when(multipartMessageService.getToken(message)).thenReturn(TestUtilMessageService.TOKEN_VALUE);
@@ -105,7 +107,7 @@ public class SenderParseReceivedResponseMessageTest {
 	@Test
 	public void parseResponseNoHeaderPresent() throws Exception {
 		mockExchangeHeaderAndBody();
-//		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", "http-header", String.class);
+//		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER.label, String.class);
 		
 		rejectionMessageService = new RejectionMessageServiceImpl();
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", 

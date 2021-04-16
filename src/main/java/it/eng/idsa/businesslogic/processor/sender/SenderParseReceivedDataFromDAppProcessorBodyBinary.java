@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.HttpWebSocketMessagingLogicA;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
@@ -56,12 +58,12 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 			headesParts.put("Forward-To", forwardTo);
 
 			// Create multipart message parts
-			header = receivedDataHeader.get("header").toString();
-			multipartMessageParts.put("header", header);
-			if(receivedDataHeader.get("payload") != null) {
-				multipartMessageParts.put("payload", receivedDataHeader.get("payload").toString());
+			header = receivedDataHeader.get(MessagePart.HEADER).toString();
+			multipartMessageParts.put(MessagePart.HEADER, header);
+			if(StringUtils.isNotBlank(MessagePart.PAYLOAD)) {
+				multipartMessageParts.put(MessagePart.PAYLOAD, receivedDataHeader.get(MessagePart.PAYLOAD).toString());
 			}
-			message = multipartMessageService.getMessage(multipartMessageParts.get("header"));
+			message = multipartMessageService.getMessage(multipartMessageParts.get(MessagePart.HEADER));
 			
 			// Return exchange
 			exchange.getMessage().setHeaders(headesParts);

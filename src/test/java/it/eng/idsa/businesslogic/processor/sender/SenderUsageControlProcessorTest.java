@@ -29,6 +29,7 @@ import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
+import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -75,7 +76,7 @@ public class SenderUsageControlProcessorTest {
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", true);
 		mockExchangeHeaderAndBody();
 		when(multipartMessage.getPayloadContent()).thenReturn(mockUsageControlPayload());
-		ucResult.put("payload", "Payload");
+		ucResult.put(MessagePart.PAYLOAD, "Payload");
 		when(ucService.enforceUsageControl(any(IdsUseObject.class))).thenReturn(ucResult);
 
 		processor.process(exchange);
@@ -95,7 +96,7 @@ public class SenderUsageControlProcessorTest {
 
 		mockExchangeHeaderAndBody();
 		when(multipartMessage.getPayloadContent()).thenReturn(mockUsageControlPayload());
-		ucResult.put("payload", "Payload");
+		ucResult.put(MessagePart.PAYLOAD, "Payload");
 		when(ucService.enforceUsageControl(any(IdsUseObject.class))).thenReturn(ucResult);
 		doThrow(AccessDeniedException.class)
 			.when(ucService).enforceUsageControl(any(IdsUseObject.class));
