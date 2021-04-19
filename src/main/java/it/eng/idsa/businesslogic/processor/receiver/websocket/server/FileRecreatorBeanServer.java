@@ -5,8 +5,9 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 
 /**
@@ -15,7 +16,7 @@ import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 
 public class FileRecreatorBeanServer implements Runnable {
 
-	private static final Logger logger = LogManager.getLogger(FileRecreatorBeanServer.class);
+	private static final Logger logger = LoggerFactory.getLogger(FileRecreatorBeanServer.class);
 
 	private static final int DEFAULT_STREAM_BUFFER_SIZE = 127;
 	private static final String END_BINARY_FRAME_SEPARATOR = "�normal-IDS-ENG-SEPARATOR the-last-frame";

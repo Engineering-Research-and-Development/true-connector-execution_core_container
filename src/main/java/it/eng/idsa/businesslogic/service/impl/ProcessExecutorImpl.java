@@ -4,8 +4,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import it.eng.idsa.businesslogic.service.ProcessExecutor;
@@ -13,7 +13,7 @@ import it.eng.idsa.businesslogic.service.ProcessExecutor;
 @Service
 public class ProcessExecutorImpl implements ProcessExecutor {
 
-	private static final Logger logger = LogManager.getLogger(ProcessExecutor.class);
+	private static final Logger logger = LoggerFactory.getLogger(ProcessExecutor.class);
 
 	@Override
 	public String executeProcess(List<String> cmdList) {

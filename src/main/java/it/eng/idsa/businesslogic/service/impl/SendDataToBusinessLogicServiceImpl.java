@@ -5,8 +5,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ import okhttp3.Response;
 @Service
 public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLogicService {
 
-	private static final Logger logger = LogManager.getLogger(SendDataToBusinessLogicServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(SendDataToBusinessLogicServiceImpl.class);
 
 	@Value("${camel.component.jetty.use-global-ssl-context-parameters}")
 	private boolean isJettySSLEnabled;
@@ -148,7 +148,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		try {
 			response = okHttpClient.sendMultipartFormRequest(address, headers, body);
 		} catch (IOException e) {
-			logger.error(e);
+			logger.error("Error while sending form dat request", e);
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
 					messageForException);
 		}

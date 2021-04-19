@@ -10,13 +10,19 @@ import java.security.KeyStore;
 import javax.annotation.PreDestroy;
 import javax.validation.constraints.NotNull;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.http.HttpVersion;
-import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -28,7 +34,7 @@ import org.springframework.core.io.ResourceLoader;
  * @author Antonio Scatoloni
  */
 public class HttpWebSocketServerBean {
-    private static final Logger logger = LogManager.getLogger(HttpWebSocketServerBean.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpWebSocketServerBean.class);
     public static final String WS_URL = "/incoming-data-channel-received-message";
     private int port;
     private Class messagingServlet;

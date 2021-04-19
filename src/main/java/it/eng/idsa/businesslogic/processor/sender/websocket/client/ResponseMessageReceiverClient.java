@@ -1,15 +1,15 @@
 package it.eng.idsa.businesslogic.processor.sender.websocket.client;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.asynchttpclient.ws.WebSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
 
 public class ResponseMessageReceiverClient implements Runnable{
 	
-    private static final Logger logger = LogManager.getLogger(ResponseMessageReceiverClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(ResponseMessageReceiverClient.class);
 
 	@Autowired
 	private WebSocketClientConfiguration webSocketClientConfiguration;
@@ -32,7 +32,7 @@ public class ResponseMessageReceiverClient implements Runnable{
 		try {
 		   wsClient.sendCloseFrame(200, "Shutdown");
 		} catch (Exception e) {
-			logger.error(e);
+			logger.error("Error while receiving response", e);
 		}
 		
 	}

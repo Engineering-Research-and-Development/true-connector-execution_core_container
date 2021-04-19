@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +32,7 @@ import it.eng.idsa.clearinghouse.model.json.JsonHandler;
 
 @Service
 public class HashFileServiceImpl implements HashFileService {
-    private static final Logger logger = LogManager.getLogger(HashFileServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(HashFileServiceImpl.class);
     private static final String HASHING_ALGORITHM = "SHA-256"; //SHA3_256 most secure (no collisions) but less popular
 
     private String clearingHouseHashDir;

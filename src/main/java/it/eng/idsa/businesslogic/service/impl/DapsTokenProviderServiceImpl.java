@@ -3,8 +3,8 @@ package it.eng.idsa.businesslogic.service.impl;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -20,7 +20,7 @@ import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 @Service
 public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 
-	private static final Logger logger = LogManager.getLogger(DapsTokenProviderServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(DapsTokenProviderServiceImpl.class);
 
 	@Autowired
 	private DapsService dapsService;

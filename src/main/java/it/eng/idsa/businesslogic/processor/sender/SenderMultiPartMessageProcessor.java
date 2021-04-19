@@ -6,8 +6,8 @@ import java.util.Scanner;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +26,7 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 @Component
 public class SenderMultiPartMessageProcessor implements Processor {
 
-	private static final Logger logger = LogManager.getLogger(SenderMultiPartMessageProcessor.class);
+	private static final Logger logger = LoggerFactory.getLogger(SenderMultiPartMessageProcessor.class);
 	
 	@Autowired
 	private MultipartMessageService multipartMessageService;

@@ -12,8 +12,8 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +26,7 @@ import okhttp3.internal.tls.OkHostnameVerifier;
 @Configuration
 public class OkHttpClientConfiguration {
 	
-	private static final Logger logger = LogManager.getLogger(OkHttpClientConfiguration.class);
+	private static final Logger logger = LoggerFactory.getLogger(OkHttpClientConfiguration.class);
 	
 	@Value("${application.disableSslVerification:false}") 
 	boolean disableSslVerification;

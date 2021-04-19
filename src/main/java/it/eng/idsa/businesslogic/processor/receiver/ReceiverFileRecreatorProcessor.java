@@ -2,8 +2,8 @@ package it.eng.idsa.businesslogic.processor.receiver;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
@@ -26,7 +26,7 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 )
 public class ReceiverFileRecreatorProcessor implements Processor {
 
-	private static final Logger logger = LogManager.getLogger(ReceiverFileRecreatorProcessor.class);
+	private static final Logger logger = LoggerFactory.getLogger(ReceiverFileRecreatorProcessor.class);
 
 	@Autowired
 	private WebSocketServerConfigurationB webSocketServerConfiguration;
@@ -55,7 +55,7 @@ public class ReceiverFileRecreatorProcessor implements Processor {
 			fileRecreatorBean.setup();
 		} catch(Exception e) {
 			logger.info("... can not initilize the IdscpServer");
-			logger.error(e);
+			logger.error("Cannot initiallize server", e);
 			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
 					message);

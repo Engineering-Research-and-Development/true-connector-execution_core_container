@@ -7,8 +7,8 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +25,7 @@ import it.eng.idsa.businesslogic.util.MessagePart;
 @Component
 public class SenderSendDataToBusinessLogicReceiver implements Processor {
 
-	private static final Logger logger = LogManager.getLogger(SenderSendDataToBusinessLogicReceiver.class);
+	private static final Logger logger = LoggerFactory.getLogger(SenderSendDataToBusinessLogicReceiver.class);
 	
 	@Autowired
 	private MultipartMessageService multipartMessageService;

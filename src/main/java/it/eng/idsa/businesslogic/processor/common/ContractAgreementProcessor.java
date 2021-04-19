@@ -3,8 +3,8 @@ package it.eng.idsa.businesslogic.processor.common;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +23,7 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
 @Component
 public class ContractAgreementProcessor implements Processor {
 	
-	private static final Logger logger = LogManager.getLogger(ContractAgreementProcessor.class);
+	private static final Logger logger = LoggerFactory.getLogger(ContractAgreementProcessor.class);
 	private CommunicationService communicationService;
 	private String usageControlDataAppURL;
 	private String addPolicyEndpoint;

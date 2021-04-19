@@ -7,9 +7,9 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.asynchttpclient.ws.WebSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
@@ -20,7 +20,7 @@ public class FileStreamingBean {
 	
 	private static final String END_BINARY_FRAME_SEPARATOR = "�normal-IDS-ENG-SEPARATOR the-last-frame";
 
-	private static final Logger logger = LogManager.getLogger(FileStreamingBean.class);
+	private static final Logger logger = LoggerFactory.getLogger(FileStreamingBean.class);
 	
 	private WebSocket wsClient = null;
 	private String serverIP;

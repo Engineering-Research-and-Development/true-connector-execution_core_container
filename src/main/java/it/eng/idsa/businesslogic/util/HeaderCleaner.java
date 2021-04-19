@@ -4,14 +4,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class HeaderCleaner {
-	private static final Logger logger = LogManager.getLogger(HeaderCleaner.class);
+	private static final Logger logger = LoggerFactory.getLogger(HeaderCleaner.class);
 
 	@Value("${application.technicalHeaders}")
 	public void setHeaders(String headers) {

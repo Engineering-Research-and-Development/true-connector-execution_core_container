@@ -2,9 +2,9 @@ package it.eng.idsa.businesslogic.processor.receiver.websocket.server;
 
 import java.nio.charset.StandardCharsets;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.websocket.api.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import de.fhg.aisec.ids.comm.server.IdscpServerSocket;
@@ -18,7 +18,7 @@ import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationB;
  */
 
 public class InputStreamSocketListenerServer implements SocketListener {
-	private static final Logger logger = LogManager.getLogger(InputStreamSocketListenerServer.class);
+	private static final Logger logger = LoggerFactory.getLogger(InputStreamSocketListenerServer.class);
 
 	public static final String CLOSURE_FRAME = "�normal closure";
 	public static final String END_BINARY_FRAME_SEPARATOR = "�normal-IDS-ENG-SEPARATOR the-last-frame";

@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +29,7 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
 @Service
 public class HttpHeaderServiceImpl implements HttpHeaderService {
 
-	private static final Logger logger = LogManager.getLogger(HttpHeaderService.class);
+	private static final Logger logger = LoggerFactory.getLogger(HttpHeaderService.class);
 	
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean isEnabledDapsInteraction;

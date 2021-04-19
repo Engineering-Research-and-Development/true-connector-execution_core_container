@@ -3,8 +3,8 @@
  */
 package it.eng.idsa.businesslogic.service.impl;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -24,7 +24,7 @@ import it.eng.idsa.businesslogic.service.CommunicationService;
 @Transactional
 public class CommunicationServiceImpl implements CommunicationService {
 
-	private static final Logger logger = LogManager.getLogger(CommunicationServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(CommunicationServiceImpl.class);
 
 	@Override
 	@Deprecated
@@ -35,7 +35,7 @@ public class CommunicationServiceImpl implements CommunicationService {
 		try {
 			result = restTemplate.postForObject(endpoint, data, String.class);
 		} catch (RestClientException e) {
-			logger.error(e);
+			logger.error("Error while making a request", e);
 			return null;
 		}
 		return result;
@@ -50,7 +50,7 @@ public class CommunicationServiceImpl implements CommunicationService {
 		try {
 			result = restTemplate.postForObject(endpoint, data, String.class);
 		} catch (RestClientException e) {
-			logger.error(e);
+			logger.error("Error while making a request", e);
 			return null;
 		}
 		return result;
@@ -64,7 +64,7 @@ public class CommunicationServiceImpl implements CommunicationService {
 		try {
 			result = restTemplate.postForObject(endpoint, data, String.class);
 		} catch (RestClientException e) {
-			logger.error(e);
+			logger.error("Error while making a request", e);
 			return null;
 		}
 		return result;
@@ -83,7 +83,7 @@ public class CommunicationServiceImpl implements CommunicationService {
 		try {
 			result = restTemplate.exchange(endpoint, HttpMethod.POST, entity, String.class);
 		} catch (RestClientException e) {
-			logger.error(e);
+			logger.error("Error while making a request", e);
 			return null;
 		}
 		return result.getBody();

@@ -11,11 +11,11 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.StringBody;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +49,7 @@ import it.eng.idsa.multipart.util.MultipartMessageKey;
 @Service
 @Transactional
 public class MultipartMessageServiceImpl implements MultipartMessageService {
-	private static final Logger logger = LogManager.getLogger(MultipartMessageServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(MultipartMessageServiceImpl.class);
 
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
@@ -72,7 +72,7 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 		try {
 			message = new Serializer().deserialize(header, Message.class);
 		} catch (IOException e) {
-			logger.error(e);
+			logger.error("Error while deserializing message", e);
 		}
 		return message;
 	}
@@ -90,7 +90,7 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 			jsonObject.put("ids:securityToken", jsonObjectToken);
 			output = serializeMessage(jsonObject);
 		} catch (ParseException | IOException e) {
-			logger.error(e);
+			logger.error("Error while adding token to message", e);
 		}
 		return output;
 	}
@@ -105,7 +105,7 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 			jsonObject.remove("ids:securityToken");
 			output = serializeMessage(jsonObject);
 		} catch (IOException | ParseException e) {
-			logger.error(e);
+			logger.error("Error while removing token to message", e);
 		}
 		return output;
 	}
@@ -116,7 +116,7 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 		try {
 			message = new Serializer().deserialize(String.valueOf(header), Message.class);
 		} catch (IOException e) {
-			logger.error(e);
+			logger.error("Error while deserializiing  message", e);
 		}
 		return message;
 
@@ -163,7 +163,7 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 			}
 
 		} catch (Exception e) {
-			logger.error(e);
+			logger.error("Error while creating multipart entity", e);
 		}
 		return multipartEntityBuilder.build();
 	}
@@ -189,7 +189,7 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 				}
 			}
 		} catch (IOException | ParseException e) {
-			logger.error(e);
+			logger.error("Error while getting token from message", e);
 		}
 		return token;
 	}

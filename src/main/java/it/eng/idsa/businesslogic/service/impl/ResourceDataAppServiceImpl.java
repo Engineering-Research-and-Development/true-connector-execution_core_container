@@ -2,8 +2,8 @@ package it.eng.idsa.businesslogic.service.impl;
 
 import java.io.IOException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ import it.eng.idsa.businesslogic.service.ResourceDataAppService;
 @Service
 public class ResourceDataAppServiceImpl implements ResourceDataAppService {
 	
-	private static final Logger logger = LogManager.getLogger(ResourceDataAppService.class);
+	private static final Logger logger = LoggerFactory.getLogger(ResourceDataAppService.class);
 	
 	private CommunicationService communicationService;
 	private String dataAppUrl;
@@ -54,7 +54,7 @@ public class ResourceDataAppServiceImpl implements ResourceDataAppService {
 		try {
 			obj = new Serializer().deserialize(resourceString, clazz);
 		} catch (IOException e) {
-			logger.error(e);
+			logger.error("Exception while serializing resource", e);
 		}
 		return (T) obj;
 	}
