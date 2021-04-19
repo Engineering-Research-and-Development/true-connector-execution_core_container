@@ -22,7 +22,6 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<start-class>it.eng.idsa.businesslogic.Application</start-class>
 		<camel.version>3.7.0</camel.version>
-		<camel.version.rc>3.0.0-RC3</camel.version.rc>
 		<tomcat.version>9.0.24</tomcat.version>
 		<information.model.version>4.0.0</information.model.version>
 		<application.basedir>${basedir}</application.basedir>
@@ -168,11 +167,6 @@
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-jms</artifactId>
 			<version>${camel.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-activemq</artifactId>
-			<version>${camel.version.rc}</version>
 		</dependency>
 
 		<!-- IDSCP -->
