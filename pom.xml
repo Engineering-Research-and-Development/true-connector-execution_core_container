@@ -405,7 +405,7 @@
 				<excludes>
 					<exclude>ssl-server.jks</exclude>
 					<exclude>logback.xml</exclude>
-					<exclude>*.properties</exclude>
+<!-- 					<exclude>*.properties</exclude> -->
 				</excludes>
 			</resource>
 		</resources>
