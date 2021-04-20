@@ -297,7 +297,6 @@
 		</dependency>
 
 		<!-- Usage Control -->
-
 		<dependency>
 			<groupId>de.fraunhofer.dataspaces.iese</groupId>
 			<artifactId>camel-interceptor-ucapp</artifactId>
@@ -305,6 +304,11 @@
 		</dependency>
 		<!-- Usage Control -->
 
+		<dependency>
+            <artifactId>logback-classic</artifactId>
+            <groupId>ch.qos.logback</groupId>
+ 		</dependency>
+ 
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
