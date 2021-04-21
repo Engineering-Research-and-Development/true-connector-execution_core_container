@@ -1,13 +1,9 @@
 package it.eng.idsa.businesslogic.processor.common;
 
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-
+import static org.mockito.Mockito.when;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -25,7 +21,6 @@ import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 public class ContractAgreementProcessorTest {
 	
@@ -101,19 +96,5 @@ public class ContractAgreementProcessorTest {
 		processor.process(exchange);
 		
 		verify(communicationService, times(0)).sendDataAsJson(ucDataAppAddPolicyEndpoint, multipartMessage.getPayloadContent());
-	}
-	
-	@Test
-	public void contractAgreement() {
-		System.out.println(getMessageAsString(TestUtilMessageService.createContractAgreement()));
-	}
-	
-	private String getMessageAsString(Object message) {
-		try {
-			return MultipartMessageProcessor.serializeToJsonLD(message);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
 	}
 }
