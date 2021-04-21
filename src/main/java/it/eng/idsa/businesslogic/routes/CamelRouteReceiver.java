@@ -112,7 +112,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 			.process(sendDataToBusinessLogicProcessor);
 		
 		// Camel SSL - Endpoint: B communication http
-		if(!isEnabledDataAppWebSocket && !isEnabledWebSocket) {
+		if(!isEnabledWebSocket) {
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/data")
 				.routeId("data")
 				.process(connectorRequestProcessor)
@@ -135,8 +135,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 				.removeHeaders("Camel*");
 		} 
 		
-		if (isEnabledDataAppWebSocket && isEnabledWebSocket) {
-			
+		if (isEnabledWebSocket) {
 			// End point B. ECC communication (Web Socket)
 			from("timer://timerEndpointB?repeatCount=-1") //EndPoint B
 				.routeId("WSS")

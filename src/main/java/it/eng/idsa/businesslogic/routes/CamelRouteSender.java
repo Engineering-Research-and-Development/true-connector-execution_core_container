@@ -264,7 +264,7 @@ public class CamelRouteSender extends RouteBuilder {
 				.process(sendResponseToDataAppProcessor);	                	
     	    }
 		
-		if(!isEnabledIdscp2 && !receiver && isEnabledDataAppWebSocket && isEnabledWebSocket) {
+		if(!isEnabledIdscp2 && !receiver && isEnabledDataAppWebSocket) {
 			// End point A. Communication between Data App and ECC Sender.
 			//fixedRate=true&period=10s
 			from("timer://timerEndpointA?repeatCount=-1") //EndPoint A
