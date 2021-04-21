@@ -11,8 +11,8 @@ import javax.annotation.PostConstruct;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,13 +29,13 @@ import de.fraunhofer.iais.eis.Resource;
 import de.fraunhofer.iais.eis.ResourceCatalog;
 import de.fraunhofer.iais.eis.ResourceCatalogBuilder;
 import de.fraunhofer.iais.eis.SecurityProfile;
-import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import de.fraunhofer.iais.eis.util.TypedLiteral;
 import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.service.ResourceDataAppService;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 /**
  * @author Antonio Scatoloni and Gabriele De Luca
@@ -44,7 +44,7 @@ import it.eng.idsa.businesslogic.service.SelfDescriptionService;
 @Service
 public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	
-	private static final Logger logger = LogManager.getLogger(SelfDescriptionServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(SelfDescriptionServiceImpl.class);
 	
 	private SelfDescriptionConfiguration selfDescriptionConfiguration;
 	private Connector connector;
@@ -87,12 +87,11 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 
 	@Override
 	public String getConnectorSelfDescription() {
-		final Serializer serializer = new Serializer();
 		String result = null;
 		try {
-			result = serializer.serialize(this.connector);
+			result = MultipartMessageProcessor.serializeToJsonLD(this.connector);
 		} catch (IOException e) {
-			logger.error(e);
+			logger.error("Error while serializing", e);
 		}
 		return result;
 	}

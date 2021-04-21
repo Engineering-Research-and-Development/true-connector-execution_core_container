@@ -15,8 +15,8 @@ import java.util.regex.Pattern;
 
 import javax.security.auth.x500.X500Principal;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -26,7 +26,7 @@ import org.apache.logging.log4j.Logger;
 
 public final class PemReader {
 
-	private static final Logger logger = LogManager.getLogger(PemReader.class);
+	private static final Logger logger = LoggerFactory.getLogger(PemReader.class);
 
 	private static final Pattern certPattern = Pattern.compile(
 			"-+BEGIN\\s+.*CERTIFICATE[^-]*-+(?:\\s|\\r|\\n)+([a-z0-9+/=\\r\\n]+)-+END\\s+.*CERTIFICATE[^-]*-+", 2);

@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -38,7 +38,7 @@ import okhttp3.Response;
 @Transactional
 public class DapsServiceImpl implements DapsService {
 
-	private static final Logger logger = LogManager.getLogger(DapsServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(DapsServiceImpl.class);
 
 	private String token = null;
 	
@@ -87,7 +87,7 @@ public class DapsServiceImpl implements DapsService {
             }
 
 		} catch (IOException  e) {
-			logger.error(e);
+			logger.error("Error while making a request to fetch token", e);
 			return null;
 		} finally {
 			if (responseDaps != null) {

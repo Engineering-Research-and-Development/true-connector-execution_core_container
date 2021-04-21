@@ -2,9 +2,9 @@ package it.eng.idsa.businesslogic.processor.receiver.websocket.server;
 
 import java.nio.charset.StandardCharsets;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.websocket.api.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 
@@ -14,7 +14,7 @@ import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
  * @author Antonio Scatoloni
  */
 public class HttpWebSocketMessagingLogicB {
-    private static final Logger logger = LogManager.getLogger(HttpWebSocketMessagingLogicB.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpWebSocketMessagingLogicB.class);
 
     private WebSocketServerConfiguration webSocketServerConfiguration;
     private static HttpWebSocketMessagingLogicB instance;
@@ -44,7 +44,7 @@ public class HttpWebSocketMessagingLogicB {
                 Thread fileRecreatorBeanThread = new Thread(responseMessageSendPartialServer, "ResponseMessageSendPartialServer");
                 fileRecreatorBeanThread.start();
             }
-//           logger.debug(HttpWebSocketMessagingLogicB.class.getSimpleName() +" DATA RECEIVED FROM SOCKET -> " + receivedMessage);
+           logger.debug("DATA RECEIVED FROM SOCKET -> " + receivedMessage);
 
        }
     }

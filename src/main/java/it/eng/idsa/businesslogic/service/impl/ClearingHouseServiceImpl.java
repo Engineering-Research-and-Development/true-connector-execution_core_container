@@ -9,11 +9,10 @@ import java.util.GregorianCalendar;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-//import org.apache.camel.util.json.Jsoner;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -42,7 +41,7 @@ import it.eng.idsa.clearinghouse.model.NotificationContent;
 @Service
 @Transactional
 public class ClearingHouseServiceImpl implements ClearingHouseService {
-	private static final Logger logger = LogManager.getLogger(ClearingHouseServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(ClearingHouseServiceImpl.class);
 
 	@Autowired
 	private ApplicationConfiguration configuration;

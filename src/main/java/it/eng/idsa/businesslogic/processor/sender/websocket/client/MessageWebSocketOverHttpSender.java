@@ -14,13 +14,13 @@ import javax.net.ssl.X509TrustManager;
 import javax.validation.constraints.NotNull;
 
 import org.apache.http.ParseException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.asynchttpclient.SslEngineFactory;
 import org.asynchttpclient.netty.ssl.JsseSslEngineFactory;
 import org.asynchttpclient.ws.WebSocket;
 import org.asynchttpclient.ws.WebSocketUpgradeHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +39,7 @@ import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 @Component
 public class MessageWebSocketOverHttpSender {
-    private static final Logger logger = LogManager.getLogger(MessageWebSocketOverHttpSender.class);
+    private static final Logger logger = LoggerFactory.getLogger(MessageWebSocketOverHttpSender.class);
 
     @Autowired
     private WebSocketClientConfiguration webSocketClientConfiguration;

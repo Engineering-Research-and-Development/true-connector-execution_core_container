@@ -2,8 +2,8 @@ package it.eng.idsa.businesslogic.routes;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.common.ContractAgreementProcessor;
 import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
+import it.eng.idsa.businesslogic.processor.common.MapIDSCP2toMultipart;
 import it.eng.idsa.businesslogic.processor.common.MapMultipartToIDSCP2;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
-import it.eng.idsa.businesslogic.processor.common.MapIDSCP2toMultipart;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
@@ -42,7 +42,7 @@ import it.eng.idsa.businesslogic.processor.sender.registration.SenderCreateUpdat
 @Component
 public class CamelRouteSender extends RouteBuilder {
 
-	private static final Logger logger = LogManager.getLogger(CamelRouteSender.class);
+	private static final Logger logger = LoggerFactory.getLogger(CamelRouteSender.class);
 
 	@Autowired
 	private ApplicationConfiguration configuration;
@@ -264,7 +264,7 @@ public class CamelRouteSender extends RouteBuilder {
 				.process(sendResponseToDataAppProcessor);	                	
     	    }
 		
-		if(!isEnabledIdscp2 && !receiver && isEnabledDataAppWebSocket && isEnabledWebSocket) {
+		if(!isEnabledIdscp2 && !receiver && isEnabledDataAppWebSocket) {
 			// End point A. Communication between Data App and ECC Sender.
 			//fixedRate=true&period=10s
 			from("timer://timerEndpointA?repeatCount=-1") //EndPoint A

@@ -8,10 +8,9 @@ import javax.activation.DataHandler;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -36,7 +35,7 @@ import it.eng.idsa.multipart.util.MultipartMessageKey;
 @Component
 public class ReceiverMultiPartMessageProcessor implements Processor {
 
-	private static final Logger logger = LogManager.getLogger(ReceiverMultiPartMessageProcessor.class);
+	private static final Logger logger = LoggerFactory.getLogger(ReceiverMultiPartMessageProcessor.class);
 
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledDataAppWebSocket;
@@ -89,7 +88,7 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 
-			if (StringUtils.isBlank(MessagePart.HEADER)) {
+			if (headersParts.get(MessagePart.HEADER) == null) {
 				logger.error("Multipart message header is null");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
@@ -105,7 +104,7 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 					DataHandler dtHeader = (DataHandler) headersParts.get(MessagePart.HEADER);
 					header = IOUtils.toString(dtHeader.getInputStream(), StandardCharsets.UTF_8);
 				}
-				if(StringUtils.isNotBlank(MessagePart.PAYLOAD)) {
+				if(headersParts.get(MessagePart.PAYLOAD) != null) {
 					payload = headersParts.get(MessagePart.PAYLOAD).toString();
 				}
 

@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -48,7 +48,7 @@ import okhttp3.ResponseBody;
 @Transactional
 public class DapsOrbiterServiceImpl implements DapsService {
 
-	private static final Logger logger = LogManager.getLogger(DapsOrbiterServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(DapsOrbiterServiceImpl.class);
 	public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
 	private String token = null;
@@ -190,7 +190,7 @@ public class DapsOrbiterServiceImpl implements DapsService {
 				logger.info("Token was not validated correct");
 			}
 		} catch (Exception e) {
-			logger.error(e);
+			logger.error("Error while validating token", e);
 		} finally {
 			if (jwtResponse != null) {
 				jwtResponse.close();

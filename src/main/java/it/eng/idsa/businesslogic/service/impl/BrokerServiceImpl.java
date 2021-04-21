@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ import okhttp3.Response;
 @Service
 public class BrokerServiceImpl implements BrokerService {
 	
-	private static final Logger logger = LogManager.getLogger(BrokerServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(BrokerServiceImpl.class);
 	
 	@Autowired
 	private SendDataToBusinessLogicService sendDataToBusinessLogicService;

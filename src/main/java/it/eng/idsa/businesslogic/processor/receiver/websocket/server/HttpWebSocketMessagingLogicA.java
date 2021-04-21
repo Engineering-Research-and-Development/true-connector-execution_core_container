@@ -1,11 +1,12 @@
 package it.eng.idsa.businesslogic.processor.receiver.websocket.server;
 
-import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.websocket.api.Session;
-
 import java.nio.charset.StandardCharsets;
+
+import org.eclipse.jetty.websocket.api.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 
 /**
  * HttpWebSocketMessagingLogic will be responsible for parsing received data
@@ -13,7 +14,7 @@ import java.nio.charset.StandardCharsets;
  * @author Antonio Scatoloni
  */
 public class HttpWebSocketMessagingLogicA {
-    private static final Logger logger = LogManager.getLogger(HttpWebSocketMessagingLogicA.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpWebSocketMessagingLogicA.class);
     private static final String FORWARD_TO_HEADER = "Forward-To:";
 
     private WebSocketServerConfiguration webSocketServerConfiguration;
@@ -49,7 +50,7 @@ public class HttpWebSocketMessagingLogicA {
                 Thread fileRecreatorBeanThread = new Thread(responseMessageSendPartialServer, "ResponseMessageSendPartialServer");
                 fileRecreatorBeanThread.start();
             }
-//           logger.debug(HttpWebSocketMessagingLogicA.class.getSimpleName() +" DATA RECEIVED FROM SOCKET -> " + receivedMessage);
+           logger.debug("DATA RECEIVED FROM SOCKET -> " + receivedMessage);
 
        }
     }

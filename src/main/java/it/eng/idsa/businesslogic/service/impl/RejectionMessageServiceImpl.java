@@ -4,8 +4,8 @@ import static de.fraunhofer.iais.eis.util.Util.asList;
 
 import java.net.URI;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +32,7 @@ import it.eng.idsa.multipart.util.DateUtil;
 @Transactional
 public class RejectionMessageServiceImpl implements RejectionMessageService{
 	
-	private static final Logger logger = LogManager.getLogger(RejectionMessageServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(RejectionMessageServiceImpl.class);
 
 	@Value("${information.model.version}")
 	private String informationModelVersion;

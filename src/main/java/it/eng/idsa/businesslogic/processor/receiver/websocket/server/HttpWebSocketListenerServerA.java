@@ -2,17 +2,17 @@ package it.eng.idsa.businesslogic.processor.receiver.websocket.server;
 
 import java.nio.ByteBuffer;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketPartialListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Example MessagingListenerServer using PartialListener.
  * @author Antonio Scatoloni
  */
 public class HttpWebSocketListenerServerA implements WebSocketPartialListener {
-    private static final Logger logger = LogManager.getLogger(HttpWebSocketListenerServerA.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpWebSocketListenerServerA.class);
     private Session session;
 
     @Override
@@ -27,7 +27,7 @@ public class HttpWebSocketListenerServerA implements WebSocketPartialListener {
 
     @Override
     public void onWebSocketError(Throwable cause) {
-        logger.error(cause);
+        logger.error("Websocket error", cause);
     }
 
     @Override
