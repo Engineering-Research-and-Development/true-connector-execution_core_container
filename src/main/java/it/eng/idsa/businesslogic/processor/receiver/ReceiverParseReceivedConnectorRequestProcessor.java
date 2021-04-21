@@ -9,7 +9,6 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.support.MessageHelper;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,7 +107,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 
-			if (StringUtils.isBlank(MessagePart.HEADER)) {
+			if (headersParts.get(MessagePart.HEADER) == null) {
 				logger.error("Multipart message header is null");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
@@ -126,7 +125,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 				}
 				
 				message = multipartMessageService.getMessage(header);
-				if(StringUtils.isNotBlank(MessagePart.PAYLOAD)) {
+				if(headersParts.get(MessagePart.PAYLOAD) != null) {
 					payload = headersParts.get(MessagePart.PAYLOAD).toString();
 				}
 				

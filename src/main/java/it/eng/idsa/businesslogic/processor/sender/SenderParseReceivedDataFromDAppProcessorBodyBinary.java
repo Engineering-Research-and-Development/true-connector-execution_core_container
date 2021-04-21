@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +59,7 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 			// Create multipart message parts
 			header = receivedDataHeader.get(MessagePart.HEADER).toString();
 			multipartMessageParts.put(MessagePart.HEADER, header);
-			if(StringUtils.isNotBlank(MessagePart.PAYLOAD)) {
+			if(receivedDataHeader.get(MessagePart.PAYLOAD) != null) {
 				multipartMessageParts.put(MessagePart.PAYLOAD, receivedDataHeader.get(MessagePart.PAYLOAD).toString());
 			}
 			message = multipartMessageService.getMessage(multipartMessageParts.get(MessagePart.HEADER));
