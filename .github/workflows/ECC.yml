@@ -1,0 +1,33 @@
+name: ECC
+
+on:
+  push:
+    branches: [ master, travis_to_github_actions]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      
+      - name: Git Checkout
+      - uses: actions/checkout@v2
+      
+      - name: Run Install
+        run: ./travis/install.sh
+              
+      - name: Check docker containers
+        run: docker ps -a
+             sleep 60   
+
+      - name: Run test
+        run: ./travis/test.sh
