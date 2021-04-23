@@ -2,7 +2,7 @@ name: ECC
 
 on:
   push:
-    branches: [ master, travis_to_github_actions]
+    branches: [ master, travis_to_GitHubActions]
   pull_request:
     branches: [ master ]
 
