@@ -2,9 +2,9 @@ name: ECC
 
 on:
   push:
-    branches: [ master, travis_to_GitHubActions]
-  pull_request:
-    branches: [ master ]
+    branches: [ travis_to_GitHubActions]
+  #pull_request:
+  #  branches: [ master ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -22,12 +22,12 @@ jobs:
       - name: Git Checkout
       - uses: actions/checkout@v2
       
-      - name: Run Install
-        run: ./travis/install.sh
+      #- name: Run Install
+       # run: ./travis/install.sh
               
       - name: Check docker containers
         run: docker ps -a
              sleep 60   
 
-      - name: Run test
-        run: ./travis/test.sh
+      #- name: Run test
+        #run: ./travis/test.sh
