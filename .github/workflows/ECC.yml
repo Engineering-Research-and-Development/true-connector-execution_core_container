@@ -27,7 +27,7 @@ jobs:
               
       - name: Check docker containers
         run: docker ps -a
-             sleep 60   
+             #sleep 60   
 
       #- name: Run test
         #run: ./travis/test.sh
