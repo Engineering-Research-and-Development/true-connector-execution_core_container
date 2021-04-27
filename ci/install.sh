@@ -17,7 +17,8 @@ fi
 
 echo "Installing Newman CLI..."
 npm install -g newman@5.2.2
-sudo chown -R $USER $HOME
+sudo chown -R $USER /usr/local/lib/node_modules/newman
+sudo chown -R $USER /usr/local/lib/node_modules
 newman --version
 echo "Newman installed, READY TO TEST..."
 
@@ -48,9 +49,7 @@ echo "Installed websocket-message-streamer-lib"
 echo "Cloning and Creating Docker Container from Data-App repo..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-data_app_test_BE.git
 cd market4.0-data_app_test_BE
-###
-#git checkout ${BRANCH_DATA_APP}
-git checkout master
+git checkout ${BRANCH_DATA_APP}
 mvn clean package -DskipTests
 docker build -f Dockerfile -t rdlabengpa/data-app .
 cd ..
@@ -68,4 +67,4 @@ mvn clean package -DskipTests
 docker build -f Dockerfile -t rdlabengpa/execution_core_container_bl .
 
 echo "Starting services..."
-#docker-compose -f ci/docker/docker-compose-${NET}-${NETE}.yaml up -d
+docker-compose -f ci/docker/docker-compose-${NET}-${NETE}.yaml up -d
