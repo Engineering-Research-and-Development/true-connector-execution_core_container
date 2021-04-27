@@ -16,9 +16,7 @@ if [ "$1" != "" ]; then
 fi
 
 echo "Installing Newman CLI..."
-npm install -g newman@5.2.2
-sudo chown -R $USER /usr/local/lib/node_modules/newman
-sudo chown -R $USER /usr/local/lib/node_modules
+sudo npm install -g newman@5.2.2
 newman --version
 echo "Newman installed, READY TO TEST..."
 
