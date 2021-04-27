@@ -23,7 +23,9 @@ jobs:
         uses: actions/checkout@v2
       
       - name: Run Install
-        run: ./travis/install.sh
+        run: ./ci/install.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               
       - name: Check docker containers
         run: docker ps -a
