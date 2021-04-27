@@ -26,6 +26,8 @@ jobs:
         run: ./ci/install.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NET: HTTPS
+          NETE: HTTPS
               
       - name: Check docker containers
         run: docker ps -a

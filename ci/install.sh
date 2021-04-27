@@ -17,14 +17,13 @@ fi
 
 echo "Installing Newman CLI..."
 npm install -g newman@5.2.2
+sudo chown -R $USER $HOME
 newman --version
 echo "Newman installed, READY TO TEST..."
 
 echo "Downloading and Installing docker-compose..."
 sudo rm /usr/local/bin/docker-compose
-###
-#curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
-curl -L https://github.com/docker/compose/releases/download/2.2/docker-compose-`uname -s`-`uname -m` > docker-compose
+curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
 chmod +x docker-compose
 sudo mv docker-compose /usr/local/bin
 echo "docker-compose correctly installed"
@@ -69,4 +68,4 @@ mvn clean package -DskipTests
 docker build -f Dockerfile -t rdlabengpa/execution_core_container_bl .
 
 echo "Starting services..."
-docker-compose -f ci/docker/docker-compose-${NET}-${NETE}.yaml up -d
+#docker-compose -f ci/docker/docker-compose-${NET}-${NETE}.yaml up -d
