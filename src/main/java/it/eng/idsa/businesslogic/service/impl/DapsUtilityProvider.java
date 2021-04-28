@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 
 import com.auth0.jwk.Jwk;
@@ -34,8 +35,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-
 @Service
+@ConditionalOnExpression("!'${application.dapsVersion}'.equals('orbiter')")
 public class DapsUtilityProvider {
     private static final Logger logger = LoggerFactory.getLogger(DapsUtilityProvider.class);
 
@@ -63,7 +64,7 @@ public class DapsUtilityProvider {
     
     public String getDapsV1Jws() {
     	
-    	
+    	logger.debug("V1");
     	// create signed JWT (JWS)
 		// Create expiry date one day (86400 seconds) from now
 		Date expiryDate = Date.from(Instant.now().plusSeconds(86400));
@@ -100,6 +101,8 @@ public class DapsUtilityProvider {
     }
     
 	public String getDapsV2Jws() {
+    	logger.debug("V2");
+
 		String connectorUUID = getConnectorUUID();
 		// create signed JWT (JWS)
 		// Create expiry date one day (86400 seconds) from now
