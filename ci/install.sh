@@ -28,9 +28,10 @@ sudo mv docker-compose /usr/local/bin
 echo "docker-compose correctly installed"
 
 mkdir -p  $HOME/.m2/repository/de/fraunhofer/aisec
-mkdir -p  $HOME/.m2/repository/de/fraunhofer/iese
+mkdir -p  $HOME/.m2/repository/de/fraunhofer/dataspaces
 cp -rf ./ci/.m2/repository/de/fraunhofer/aisec/ids  $HOME/.m2/repository/de/fraunhofer/aisec
-cp -rf ./ci/.m2/repository/de/fraunhofer/iese/ids  $HOME/.m2/repository/de/fraunhofer/iese
+cp -rf ./ci/.m2/repository/de/fraunhofer/dataspaces/iese  $HOME/.m2/repository/de/fraunhofer/dataspaces
+
 
 echo "Installing Multipart Message Lib..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-ids_multipart_message_processor
