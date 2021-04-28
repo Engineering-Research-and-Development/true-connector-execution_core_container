@@ -1,0 +1,5 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Mon Mar 02 09:57:53 CET 2020
+sdk-4.0.0-ids-v2-SNAPSHOT.pom>=
+sdk-4.0.0-ids-v2-SNAPSHOT.jar>=
+sdk-4.0.0-ids-v2-SNAPSHOT-javadoc.jar>=

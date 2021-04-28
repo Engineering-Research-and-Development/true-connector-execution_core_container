@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>de.fraunhofer.iese.mydata</groupId>
+  <artifactId>sdk.spring</artifactId>
+  <version>4.0.0-ids-v2-SNAPSHOT</version>
+  <versioning>
+    <snapshot>
+      <localCopy>true</localCopy>
+    </snapshot>
+    <lastUpdated>20200302085803</lastUpdated>
+    <snapshotVersions>
+      <snapshotVersion>
+        <classifier>javadoc</classifier>
+        <extension>jar</extension>
+        <value>4.0.0-ids-v2-SNAPSHOT</value>
+        <updated>20200302085803</updated>
+      </snapshotVersion>
+      <snapshotVersion>
+        <extension>jar</extension>
+        <value>4.0.0-ids-v2-SNAPSHOT</value>
+        <updated>20200302085803</updated>
+      </snapshotVersion>
+      <snapshotVersion>
+        <extension>pom</extension>
+        <value>4.0.0-ids-v2-SNAPSHOT</value>
+        <updated>20200302085803</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+  </versioning>
+</metadata>

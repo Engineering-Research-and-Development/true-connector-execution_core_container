@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>de.fraunhofer.iese.mydata</groupId>
+  <artifactId>sdk.spring</artifactId>
+  <versioning>
+    <versions>
+      <version>4.0.0-ids-v2-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20200302085803</lastUpdated>
+  </versioning>
+</metadata>
