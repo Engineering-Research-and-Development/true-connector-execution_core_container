@@ -47,25 +47,25 @@ mvn clean install
 cd ..
 echo "Installed websocket-message-streamer-lib"
 
-echo "Cloning and Creating Docker Container from Data-App repo..."
-git clone https://github.com/Engineering-Research-and-Development/market4.0-data_app_test_BE.git
-cd market4.0-data_app_test_BE
-git checkout ${BRANCH_DATA_APP}
-mvn clean package
-docker build -f Dockerfile -t rdlabengpa/data-app .
-cd ..
-echo "Data-App is ready to start"
+#echo "Cloning and Creating Docker Container from Data-App repo..."
+#git clone https://github.com/Engineering-Research-and-Development/market4.0-data_app_test_BE.git
+#cd market4.0-data_app_test_BE
+#git checkout ${BRANCH_DATA_APP}
+#mvn clean package
+#docker build -f Dockerfile -t rdlabengpa/data-app .
+#cd ..
+#echo "Data-App is ready to start"
 
 echo "Downloading and installing Clearing-House Model..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-clearing_house.git
 cd market4.0-clearing_house
-mvn install
+mvn install -DskipTests
 cd ..
 echo "Clearing-House Model installed!"
 
 echo "Creating Docker Container for ECCs..."
-mvn clean package
+mvn clean package -DskipTests
 docker build -f Dockerfile -t rdlabengpa/execution_core_container_bl .
 
 echo "Starting services..."
-docker-compose -f ci/docker/docker-compose-${NET}-${NETE}.yaml up -d
+docker-compose -f ci/docker/docker-compose-${NET}-${NETE}.yml up -d
