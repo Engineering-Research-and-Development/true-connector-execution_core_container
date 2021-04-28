@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DOCKER_COMPOSE_VERSION=2.2
+DOCKER_COMPOSE_VERSION=1.26.2
 
 mkdir $HOME/hash
 mkdir $HOME/cert
@@ -22,8 +22,10 @@ echo "Newman installed, READY TO TEST..."
 
 echo "Downloading and Installing docker-compose..."
 sudo rm /usr/local/bin/docker-compose
-curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
-chmod +x docker-compose
+sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+echo "docker-compose -version:"
+sudo docker–compose –version
 sudo mv docker-compose /usr/local/bin
 echo "docker-compose correctly installed"
 
