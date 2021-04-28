@@ -25,13 +25,17 @@ jobs:
       - name: Run Install
         run: ./ci/install.sh
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{secrets.GH_TOKEN}}
           NET: HTTPS
           NETE: HTTPSE
+          DAPS: false
+          CH: false
+          KEYSTORE_PASSWORD: ${{secrets.KEYSTORE_PASSWORD}}
+          SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
               
       - name: Check docker containers
         run: docker ps -a
              #sleep 60   
 
       #- name: Run test
-        #run: ./travis/test.sh
+        #run: ./ci/test.sh
