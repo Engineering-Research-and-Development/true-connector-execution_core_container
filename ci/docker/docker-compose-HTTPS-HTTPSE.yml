@@ -34,8 +34,8 @@ services:
        - TRUSTORE_PASSWORD=${TRUSTORE_PASSWORD}
        - TZ=Europe/Rome                
     volumes:
-      - ./ecc_resources_provider:/config
-      - ./ecc_cert:/cert
+      - /home/src/main/resources:/config
+      - /home/ci/cert:/cert
     extra_hosts:
       - "ecc-consumer:172.17.0.1"
 
@@ -64,7 +64,7 @@ services:
     volumes:
       - ./be-dataapp_resources:/config
       - ./be-dataapp_data_receiver:/data
-      - ./ecc_cert:/cert
+      - /home/ci/cert:/cert
 
   ecc-consumer: 
     image: rdlabengpa/execution_core_container_bl:latest
@@ -100,8 +100,8 @@ services:
        - TRUSTORE_PASSWORD=${TRUSTORE_PASSWORD}
        - TZ=Europe/Rome                
     volumes:
-      - ./ecc_resources_consumer:/config
-      - ./ecc_cert:/cert
+      - /home/src/main/resources:/config
+      - /home/ci/cert:/cert
     extra_hosts:
       - "ecc-provider:172.17.0.1"
 
@@ -130,4 +130,4 @@ services:
     volumes:
       - ./be-dataapp_resources:/config
       - ./be-dataapp_data_sender:/data
-      - ./ecc_cert:/cert
+      - /home/ci/cert:/cert
