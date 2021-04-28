@@ -1,5 +1,0 @@
-#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
-#Mon Mar 02 09:58:03 CET 2020
-sdk.spring-4.0.0-ids-v2-SNAPSHOT.jar>=
-sdk.spring-4.0.0-ids-v2-SNAPSHOT-javadoc.jar>=
-sdk.spring-4.0.0-ids-v2-SNAPSHOT.pom>=
