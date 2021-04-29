@@ -64,5 +64,9 @@ echo "Creating Docker Container for ECCs..."
 mvn clean package -DskipTests
 docker build -f Dockerfile -t rdlabengpa/execution_core_container_bl .
 
-echo "Starting services..."
+echo "Starting services..."ù
+
+pwd
+ls
+
 sudo docker-compose up
