@@ -68,4 +68,9 @@ mvn clean package -DskipTests
 docker build -f Dockerfile -t rdlabengpa/execution_core_container_bl .
 
 echo "Starting services..."
-docker-compose -f ci/docker/docker-compose-${NET}-${NETE}.yml up -d
+pwd
+
+cd ci/docker/
+ls
+pwd
+sudo docker-compose docker-compose-${NET}-${NETE}.yml up
