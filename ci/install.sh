@@ -9,9 +9,6 @@ cp -f private-files-repo/*.jks $HOME/cert
 echo "Certificate from private repository downloaded"
 BRANCH_DATA_APP=master
 
-if [ "$1" != "" ]; then
-  BRANCH_DATA_APP=$1
-fi
 
 echo "Installing Newman CLI..."
 sudo npm install -g newman@5.2.2
@@ -23,6 +20,8 @@ sudo rm /usr/local/bin/docker-compose
 sudo curl -L "https://github.com/docker/compose/releases/download/1.29.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 echo "docker-compose correctly installed"
+
+sudo docker system prune --volumes
 
 mkdir -p  $HOME/.m2/repository/de/fraunhofer/aisec
 mkdir -p  $HOME/.m2/repository/de/fraunhofer/dataspaces
@@ -66,5 +65,6 @@ docker build -f Dockerfile -t rdlabengpa/execution_core_container_bl .
 
 echo "Starting services..."
 cd ci/docker
+ls
 
 sudo docker-compose up
