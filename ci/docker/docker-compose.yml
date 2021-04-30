@@ -109,7 +109,7 @@ services:
        - ALIAS=${ALIAS}
        - TZ=Europe/Rome                
     ports:
-      - "8084:8083"
+      - "8085:8083"
       - "9001:9000"
     volumes:
       - ./be-dataapp_resources:/config
