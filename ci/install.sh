@@ -21,7 +21,7 @@ sudo curl -L "https://github.com/docker/compose/releases/download/1.29.1/docker-
 sudo chmod +x /usr/local/bin/docker-compose
 echo "docker-compose correctly installed"
 
-sudo docker system prune --volumes
+sudo docker system prune --volumes -f
 
 mkdir -p  $HOME/.m2/repository/de/fraunhofer/aisec
 mkdir -p  $HOME/.m2/repository/de/fraunhofer/dataspaces
