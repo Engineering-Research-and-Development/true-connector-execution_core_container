@@ -33,9 +33,13 @@ jobs:
           KEYSTORE_PASSWORD: ${{secrets.KEYSTORE_PASSWORD}}
           SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
               
-      - name: Check docker containers
-        run: docker ps -a
-             #sleep 60   
+      - name: Run docker container
+        run: docker-compose -f ./ci/docker/docker-compose.yml up
+        
+     #- name: Run test
+       #run: ./ci/test.sh
+        
+      - name: Stop docker container
+        run: docker-compose -f ./ci/docker/docker-compose.yml down
 
-      #- name: Run test
-        #run: ./ci/test.sh
+      
