@@ -44,14 +44,14 @@ mvn clean install
 cd ..
 echo "Installed websocket-message-streamer-lib"
 
-#echo "Cloning and Creating Docker Container from Data-App repo..."
-#git clone https://github.com/Engineering-Research-and-Development/market4.0-data_app_test_BE.git
-#cd market4.0-data_app_test_BE
-#git checkout ${BRANCH_DATA_APP}
-#mvn clean package
-#docker build -f Dockerfile -t rdlabengpa/data-app .
-#cd ..
-#echo "Data-App is ready to start"
+echo "Cloning and Creating Docker Container from Data-App repo..."
+git clone https://github.com/Engineering-Research-and-Development/market4.0-data_app_test_BE.git
+cd market4.0-data_app_test_BE
+git checkout ${BRANCH_DATA_APP}
+mvn clean package
+docker build -f Dockerfile -t rdlabengpa/data-app .
+cd ..
+echo "Data-App is ready to start"
 
 echo "Downloading and installing Clearing-House Model..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-clearing_house.git
