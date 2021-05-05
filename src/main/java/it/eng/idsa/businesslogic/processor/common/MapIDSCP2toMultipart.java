@@ -2,6 +2,8 @@ package it.eng.idsa.businesslogic.processor.common;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,11 +15,13 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
 @Component
 public class MapIDSCP2toMultipart implements Processor {
 
+	private static final Logger logger = LoggerFactory.getLogger(MapIDSCP2toMultipart.class);
 	@Autowired
 	private MultipartMessageService multipartMessageService;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
+		
 		Message msg = null;
 		
 			if(exchange.getMessage().getHeader("idscp2-header") instanceof String)
@@ -32,6 +36,8 @@ public class MapIDSCP2toMultipart implements Processor {
 											.withHeaderContent(msg)
 											.withPayloadContent(exchange.getMessage().getBody(String.class))
 											.build();
+		
+		logger.info("IDSCP2: ids message converted to multipart");
 
 		exchange.getMessage().setBody(multipartMessage);
 	}
