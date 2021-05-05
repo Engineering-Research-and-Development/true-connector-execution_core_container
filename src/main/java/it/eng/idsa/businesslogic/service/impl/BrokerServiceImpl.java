@@ -60,7 +60,7 @@ public class BrokerServiceImpl implements BrokerService {
 					.withPayloadContent(payload)
 					.build();
 			
-			try(Response response = sendDataToBusinessLogicService.sendMessageBinary(brokerURL, multipartMessage, headers, true)) {
+			try(Response response = sendDataToBusinessLogicService.sendMessageBinary(brokerURL, multipartMessage, headers)) {
 				if (response != null) {
 					String responseString = new String(response.body().string());
 					logger.info("Broker responded with {}", responseString);

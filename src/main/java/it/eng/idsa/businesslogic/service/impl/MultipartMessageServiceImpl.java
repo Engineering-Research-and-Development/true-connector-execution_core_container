@@ -96,21 +96,6 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 	}
 
 	@Override
-	public String removeToken(Message message) {
-		String output = null;
-		try {
-			String msgSerialized = serializeMessage(message);
-			JSONParser parser = new JSONParser();
-			JSONObject jsonObject = (JSONObject) parser.parse(msgSerialized);
-			jsonObject.remove("ids:securityToken");
-			output = serializeMessage(jsonObject);
-		} catch (IOException | ParseException e) {
-			logger.error("Error while removing token to message", e);
-		}
-		return output;
-	}
-
-	@Override
 	public Message getMessage(Object header) {
 		Message message = null;
 		try {
@@ -210,24 +195,10 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 	}
 
 	@Override
-	public MultipartMessage removeTokenFromMultipart(MultipartMessage messageWithToken) {
-		String messageWithoutToken = removeToken(messageWithToken.getHeaderContent());
-		return new MultipartMessageBuilder()
-				.withHttpHeader(messageWithToken.getHttpHeaders()).withHeaderHeader(messageWithToken.getHeaderHeader())
-				.withHeaderContent(messageWithoutToken).withPayloadHeader(messageWithToken.getPayloadHeader())
-				.withPayloadContent(messageWithToken.getPayloadContent()).withToken(messageWithToken.getToken())
-				.build();
-	}
-
-	@Override
 	public Message getMessageFromHeaderMap(Map<String, Object> headers) throws JsonProcessingException {
 		String json = null;
 		json = new ObjectMapper().writeValueAsString(headers);
 		return getMessage(json);
 	}
 
-	@Override
-	public Message removeTokenFromMessage(Message messageWithToken) {
-		return getMessage(removeToken(messageWithToken));
-	}
 }

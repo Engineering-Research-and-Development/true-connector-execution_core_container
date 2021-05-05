@@ -12,15 +12,14 @@ import okhttp3.Response;
 
 public interface SendDataToBusinessLogicService {
 
-	Response sendMessageBinary(String address, MultipartMessage message, Map<String, Object> httpHeaders,
-			boolean eccCommunication)
+	Response sendMessageBinary(String address, MultipartMessage message, Map<String, Object> httpHeaders)
 			throws UnsupportedEncodingException, JsonProcessingException;
 
 	Response sendMessageHttpHeader(String address, MultipartMessage multipartMessage,
-			Map<String, Object> headerParts, boolean eccCommunication) throws IOException;
+			Map<String, Object> headerParts) throws IOException;
 	
 	Response sendMessageFormData(String address, MultipartMessage message,
-			Map<String, Object> headerParts, boolean eccCommunication) throws UnsupportedEncodingException;
+			Map<String, Object> headerParts) throws UnsupportedEncodingException;
 
 	void checkResponse(Message message, Response response, String forwardTo);
 

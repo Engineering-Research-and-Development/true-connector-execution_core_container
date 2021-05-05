@@ -121,15 +121,15 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		// -- Send message using HTTPS
 			switch (eccHttpSendRouter) {
 			case "mixed": {
-				response = sendDataToBusinessLogicService.sendMessageBinary(forwardTo, multipartMessage, headerParts, true);
+				response = sendDataToBusinessLogicService.sendMessageBinary(forwardTo, multipartMessage, headerParts);
 				break;
 			}
 			case "form": {
-				response = sendDataToBusinessLogicService.sendMessageFormData(forwardTo, multipartMessage, headerParts, true);
+				response = sendDataToBusinessLogicService.sendMessageFormData(forwardTo, multipartMessage, headerParts);
 				break;
 			}
 			case "http-header": {
-				response = sendDataToBusinessLogicService.sendMessageHttpHeader(forwardTo, multipartMessage, headerParts, true);
+				response = sendDataToBusinessLogicService.sendMessageHttpHeader(forwardTo, multipartMessage, headerParts);
 				break;
 			}
 			default:

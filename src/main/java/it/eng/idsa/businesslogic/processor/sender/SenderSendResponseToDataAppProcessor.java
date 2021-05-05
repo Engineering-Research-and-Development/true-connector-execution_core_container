@@ -65,10 +65,6 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 		String responseString = null;
 		String contentType = null;
 
-		if (isEnabledDapsInteraction) {
-			// remove token before sending the response
-			multipartMessage = multipartMessageService.removeTokenFromMultipart(multipartMessage);
-		}
 		switch (openDataAppReceiverRouter) {
 		case "form":
 			httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());

@@ -1,7 +1,6 @@
 package it.eng.idsa.businesslogic.service.impl;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -81,22 +80,22 @@ public class BrokerServiceImplTest {
 
 		ResponseBody responseBody = RequestResponseUtil.createResponseBodyJsonUTF8(responseMessage);
 
-		when(sendDataToBusinessLogicService.sendMessageBinary(anyString(), any(MultipartMessage.class), anyMap(), anyBoolean()))
+		when(sendDataToBusinessLogicService.sendMessageBinary(anyString(), any(MultipartMessage.class), anyMap()))
 				.thenReturn(RequestResponseUtil.createResponse(request, responseMessage, responseBody, 200));
 
 		brokerServiceImpl.sendBrokerRequest(messageWithoutToken, payload);
 		
-		verify(sendDataToBusinessLogicService).sendMessageBinary(anyString(), any(MultipartMessage.class), anyMap(), anyBoolean());
+		verify(sendDataToBusinessLogicService).sendMessageBinary(anyString(), any(MultipartMessage.class), anyMap());
 	}
 
 	@Test
 	public void failedRequestTest() throws UnsupportedOperationException, IOException {
-		when(sendDataToBusinessLogicService.sendMessageBinary(anyString(), any(MultipartMessage.class), anyMap(), anyBoolean()))
+		when(sendDataToBusinessLogicService.sendMessageBinary(anyString(), any(MultipartMessage.class), anyMap()))
 				.thenThrow(new UnsupportedEncodingException("Something went wrong"));
 		
 		brokerServiceImpl.sendBrokerRequest(messageWithoutToken, payload);
 		
-		verify(sendDataToBusinessLogicService).sendMessageBinary(anyString(), any(MultipartMessage.class), anyMap(), anyBoolean());
+		verify(sendDataToBusinessLogicService).sendMessageBinary(anyString(), any(MultipartMessage.class), anyMap());
 	}
 
 }

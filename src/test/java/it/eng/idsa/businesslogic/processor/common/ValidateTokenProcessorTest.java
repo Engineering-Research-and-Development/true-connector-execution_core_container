@@ -22,7 +22,6 @@ import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.MockUtil;
@@ -38,8 +37,6 @@ public class ValidateTokenProcessorTest {
 
 	@Mock
 	private DapsService dapsService;
-	@Mock
-	private MultipartMessageService multipartMessageService;
 	@Mock
 	private DapsTokenProviderService dapsProvider;
 
@@ -81,12 +78,9 @@ public class ValidateTokenProcessorTest {
 		when(multipartMessage.getToken()).thenReturn(TOKEN);
 		when(dapsService.validateToken(TOKEN)).thenReturn(true);
 
-		when(multipartMessageService.removeTokenFromMultipart(multipartMessage)).thenReturn(multipartMessage);
-
 		processor.process(exchange);
 
 		verify(dapsService).validateToken(TOKEN);
-		verify(camelMessage).setHeaders(headers);
 		verify(camelMessage).setBody(any(MultipartMessage.class));
 	}
 

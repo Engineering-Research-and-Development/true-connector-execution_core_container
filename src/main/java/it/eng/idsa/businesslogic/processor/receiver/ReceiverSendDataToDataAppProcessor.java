@@ -89,17 +89,17 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		switch (openDataAppReceiverRouter) {
 			case "mixed": {
 				response = sendDataToBusinessLogicService.sendMessageBinary(configuration.getOpenDataAppReceiver(),
-						multipartMessage, headerParts, false);
+						multipartMessage, headerParts);
 				break;
 			}
 			case "form": {
 				response = sendDataToBusinessLogicService.sendMessageFormData(configuration.getOpenDataAppReceiver(),
-						multipartMessage, headerParts, false);
+						multipartMessage, headerParts);
 				break;
 			}
 			case "http-header": {
 				response = sendDataToBusinessLogicService.sendMessageHttpHeader(configuration.getOpenDataAppReceiver(),
-						multipartMessage, headerParts, false);
+						multipartMessage, headerParts);
 				break;
 			}
 			default: {

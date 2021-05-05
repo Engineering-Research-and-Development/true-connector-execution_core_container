@@ -50,7 +50,6 @@ public class SenderSendResponseToDataAppProcessorTest {
 	private org.apache.http.Header header;
 	
 	private MultipartMessage multipartMessage;
-	private MultipartMessage multipartMessageWithoutToken;
 
 	private Map<String, Object> headers = new HashMap<>();
 	
@@ -58,9 +57,6 @@ public class SenderSendResponseToDataAppProcessorTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		multipartMessage = new MultipartMessageBuilder()
-				.withHeaderContent(TestUtilMessageService.getArtifactRequestMessage())
-				.withPayloadContent(PAYLOAD).build();
-		multipartMessageWithoutToken = new MultipartMessageBuilder()
 				.withHeaderContent(TestUtilMessageService.getArtifactRequestMessage())
 				.withPayloadContent(PAYLOAD).build();
 	}
@@ -74,7 +70,6 @@ public class SenderSendResponseToDataAppProcessorTest {
 		
 		// need to do it with any(String) since json sting can have different ordering
 		verify(camelMessage).setBody(any(String.class));
-		verify(multipartMessageService, times(0)).removeTokenFromMultipart(multipartMessage);
 		verify(httpHeaderService).removeTokenHeaders(exchange.getMessage().getHeaders());
     	verify(httpHeaderService).removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
     	verify(headerCleaner).removeTechnicalHeaders(exchange.getMessage().getHeaders());
@@ -89,11 +84,8 @@ public class SenderSendResponseToDataAppProcessorTest {
 
 		mockExchangeHeaderAndBody();
 		
-		when(multipartMessageService.removeTokenFromMultipart(multipartMessage)).thenReturn(multipartMessageWithoutToken);
-		
 		processor.process(exchange);
 		
-		verify(multipartMessageService).removeTokenFromMultipart(multipartMessage);
 		verify(camelMessage).setBody(any(String.class));
 		verify(httpHeaderService).removeTokenHeaders(exchange.getMessage().getHeaders());
     	verify(httpHeaderService).removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());

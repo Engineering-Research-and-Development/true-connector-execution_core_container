@@ -15,14 +15,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.service.SenderClientService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
-import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import okhttp3.Headers;
 import okhttp3.RequestBody;
@@ -49,9 +47,6 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 	private RejectionMessageService rejectionMessageService;
 
 	@Autowired
-	private MultipartMessageService multipartMessageService;
-
-	@Autowired
 	private HttpHeaderService headerService;
 
 	@Autowired
@@ -62,22 +57,10 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 
 	@Override
 	public Response sendMessageBinary(String address, MultipartMessage multipartMessage,
-			Map<String, Object> headerParts, boolean eccCommunication)
+			Map<String, Object> headerParts)
 			throws UnsupportedEncodingException, JsonProcessingException {
 
 		logger.info("Forwarding Message: Body: binary");
-		MultipartMessage multiMessage;
-		if (!eccCommunication) {
-			// sending to DataApp, remove token from message
-			String header = multipartMessageService.removeToken(multipartMessage.getHeaderContent());
-			multiMessage = new MultipartMessageBuilder().withHttpHeader(multipartMessage.getHttpHeaders())
-					.withHeaderHeader(multipartMessage.getHeaderHeader()).withHeaderContent(header)
-					.withPayloadHeader(multipartMessage.getPayloadHeader())
-					.withPayloadContent(multipartMessage.getPayloadContent()).build();
-		} else {
-			multiMessage = multipartMessage;
-		}
-		
 		Headers headers;
 		if (isEnabledIdscp2) {
 			Map<String, Object> headesParts = new HashMap<String, Object>();
@@ -93,7 +76,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		} else {
 			payloadContentType = javax.ws.rs.core.MediaType.TEXT_PLAIN.toString();
 		}
-		RequestBody requestBody = okHttpClient.createMultipartMixRequest(multiMessage, payloadContentType);
+		RequestBody requestBody = okHttpClient.createMultipartMixRequest(multipartMessage, payloadContentType);
 		try {
 			return okHttpClient.sendMultipartMixRequest(address, headers, requestBody);
 		} catch (IOException e) {
@@ -104,16 +87,16 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 
 	@Override
 	public Response sendMessageHttpHeader(String address, MultipartMessage multipartMessage,
-			Map<String, Object> headerParts, boolean eccCommunication) throws IOException {
+			Map<String, Object> headerParts) throws IOException {
 		logger.info("Forwarding Message: http-header");
 
 		if (!RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
 			// DataApp endpoint not http-header, must convert message to http headers
 			headerParts.putAll(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));
 		}
-		if (eccCommunication && isEnabledDapsInteraction) {
+//		if (isEnabledDapsInteraction) {
 			headerParts.putAll(headerService.transformJWTTokenToHeaders(multipartMessage.getToken()));
-		}
+//		}
 		String ctPayload = getPayloadContentType(headerParts);
 		Headers httpHeaders = fillHeaders(headerParts);
 
@@ -130,15 +113,11 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 
 	@Override
 	public Response sendMessageFormData(String address, MultipartMessage multipartMessage,
-			Map<String, Object> headerParts, boolean eccCommunication) throws UnsupportedEncodingException {
+			Map<String, Object> headerParts) throws UnsupportedEncodingException {
 
 		logger.info("Forwarding Message: Body: form-data");
 
 		Message messageForException = multipartMessage.getHeaderContent();
-		if (!eccCommunication) {
-			// sending to DataApp, remove token from message
-			multipartMessage = multipartMessageService.removeTokenFromMultipart(multipartMessage);
-		}
 
 		String ctPayload = getPayloadContentType(headerParts);
 		Headers headers = fillHeaders(headerParts);

@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URISyntaxException;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -97,14 +95,6 @@ public class MultipartMessageServiceImplTest {
 	}
 	
 	@Test
-	@Disabled("Not applicable with new info model update")
-	public void removeToken() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
-		String result = service.removeToken(TestUtilMessageService.getArtifactRequestMessage());
-		assertNotNull(result);
-		assertFalse(result.contains("securityToken"));
-	}
-	
-	@Test
 	public void addToken() {
 		Message message = TestUtilMessageService.getArtifactRequestMessage();
 		String token = "DUMMY_TOKEN_VALUE_UPDATE";
@@ -120,17 +110,4 @@ public class MultipartMessageServiceImplTest {
 		assertNotNull(token);
 	}
 	
-	@Test
-	@Disabled("Not applicable with new info model update")
-	public void removeTokenFromMessage() {
-		Message removeTokenMsg = service.removeTokenFromMessage(TestUtilMessageService.getArtifactRequestMessage());
-		assertNull(removeTokenMsg.getSecurityToken());
-	}
-
-	@Test
-	@Disabled("Not applicable with new info model update")
-	public void removeTokenFromMessageWihtoutToken() {
-		Message removeTokenMsg = service.removeTokenFromMessage(TestUtilMessageService.getArtifactRequestMessage());
-		assertNull(removeTokenMsg.getSecurityToken());
-	}
 }
