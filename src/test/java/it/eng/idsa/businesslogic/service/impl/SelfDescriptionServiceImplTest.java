@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import de.fraunhofer.iais.eis.ContentType;
+import de.fraunhofer.iais.eis.DynamicAttributeToken;
 import de.fraunhofer.iais.eis.Language;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.Resource;
@@ -24,12 +25,17 @@ import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import de.fraunhofer.iais.eis.util.TypedLiteral;
 import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
+import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 
 public class SelfDescriptionServiceImplTest {
 	@Mock
 	private ResourceDataAppServiceImpl dataAppService;
 	@Mock
 	private SelfDescriptionConfiguration configuration;
+	@Mock
+	private DapsTokenProviderService dapsProvider;
+	@Mock
+	private DynamicAttributeToken dynamicAttributeToken;
 
 	private SelfDescriptionServiceImpl selfDefinitionService;
 
@@ -43,10 +49,12 @@ public class SelfDescriptionServiceImplTest {
 	private String RESOURCE_TITLE = "Resource title";
 	private String RESOURCE_DESCRIPTION = "Resource description";
 	private URI endpointUri = URI.create("https://defaultEndpoint");
+	private URI senderAgent = URI.create("https://senderAgent.com");
 
 	@BeforeEach
 	public void setup() throws ConstraintViolationException, URISyntaxException {
 		MockitoAnnotations.initMocks(this);
+		when(dapsProvider.getDynamicAtributeToken()).thenReturn(dynamicAttributeToken);
 		when(configuration.getInformationModelVersion()).thenReturn(infoModelVersion);
 		when(configuration.getConnectorURI()).thenReturn(connectorURI);
 		when(configuration.getTitle()).thenReturn(title);
@@ -54,7 +62,8 @@ public class SelfDescriptionServiceImplTest {
 		when(configuration.getCurator()).thenReturn(curratorURI);
 		when(configuration.getDefaultEndpoint()).thenReturn(endpointUri);
 		when(configuration.getMaintainer()).thenReturn(maintainerURI);
-		selfDefinitionService = new SelfDescriptionServiceImpl(configuration, dataAppService);
+		when(configuration.getSenderAgent()).thenReturn(senderAgent);
+		selfDefinitionService = new SelfDescriptionServiceImpl(configuration, dataAppService, dapsProvider);
 		selfDefinitionService.initConnector();
 	}
 
@@ -106,10 +115,6 @@ public class SelfDescriptionServiceImplTest {
 			throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
 		Message unavailableMessage = selfDefinitionService.getConnectorUnavailableMessage();
 		assertNotNull(unavailableMessage);
-	}
-
-	private void mockDataAppCalls() {
-		when(dataAppService.getResourceFromDataApp()).thenReturn(getResource());
 	}
 
 	private Resource getResource() {

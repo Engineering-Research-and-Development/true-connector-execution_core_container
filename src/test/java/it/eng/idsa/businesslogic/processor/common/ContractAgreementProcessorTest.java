@@ -17,10 +17,12 @@ import org.springframework.test.util.ReflectionTestUtils;
 import de.fraunhofer.iais.eis.ContractAgreementMessage;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.CommunicationService;
+import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
-import it.eng.idsa.businesslogic.util.TestUtilMessageService;
+import it.eng.idsa.businesslogic.util.MockUtil;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.util.TestUtilMessageService;
 
 public class ContractAgreementProcessorTest {
 	
@@ -38,6 +40,8 @@ public class ContractAgreementProcessorTest {
 	
 	@Mock
 	private MultipartMessage multipartMessage;
+	@Mock
+	private DapsTokenProviderService dapsProvider;
 
 	private RejectionMessageService rejectionMessageService;
 	private ContractAgreementMessage contractAggreAgreementMessage;
@@ -53,7 +57,7 @@ public class ContractAgreementProcessorTest {
 		ReflectionTestUtils.setField(processor, "usageControlDataAppURL", usageControlDataAppURL, String.class);
 		ReflectionTestUtils.setField(processor, "addPolicyEndpoint", addPolicyEndpoint, String.class);
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", Boolean.TRUE, Boolean.class);
-		contractAggreAgreementMessage = TestUtilMessageService.createContractAgreementMessage();
+		contractAggreAgreementMessage = TestUtilMessageService.getContractAgreementMessage();
 	}
 	
 	@Test
@@ -72,14 +76,14 @@ public class ContractAgreementProcessorTest {
 	
 	@Test
 	public void verifyContractAgreementFailed_NoPayload() throws Exception {
-		rejectionMessageService = new RejectionMessageServiceImpl();
+		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService, dapsProvider);
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
 				rejectionMessageService, RejectionMessageService.class);
 		
 		when(exchange.getMessage()).thenReturn(camelMessage);
 		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
 		when(multipartMessage.getHeaderContent()).thenReturn(contractAggreAgreementMessage);
-		
+
 		assertThrows(ExceptionForProcessor.class,
 	            ()->{
 	            	processor.process(exchange);

@@ -23,9 +23,9 @@ import com.sun.istack.ByteArrayDataSource;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.MessagePart;
-import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.util.TestUtilMessageService;
 
 public class SenderParseReceivedDataProcessorBodyFormDataTest {
 	

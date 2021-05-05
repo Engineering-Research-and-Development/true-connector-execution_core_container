@@ -2,48 +2,44 @@ package it.eng.idsa.businesslogic.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
+import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
+import it.eng.idsa.multipart.util.TestUtilMessageService;
 
 public class RejectionMessageServiceImplTest {
 
-	RejectionMessageServiceImpl rejectionMessageServiceImpl = new RejectionMessageServiceImpl();
+	@InjectMocks
+	RejectionMessageServiceImpl rejectionMessageServiceImpl;
 
-	MultipartMessageServiceImpl multipartMessageServiceImpl = new MultipartMessageServiceImpl();
+	@Mock
+	private DapsTokenProviderService dapsProvider;
 
 	Message message;
 	
-	String rejectionReasonTemplate = "https://w3id.org/idsa/code/";
-	
 	String tokenRejectionMessage = "NOT_AUTHENTICATED";
-	
 	String messageRejectionMessage  = "MALFORMED_MESSAGE";
-	
 	String communicationRejetionMessage = "NOT_FOUND";
-	private final String IDS_PREFIX = "idsc:";
 	
-	String directory = "./src/test/resources/RejectionMessageServiceImplTest/";
-
+	private final String IDS_PREFIX = "https://w3id.org/idsa/code/";
+	
 	@BeforeEach
 	public void init() {
-		rejectionMessageServiceImpl.setInformationModelVersion("4.0.0");
-		String fraunhoferMessageAsString = null;
-		try {
-			fraunhoferMessageAsString = new String(Files.readAllBytes(Paths.get(directory + "fraunhoferMessageAsString.txt")));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		message = multipartMessageServiceImpl.getMessage(fraunhoferMessageAsString);
+		MockitoAnnotations.initMocks(this);
+		ReflectionTestUtils.setField(rejectionMessageServiceImpl, "informationModelVersion", "4.0.6", String.class);
+		when(dapsProvider.getDynamicAtributeToken()).thenReturn(TestUtilMessageService.getDynamicAttributeToken());
+		message = TestUtilMessageService.getArtifactResponseMessage();
 	}
 
 	@Test

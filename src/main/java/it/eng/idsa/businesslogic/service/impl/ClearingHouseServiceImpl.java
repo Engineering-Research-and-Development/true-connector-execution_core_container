@@ -4,10 +4,6 @@
 package it.eng.idsa.businesslogic.service.impl;
 
 import java.net.URI;
-import java.util.GregorianCalendar;
-
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -27,11 +23,13 @@ import de.fraunhofer.iais.eis.LogMessageBuilder;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.ClearingHouseService;
+import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.HashFileService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.clearinghouse.model.Body;
 import it.eng.idsa.clearinghouse.model.NotificationContent;
+import it.eng.idsa.multipart.util.DateUtil;
 
 /**
  * @author Milan Karajovic and Gabriele De Luca
@@ -48,6 +46,9 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
+	
+	@Autowired
+	private DapsTokenProviderService dapsProvider;
 
 	@Value("${information.model.version}")
 	private String informationModelVersion;
@@ -58,9 +59,6 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	@Autowired
 	private HashFileService hashService;
 
-	@Autowired
-	private MultipartMessageServiceImpl multipartMessageServiceImpl;
-
 	@Override
 	public boolean registerTransaction(Message correlatedMessage, String payload) {
 
@@ -69,16 +67,20 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			logger.info("registerTransaction...");
 			String endpoint = configuration.getClearingHouseUrl();
 			// Create Message for Clearing House
-			XMLGregorianCalendar xgcal = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar());
 
 			// Infomodel version 4.0.0
-			LogMessage logInfo = new LogMessageBuilder()._modelVersion_(informationModelVersion)
-					._issuerConnector_(whoIAm())._issued_(xgcal).build();
+			LogMessage logInfo = new LogMessageBuilder()
+					._modelVersion_(informationModelVersion)
+					._issuerConnector_(whoIAm())
+					._issued_(DateUtil.now())
+					._senderAgent_(correlatedMessage.getSenderAgent())
+					._securityToken_(dapsProvider.getDynamicAtributeToken())
+					.build();
 
 			NotificationContent notificationContent = new NotificationContent();
 			notificationContent.setHeader(logInfo);
 			Body body = new Body();
-			body.setHeader(multipartMessageServiceImpl.removeTokenFromMessage(correlatedMessage));
+			body.setHeader(correlatedMessage);
 			String hash = hashService.hash(payload);
 			body.setPayload(hash);
 
@@ -99,7 +101,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 
 			success = true;
 		} catch (Exception e) {
-			logger.error("Could not register the following message to clearing house:", e);
+			logger.error("Could not register the following message to clearing house", e);
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
 					correlatedMessage);
 		}

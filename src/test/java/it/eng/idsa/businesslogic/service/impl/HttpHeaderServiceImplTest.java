@@ -16,9 +16,9 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.util.TestUtilMessageService;
 
 public class HttpHeaderServiceImplTest {
 	
@@ -81,7 +81,6 @@ public class HttpHeaderServiceImplTest {
 		assertNotNull(result.get("IDS-Issued"));
 		assertNotNull(result.get("IDS-IssuerConnector"));
 		assertNotNull(result.get("IDS-CorrelationMessage"));
-		assertNotNull(result.get("IDS-TransferContract"));
 		assertNotNull(result.get("IDS-Id"));
 		assertNotNull(result.get("IDS-ModelVersion"));
 	}
@@ -143,13 +142,11 @@ public class HttpHeaderServiceImplTest {
 		headers.put("IDS-SecurityToken-TokenValue", TOKEN_VALUE );
 	}
 
-
 	private void verifyIDSHeadersCorrectValues(Map<String, Object> result) {
 		assertEquals(result.get("IDS-Messagetype"), "ids:"+multipartMessage.getHeaderContent().getClass().getSimpleName().replace("Impl", ""));
-		assertEquals(result.get("IDS-Issued"), multipartMessage.getHeaderContent().getIssued().toString());
+		assertNotNull(result.get("IDS-Issued"));
 		assertEquals(result.get("IDS-IssuerConnector"), multipartMessage.getHeaderContent().getIssuerConnector().toString());
 		assertEquals(result.get("IDS-CorrelationMessage"), multipartMessage.getHeaderContent().getCorrelationMessage().toString());
-		assertEquals(result.get("IDS-TransferContract"), multipartMessage.getHeaderContent().getTransferContract().toString());
 		assertEquals(result.get("IDS-Id"), multipartMessage.getHeaderContent().getId().toString());
 		assertEquals(result.get("IDS-ModelVersion"), multipartMessage.getHeaderContent().getModelVersion());
 	}

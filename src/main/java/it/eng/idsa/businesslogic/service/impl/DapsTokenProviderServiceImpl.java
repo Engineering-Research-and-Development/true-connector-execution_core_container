@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 
+import de.fraunhofer.iais.eis.DynamicAttributeToken;
+import de.fraunhofer.iais.eis.DynamicAttributeTokenBuilder;
+import de.fraunhofer.iais.eis.TokenFormat;
 import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 
@@ -70,4 +73,12 @@ public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 		}
 	}
 
+
+	@Override
+	public DynamicAttributeToken getDynamicAtributeToken() {
+		return new DynamicAttributeTokenBuilder()
+				._tokenFormat_(TokenFormat.JWT)
+				._tokenValue_(this.provideToken())
+				.build();	
+	}
 }

@@ -25,9 +25,9 @@ import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SenderClientService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.RequestResponseUtil;
-import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.util.TestUtilMessageService;
 import okhttp3.Headers;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -76,7 +76,7 @@ public class SendDataToBusinessLogicServiceImplTest {
 		payload = "{\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"}";
 		headerParts = new HashMap<>();
 		multipartMessage = createMultipartMessage();
-		messageAsMap = TestUtilMessageService.getArtifactResponseMessageAsMap();
+		messageAsMap = getArtifactResponseMessageAsMap();
 	}
 	
 	private MultipartMessage createMultipartMessage() {
@@ -220,4 +220,14 @@ public class SendDataToBusinessLogicServiceImplTest {
 		verify(okHttpClient).sendHttpHeaderRequest(URL, headers, multipartMessage.getPayloadContent(), MediaType.TEXT_PLAIN.toString());
 	}
 
+	private Map<String, Object> getArtifactResponseMessageAsMap() {
+		Map<String, Object> messageAsMap = new HashMap<>();
+		messageAsMap.put("IDS-Messagetype","ids:ArtifactResponseMessage");
+		messageAsMap.put("IDS-Issued","2021-04-07T13:09:42.306Z");
+		messageAsMap.put("IDS-IssuerConnector","http://true-connector.com");
+		messageAsMap.put("IDS-Id","https://w3id.org/idsa/autogen/artifactResponseMessage/eb3ab487-dfb0-4d18-b39a-585514dd044f");
+		messageAsMap.put("IDS-ModelVersion","4.0.0");
+		messageAsMap.put("IDS-RequestedArtifact", "http:/true-connector/artifact/1");
+		return messageAsMap;
+	}
 }

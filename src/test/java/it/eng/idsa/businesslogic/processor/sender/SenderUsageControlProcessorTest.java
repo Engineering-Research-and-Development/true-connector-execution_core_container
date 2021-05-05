@@ -26,13 +26,14 @@ import de.fraunhofer.dataspaces.iese.camel.interceptor.model.IdsUseObject;
 import de.fraunhofer.dataspaces.iese.camel.interceptor.service.UcService;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
+import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.MessagePart;
+import it.eng.idsa.businesslogic.util.MockUtil;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
-import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.util.TestUtilMessageService;
 
 public class SenderUsageControlProcessorTest {
 
@@ -45,6 +46,8 @@ public class SenderUsageControlProcessorTest {
 	private HeaderCleaner headerCleaner;
 	@Mock
 	private RejectionMessageService rejectionMessageService;
+	@Mock
+	private DapsTokenProviderService dapsProvider;
 	@Mock
 	private Exchange exchange;
 	@Mock
@@ -62,6 +65,7 @@ public class SenderUsageControlProcessorTest {
 		MockitoAnnotations.initMocks(this);
 		message = TestUtilMessageService.getArtifactRequestMessage();
 		ucResult = new LinkedTreeMap<>();
+		when(dapsProvider.getDynamicAtributeToken()).thenReturn(TestUtilMessageService.getDynamicAttributeToken());
 	}
 
 	@Test
@@ -90,7 +94,7 @@ public class SenderUsageControlProcessorTest {
 	@Test
 	public void usageControlEnabledAndInhibited() {
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", true);
-		rejectionMessageService = new RejectionMessageServiceImpl();
+		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService, dapsProvider);
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
 				rejectionMessageService, RejectionMessageService.class);
 

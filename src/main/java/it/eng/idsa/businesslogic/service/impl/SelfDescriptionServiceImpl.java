@@ -5,11 +5,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 
 import javax.annotation.PostConstruct;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +30,11 @@ import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import de.fraunhofer.iais.eis.util.TypedLiteral;
 import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
+import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.ResourceDataAppService;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
+import it.eng.idsa.multipart.util.DateUtil;
 
 /**
  * @author Antonio Scatoloni and Gabriele De Luca
@@ -46,6 +45,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SelfDescriptionServiceImpl.class);
 	
+	private DapsTokenProviderService dapsProvider;
 	private SelfDescriptionConfiguration selfDescriptionConfiguration;
 	private Connector connector;
 	private URI issuerConnectorURI;
@@ -54,9 +54,11 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	@Autowired
 	public SelfDescriptionServiceImpl(
 			SelfDescriptionConfiguration selfDescriptionConfiguration,
-			ResourceDataAppService dataAppService) {
+			ResourceDataAppService dataAppService,
+			DapsTokenProviderService dapsProvider) {
 		this.selfDescriptionConfiguration = selfDescriptionConfiguration;
 		this.dataAppService = dataAppService;
+		this.dapsProvider = dapsProvider;
 	}
 
 	@PostConstruct
@@ -65,7 +67,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		this.connector = new BaseConnectorBuilder(issuerConnectorURI)
 				._maintainer_(selfDescriptionConfiguration.getMaintainer())
 				._curator_(selfDescriptionConfiguration.getCurator())
-				._resourceCatalog_((ArrayList<? extends ResourceCatalog>) this.getCatalog())
+				._resourceCatalog_(this.getCatalog())
 				._securityProfile_(SecurityProfile.BASE_SECURITY_PROFILE)
 				._inboundModelVersion_(Util.asList(new String[] { selfDescriptionConfiguration.getInformationModelVersion() }))
 				._title_(Util.asList(new TypedLiteral(selfDescriptionConfiguration.getTitle())))
@@ -142,70 +144,64 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	}
 
 	@Override
-	public Message getConnectorAvailbilityMessage() throws ConstraintViolationException, DatatypeConfigurationException {
-
+	public Message getConnectorAvailbilityMessage() {
 		return new ConnectorUpdateMessageBuilder()
 			._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
-			._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
+			._issued_(DateUtil.now())
 			._issuerConnector_(issuerConnectorURI)
 			._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
+			._securityToken_(dapsProvider.getDynamicAtributeToken())
 			._affectedConnector_(connector.getId())
 			.build();
 	}
 
 
 	@Override
-	public Message getConnectorUpdateMessage()
-			throws ConstraintViolationException, DatatypeConfigurationException {
-		
-	
+	public Message getConnectorUpdateMessage() {
 		return new ConnectorUpdateMessageBuilder()
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)
-				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
+				._issued_(DateUtil.now())
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
 				._affectedConnector_(connector.getId())
 				.build();
 	}
 
 	@Override
-	public Message getConnectorUnavailableMessage()
-			throws ConstraintViolationException, DatatypeConfigurationException {
+	public Message getConnectorUnavailableMessage() {
 
 		// Mandatory fields are: affectedConnector, securityToken, issuerConnector, senderAgent, modelVersion, issued
 		
 		return new ConnectorUnavailableMessageBuilder()
-				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
+				._issued_(DateUtil.now())
 				._affectedConnector_(connector.getId())
 				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
-				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
 				.build();
 	}
 
 	@Override
-	public Message getConnectorInactiveMessage()
-			throws ConstraintViolationException, DatatypeConfigurationException {
-		
+	public Message getConnectorInactiveMessage() {
 		return new ConnectorUnavailableMessageBuilder()
 				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
-				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._issued_(DateUtil.now())
 				._affectedConnector_(connector.getId())
 				.build();
 	}
 
 	@Override
-	public Message getConnectorQueryMessage()
-			throws ConstraintViolationException, DatatypeConfigurationException {
-		
+	public Message getConnectorQueryMessage() {
 		return new QueryMessageBuilder()
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)
-				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
+				._issued_(DateUtil.now())
 				._queryLanguage_(QueryLanguage.SPARQL)
 				._queryScope_(QueryScope.ALL)
 				.build();

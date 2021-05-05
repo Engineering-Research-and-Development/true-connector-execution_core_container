@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.TestUtilMessageService;
 
 public class MultipartMessageServiceImplTest {
 	
@@ -97,8 +97,9 @@ public class MultipartMessageServiceImplTest {
 	}
 	
 	@Test
+	@Disabled("Not applicable with new info model update")
 	public void removeToken() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
-		String result = service.removeToken(TestUtilMessageService.getArtifactRequestMessageWithToken());
+		String result = service.removeToken(TestUtilMessageService.getArtifactRequestMessage());
 		assertNotNull(result);
 		assertFalse(result.contains("securityToken"));
 	}
@@ -106,24 +107,28 @@ public class MultipartMessageServiceImplTest {
 	@Test
 	public void addToken() {
 		Message message = TestUtilMessageService.getArtifactRequestMessage();
-		String token = "DUMMY_TOKEN_VALUE";
+		String token = "DUMMY_TOKEN_VALUE_UPDATE";
 		String messageWithToken = service.addToken(message, token );
 		assertNotNull(messageWithToken);
 		assertTrue(messageWithToken.contains(token));
+		assertFalse(messageWithToken.contains(TestUtilMessageService.TOKEN_VALUE));
 	}
 	
 	@Test
 	public void getToken() throws JsonProcessingException {
-		String token = service.getToken(TestUtilMessageService.getArtifactRequestMessageWithToken());
+		String token = service.getToken(TestUtilMessageService.getArtifactRequestMessage());
 		assertNotNull(token);
 	}
+	
 	@Test
+	@Disabled("Not applicable with new info model update")
 	public void removeTokenFromMessage() {
-		Message removeTokenMsg = service.removeTokenFromMessage(TestUtilMessageService.getArtifactRequestMessageWithToken());
+		Message removeTokenMsg = service.removeTokenFromMessage(TestUtilMessageService.getArtifactRequestMessage());
 		assertNull(removeTokenMsg.getSecurityToken());
 	}
 
 	@Test
+	@Disabled("Not applicable with new info model update")
 	public void removeTokenFromMessageWihtoutToken() {
 		Message removeTokenMsg = service.removeTokenFromMessage(TestUtilMessageService.getArtifactRequestMessage());
 		assertNull(removeTokenMsg.getSecurityToken());

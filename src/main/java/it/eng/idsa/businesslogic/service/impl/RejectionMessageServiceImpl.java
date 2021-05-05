@@ -6,6 +6,7 @@ import java.net.URI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,7 @@ import de.fraunhofer.iais.eis.RejectionMessageBuilder;
 import de.fraunhofer.iais.eis.RejectionReason;
 import de.fraunhofer.iais.eis.ResultMessageBuilder;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
+import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -33,6 +35,9 @@ import it.eng.idsa.multipart.util.DateUtil;
 public class RejectionMessageServiceImpl implements RejectionMessageService{
 	
 	private static final Logger logger = LoggerFactory.getLogger(RejectionMessageServiceImpl.class);
+	
+	@Autowired
+	private DapsTokenProviderService dapsProvider;
 
 	@Value("${information.model.version}")
 	private String informationModelVersion;
@@ -80,10 +85,6 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		return rejectionMessage;
 	}
 
-	/*private String getInformationModelVersion() {
-		return "2.1.0-SNAPSHOT";
-	}*/
-
 	public void setInformationModelVersion(String informationModelVersion) {
 		this.informationModelVersion = informationModelVersion;
 	}
@@ -95,6 +96,8 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 				._modelVersion_(informationModelVersion)
 				._recipientConnector_(asList(header.getIssuerConnector()))
 				._correlationMessage_(header.getId())
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._senderAgent_(whoIAm())
 				.build();
 	}
 
@@ -106,6 +109,8 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("auto-generated")))
 				._correlationMessage_(header!=null?header.getId():URI.create(""))
 				._rejectionReason_(RejectionReason.MALFORMED_MESSAGE)
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._senderAgent_(whoIAm())
 				.build();
 	}
 
@@ -117,6 +122,8 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("auto-generated")))
 				._correlationMessage_(header != null?header.getId():null)
 				._rejectionReason_(RejectionReason.NOT_AUTHENTICATED)
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._senderAgent_(whoIAm())
 				.build();
 	}
 
@@ -134,6 +141,8 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 				//._recipientConnectors_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("auto-generated")))
 				._correlationMessage_(URI.create("auto-generated"))
 				._rejectionReason_(RejectionReason.MALFORMED_MESSAGE)
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._senderAgent_(whoIAm())
 				.build();
 	}
 
@@ -145,6 +154,8 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 				._recipientConnector_(asList(header.getIssuerConnector()))
 				._correlationMessage_(header.getId())
 				._rejectionReason_(RejectionReason.NOT_AUTHENTICATED)
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._senderAgent_(whoIAm())
 				.build();
 	}
 
@@ -156,8 +167,11 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 				._recipientConnector_(asList(header.getIssuerConnector()))
 				._correlationMessage_(header.getId())
 				._rejectionReason_(RejectionReason.NOT_FOUND)
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._senderAgent_(whoIAm())
 				.build();
 	}
+	
 	private Message createRejectionUsageControl(Message header) {
 		return new RejectionMessageBuilder()
 				._issuerConnector_(header.getIssuerConnector())
@@ -166,6 +180,8 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 				._recipientConnector_(asList(header.getIssuerConnector()))
 				._correlationMessage_(header.getId())
 				._rejectionReason_(RejectionReason.NOT_AUTHORIZED)
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._senderAgent_(whoIAm())
 				.build();
 	}
 }

@@ -17,13 +17,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
-import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 import it.eng.idsa.multipart.util.MultipartMessageKey;
+import it.eng.idsa.multipart.util.TestUtilMessageService;
 
 public class SenderParseReceivedDataProcessorBodyBinaryTest {
 
@@ -37,6 +38,8 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	private de.fraunhofer.iais.eis.Message msg;
 	@Mock
 	private RejectionMessageService rejectionMessageService;
+	@Mock
+	private DapsTokenProviderService dapsProvider;
 
 	private MultipartMessage multipartMessage;
 	private String receivedDataBodyBinary;

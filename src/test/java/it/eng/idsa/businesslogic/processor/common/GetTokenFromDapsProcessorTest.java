@@ -26,10 +26,10 @@ import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.util.MockUtil;
 import it.eng.idsa.businesslogic.util.RouterType;
-import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.util.TestUtilMessageService;
 
 public class GetTokenFromDapsProcessorTest {
 
@@ -49,6 +49,8 @@ public class GetTokenFromDapsProcessorTest {
 	
 	@Mock
 	private MultipartMessage multipartMessage;
+	@Mock
+	private DapsTokenProviderService dapsProvider;
 	
 	@Captor 
 	ArgumentCaptor<MultipartMessage> argCaptorMultipartMessage;
@@ -66,7 +68,8 @@ public class GetTokenFromDapsProcessorTest {
 		MockitoAnnotations.initMocks(this);
 		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", true);
 		message = TestUtilMessageService.getArtifactRequestMessage();
-		messageWithToken = TestUtilMessageService.getArtifactRequestMessageWithToken();
+		messageWithToken = TestUtilMessageService.getArtifactRequestMessage();
+		when(dapsProvider.getDynamicAtributeToken()).thenReturn(TestUtilMessageService.getDynamicAttributeToken());
 	}
 
 	@Test
@@ -113,7 +116,7 @@ public class GetTokenFromDapsProcessorTest {
 	public void exceptionWhenCallingDaps() throws Exception {
 		mockExchangeHeaderAndBody();
 		
-		rejectionMessageService = new RejectionMessageServiceImpl();
+		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService, dapsProvider);
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
 				rejectionMessageService, RejectionMessageService.class);
 		
@@ -130,7 +133,7 @@ public class GetTokenFromDapsProcessorTest {
 	public void nullReturnedWhenCallingDaps() throws Exception {
 		mockExchangeHeaderAndBody();
 		
-		rejectionMessageService = new RejectionMessageServiceImpl();
+		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService, dapsProvider);
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
 				rejectionMessageService, RejectionMessageService.class);
 		
@@ -147,7 +150,7 @@ public class GetTokenFromDapsProcessorTest {
 	public void emptyTokenReturnedWhenCallingDaps() throws Exception {
 		mockExchangeHeaderAndBody();
 		
-		rejectionMessageService = new RejectionMessageServiceImpl();
+		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService, dapsProvider);
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
 				rejectionMessageService, RejectionMessageService.class);
 		

@@ -22,9 +22,9 @@ import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.RouterType;
-import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.util.TestUtilMessageService;
 
 public class SenderSendResponseToDataAppProcessorTest {
 	
@@ -58,7 +58,7 @@ public class SenderSendResponseToDataAppProcessorTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		multipartMessage = new MultipartMessageBuilder()
-				.withHeaderContent(TestUtilMessageService.getArtifactRequestMessageWithToken())
+				.withHeaderContent(TestUtilMessageService.getArtifactRequestMessage())
 				.withPayloadContent(PAYLOAD).build();
 		multipartMessageWithoutToken = new MultipartMessageBuilder()
 				.withHeaderContent(TestUtilMessageService.getArtifactRequestMessage())
