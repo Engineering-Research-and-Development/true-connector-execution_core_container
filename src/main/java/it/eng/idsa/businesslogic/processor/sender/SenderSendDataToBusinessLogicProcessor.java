@@ -84,7 +84,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		message = multipartMessage.getHeaderContent();
 
 		String forwardTo = headerParts.get("Forward-To").toString();
-
+		logger.info("Sending data to business logic ...");
 		if (isEnabledWebSocket) {
 			// check & exstract HTTPS WebSocket IP and Port
 			try {

@@ -181,7 +181,7 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 
 	public static String serializeMessage(Object object) throws IOException {
 //		String serializeToPlain = MultipartMessageProcessor.multipartMessagetoString((MultipartMessage) object);
-		return MultipartMessageProcessor.serializeToPlainJson(object);
+		return MultipartMessageProcessor.serializeToJsonLD(object);//serializeToPlainJson(object);
 	}
 
 	@Override

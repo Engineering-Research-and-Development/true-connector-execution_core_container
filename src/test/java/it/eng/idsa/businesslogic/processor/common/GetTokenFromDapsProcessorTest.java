@@ -66,19 +66,9 @@ public class GetTokenFromDapsProcessorTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", true);
 		message = TestUtilMessageService.getArtifactRequestMessage();
 		messageWithToken = TestUtilMessageService.getArtifactRequestMessage();
 		when(dapsProvider.getDynamicAtributeToken()).thenReturn(TestUtilMessageService.getDynamicAttributeToken());
-	}
-
-	@Test
-	public void dapsTokenDisabled() throws Exception {
-		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", false);
-
-		processor.process(exchange);
-
-		verify(dapsTokenProviderService, times(0)).provideToken();
 	}
 
 	@Test

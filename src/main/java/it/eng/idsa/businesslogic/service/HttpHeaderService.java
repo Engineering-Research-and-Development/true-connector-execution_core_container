@@ -11,11 +11,11 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
 
 public interface HttpHeaderService {
 	
-	String getHeaderMessagePartFromHttpHeadersWithoutToken(Map<String, Object> headers) throws JsonProcessingException;
+//	String getHeaderMessagePartFromHttpHeadersWithoutToken(Map<String, Object> headers) throws JsonProcessingException;
 
 	Map<String, Object> prepareMessageForSendingAsHttpHeadersWithToken(String header) throws JsonParseException, JsonMappingException, IOException;
 
-	String getHeaderMessagePartFromHttpHeadersWithToken(Map<String, Object> headers) throws JsonProcessingException;
+	String getHeaderMessagePartFromHttpHeaders(Map<String, Object> headers) throws JsonProcessingException , IOException;
 
 	Map<String, Object> prepareMessageForSendingAsHttpHeadersWithoutToken(String header) throws JsonParseException, JsonMappingException, IOException;
 	

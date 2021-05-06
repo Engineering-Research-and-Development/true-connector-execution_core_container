@@ -63,10 +63,12 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 		Map<String, Object> headersParts = exchange.getMessage().getHeaders();
 		Message message = null;
 		MultipartMessage multipartMessage = null;
-
+		logger.info("Processing response from DataApp");
+		
 		headersParts.put("Is-Enabled-DataApp-WebSocket", isEnabledDataAppWebSocket);
 		
 		if (RouterType.HTTP_HEADER.equals(dataAppSendRouter)) { 
+			logger.debug("Received http header response");
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
 			if (exchange.getMessage().getBody() != null) {
 				payload = exchange.getMessage().getBody(String.class);
@@ -75,13 +77,14 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 			// create Message object from IDS-* headers, needs for UsageControl flow
-			header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
+			header = headerService.getHeaderMessagePartFromHttpHeaders(headersParts);
 			message = multipartMessageService.getMessage(header);
 			multipartMessage = new MultipartMessageBuilder()
 					.withHeaderContent(header)
 					.withPayloadContent(payload).build();
 
 		} else {
+			logger.debug("Received mixed/form response");
 
 			if (!headersParts.containsKey(MessagePart.HEADER)) {
 				logger.error("Multipart message header is missing");

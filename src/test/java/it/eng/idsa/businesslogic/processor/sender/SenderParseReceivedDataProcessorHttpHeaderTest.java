@@ -60,7 +60,7 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 		msg = TestUtilMessageService.getArtifactRequestMessage();
 		header = TestUtilMessageService.getMessageAsString(msg);
 		when(httpHeaderService.getHeaderContentHeaders(httpHeaders)).thenReturn(headerContentHeaders);
-		when(httpHeaderService.getHeaderMessagePartFromHttpHeadersWithoutToken(httpHeaders)).thenReturn(header);
+		when(httpHeaderService.getHeaderMessagePartFromHttpHeaders(httpHeaders)).thenReturn(header);
 		when(multipartMessageService.getMessage(header)).thenReturn(msg);
 //		when(exchange.getOut()).thenReturn(messageOut);
 
@@ -82,7 +82,7 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 		msg = TestUtilMessageService.getArtifactRequestMessage();
 		header = TestUtilMessageService.getMessageAsString(msg);
 		when(httpHeaderService.getHeaderContentHeaders(httpHeaders)).thenReturn(headerContentHeaders);
-		when(httpHeaderService.getHeaderMessagePartFromHttpHeadersWithoutToken(httpHeaders)).thenReturn(header);
+		when(httpHeaderService.getHeaderMessagePartFromHttpHeaders(httpHeaders)).thenReturn(header);
 		when(multipartMessageService.getMessage(header)).thenReturn(null);
 
 		processor.process(exchange);

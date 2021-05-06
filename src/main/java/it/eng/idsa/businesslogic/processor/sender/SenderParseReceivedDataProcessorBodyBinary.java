@@ -33,7 +33,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
-
+		logger.info("Received multipart/mixed request");
 		Message message = null;
 		Map<String, Object> headesParts = new HashMap<String, Object>();
 		String receivedDataBodyBinary = null;
@@ -41,11 +41,11 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 		// Get from the input "exchange"
 		headesParts = exchange.getMessage().getHeaders();
 		receivedDataBodyBinary = exchange.getMessage().getBody(String.class);
-
 		if (receivedDataBodyBinary == null) {
 			logger.error("Body of the received multipart message is null");
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
 		}
+		logger.debug(receivedDataBodyBinary);
 
 		try {
 			MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
@@ -53,6 +53,9 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 			// Create headers parts
 			headesParts.put("Payload-Content-Type",
 					multipartMessage.getPayloadHeader().get(MultipartMessageKey.CONTENT_TYPE.label));
+			
+			logger.debug("Header part {}", multipartMessage.getHeaderContentString());
+			logger.debug("Payload part {}", multipartMessage.getPayloadContent());
 
 			// Return exchange
 			exchange.getMessage().setBody(multipartMessage);

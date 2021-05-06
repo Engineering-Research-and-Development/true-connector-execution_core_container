@@ -60,10 +60,11 @@ public class SenderParseReceivedResponseMessage implements Processor {
 		Message message = null;
 		MultipartMessage multipartMessage = null;
 		String token = null;
-
+		logger.info("Parse received response");
+		
 		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) {
 			payload = exchange.getMessage().getBody(String.class);
-			header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
+			header = headerService.getHeaderMessagePartFromHttpHeaders(headersParts);
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
 
 			if (headersParts.get("IDS-SecurityToken-TokenValue") != null) {
@@ -111,6 +112,9 @@ public class SenderParseReceivedResponseMessage implements Processor {
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 		}
+		logger.debug("Header part {}", multipartMessage.getHeaderContentString());
+		logger.debug("Payload part {}", multipartMessage.getPayloadContent());
+		
 		exchange.getMessage().setHeaders(headersParts);
 		exchange.getMessage().setBody(multipartMessage);
 	}

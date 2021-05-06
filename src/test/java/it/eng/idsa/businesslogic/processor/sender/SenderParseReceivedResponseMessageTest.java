@@ -26,7 +26,6 @@ import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.MockUtil;
 import it.eng.idsa.businesslogic.util.RouterType;
@@ -78,7 +77,7 @@ public class SenderParseReceivedResponseMessageTest {
 		mockExchangeHeaderAndBody();
 		
 		when(camelMessage.getBody(String.class)).thenReturn(PAYLOAD);
-		when(headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headers)).thenReturn(headerAsString);
+		when(headerService.getHeaderMessagePartFromHttpHeaders(headers)).thenReturn(headerAsString);
 		
 		processor.process(exchange);
 		

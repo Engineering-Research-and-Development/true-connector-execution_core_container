@@ -10,12 +10,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.ids.jsonld.JsonLDSerializer;
+import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.util.TestUtilMessageService;
@@ -58,14 +60,10 @@ public class HttpHeaderServiceImplTest {
 		headers.put("IDS-RequestedArtifact", "http://mdm-connector.ids.isst.fraunhofer.de/artifact/1");
 		headers.put("foo", "bar");
 		headers.put("Forward-To", "https://forwardToURL");
+		headers.put("IDS-SenderAgent", "https://sender.agent.com");
+
 		
 		multipartMessage = new MultipartMessageBuilder().withHeaderContent(TestUtilMessageService.getArtifactResponseMessage()).build();
-	}
-	
-	
-	@Test
-	public void headerMessagePartFromHttpHeadersWithToken() throws JsonProcessingException, JSONException {
-		assertEquals(headerMessagePart, httpHeaderServiceImpl.getHeaderMessagePartFromHttpHeadersWithoutToken(headers));
 	}
 	
 	@Test
@@ -90,12 +88,11 @@ public class HttpHeaderServiceImplTest {
 		Map<String, Object> result = httpHeaderServiceImpl.getHeaderMessagePartAsMap(headers);
 		assertNotNull(result.get("@type"));
 		assertNotNull(result.get("@id"));
-		assertNotNull(result.get("issued"));
-		assertNotNull(result.get("modelVersion"));
-		assertNotNull(result.get("issuerConnector"));
-		assertNotNull(result.get("transferContract"));
-		assertNotNull(result.get("correlationMessage"));
-		assertNotNull(result.get("requestedArtifact"));
+		assertNotNull(result.get("ids:issued"));
+		assertNotNull(result.get("ids:modelVersion"));
+		assertNotNull(result.get("ids:issuerConnector"));
+		assertNotNull(result.get("ids:correlationMessage"));
+		assertNotNull(result.get("ids:requestedArtifact"));
 	}
 	
 	@Test
@@ -120,21 +117,15 @@ public class HttpHeaderServiceImplTest {
 	}
 
 	@Test
-	public void getHeaderMessagePartFromHttpHeadersWithTokenTest() throws JsonProcessingException {
+	public void getHeaderMessagePartFromHttpHeadersTest() throws IOException {
 		addTokenToMap(headers);
-		String headerString = httpHeaderServiceImpl.getHeaderMessagePartFromHttpHeadersWithToken(headers);
+		String headerString = httpHeaderServiceImpl.getHeaderMessagePartFromHttpHeaders(headers);
+		// verify that string can be converted to IDS Message java object
+		assertNotNull(new Serializer().deserialize(headerString, Message.class));
 		assertNotNull(headerString);
 		assertTrue(headerString.contains(TOKEN_VALUE));
 	}
 	
-	@Test
-	public void getHeaderMessagePartFromHttpHeadersWithoutTokenTest() throws JsonProcessingException {
-		addTokenToMap(headers);
-		String headerString = httpHeaderServiceImpl.getHeaderMessagePartFromHttpHeadersWithoutToken(headers);
-		assertNotNull(headerString);
-		assertFalse(headerString.contains(TOKEN_VALUE));
-	}
-
 	private void addTokenToMap(Map<String, Object> headers) {
 		headers.put("IDS-SecurityToken-Type", "ids:DynamicAttributeToken");
 		headers.put("IDS-SecurityToken-Id", "https://w3id.org/idsa/autogen/dynamicAttributeToken/1");
@@ -150,5 +141,4 @@ public class HttpHeaderServiceImplTest {
 		assertEquals(result.get("IDS-Id"), multipartMessage.getHeaderContent().getId().toString());
 		assertEquals(result.get("IDS-ModelVersion"), multipartMessage.getHeaderContent().getModelVersion());
 	}
-
 }
