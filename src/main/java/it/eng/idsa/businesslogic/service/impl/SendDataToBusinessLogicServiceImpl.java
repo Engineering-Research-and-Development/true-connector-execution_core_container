@@ -21,7 +21,6 @@ import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.service.SenderClientService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
-import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import okhttp3.Headers;
@@ -38,9 +37,6 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean isEnabledDapsInteraction;
-
-	@Value("${application.openDataAppReceiverRouter}")
-	private String openDataAppReceiverRouter;
 
 	@Value("${application.idscp2.isEnabled}")
 	private boolean isEnabledIdscp2;
@@ -107,10 +103,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 			Map<String, Object> headerParts, boolean eccCommunication) throws IOException {
 		logger.info("Forwarding Message: http-header");
 
-		if (!RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
-			// DataApp endpoint not http-header, must convert message to http headers
-			headerParts.putAll(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));
-		}
+		headerParts.putAll(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));
 		if (eccCommunication && isEnabledDapsInteraction) {
 			headerParts.putAll(headerService.transformJWTTokenToHeaders(multipartMessage.getToken()));
 		}
@@ -159,9 +152,9 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		headerCleaner.removeTechnicalHeaders(headerParts);
 
 		Map<String, String> mapAsString = new HashMap<>();
-
+		// TODO consider removing idscp2-header from exchange once when it is consumed, if applicable - MapIDSCP2toMultipart
 		headerParts.forEach((name, value) -> {
-			if (!"Content-Length".equals(name) && !"Content-Type".equals(name)) {
+			if (!"Content-Length".equals(name) && !"Content-Type".equals(name) && !"idscp2-header".equals(name)) {
 				if (value != null) {
 					mapAsString.put(name, value.toString());
 				}
