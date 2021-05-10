@@ -4,6 +4,7 @@
 package it.eng.idsa.businesslogic.service.impl;
 
 import java.net.URI;
+import java.util.ArrayList;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -17,6 +18,10 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.fraunhofer.iais.eis.LogMessage;
 import de.fraunhofer.iais.eis.LogMessageBuilder;
@@ -68,6 +73,8 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			String endpoint = configuration.getClearingHouseUrl();
 			// Create Message for Clearing House
 
+			ArrayList<URI> receptConn = new ArrayList<>();
+			receptConn.add(URI.create("https://recipent.connector"));
 			// Infomodel version 4.0.0
 			LogMessage logInfo = new LogMessageBuilder()
 					._modelVersion_(informationModelVersion)
@@ -75,6 +82,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 					._issued_(DateUtil.now())
 					._senderAgent_(correlatedMessage.getSenderAgent())
 					._securityToken_(dapsProvider.getDynamicAtributeToken())
+					._recipientConnector_(receptConn)
 					.build();
 
 			NotificationContent notificationContent = new NotificationContent();
@@ -88,7 +96,12 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
-			String msgSerialized = MultipartMessageServiceImpl.serializeMessage(notificationContent);
+//			String msgSerialized = MultipartMessageProcessor.serializeMessage(notificationContent);
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
+	        mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+			
+	        String msgSerialized = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(notificationContent);
 			logger.info("msgSerialized to CH=" + msgSerialized);
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = (JSONObject) parser.parse(msgSerialized);
@@ -110,7 +123,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	}
 
 	private URI whoIAm() {
-		return URI.create("auto-generated");
+		return URI.create("http://auto-generated");
 	}
 
 }

@@ -2,10 +2,14 @@ package it.eng.idsa.businesslogic.service.impl;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.net.URI;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -17,15 +21,16 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import de.fraunhofer.iais.eis.LogMessageBuilder;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.HashFileService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
+import it.eng.idsa.multipart.util.DateUtil;
 import it.eng.idsa.multipart.util.TestUtilMessageService;
 
-@Disabled("Until CH is updated to same info model")
 public class ClearingHouseServiceImplTest {
 	
 	@InjectMocks
@@ -77,4 +82,24 @@ public class ClearingHouseServiceImplTest {
 		 assertTrue(clearingHouseServiceImpl.registerTransaction(message, payload));
 		 verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, message);
 	  }
+	  
+	  @Test
+	  @Disabled("Used to check new IM compatibility")
+	  public void logNotificationMessage() {
+		  Message logMessage = new LogMessageBuilder()
+          ._modelVersion_("4.0.6")
+          ._issued_(DateUtil.now())
+          ._correlationMessage_(URI.create("https://correlationMessage"))
+          ._issuerConnector_(URI.create("https://issuerConnector"))
+          ._recipientConnector_(List.of(URI.create("https://recipient.connector")))
+          ._senderAgent_(URI.create("https://sender.agent"))
+          ._recipientAgent_(null)
+          ._transferContract_(null)
+          ._securityToken_(null) //mandatory in SPECS but non suitable for Blockchain
+          ._authorizationToken_(null)
+          ._contentVersion_(null)
+          .build();
+		  assertNotNull(logMessage);
+	  }
+	  
 }

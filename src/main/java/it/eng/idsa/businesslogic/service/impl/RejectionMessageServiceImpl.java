@@ -6,6 +6,7 @@ import java.net.URI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 	
 	private static final Logger logger = LoggerFactory.getLogger(RejectionMessageServiceImpl.class);
 	
+	@Autowired
 	private DapsTokenProviderService dapsProvider;
 
 	@Value("${information.model.version}")
@@ -129,7 +131,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 
 	private URI whoIAm() {
 		//TODO
-		return URI.create("auto-generated");
+		return URI.create("http://auto-generated");
 	}
 
 	private Message createRejectionMessageLocalIssues(Message header) {
