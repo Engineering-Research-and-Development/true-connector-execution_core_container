@@ -19,6 +19,7 @@ import org.mockito.MockitoAnnotations;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.service.impl.ProtocolValidationServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -41,10 +42,14 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	
 	@Mock
 	private RejectionMessageService rejectionMessageService;
+	
+	@Mock
+	private ProtocolValidationServiceImpl protocolValidationServiceImpl;
 
 	private String header;
 	private Map<String, Object> httpHeaders;
 	Map<String, Object> headerContentHeaders = new HashMap<>();
+	private String forwardTo;
 
 	@InjectMocks
 	private SenderParseReceivedDataProcessorHttpHeader processor;
@@ -52,6 +57,8 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
+		forwardTo = "https://forward.to.example";
+		when(protocolValidationServiceImpl.validateProtocol(forwardTo)).thenReturn(forwardTo);
 	}
 
 	@Test
@@ -94,7 +101,7 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 		when(exchange.getMessage()).thenReturn(message);
 		httpHeaders = new HashMap<>();
 		httpHeaders.put("Content-Type", ContentType.APPLICATION_JSON);
-		httpHeaders.put("Forward-To", "https://forward.to.example");
+		httpHeaders.put("Forward-To", forwardTo);
 		httpHeaders.put("IDS-Messagetype", "ids:ArtifactRequestMessage");
 		httpHeaders.put("IDS-Issued", "2019-05-27T13:09:42.306Z");
 		httpHeaders.put("IDS-IssuerConnector", "http://iais.fraunhofer.de/ids/mdm-connector");

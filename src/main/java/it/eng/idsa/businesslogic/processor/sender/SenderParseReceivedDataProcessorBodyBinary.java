@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.service.impl.ProtocolValidationServiceImpl;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -27,6 +28,9 @@ import it.eng.idsa.multipart.util.MultipartMessageKey;
 public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 
 	private static final Logger logger = LoggerFactory.getLogger(SenderParseReceivedDataProcessorBodyBinary.class);
+	
+	@Autowired
+	private ProtocolValidationServiceImpl protocolValidationServiceImpl;
 
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
@@ -35,12 +39,16 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 	public void process(Exchange exchange) throws Exception {
 
 		Message message = null;
-		Map<String, Object> headesParts = new HashMap<String, Object>();
+		Map<String, Object> headerParts = new HashMap<String, Object>();
 		String receivedDataBodyBinary = null;
 
 		// Get from the input "exchange"
-		headesParts = exchange.getMessage().getHeaders();
+		headerParts = exchange.getMessage().getHeaders();
 		receivedDataBodyBinary = exchange.getMessage().getBody(String.class);
+		
+		String forwardTo = headerParts.get("Forward-To").toString();
+		forwardTo = protocolValidationServiceImpl.validateProtocol(forwardTo);
+		headerParts.replace("Forward-To", forwardTo);
 
 		if (receivedDataBodyBinary == null) {
 			logger.error("Body of the received multipart message is null");
@@ -51,12 +59,12 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 			MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
 			message = multipartMessage.getHeaderContent();
 			// Create headers parts
-			headesParts.put("Payload-Content-Type",
+			headerParts.put("Payload-Content-Type",
 					multipartMessage.getPayloadHeader().get(MultipartMessageKey.CONTENT_TYPE.label));
 
 			// Return exchange
 			exchange.getMessage().setBody(multipartMessage);
-			exchange.getMessage().setHeaders(headesParts);
+			exchange.getMessage().setHeaders(headerParts);
 
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);

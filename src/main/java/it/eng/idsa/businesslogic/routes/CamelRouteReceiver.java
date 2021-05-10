@@ -182,7 +182,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 			// and communication between ECCs with IDSCP2)
 
 			from("idscp2server://0.0.0.0:29292?sslContextParameters=#sslContext")
-					.routeId("IDSCP2 - receiver - WSS internal")
+					.routeId("Receiver - dataApp-ECC over WSS and ECC-ECC over IDSCP2")
 					.log("### IDSCP2 SERVER RECEIVER: Detected Message")
 					.process(mapIDSCP2toMultipart)
 					.process(contractAgreementProcessor)
