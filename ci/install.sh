@@ -2,7 +2,9 @@
 
 
 echo "Downloading certificate from private repository..."
-git clone https://${GH_TOKEN}:x-oauth-basic@github.com/tester-sia-rd-eng/private-files-repo.git
+git clone https://${GH_TOKEN}:x-oauth-basic@github.com:Engineering-Research-and-Development/private-files-repo.git
+pwd
+ls
 cp -rf private-files-repo/*.p12 ./ci/docker/ecc-cert
 cd ./ci/docker/ecc-cert
 ls
