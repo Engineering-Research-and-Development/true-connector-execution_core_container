@@ -1,0 +1,5 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Tue Jan 19 14:10:53 CET 2021
+java-4.0.0.pom>snapshots=
+java-4.0.0-sources.jar>snapshots=
+java-4.0.0.jar>snapshots=
