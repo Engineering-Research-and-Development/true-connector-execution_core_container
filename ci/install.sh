@@ -23,10 +23,10 @@ sudo docker system prune --volumes -f
 
 mkdir -p  $HOME/.m2/repository/de/fraunhofer/aisec
 mkdir -p  $HOME/.m2/repository/de/fraunhofer/dataspaces
-mkdir -p  $HOME/.m2/repository/de/fraunhofer/iais
 cp -rf ./ci/.m2/repository/de/fraunhofer/aisec/ids  $HOME/.m2/repository/de/fraunhofer/aisec
 cp -rf ./ci/.m2/repository/de/fraunhofer/dataspaces/iese  $HOME/.m2/repository/de/fraunhofer/dataspaces
-cp -rf ./ci/.m2/repository/de/fraunhofer/iais/eis  $HOME/.m2/repository/de/fraunhofer/iais
+cp -f ./ci/.m2/settings  $HOME/.m2
+
 
 
 echo "Installing Multipart Message Lib..."
