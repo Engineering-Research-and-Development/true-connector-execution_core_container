@@ -30,37 +30,37 @@ cp -rf ./ci/.m2/repository/de/fraunhofer/iais/eis  $HOME/.m2/repository/de/fraun
 
 
 echo "Installing Multipart Message Lib..."
-git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/Engineering-Research-and-Development/market4.0-ids_multipart_message_processor
+git clone https://github.com/Engineering-Research-and-Development/market4.0-ids_multipart_message_processor
 cd market4.0-ids_multipart_message_processor
-mvn clean install
+mvn -U clean install
 cd ..
 echo "Installed  Multipart Message Lib"
 
 echo "Installing websocket-message-streamer-lib..."
-git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/Engineering-Research-and-Development/market4.0-websocket_message_streamer.git
+git clone https://github.com/Engineering-Research-and-Development/market4.0-websocket_message_streamer.git
 cd market4.0-websocket_message_streamer
-mvn clean install
+mvn -U clean install
 cd ..
 echo "Installed websocket-message-streamer-lib"
 
 echo "Cloning and Creating Docker Container from Data-App repo..."
-git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/Engineering-Research-and-Development/market4.0-data_app_test_BE.git
+git clone https://github.com/Engineering-Research-and-Development/market4.0-data_app_test_BE.git
 cd market4.0-data_app_test_BE
 git checkout ${BRANCH_DATA_APP}
-mvn clean install
+mvn -U clean install
 docker build -f Dockerfile -t rdlabengpa/data-app .
 cd ..
 echo "Data-App is ready to start"
 
 echo "Downloading and installing Clearing-House Model..."
-git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/Engineering-Research-and-Development/market4.0-clearing_house.git
+git clone https://github.com/Engineering-Research-and-Development/market4.0-clearing_house.git
 cd market4.0-clearing_house
 mvn install -DskipTests
 cd ..
 echo "Clearing-House Model installed!"
 
 echo "Creating Docker Container for ECCs..."
-mvn clean install
+mvn -U clean install
 docker build -f Dockerfile -t rdlabengpa/execution_core_container_bl .
 
 #echo "Starting services..."

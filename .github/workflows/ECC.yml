@@ -26,7 +26,6 @@ jobs:
         run: ./ci/install.sh
         env:
           GH_TOKEN: ${{secrets.GH_TOKEN}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           NET: HTTPS
           NETE: HTTPSE
           DAPS: false
