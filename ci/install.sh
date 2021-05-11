@@ -5,7 +5,9 @@ mkdir $HOME/cert
 
 echo "Downloading certificate from private repository..."
 git clone https://${GH_TOKEN}:x-oauth-basic@github.com/tester-sia-rd-eng/private-files-repo.git
-cp -f private-files-repo/*.jks $HOME/cert
+cp -f private-files-repo/*.p12 $HOME/ci/docker/ecc-cert
+cd $HOME/ci/docker/ecc-cert
+ls
 echo "Certificate from private repository downloaded"
 BRANCH_DATA_APP=master
 
