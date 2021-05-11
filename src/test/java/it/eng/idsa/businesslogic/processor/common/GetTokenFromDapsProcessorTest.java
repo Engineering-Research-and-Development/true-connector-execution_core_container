@@ -49,8 +49,6 @@ public class GetTokenFromDapsProcessorTest {
 	
 	@Mock
 	private MultipartMessage multipartMessage;
-	@Mock
-	private DapsTokenProviderService dapsProvider;
 	
 	@Captor 
 	ArgumentCaptor<MultipartMessage> argCaptorMultipartMessage;
@@ -68,7 +66,6 @@ public class GetTokenFromDapsProcessorTest {
 		MockitoAnnotations.initMocks(this);
 		message = TestUtilMessageService.getArtifactRequestMessage();
 		messageWithToken = TestUtilMessageService.getArtifactRequestMessage();
-		when(dapsProvider.getDynamicAtributeToken()).thenReturn(TestUtilMessageService.getDynamicAttributeToken());
 	}
 
 	@Test
@@ -106,7 +103,7 @@ public class GetTokenFromDapsProcessorTest {
 	public void exceptionWhenCallingDaps() throws Exception {
 		mockExchangeHeaderAndBody();
 		
-		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService, dapsProvider);
+		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService);
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
 				rejectionMessageService, RejectionMessageService.class);
 		
@@ -123,7 +120,7 @@ public class GetTokenFromDapsProcessorTest {
 	public void nullReturnedWhenCallingDaps() throws Exception {
 		mockExchangeHeaderAndBody();
 		
-		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService, dapsProvider);
+		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService);
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
 				rejectionMessageService, RejectionMessageService.class);
 		
@@ -140,7 +137,7 @@ public class GetTokenFromDapsProcessorTest {
 	public void emptyTokenReturnedWhenCallingDaps() throws Exception {
 		mockExchangeHeaderAndBody();
 		
-		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService, dapsProvider);
+		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService);
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
 				rejectionMessageService, RejectionMessageService.class);
 		

@@ -22,7 +22,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
-import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
@@ -46,8 +45,6 @@ public class SenderParseReceivedResponseMessageTest {
 	private HttpHeaderService headerService;
 	@Mock
 	private MultipartMessageService multipartMessageService;
-	@Mock
-	private DapsTokenProviderService dapsProvider;
 	
 	@Mock
 	private Exchange exchange;
@@ -112,7 +109,7 @@ public class SenderParseReceivedResponseMessageTest {
 		mockExchangeHeaderAndBody();
 //		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER.label, String.class);
 		
-		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService, dapsProvider);
+		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService);
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
 				rejectionMessageService, RejectionMessageService.class);
 

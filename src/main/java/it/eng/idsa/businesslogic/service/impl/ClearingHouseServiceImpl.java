@@ -4,7 +4,6 @@
 package it.eng.idsa.businesslogic.service.impl;
 
 import java.net.URI;
-import java.util.ArrayList;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -27,6 +26,7 @@ import de.fraunhofer.iais.eis.LogMessage;
 import de.fraunhofer.iais.eis.LogMessageBuilder;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.service.ClearingHouseService;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.HashFileService;
@@ -53,6 +53,9 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	private RejectionMessageService rejectionMessageService;
 	
 	@Autowired
+	private SelfDescriptionConfiguration selfDescriptionConfiguration;
+	
+	@Autowired
 	private DapsTokenProviderService dapsProvider;
 
 	@Value("${information.model.version}")
@@ -73,16 +76,12 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			String endpoint = configuration.getClearingHouseUrl();
 			// Create Message for Clearing House
 
-			ArrayList<URI> receptConn = new ArrayList<>();
-			receptConn.add(URI.create("https://recipent.connector"));
-			// Infomodel version 4.0.0
 			LogMessage logInfo = new LogMessageBuilder()
 					._modelVersion_(informationModelVersion)
 					._issuerConnector_(whoIAm())
 					._issued_(DateUtil.now())
 					._senderAgent_(correlatedMessage.getSenderAgent())
 					._securityToken_(dapsProvider.getDynamicAtributeToken())
-					._recipientConnector_(receptConn)
 					.build();
 
 			NotificationContent notificationContent = new NotificationContent();
@@ -123,7 +122,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	}
 
 	private URI whoIAm() {
-		return URI.create("http://auto-generated");
+		return selfDescriptionConfiguration.getConnectorURI();
 	}
 
 }

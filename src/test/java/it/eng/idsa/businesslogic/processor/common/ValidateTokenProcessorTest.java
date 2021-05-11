@@ -20,7 +20,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.DapsService;
-import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
@@ -37,8 +36,6 @@ public class ValidateTokenProcessorTest {
 
 	@Mock
 	private DapsService dapsService;
-	@Mock
-	private DapsTokenProviderService dapsProvider;
 
 	@Mock
 	private HttpHeaderService httpHeaderService;
@@ -88,7 +85,7 @@ public class ValidateTokenProcessorTest {
 	public void validateTokenFailed() throws Exception {
 		message = TestUtilMessageService.getArtifactRequestMessage();
 		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", true);
-		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService, dapsProvider);
+		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService);
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", rejectionMessageService, RejectionMessageService.class);
 
 		mockExchangeHeaderAndBody();

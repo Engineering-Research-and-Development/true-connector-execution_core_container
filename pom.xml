@@ -129,6 +129,7 @@
 		</dependency>
 
 		<!-- CLEARING HOUSE -->
+		<!-- Must use CH Model updated version in order to have successful CH call -->
 		<dependency>
 			<groupId>it.eng</groupId>
 			<artifactId>clearing-house-model</artifactId>

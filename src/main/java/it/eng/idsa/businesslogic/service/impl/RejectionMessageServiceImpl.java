@@ -15,6 +15,7 @@ import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionMessageBuilder;
 import de.fraunhofer.iais.eis.RejectionReason;
 import de.fraunhofer.iais.eis.ResultMessageBuilder;
+import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
@@ -38,6 +39,9 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 	
 	@Autowired
 	private DapsTokenProviderService dapsProvider;
+	
+	@Autowired
+	private SelfDescriptionConfiguration selfDescriptionConfiguration;
 
 	@Value("${information.model.version}")
 	private String informationModelVersion;
@@ -130,8 +134,8 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 
 
 	private URI whoIAm() {
-		//TODO
-		return URI.create("http://auto-generated");
+		return selfDescriptionConfiguration.getConnectorURI();
+//		return URI.create("http://auto-generated");
 	}
 
 	private Message createRejectionMessageLocalIssues(Message header) {

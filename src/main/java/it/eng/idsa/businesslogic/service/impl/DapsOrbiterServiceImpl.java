@@ -85,7 +85,7 @@ public class DapsOrbiterServiceImpl implements DapsService {
 			jsonObject.put("scope", "all");
 			Gson gson = new GsonBuilder().create();
 			String jsonString = gson.toJson(jsonObject);
-			RequestBody formBody = RequestBody.create(JSON, jsonString); // new
+			RequestBody formBody = RequestBody.create(jsonString, JSON); // new
 
 			// @formatter:off
 			Request requestDaps = new Request.Builder()
@@ -152,7 +152,7 @@ public class DapsOrbiterServiceImpl implements DapsService {
 			jsonObject.put("token", tokenValue);
 			Gson gson = new GsonBuilder().create();
 			String jsonString = gson.toJson(jsonObject);
-			RequestBody formBody = RequestBody.create(JSON, jsonString); // new
+			RequestBody formBody = RequestBody.create(jsonString, JSON); // new
 
 			// @formatter:off
 			Request requestDaps = new Request.Builder()

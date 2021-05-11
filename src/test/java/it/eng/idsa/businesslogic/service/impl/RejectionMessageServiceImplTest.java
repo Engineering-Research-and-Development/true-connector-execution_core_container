@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
+import java.net.URI;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.Message;
+import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
@@ -25,6 +28,8 @@ public class RejectionMessageServiceImplTest {
 
 	@Mock
 	private DapsTokenProviderService dapsProvider;
+	@Mock
+	private SelfDescriptionConfiguration selfDescriptionConfiguration;
 
 	Message message;
 	
@@ -39,6 +44,7 @@ public class RejectionMessageServiceImplTest {
 		MockitoAnnotations.initMocks(this);
 		ReflectionTestUtils.setField(rejectionMessageServiceImpl, "informationModelVersion", "4.0.6", String.class);
 		when(dapsProvider.getDynamicAtributeToken()).thenReturn(TestUtilMessageService.getDynamicAttributeToken());
+		when(selfDescriptionConfiguration.getConnectorURI()).thenReturn(URI.create("http://auto-generated"));
 		message = TestUtilMessageService.getArtifactResponseMessage();
 	}
 

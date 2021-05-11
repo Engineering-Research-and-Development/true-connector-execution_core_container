@@ -24,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 import de.fraunhofer.iais.eis.LogMessageBuilder;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.HashFileService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
@@ -43,6 +44,9 @@ public class ClearingHouseServiceImplTest {
 	
 	@Mock
 	private DapsTokenProviderService dapsProvider;
+	
+	@Mock
+	private SelfDescriptionConfiguration selfDescriptionConfiguration;
 	
 	@Mock
 	private RestTemplate restTemplate;
@@ -67,6 +71,7 @@ public class ClearingHouseServiceImplTest {
 		when(configuration.getClearingHouseUrl()).thenReturn(mockEndpoint);
 		when(restTemplate.postForObject(any(String.class), any(), any())).thenReturn(null);
 		when(dapsProvider.getDynamicAtributeToken()).thenReturn(TestUtilMessageService.getDynamicAttributeToken());
+		when(selfDescriptionConfiguration.getConnectorURI()).thenReturn(URI.create("http://auto-generated"));
 		ReflectionTestUtils.setField(clearingHouseServiceImpl, "informationModelVersion", "4.0.6", String.class);
 	}
 	
