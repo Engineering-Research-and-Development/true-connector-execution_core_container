@@ -3,20 +3,15 @@
 
 echo "Downloading certificate from private repository..."
 git clone https://${GH_TOKEN}:x-oauth-basic@github.com/Engineering-Research-and-Development/private-files-repo.git
+cp -rf private-files-repo/*.p12 ./ci
+echo "go to ci#############.."
 pwd
+cd ci
 ls
 echo "private file repo"
-cd ./private-files-repo
+echo "home"
+cd $HOME
 pwd
-ls
-cd ..
-
-cp -rf private-files-repo/*.p12 ./ci/docker/ecc-cert
-echo "go to ci/docker..."
-pwd
-cd ci/docker/ecc-cert
-ls
-echo "private file repo"
 echo "Certificate from private repository downloaded"
 BRANCH_DATA_APP=master
 
