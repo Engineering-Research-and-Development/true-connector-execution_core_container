@@ -47,7 +47,7 @@ echo "Cloning and Creating Docker Container from Data-App repo..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-data_app_test_BE.git
 cd market4.0-data_app_test_BE
 git checkout ${BRANCH_DATA_APP}
-mvn clean package
+mvn clean install
 docker build -f Dockerfile -t rdlabengpa/data-app .
 cd ..
 echo "Data-App is ready to start"
@@ -60,7 +60,7 @@ cd ..
 echo "Clearing-House Model installed!"
 
 echo "Creating Docker Container for ECCs..."
-mvn clean package -DskipTests
+mvn clean install
 docker build -f Dockerfile -t rdlabengpa/execution_core_container_bl .
 
 #echo "Starting services..."
