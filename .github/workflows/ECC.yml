@@ -40,7 +40,7 @@ jobs:
       - name: Check if the container is up and running
         run: docker ps -a 
       
-      - name: Run Install
+      - name: Run Test
         run: ./ci/test.sh
         env:
           GH_TOKEN: ${{secrets.GH_TOKEN}}
