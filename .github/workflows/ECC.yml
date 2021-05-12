@@ -30,7 +30,6 @@ jobs:
       - name: Run docker container
         run: sudo docker-compose -f ./ci/docker/docker-compose.yml up 
         env:
-          GH_TOKEN: ${{secrets.GH_TOKEN}}
           DAPS: false
           CH: false
           DAPS_KEYSTORE_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
