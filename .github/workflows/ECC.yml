@@ -33,7 +33,7 @@ jobs:
           GH_TOKEN: ${{secrets.GH_TOKEN}}
           DAPS: false
           CH: false
-          KEYSTORE_PASSWORD: ${{secrets.KEYSTORE_PASSWORD}}
+          DAPS_KEYSTORE_PASSWORD: ${{secrets.KEYSTORE_PASSWORD}}
           SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
         
       - name: Wait for cointainer starting
