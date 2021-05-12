@@ -18,7 +18,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.ProtocolValidationServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -37,7 +37,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	@Mock
 	private RejectionMessageService rejectionMessageService;
 	@Mock
-	private ProtocolValidationServiceImpl protocolValidationServiceImpl;
+	private ProtocolValidationService protocolValidationService;
 
 	private MultipartMessage multipartMessage;
 	private String receivedDataBodyBinary;
@@ -52,7 +52,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		forwardTo = "https://forward.to.example";
-		when(protocolValidationServiceImpl.validateProtocol(forwardTo)).thenReturn(forwardTo);
+		when(protocolValidationService.validateProtocol(forwardTo)).thenReturn(forwardTo);
 	}
 
 	@Test

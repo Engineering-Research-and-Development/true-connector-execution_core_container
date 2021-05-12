@@ -14,7 +14,7 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.HttpWebSocketMessagingLogicA;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.ProtocolValidationServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
@@ -33,7 +33,7 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 	private MultipartMessageService multipartMessageService;
 	
 	@Autowired
-	private ProtocolValidationServiceImpl protocolValidationServiceImpl;
+	private ProtocolValidationService protocolValidationService;
 	
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
@@ -58,7 +58,7 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 			//String wsURI = "wss://0.0.0.0:8086"+ HttpWebSocketServerBean.WS_URL;
 			String url = HttpWebSocketMessagingLogicA.getInstance().getForwardTo();
 			forwardTo = null != receivedDataHeader.get("Forward-To")? receivedDataHeader.get("Forward-To").toString() : url;
-			forwardTo = protocolValidationServiceImpl.validateProtocol(forwardTo);
+			forwardTo = protocolValidationService.validateProtocol(forwardTo);
 			headesParts.put("Forward-To", forwardTo);
 
 			// Create multipart message parts

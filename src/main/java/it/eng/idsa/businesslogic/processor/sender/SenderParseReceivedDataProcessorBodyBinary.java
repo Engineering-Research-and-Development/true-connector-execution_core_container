@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.ProtocolValidationServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -30,7 +30,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 	private static final Logger logger = LoggerFactory.getLogger(SenderParseReceivedDataProcessorBodyBinary.class);
 	
 	@Autowired
-	private ProtocolValidationServiceImpl protocolValidationServiceImpl;
+	private ProtocolValidationService protocolValidationService;
 
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
@@ -47,7 +47,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 		receivedDataBodyBinary = exchange.getMessage().getBody(String.class);
 		
 		String forwardTo = headerParts.get("Forward-To").toString();
-		forwardTo = protocolValidationServiceImpl.validateProtocol(forwardTo);
+		forwardTo = protocolValidationService.validateProtocol(forwardTo);
 		headerParts.replace("Forward-To", forwardTo);
 
 		if (receivedDataBodyBinary == null) {

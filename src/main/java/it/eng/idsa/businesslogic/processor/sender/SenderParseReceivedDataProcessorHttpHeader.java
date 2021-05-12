@@ -13,7 +13,7 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.ProtocolValidationServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -25,7 +25,7 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 	private static final Logger logger = LoggerFactory.getLogger(SenderParseReceivedDataProcessorHttpHeader.class);
 	
 	@Autowired
-	private ProtocolValidationServiceImpl protocolValidationServiceImpl;
+	private ProtocolValidationService protocolValidationService;
 
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
@@ -49,7 +49,7 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 		payload = exchange.getMessage().getBody(String.class);
 		
 		String forwardTo = headersParts.get("Forward-To").toString();
-		forwardTo = protocolValidationServiceImpl.validateProtocol(forwardTo);
+		forwardTo = protocolValidationService.validateProtocol(forwardTo);
 		headersParts.replace("Forward-To", forwardTo);
 		
 		try {

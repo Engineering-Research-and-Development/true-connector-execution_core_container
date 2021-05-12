@@ -22,7 +22,7 @@ import com.sun.istack.ByteArrayDataSource;
 
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.ProtocolValidationServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -37,7 +37,7 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 	@Mock
 	private RejectionMessageService rejectionMessageService;
 	@Mock
-	private ProtocolValidationServiceImpl protocolValidationServiceImpl;
+	private ProtocolValidationService protocolValidationService;
 
 	@Mock
 	private Exchange exchange;
@@ -57,7 +57,7 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 		msg = TestUtilMessageService.getArtifactRequestMessage();
 		headerAsString = TestUtilMessageService.getMessageAsString(msg);
 		forwardTo = "https://forward.to.example";
-		when(protocolValidationServiceImpl.validateProtocol(forwardTo)).thenReturn(forwardTo);
+		when(protocolValidationService.validateProtocol(forwardTo)).thenReturn(forwardTo);
 	}
 
 	@Test

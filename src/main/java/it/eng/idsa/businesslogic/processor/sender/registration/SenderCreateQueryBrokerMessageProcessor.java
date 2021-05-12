@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
-import it.eng.idsa.businesslogic.service.impl.ProtocolValidationServiceImpl;
+import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
@@ -14,7 +14,7 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
 public class SenderCreateQueryBrokerMessageProcessor implements Processor {
 	
 	@Autowired
-	private ProtocolValidationServiceImpl protocolValidationServiceImpl;
+	private ProtocolValidationService protocolValidationService;
 
 	@Autowired
 	private SelfDescriptionService selfDescriptionService;
@@ -23,7 +23,7 @@ public class SenderCreateQueryBrokerMessageProcessor implements Processor {
 	public void process(Exchange exchange) throws Exception {
 		
 		String forwardTo = exchange.getMessage().getHeader("Forward-To").toString();
-		forwardTo = protocolValidationServiceImpl.validateProtocol(forwardTo);
+		forwardTo = protocolValidationService.validateProtocol(forwardTo);
 		exchange.getMessage().setHeader("Forward-To", forwardTo);
 		
 		MultipartMessage multipartMessage = new MultipartMessageBuilder()

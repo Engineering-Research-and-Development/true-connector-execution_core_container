@@ -23,7 +23,7 @@ public class ProtocolValidationServiceImplTest {
 	private static final String WSS = "wss";
 	
 	@InjectMocks
-	private ProtocolValidationServiceImpl protocolValidationServiceImpl;
+	private ProtocolValidationServiceImpl protocolValidationService;
 	
 	private boolean websocketBetweenECC;
 	
@@ -37,52 +37,348 @@ public class ProtocolValidationServiceImplTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		requiredECCProtocol = setRequiredProtocol(HTTPS);
-		mockFieldsToProtocol(HTTPS);
 	}
 	
 	
 	@Test
 	public void validateProtocolNoDelimiterInForwardTo() {
+		requiredECCProtocol = setRequiredProtocol(HTTPS);
+		mockFieldsToProtocol(HTTPS);
 		String forwardTo = "mock.com";
-		ReflectionTestUtils.setField(protocolValidationServiceImpl, "validateProtocol", true);
-		protocolValidationServiceImpl.validateProtocol(forwardTo);
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
+		protocolValidationService.validateProtocol(forwardTo);
 		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
 	}
 	
 	@Test
-	public void validateProtocolWrongProtocolInForwardTo() {
+	public void validateProtocolWrongProtocolInForwardToReceivedHttpRequiredHttps() {
+		requiredECCProtocol = setRequiredProtocol(HTTPS);
+		mockFieldsToProtocol(HTTPS);
 		String forwardTo = "http://mock.com";
-		ReflectionTestUtils.setField(protocolValidationServiceImpl, "validateProtocol", true);
-		protocolValidationServiceImpl.validateProtocol(forwardTo);
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
+		protocolValidationService.validateProtocol(forwardTo);
 		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
 	}
 	
 	@Test
-	public void validateProtocolCorrectForwardTo() {
+	public void validateProtocolWrongProtocolInForwardToReceivedWssRequiredHttps() {
+		requiredECCProtocol = setRequiredProtocol(HTTPS);
+		mockFieldsToProtocol(HTTPS);
+		String forwardTo = "wss://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
+		protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+	}
+	
+	@Test
+	public void validateProtocolWrongProtocolInForwardToReceivedNoProtocolRequiredHttps() {
+		requiredECCProtocol = setRequiredProtocol(HTTPS);
+		mockFieldsToProtocol(HTTPS);
+		String forwardTo = "://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
+		protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+	}
+	
+	@Test
+	public void validateProtocolWrongProtocolInForwardToReceivedNonStandardProtocolRequiredHttps() {
+		requiredECCProtocol = setRequiredProtocol(HTTPS);
+		mockFieldsToProtocol(HTTPS);
+		String forwardTo = "dummy://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
+		protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+	}
+	
+	@Test
+	public void validateProtocolCorrectForwardToReceivedHttpsRequiredHttps() {
+		requiredECCProtocol = setRequiredProtocol(HTTPS);
+		mockFieldsToProtocol(HTTPS);
 		String forwardTo = "https://mock.com";
-		ReflectionTestUtils.setField(protocolValidationServiceImpl, "validateProtocol", true);
-		String testForwardTo = protocolValidationServiceImpl.validateProtocol(forwardTo);
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
+		String testForwardTo = protocolValidationService.validateProtocol(forwardTo);
 		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
 		assertEquals(forwardTo, testForwardTo);
 	}
+
+	@Test
+	public void validateProtocolWrongProtocolInForwardToReceivedHttpsRequiredHttp() {
+		requiredECCProtocol = setRequiredProtocol(HTTP);
+		mockFieldsToProtocol(HTTP);
+		String forwardTo = "https://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
+		protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+	}
 	
 	@Test
-	public void noProtocolValidationWithDelimiterInForwardTo() {
+	public void validateProtocolWrongProtocolInForwardToReceivedWssRequiredHttp() {
+		requiredECCProtocol = setRequiredProtocol(HTTP);
+		mockFieldsToProtocol(HTTP);
 		String forwardTo = "wss://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
+		protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+	}
+	
+	@Test
+	public void validateProtocolWrongProtocolInForwardToReceivedNoProtocolRequiredHttp() {
+		requiredECCProtocol = setRequiredProtocol(HTTP);
+		mockFieldsToProtocol(HTTP);
+		String forwardTo = "://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
+		protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+	}
+	
+	@Test
+	public void validateProtocolWrongProtocolInForwardToReceivedNonStandardProtocolRequiredHttp() {
+		requiredECCProtocol = setRequiredProtocol(HTTP);
+		mockFieldsToProtocol(HTTP);
+		String forwardTo = "dummy://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
+		protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+	}
+	
+	@Test
+	public void validateProtocolCorrectForwardToReceivedHttpRequiredHttp() {
+		requiredECCProtocol = setRequiredProtocol(HTTP);
+		mockFieldsToProtocol(HTTP);
+		String forwardTo = "http://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
+		String testForwardTo = protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		assertEquals(forwardTo, testForwardTo);
+	}
+
+	@Test
+	public void validateProtocolWrongProtocolInForwardToReceivedHttpsRequiredWss() {
+		requiredECCProtocol = setRequiredProtocol(WSS);
+		mockFieldsToProtocol(WSS);
+		String forwardTo = "https://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
+		protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+	}
+	
+	@Test
+	public void validateProtocolWrongProtocolInForwardToReceivedHttpRequiredWss() {
+		requiredECCProtocol = setRequiredProtocol(WSS);
+		mockFieldsToProtocol(WSS);
+		String forwardTo = "http://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
+		protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+	}
+	
+	@Test
+	public void validateProtocolWrongProtocolInForwardToReceivedNoProtocolRequiredWss() {
+		requiredECCProtocol = setRequiredProtocol(WSS);
+		mockFieldsToProtocol(WSS);
+		String forwardTo = "://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
+		protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+	}
+	
+	@Test
+	public void validateProtocolWrongProtocolInForwardToReceivedNonStandardProtocolRequiredWss() {
+		requiredECCProtocol = setRequiredProtocol(WSS);
+		mockFieldsToProtocol(WSS);
+		String forwardTo = "dummy://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
+		protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+	}
+
+	@Test
+	public void validateProtocolCorrectForwardToReceivedHttpRequiredWss() {
+		requiredECCProtocol = setRequiredProtocol(WSS);
+		mockFieldsToProtocol(WSS);
+		String forwardTo = "wss://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
+		String testForwardTo = protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		assertEquals(forwardTo, testForwardTo);
+	}
+
+	@Test
+	public void noProtocolValidationReceivedHttpRequiredHttps() {
+		requiredECCProtocol = setRequiredProtocol(HTTPS);
+		mockFieldsToProtocol(HTTPS);
+		String forwardTo = "http://mock.com";
 		String expectedForwardTo = "https://mock.com";
-		ReflectionTestUtils.setField(protocolValidationServiceImpl, "validateProtocol", false);
-		String actualForwardTo = protocolValidationServiceImpl.validateProtocol(forwardTo);
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
 		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
 		assertEquals(actualForwardTo, expectedForwardTo);
 	}
 	
 	@Test
-	public void noProtocolValidationWithoutDelimiterInForwardTo() {
+	public void noProtocolValidationReceivedHttpsRequiredHttps() {
+		requiredECCProtocol = setRequiredProtocol(HTTPS);
+		mockFieldsToProtocol(HTTPS);
+		String forwardTo = "https://mock.com";
+		String expectedForwardTo = "https://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		assertEquals(actualForwardTo, expectedForwardTo);
+	}
+	
+	@Test
+	public void noProtocolValidationReceivedWssRequiredHttps() {
+		requiredECCProtocol = setRequiredProtocol(HTTPS);
+		mockFieldsToProtocol(HTTPS);
+		String forwardTo = "wss://mock.com";
+		String expectedForwardTo = "https://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		assertEquals(actualForwardTo, expectedForwardTo);
+	}
+	
+	@Test
+	public void noProtocolValidationReceivedNonStandardProtocolRequiredHttps() {
+		requiredECCProtocol = setRequiredProtocol(HTTPS);
+		mockFieldsToProtocol(HTTPS);
+		String forwardTo = "dummy://mock.com";
+		String expectedForwardTo = "https://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		assertEquals(actualForwardTo, expectedForwardTo);
+	}
+	
+	@Test
+	public void noProtocolValidationReceivedHttpRequiredHttp() {
+		requiredECCProtocol = setRequiredProtocol(HTTP);
+		mockFieldsToProtocol(HTTP);
+		String forwardTo = "http://mock.com";
+		String expectedForwardTo = "http://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		assertEquals(actualForwardTo, expectedForwardTo);
+	}
+	
+	@Test
+	public void noProtocolValidationReceivedHttpsRequiredHttp() {
+		requiredECCProtocol = setRequiredProtocol(HTTP);
+		mockFieldsToProtocol(HTTP);
+		String forwardTo = "https://mock.com";
+		String expectedForwardTo = "http://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		assertEquals(actualForwardTo, expectedForwardTo);
+	}
+	
+	@Test
+	public void noProtocolValidationReceivedWssRequiredHttp() {
+		requiredECCProtocol = setRequiredProtocol(HTTP);
+		mockFieldsToProtocol(HTTP);
+		String forwardTo = "wss://mock.com";
+		String expectedForwardTo = "http://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		assertEquals(actualForwardTo, expectedForwardTo);
+	}
+	
+	@Test
+	public void noProtocolValidationReceivedNonStandardProtocolRequiredHttp() {
+		requiredECCProtocol = setRequiredProtocol(HTTP);
+		mockFieldsToProtocol(HTTP);
+		String forwardTo = "dummy://mock.com";
+		String expectedForwardTo = "http://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		assertEquals(actualForwardTo, expectedForwardTo);
+	}
+	
+	@Test
+	public void noProtocolValidationReceivedHttpRequiredWss() {
+		requiredECCProtocol = setRequiredProtocol(WSS);
+		mockFieldsToProtocol(WSS);
+		String forwardTo = "http://mock.com";
+		String expectedForwardTo = "wss://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		assertEquals(actualForwardTo, expectedForwardTo);
+	}
+	
+	@Test
+	public void noProtocolValidationReceivedHttpsRequiredWss() {
+		requiredECCProtocol = setRequiredProtocol(WSS);
+		mockFieldsToProtocol(WSS);
+		String forwardTo = "https://mock.com";
+		String expectedForwardTo = "wss://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		assertEquals(actualForwardTo, expectedForwardTo);
+	}
+	
+	@Test
+	public void noProtocolValidationReceivedWssRequiredWss() {
+		requiredECCProtocol = setRequiredProtocol(WSS);
+		mockFieldsToProtocol(WSS);
+		String forwardTo = "wss://mock.com";
+		String expectedForwardTo = "wss://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		assertEquals(actualForwardTo, expectedForwardTo);
+	}
+	
+	@Test
+	public void noProtocolValidationReceivedNonStandardProtocolRequiredWss() {
+		requiredECCProtocol = setRequiredProtocol(WSS);
+		mockFieldsToProtocol(WSS);
+		String forwardTo = "dummy://mock.com";
+		String expectedForwardTo = "wss://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		assertEquals(actualForwardTo, expectedForwardTo);
+	}
+	
+	@Test
+	public void noProtocolValidationWithoutDelimiterInForwardToRequiredHttps() {
+		requiredECCProtocol = setRequiredProtocol(HTTPS);
+		mockFieldsToProtocol(HTTPS);
 		String forwardTo = "mock.com";
 		String expectedForwardTo = "https://mock.com";
-		ReflectionTestUtils.setField(protocolValidationServiceImpl, "validateProtocol", false);
-		String actualForwardTo = protocolValidationServiceImpl.validateProtocol(forwardTo);
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		assertEquals(actualForwardTo, expectedForwardTo);
+	}
+	
+	@Test
+	public void noProtocolValidationWithoutDelimiterInForwardToRequiredHttp() {
+		requiredECCProtocol = setRequiredProtocol(HTTP);
+		mockFieldsToProtocol(HTTP);
+		String forwardTo = "mock.com";
+		String expectedForwardTo = "http://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		assertEquals(actualForwardTo, expectedForwardTo);
+	}
+	
+	@Test
+	public void noProtocolValidationWithoutDelimiterInForwardToRequiredWss() {
+		requiredECCProtocol = setRequiredProtocol(WSS);
+		mockFieldsToProtocol(WSS);
+		String forwardTo = "mock.com";
+		String expectedForwardTo = "wss://mock.com";
+		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
 		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
 		assertEquals(actualForwardTo, expectedForwardTo);
 	}
@@ -103,9 +399,9 @@ public class ProtocolValidationServiceImplTest {
 	}
 	
 	private void mockFieldsToProtocol(String protocol) {
-		ReflectionTestUtils.setField(protocolValidationServiceImpl, "jetty", jetty);
-		ReflectionTestUtils.setField(protocolValidationServiceImpl, "websocketBetweenECC", websocketBetweenECC);
-		ReflectionTestUtils.setField(protocolValidationServiceImpl, "requiredECCProtocol", requiredECCProtocol);
+		ReflectionTestUtils.setField(protocolValidationService, "jetty", jetty);
+		ReflectionTestUtils.setField(protocolValidationService, "websocketBetweenECC", websocketBetweenECC);
+		ReflectionTestUtils.setField(protocolValidationService, "requiredECCProtocol", requiredECCProtocol);
 
 
 	}
