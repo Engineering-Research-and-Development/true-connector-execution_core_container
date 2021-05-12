@@ -28,7 +28,7 @@ jobs:
           GH_TOKEN: ${{secrets.GH_TOKEN}}
               
       - name: Run docker container
-        run: docker-compose -f ./ci/docker/docker-compose.yml up 
+        run: sudo docker-compose -f ./ci/docker/docker-compose.yml up 
         env:
           GH_TOKEN: ${{secrets.GH_TOKEN}}
           DAPS: false

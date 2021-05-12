@@ -27,8 +27,6 @@ cp -rf ./ci/.m2/repository/de/fraunhofer/aisec/ids  $HOME/.m2/repository/de/frau
 cp -rf ./ci/.m2/repository/de/fraunhofer/dataspaces/iese  $HOME/.m2/repository/de/fraunhofer/dataspaces
 cp -f ./ci/.m2/settings/settings.xml  $HOME/.m2
 
-
-
 echo "Installing Multipart Message Lib..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-ids_multipart_message_processor
 cd market4.0-ids_multipart_message_processor
@@ -62,12 +60,3 @@ echo "Clearing-House Model installed!"
 echo "Creating Docker Container for ECCs..."
 mvn -U clean install -DskipTests
 docker build -f Dockerfile -t rdlabengpa/execution_core_container_bl .
-
-#echo "Starting services..."
-#cd ci/docker
-#ls
-
-#sudo docker-compose up
-
-cd ./ci/docker/ecc-cert
-ls
