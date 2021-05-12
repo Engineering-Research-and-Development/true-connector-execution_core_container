@@ -68,3 +68,6 @@ docker build -f Dockerfile -t rdlabengpa/execution_core_container_bl .
 #ls
 
 #sudo docker-compose up
+
+cd ./ci/docker/ecc-cert
+ls
