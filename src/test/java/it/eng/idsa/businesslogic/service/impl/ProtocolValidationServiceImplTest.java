@@ -407,19 +407,3 @@ public class ProtocolValidationServiceImplTest {
 	}
 	
 }
-
-
-
-//validate protocol = true
-//
-//must match from Forward-To like configured
-//validate protocol = false
-//configured http:
-//received wss -> must convert to http
-//received https -> must convert to http
-//received http -> must convert to http
-//received dummy -> must convert to http
-//received 'empty' -> must convert to http
-//    
-//empty - ecc-producer:8086/data
-//-> http://ecc-producer:8086/data
