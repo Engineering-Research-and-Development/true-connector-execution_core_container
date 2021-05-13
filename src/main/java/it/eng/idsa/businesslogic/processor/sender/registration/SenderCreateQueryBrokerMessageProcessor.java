@@ -22,14 +22,14 @@ public class SenderCreateQueryBrokerMessageProcessor implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		
-		String forwardTo = exchange.getMessage().getHeader("Forward-To").toString();
-		forwardTo = protocolValidationService.validateProtocol(forwardTo);
-		exchange.getMessage().setHeader("Forward-To", forwardTo);
-		
 		MultipartMessage multipartMessage = new MultipartMessageBuilder()
 				.withHeaderContent(selfDescriptionService.getConnectorQueryMessage())
 				.withPayloadContent(exchange.getMessage().getBody(String.class)).build();
+		
+		String forwardTo = exchange.getMessage().getHeader("Forward-To").toString();
+		forwardTo = protocolValidationService.validateProtocol(forwardTo, multipartMessage.getHeaderContent());
 
+		exchange.getMessage().setHeader("Forward-To", forwardTo);
 		exchange.getMessage().setBody(multipartMessage);
 	}
 

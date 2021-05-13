@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
@@ -33,6 +34,9 @@ public class ProtocolValidationServiceImplTest {
 	
 	@Mock
 	private RejectionMessageService rejectionMessageService;
+	
+	@Mock
+	private Message message;
 
 	@BeforeEach
 	public void setup() {
@@ -46,8 +50,8 @@ public class ProtocolValidationServiceImplTest {
 		mockFieldsToProtocol(HTTPS);
 		String forwardTo = "mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
-		protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 	}
 	
 	@Test
@@ -56,8 +60,8 @@ public class ProtocolValidationServiceImplTest {
 		mockFieldsToProtocol(HTTPS);
 		String forwardTo = "http://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
-		protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 	}
 	
 	@Test
@@ -66,8 +70,8 @@ public class ProtocolValidationServiceImplTest {
 		mockFieldsToProtocol(HTTPS);
 		String forwardTo = "wss://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
-		protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 	}
 	
 	@Test
@@ -76,8 +80,8 @@ public class ProtocolValidationServiceImplTest {
 		mockFieldsToProtocol(HTTPS);
 		String forwardTo = "://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
-		protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 	}
 	
 	@Test
@@ -86,8 +90,8 @@ public class ProtocolValidationServiceImplTest {
 		mockFieldsToProtocol(HTTPS);
 		String forwardTo = "dummy://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
-		protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 	}
 	
 	@Test
@@ -96,8 +100,8 @@ public class ProtocolValidationServiceImplTest {
 		mockFieldsToProtocol(HTTPS);
 		String forwardTo = "https://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
-		String testForwardTo = protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		String testForwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		assertEquals(forwardTo, testForwardTo);
 	}
 
@@ -107,8 +111,8 @@ public class ProtocolValidationServiceImplTest {
 		mockFieldsToProtocol(HTTP);
 		String forwardTo = "https://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
-		protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 	}
 	
 	@Test
@@ -117,8 +121,8 @@ public class ProtocolValidationServiceImplTest {
 		mockFieldsToProtocol(HTTP);
 		String forwardTo = "wss://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
-		protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 	}
 	
 	@Test
@@ -127,8 +131,8 @@ public class ProtocolValidationServiceImplTest {
 		mockFieldsToProtocol(HTTP);
 		String forwardTo = "://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
-		protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 	}
 	
 	@Test
@@ -137,8 +141,8 @@ public class ProtocolValidationServiceImplTest {
 		mockFieldsToProtocol(HTTP);
 		String forwardTo = "dummy://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
-		protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 	}
 	
 	@Test
@@ -147,8 +151,8 @@ public class ProtocolValidationServiceImplTest {
 		mockFieldsToProtocol(HTTP);
 		String forwardTo = "http://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
-		String testForwardTo = protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		String testForwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		assertEquals(forwardTo, testForwardTo);
 	}
 
@@ -158,8 +162,8 @@ public class ProtocolValidationServiceImplTest {
 		mockFieldsToProtocol(WSS);
 		String forwardTo = "https://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
-		protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 	}
 	
 	@Test
@@ -168,8 +172,8 @@ public class ProtocolValidationServiceImplTest {
 		mockFieldsToProtocol(WSS);
 		String forwardTo = "http://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
-		protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 	}
 	
 	@Test
@@ -178,8 +182,8 @@ public class ProtocolValidationServiceImplTest {
 		mockFieldsToProtocol(WSS);
 		String forwardTo = "://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
-		protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 	}
 	
 	@Test
@@ -188,8 +192,8 @@ public class ProtocolValidationServiceImplTest {
 		mockFieldsToProtocol(WSS);
 		String forwardTo = "dummy://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
-		protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 	}
 
 	@Test
@@ -198,8 +202,8 @@ public class ProtocolValidationServiceImplTest {
 		mockFieldsToProtocol(WSS);
 		String forwardTo = "wss://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", true);
-		String testForwardTo = protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		String testForwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		assertEquals(forwardTo, testForwardTo);
 	}
 
@@ -210,8 +214,8 @@ public class ProtocolValidationServiceImplTest {
 		String forwardTo = "http://mock.com";
 		String expectedForwardTo = "https://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
-		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		assertEquals(actualForwardTo, expectedForwardTo);
 	}
 	
@@ -222,8 +226,8 @@ public class ProtocolValidationServiceImplTest {
 		String forwardTo = "https://mock.com";
 		String expectedForwardTo = "https://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
-		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		assertEquals(actualForwardTo, expectedForwardTo);
 	}
 	
@@ -234,8 +238,8 @@ public class ProtocolValidationServiceImplTest {
 		String forwardTo = "wss://mock.com";
 		String expectedForwardTo = "https://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
-		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		assertEquals(actualForwardTo, expectedForwardTo);
 	}
 	
@@ -246,8 +250,8 @@ public class ProtocolValidationServiceImplTest {
 		String forwardTo = "dummy://mock.com";
 		String expectedForwardTo = "https://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
-		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		assertEquals(actualForwardTo, expectedForwardTo);
 	}
 	
@@ -258,8 +262,8 @@ public class ProtocolValidationServiceImplTest {
 		String forwardTo = "http://mock.com";
 		String expectedForwardTo = "http://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
-		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		assertEquals(actualForwardTo, expectedForwardTo);
 	}
 	
@@ -270,8 +274,8 @@ public class ProtocolValidationServiceImplTest {
 		String forwardTo = "https://mock.com";
 		String expectedForwardTo = "http://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
-		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		assertEquals(actualForwardTo, expectedForwardTo);
 	}
 	
@@ -282,8 +286,8 @@ public class ProtocolValidationServiceImplTest {
 		String forwardTo = "wss://mock.com";
 		String expectedForwardTo = "http://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
-		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		assertEquals(actualForwardTo, expectedForwardTo);
 	}
 	
@@ -294,8 +298,8 @@ public class ProtocolValidationServiceImplTest {
 		String forwardTo = "dummy://mock.com";
 		String expectedForwardTo = "http://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
-		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		assertEquals(actualForwardTo, expectedForwardTo);
 	}
 	
@@ -306,8 +310,8 @@ public class ProtocolValidationServiceImplTest {
 		String forwardTo = "http://mock.com";
 		String expectedForwardTo = "wss://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
-		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		assertEquals(actualForwardTo, expectedForwardTo);
 	}
 	
@@ -318,8 +322,8 @@ public class ProtocolValidationServiceImplTest {
 		String forwardTo = "https://mock.com";
 		String expectedForwardTo = "wss://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
-		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		assertEquals(actualForwardTo, expectedForwardTo);
 	}
 	
@@ -330,8 +334,8 @@ public class ProtocolValidationServiceImplTest {
 		String forwardTo = "wss://mock.com";
 		String expectedForwardTo = "wss://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
-		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		assertEquals(actualForwardTo, expectedForwardTo);
 	}
 	
@@ -342,8 +346,8 @@ public class ProtocolValidationServiceImplTest {
 		String forwardTo = "dummy://mock.com";
 		String expectedForwardTo = "wss://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
-		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		assertEquals(actualForwardTo, expectedForwardTo);
 	}
 	
@@ -354,8 +358,8 @@ public class ProtocolValidationServiceImplTest {
 		String forwardTo = "mock.com";
 		String expectedForwardTo = "https://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
-		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		assertEquals(actualForwardTo, expectedForwardTo);
 	}
 	
@@ -366,8 +370,8 @@ public class ProtocolValidationServiceImplTest {
 		String forwardTo = "mock.com";
 		String expectedForwardTo = "http://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
-		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		assertEquals(actualForwardTo, expectedForwardTo);
 	}
 	
@@ -378,8 +382,8 @@ public class ProtocolValidationServiceImplTest {
 		String forwardTo = "mock.com";
 		String expectedForwardTo = "wss://mock.com";
 		ReflectionTestUtils.setField(protocolValidationService, "validateProtocol", false);
-		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		String actualForwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		assertEquals(actualForwardTo, expectedForwardTo);
 	}
 	

@@ -48,10 +48,6 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 		headersParts = exchange.getMessage().getHeaders();
 		payload = exchange.getMessage().getBody(String.class);
 		
-		String forwardTo = headersParts.get("Forward-To").toString();
-		forwardTo = protocolValidationService.validateProtocol(forwardTo);
-		headersParts.replace("Forward-To", forwardTo);
-		
 		try {
 			headerContentHeaders = headerService.getHeaderContentHeaders(headersParts);
 			String header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
@@ -67,6 +63,10 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 					.withPayloadContent(payload)
 					.build();
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
+			
+			String forwardTo = headersParts.get("Forward-To").toString();
+			forwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+			headersParts.replace("Forward-To", forwardTo);
 			
 			// Return exchange
 			exchange.getMessage().setHeaders(headersParts);

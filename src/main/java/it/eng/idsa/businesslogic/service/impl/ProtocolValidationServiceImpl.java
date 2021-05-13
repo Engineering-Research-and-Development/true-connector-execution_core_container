@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
@@ -63,7 +64,7 @@ public class ProtocolValidationServiceImpl implements ProtocolValidationService 
 	 * @return the correct Forward-To address
 	 */
 	@Override
-	public String validateProtocol(String forwardTo) {
+	public String validateProtocol(String forwardTo, Message message) {
 		String requiredProtocol = null;
 
 		requiredProtocol = requiredECCProtocol;
@@ -74,11 +75,11 @@ public class ProtocolValidationServiceImpl implements ProtocolValidationService 
 				String forwardToProtocol = forwardTo.split(PROTOCOL_DELIMITER)[0];
 				if (!forwardToProtocol.equals(requiredProtocol)) {
 					logger.error("Forward-To protocol not correct. Required: {}", requiredProtocol);
-					rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+					rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 				}
 			} else {
 				logger.error("Forward-To protocol delimiter missing.");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 			}
 		} else {
 			logger.info("Applying selected protocol to Forward-To: {}", requiredProtocol);

@@ -37,10 +37,6 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 		// Get from the input "exchange"
 		Map<String, Object> receivedDataHeader = exchange.getMessage().getHeaders();
 		
-		String forwardTo = receivedDataHeader.get("Forward-To").toString();
-		forwardTo = protocolValidationService.validateProtocol(forwardTo);
-		headersParts.put("Forward-To", forwardTo);
-
 		String connector = selfDescriptionService.getConnectorSelfDescription();
 		Message connectorAvailable = getConnectorMessage();
 
@@ -59,6 +55,11 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 					.withHeaderContent(connectorAvailable)
 					.build();
 		}
+		
+		String forwardTo = receivedDataHeader.get("Forward-To").toString();
+		forwardTo = protocolValidationService.validateProtocol(forwardTo, multipartMessage.getHeaderContent());
+		headersParts.put("Forward-To", forwardTo);
+		
 		// Return exchange
 		exchange.getMessage().setHeaders(headersParts);
 		exchange.getMessage().setBody(multipartMessage);

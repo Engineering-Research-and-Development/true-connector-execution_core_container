@@ -46,10 +46,6 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 		headerParts = exchange.getMessage().getHeaders();
 		receivedDataBodyBinary = exchange.getMessage().getBody(String.class);
 		
-		String forwardTo = headerParts.get("Forward-To").toString();
-		forwardTo = protocolValidationService.validateProtocol(forwardTo);
-		headerParts.replace("Forward-To", forwardTo);
-
 		if (receivedDataBodyBinary == null) {
 			logger.error("Body of the received multipart message is null");
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
@@ -61,6 +57,10 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 			// Create headers parts
 			headerParts.put("Payload-Content-Type",
 					multipartMessage.getPayloadHeader().get(MultipartMessageKey.CONTENT_TYPE.label));
+			
+			String forwardTo = headerParts.get("Forward-To").toString();
+			forwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+			headerParts.replace("Forward-To", forwardTo);
 
 			// Return exchange
 			exchange.getMessage().setBody(multipartMessage);

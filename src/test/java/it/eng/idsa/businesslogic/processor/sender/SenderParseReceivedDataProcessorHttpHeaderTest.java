@@ -58,7 +58,7 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		forwardTo = "https://forward.to.example";
-		when(protocolValidationService.validateProtocol(forwardTo)).thenReturn(forwardTo);
+		when(protocolValidationService.validateProtocol(forwardTo, msg)).thenReturn(forwardTo);
 	}
 
 	@Test

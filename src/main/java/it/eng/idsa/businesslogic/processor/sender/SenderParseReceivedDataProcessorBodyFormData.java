@@ -52,10 +52,6 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 		// Get from the input "exchange"
 		Map<String, Object> receivedDataHeader = exchange.getMessage().getHeaders();
 		
-		String forwardTo = receivedDataHeader.get("Forward-To").toString();
-		forwardTo = protocolValidationService.validateProtocol(forwardTo);
-		receivedDataHeader.replace("Forward-To", forwardTo);
-
 		try {
 			// Create multipart message parts
 			if (receivedDataHeader.containsKey(MessagePart.HEADER)) {
@@ -80,6 +76,10 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 					.withHeaderContent(header)
 					.withPayloadContent(payload)
 					.build();
+			
+			String forwardTo = receivedDataHeader.get("Forward-To").toString();
+			forwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+			receivedDataHeader.replace("Forward-To", forwardTo);
 
 			// Return exchange
 			exchange.getMessage().setHeaders(receivedDataHeader);
