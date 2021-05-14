@@ -14,6 +14,7 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.HttpWebSocketMessagingLogicA;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
@@ -30,6 +31,9 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 
 	@Autowired
 	private MultipartMessageService multipartMessageService;
+	
+	@Autowired
+	private ProtocolValidationService protocolValidationService;
 	
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
@@ -51,11 +55,6 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 			contentType = null != receivedDataHeader.get("Content-Type")? receivedDataHeader.get("Content-Type").toString() : null;
 			headesParts.put("Content-Type", contentType);
 
-			//String wsURI = "wss://0.0.0.0:8086"+ HttpWebSocketServerBean.WS_URL;
-			String url = HttpWebSocketMessagingLogicA.getInstance().getForwardTo();
-			forwardTo = null != receivedDataHeader.get("Forward-To")? receivedDataHeader.get("Forward-To").toString() : url;
-			headesParts.put("Forward-To", forwardTo);
-
 			// Create multipart message parts
 			header = receivedDataHeader.get(MessagePart.HEADER).toString();
 			multipartMessageParts.put(MessagePart.HEADER, header);
@@ -64,12 +63,18 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 			}
 			message = multipartMessageService.getMessage(multipartMessageParts.get(MessagePart.HEADER));
 			
+			//String wsURI = "wss://0.0.0.0:8086"+ HttpWebSocketServerBean.WS_URL;
+			String url = HttpWebSocketMessagingLogicA.getInstance().getForwardTo();
+			forwardTo = null != receivedDataHeader.get("Forward-To")? receivedDataHeader.get("Forward-To").toString() : url;
+			forwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+			headesParts.put("Forward-To", forwardTo);
+			
 			// Return exchange
 			exchange.getMessage().setHeaders(headesParts);
 			exchange.getMessage().setBody(exchange.getMessage().getBody());
 
 		} catch (Exception e) {
-			logger.error("Error parsing multipart message:", e);
+			logger.error("Error parsing multipart message:", e.getMessage());
 			rejectionMessageService.sendRejectionMessage(
 					RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES,
 					message);

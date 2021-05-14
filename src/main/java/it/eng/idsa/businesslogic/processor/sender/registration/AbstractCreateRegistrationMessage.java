@@ -17,12 +17,16 @@ import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
+import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
 public abstract class AbstractCreateRegistrationMessage implements Processor {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AbstractCreateRegistrationMessage.class);
+	
+	@Autowired
+	private ProtocolValidationService protocolValidationService;
 
 	@Autowired
 	private SelfDescriptionService selfDescriptionService;
@@ -32,10 +36,7 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 		Map<String, Object> headersParts = new HashMap<String, Object>();
 		// Get from the input "exchange"
 		Map<String, Object> receivedDataHeader = exchange.getMessage().getHeaders();
-
-		headersParts.put("Forward-To", receivedDataHeader.get("Forward-To").toString());
-
-
+		
 		String connector = selfDescriptionService.getConnectorSelfDescription();
 		Message connectorAvailable = getConnectorMessage();
 
@@ -54,6 +55,11 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 					.withHeaderContent(connectorAvailable)
 					.build();
 		}
+		
+		String forwardTo = receivedDataHeader.get("Forward-To").toString();
+		forwardTo = protocolValidationService.validateProtocol(forwardTo, multipartMessage.getHeaderContent());
+		headersParts.put("Forward-To", forwardTo);
+		
 		// Return exchange
 		exchange.getMessage().setHeaders(headersParts);
 		exchange.getMessage().setBody(multipartMessage);
