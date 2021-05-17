@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -30,18 +31,19 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	@Mock
 	private Exchange exchange;
 	@Mock
-	private Message message;
-	@Mock
 	private Message messageOut;
 	@Mock
 	private de.fraunhofer.iais.eis.Message msg;
 	@Mock
 	private RejectionMessageService rejectionMessageService;
+	@Mock
+	private ProtocolValidationService protocolValidationService;
 
 	private MultipartMessage multipartMessage;
 	private String receivedDataBodyBinary;
 	private Map<String, Object> httpHeaders;
 	private Map<String, String> headerHeader;
+	private String forwardTo;
 
 	@InjectMocks
 	private SenderParseReceivedDataProcessorBodyBinary processor;
@@ -49,11 +51,12 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
+		forwardTo = "https://forward.to.example";
+		when(protocolValidationService.validateProtocol(forwardTo, msg)).thenReturn(forwardTo);
 	}
 
 	@Test
 	public void processWithContentType() throws Exception {
-		mockExchangeGetHttpHeaders(exchange);
 		multipartMessage = new MultipartMessageBuilder()
 				.withHeaderContent(TestUtilMessageService.getArtifactRequestMessage())
 				.withPayloadContent("foo bar")
@@ -62,6 +65,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 		msg = TestUtilMessageService.getArtifactRequestMessage();
 		when(exchange.getMessage()).thenReturn(messageOut);
 		when(messageOut.getBody(String.class)).thenReturn(receivedDataBodyBinary);
+		mockExchangeGetHttpHeaders();
 
 		processor.process(exchange);
 
@@ -71,7 +75,6 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	
 	@Test
 	public void processWithoutContentType() throws Exception {
-		mockExchangeGetHttpHeaders(exchange);
 		msg = TestUtilMessageService.getArtifactRequestMessage();
 		multipartMessage = new MultipartMessageBuilder()
 				.withHeaderContent(msg)
@@ -81,6 +84,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 		receivedDataBodyBinary = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
 		when(exchange.getMessage()).thenReturn(messageOut);
 		when(messageOut.getBody(String.class)).thenReturn(receivedDataBodyBinary);
+		mockExchangeGetHttpHeaders();
 
 		processor.process(exchange);
 
@@ -91,7 +95,6 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 
 	@Test
 	public void processWithInvalidContentTypeAndWithoutDaps() throws Exception {
-		mockExchangeGetHttpHeaders(exchange);
 		headerHeader = new HashMap<String, String>();
 		headerHeader.put(MultipartMessageKey.CONTENT_DISPOSITION.label, "form-data; name=\"header\"");
 		headerHeader.put(MultipartMessageKey.CONTENT_TYPE.label, ContentType.APPLICATION_XML.toString());
@@ -104,19 +107,19 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 		receivedDataBodyBinary = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
 		when(exchange.getMessage()).thenReturn(messageOut);
 		when(messageOut.getBody(String.class)).thenReturn(receivedDataBodyBinary);
+		mockExchangeGetHttpHeaders();
 
 		processor.process(exchange);
 
 		verify(messageOut).setBody(multipartMessage);
 	}
 
-	private void mockExchangeGetHttpHeaders(Exchange exchange) {
-		when(exchange.getMessage()).thenReturn(message);
+	private void mockExchangeGetHttpHeaders() {
 		httpHeaders = new HashMap<>();
 		httpHeaders.put("Content-Type", "multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6");
-		httpHeaders.put("Forward-To", "https://forward.to.example");
+		httpHeaders.put("Forward-To", forwardTo);
 		httpHeaders.put("Payload-Content-Type", ContentType.APPLICATION_JSON);
-		when(message.getHeaders()).thenReturn(httpHeaders);
+		when(messageOut.getHeaders()).thenReturn(httpHeaders);
 	}
 
 }
