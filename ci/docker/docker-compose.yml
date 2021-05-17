@@ -28,10 +28,10 @@ services:
        - KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
        - ALIAS=${ALIAS}
        - DAPS_KEYSTORE_NAME=${DAPS_KEYSTORE_NAME}
-       - DAPS_KEYSTORE_PASSWORD=password
+       - DAPS_KEYSTORE_PASSWORD=${DAPS_KEYSTORE_PASSWORD_DOCKER}
        - DAPS_KEYSTORE_ALIAS=${DAPS_KEYSTORE_ALIAS}
        - TRUSTORE_NAME=${TRUSTORE_NAME}
-       - TRUSTORE_PASSWORD=password
+       - TRUSTORE_PASSWORD=${DAPS_KEYSTORE_PASSWORD_DOCKER}
        - TZ=Europe/Rome                
     volumes:
        - ./ecc_resources_provider:/config
@@ -86,10 +86,10 @@ services:
        - KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
        - ALIAS=${ALIAS}
        - DAPS_KEYSTORE_NAME=${DAPS_KEYSTORE_NAME}
-       - DAPS_KEYSTORE_PASSWORD=password
+       - DAPS_KEYSTORE_PASSWORD=${DAPS_KEYSTORE_PASSWORD_DOCKER}
        - DAPS_KEYSTORE_ALIAS=${DAPS_KEYSTORE_ALIAS}
        - TRUSTORE_NAME=${TRUSTORE_NAME}
-       - TRUSTORE_PASSWORD=password
+       - TRUSTORE_PASSWORD=${DAPS_KEYSTORE_PASSWORD_DOCKER}
        - TZ=Europe/Rome                
     volumes:
       - ./ecc_resources_consumer:/config
