@@ -30,6 +30,8 @@ services:
        - DAPS_KEYSTORE_NAME=${DAPS_KEYSTORE_NAME}
        - DAPS_KEYSTORE_ALIAS=${DAPS_KEYSTORE_ALIAS}
        - TRUSTORE_NAME=${TRUSTORE_NAME}
+       - DAPS_KEYSTORE_PASSWORD=${DAPS_KEYSTORE_PASSWORD}
+       - TRUSTORE_PASSWORD=${TRUSTORE_PASSWORD}
        - TZ=Europe/Rome                
     volumes:
        - ./ecc_resources_provider:/config
@@ -86,6 +88,8 @@ services:
        - DAPS_KEYSTORE_NAME=${DAPS_KEYSTORE_NAME}
        - DAPS_KEYSTORE_ALIAS=${DAPS_KEYSTORE_ALIAS}
        - TRUSTORE_NAME=${TRUSTORE_NAME}
+       - DAPS_KEYSTORE_PASSWORD=${DAPS_KEYSTORE_PASSWORD}
+       - TRUSTORE_PASSWORD=${TRUSTORE_PASSWORD}
        - TZ=Europe/Rome                
     volumes:
       - ./ecc_resources_consumer:/config

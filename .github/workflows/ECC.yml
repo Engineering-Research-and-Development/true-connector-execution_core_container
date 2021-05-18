@@ -26,14 +26,11 @@ jobs:
         run: ./ci/install.sh
         env:
           GH_TOKEN: ${{secrets.GH_TOKEN}}
-              
-      - name: Run docker container
-        run: sudo docker-compose -f ./ci/docker/docker-compose.yml up 
-        env:
-          DAPS: false
-          CH: false
           DAPS_KEYSTORE_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
           SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
+          
+      - name: Run docker container
+        run: sudo docker-compose -f ./ci/docker/docker-compose.yml up 
         
       - name: Wait for cointainer starting
         run: sleep 60 
