@@ -33,6 +33,9 @@ import de.fraunhofer.iais.eis.LeftOperand;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.Permission;
 import de.fraunhofer.iais.eis.PermissionBuilder;
+import de.fraunhofer.iais.eis.RejectionMessage;
+import de.fraunhofer.iais.eis.RejectionMessageBuilder;
+import de.fraunhofer.iais.eis.RejectionReason;
 import de.fraunhofer.iais.eis.TokenFormat;
 import de.fraunhofer.iais.eis.util.RdfResource;
 import de.fraunhofer.iais.eis.util.Util;
@@ -108,6 +111,17 @@ public class TestUtilMessageService {
 				._issued_(ISSUED)
 				._issuerConnector_(ISSUER_CONNECTOR)
 				._modelVersion_(MODEL_VERSION)
+				.build();
+	}
+	
+	public static RejectionMessage getRejectionMessage() {
+		return new RejectionMessageBuilder()
+				._issuerConnector_(ISSUER_CONNECTOR)
+				._issued_(ISSUED)
+				._modelVersion_(MODEL_VERSION)
+				._transferContract_(TRANSFER_CONTRACT)
+				._correlationMessage_(URI.create("http://correlationMessage"))
+				._rejectionReason_(RejectionReason.NOT_AUTHENTICATED)
 				.build();
 	}
 	
