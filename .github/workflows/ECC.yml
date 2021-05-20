@@ -7,13 +7,7 @@ on:
   #  branches: [ master ]
 
   # Allows you to run this workflow manually from the Actions tab
-    workflow_dispatch:
-  
-    env:
-        GH_TOKEN: ${{secrets.GH_TOKEN}}
-        #DAPS_KEYSTORE_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
-        #SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
-          
+  workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -30,9 +24,13 @@ jobs:
       
       - name: Run Install
         run: ./ci/install.sh
-       
-      - name: Run docker container
-        run: sudo docker-compose -f ./ci/docker/docker-compose.yml up 
+        env:
+          GH_TOKEN: ${{secrets.GH_TOKEN}}
+          DAPS_KEYSTORE_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
+          SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
+          
+      #- name: Run docker container
+       # run: sudo docker-compose -f ./ci/docker/docker-compose.yml up 
         
       - name: Wait for cointainer starting
         run: sleep 60 
@@ -45,3 +43,5 @@ jobs:
         
       - name: Stop docker container
         run: docker-compose -f ./ci/docker/docker-compose.yml down
+
+      
