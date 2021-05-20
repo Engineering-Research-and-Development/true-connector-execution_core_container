@@ -11,8 +11,8 @@ on:
   
     env:
         GH_TOKEN: ${{secrets.GH_TOKEN}}
-        DAPS_KEYSTORE_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
-        SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
+        #DAPS_KEYSTORE_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
+        #SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
           
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
