@@ -60,7 +60,3 @@ echo "Clearing-House Model installed!"
 echo "Creating Docker Container for ECCs..."
 mvn -U clean install -DskipTests
 docker build -f Dockerfile -t rdlabengpa/execution_core_container_bl .
-
-echo "password"
-echo  ${DAPS_KEYSTORE_PASSWORD_DOCKER}
-echo  ${SSL_KEY_PASSWORD}
