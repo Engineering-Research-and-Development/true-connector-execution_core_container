@@ -1,0 +1,113 @@
+package it.eng.idsa.businesslogic.processor.exception;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.camel.Exchange;
+import org.apache.camel.Message;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import it.eng.idsa.businesslogic.service.HttpHeaderService;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.util.HeaderCleaner;
+import it.eng.idsa.businesslogic.util.RouterType;
+import it.eng.idsa.businesslogic.util.TestUtilMessageService;
+import it.eng.idsa.multipart.domain.MultipartMessage;
+
+public class ExceptionProcessorSenderTest {
+
+	@InjectMocks
+	private ExceptionProcessorSender processor;
+
+	@Mock
+	private HttpHeaderService headerService;
+	@Mock
+	private MultipartMessageService multipartMessageService;
+	@Mock
+	private Exchange exchange;
+	@Mock
+	private Message messageOut;
+	@Mock
+	private HeaderCleaner headerCleaner;
+	@Mock
+	Exception exception;
+	@Mock
+	HttpEntity httpEntity;
+	@Mock
+	private org.apache.http.Header header;
+
+	private MultipartMessage multipartMessage;
+	private Map<String, Object> headers = new HashMap<>();
+	private String exceptionMessage = "EXCEPTION MESSAGE";
+
+	@BeforeEach
+	public void setup() {
+		MockitoAnnotations.initMocks(this);
+		when(exchange.getProperty(Exchange.EXCEPTION_CAUGHT)).thenReturn(exception);
+		when(exception.getMessage()).thenReturn(exceptionMessage);
+		when(multipartMessageService.getHeaderContentString(exceptionMessage))
+				.thenReturn(TestUtilMessageService.getMessageAsString(TestUtilMessageService.getRejectionMessage()));
+	}
+
+	@Test
+	public void processExceptionHttpHeader() throws Exception {
+		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", RouterType.HTTP_HEADER, String.class);
+		mockExchangeGetHttpHeaders(exchange);
+		when(headerService.prepareMessageForSendingAsHttpHeaders(any(MultipartMessage.class))).thenReturn(headers);
+		processor.process(exchange);
+
+		verify(messageOut).setBody(multipartMessage);
+		verify(messageOut).setHeaders(headers);
+
+	}
+
+	@Test
+	public void sendDataToMultipartForm() throws Exception {
+		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", RouterType.MULTIPART_BODY_FORM,
+				String.class);
+		InputStream stubInputStream = IOUtils.toInputStream("some test data for my input stream", "UTF-8");
+		when(exchange.getMessage()).thenReturn(messageOut);
+		when(multipartMessageService.createMultipartMessage(any(String.class), isNull(), isNull(),
+				any(ContentType.class))).thenReturn(httpEntity);
+		when(httpEntity.getContentType()).thenReturn(header);
+		when(httpEntity.getContent()).thenReturn(stubInputStream);
+		when(header.getValue())
+				.thenReturn("Content-Type: multipart/form; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6");
+
+		processor.process(exchange);
+
+//    	verify(messageOut).setBody(stubInputStream.readAllBytes());
+//    	verify(messageOut).setHeader("Content-Type", "multipart/form; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6");
+
+	}
+
+	private void mockExchangeGetHttpHeaders(Exchange exchange) {
+		when(exchange.getMessage()).thenReturn(messageOut);
+		headers = new HashMap<>();
+		headers.put("Content-Type", ContentType.APPLICATION_JSON);
+		headers.put("IDS-Messagetype", "ids:ArtifactRequestMessage");
+		headers.put("IDS-Issued", "2019-05-27T13:09:42.306Z");
+		headers.put("IDS-IssuerConnector", "http://iais.fraunhofer.de/ids/mdm-connector");
+		headers.put("IDS-Id",
+				"https://w3id.org/idsa/autogen/artifactRequestMessage/d107ab28-5dc4-4f0c-a440-6d12ae6f2aab");
+		headers.put("IDS-ModelVersion", "4.0.0");
+		headers.put("IDS-RequestedArtifact", "http://mdm-connector.ids.isst.fraunhofer.de/artifact/1");
+		headers.put("Payload-Content-Type", ContentType.APPLICATION_JSON);
+		when(messageOut.getHeaders()).thenReturn(headers);
+	}
+
+}

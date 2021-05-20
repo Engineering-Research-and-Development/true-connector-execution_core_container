@@ -1,6 +1,7 @@
 package it.eng.idsa.businesslogic.processor.receiver;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -76,6 +77,17 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 			} else {
 				responseString = MultipartMessageProcessor
 						.multipartMessagetoString(multipartMessage, false);
+			}
+			
+			if (RouterType.MULTIPART_MIX.equals(eccHttpSendRouter)) {
+				Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(responseString);
+				String contentType = "multipart/mixed; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
+				exchange.getMessage().setHeader("Content-Type", contentType);
+			} else if ((RouterType.MULTIPART_BODY_FORM.equals(eccHttpSendRouter))) {
+				Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(responseString);
+				String contentType = "multipart/form; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
+				exchange.getMessage().setHeader("Content-Type", contentType);
+
 			}
 		}
 
