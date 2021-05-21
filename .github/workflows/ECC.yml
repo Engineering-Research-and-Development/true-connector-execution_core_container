@@ -15,6 +15,10 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    env:
+          GH_TOKEN: ${{secrets.GH_TOKEN}}
+          DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
+          SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -24,13 +28,9 @@ jobs:
       
       - name: Run Install
         run: ./ci/install.sh
-        env:
-          GH_TOKEN: ${{secrets.GH_TOKEN}}
-          DAPS_KEYSTORE_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
-          SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
-          
+        
       - name: Run docker container
-        run:  docker-compose -f ./ci/docker/docker-compose.yml up -arg DAPS_PASSWORD_DOCKER=${{secrets.KEYSTORE_PASSWORD}}
+        run:  docker-compose -f ./ci/docker/docker-compose.yml up 
         
       - name: Wait for cointainer starting
         run: sleep 60 
