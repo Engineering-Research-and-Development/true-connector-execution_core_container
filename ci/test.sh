@@ -1,10 +1,14 @@
 #!/bin/bash
 # infos at https://learning.postman.com/docs/postman/collection-runs/command-line-integration-with-newman/
-#export TEST_TIMEOUT=120000 #2 min in ms
-#export ITERATIONS=1
+export TEST_TIMEOUT=120000 #2 min in ms
+export ITERATIONS=1
 #newman run ./ci/tests/tests.json --insecure --timeout-request ${TEST_TIMEOUT} --iteration-count ${ITERATIONS} --bail
 
-printf '{
+wget --no-check-certificate --quiet \
+  --method POST \
+  --timeout=0 \
+  --header 'Content-Type: text/plain' \
+  --body-data '{
     "multipart": "mixed",
     "Forward-To": "https://ecc-provider:8889/data",
 	 "message": {
@@ -28,5 +32,5 @@ printf '{
 	"payload" : {
 		"catalog.offers.0.resourceEndpoints.path":"/pet2"
 		}
-}'| http  --follow --timeout 3600 POST 'https://localhost:8084/proxy' \
- Content-Type:'text/plain'
+}' \
+   'https://localhost:8084/proxy'
