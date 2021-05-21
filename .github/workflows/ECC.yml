@@ -29,8 +29,8 @@ jobs:
           DAPS_KEYSTORE_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
           SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
           
-      #- name: Run docker container
-       # run: sudo docker-compose -f ./ci/docker/docker-compose.yml up 
+      - name: Run docker container
+        run:  docker-compose -f ./ci/docker/docker-compose.yml up --build-arg DAPS_PASSWORD_DOCKER=${{secrets.KEYSTORE_PASSWORD}}
         
       - name: Wait for cointainer starting
         run: sleep 60 

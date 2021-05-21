@@ -1,6 +1,5 @@
 #!/bin/bash
 
-echo ${GH_TOKEN}
 echo "Downloading certificate from private repository..."
 git clone https://${GH_TOKEN}:x-oauth-basic@github.com/Engineering-Research-and-Development/private-files-repo.git
 cp -a private-files-repo/. ./ci/docker/ecc_cert
@@ -60,5 +59,3 @@ echo "Clearing-House Model installed!"
 echo "Creating Docker Container for ECCs..."
 mvn -U clean install -DskipTests
 docker build -f Dockerfile -t rdlabengpa/execution_core_container_bl .
-
-sudo docker-compose -f ./ci/docker/docker-compose.yml up
