@@ -4,7 +4,7 @@ export TEST_TIMEOUT=120000 #2 min in ms
 export ITERATIONS=1
 #newman run ./ci/tests/tests.json --insecure --timeout-request ${TEST_TIMEOUT} --iteration-count ${ITERATIONS} --bail
 
-echo wget --no-check-certificate --quiet \
+wget --no-check-certificate --quiet \
   --method POST \
   --timeout=0 \
   --header 'Content-Type: text/plain' \
