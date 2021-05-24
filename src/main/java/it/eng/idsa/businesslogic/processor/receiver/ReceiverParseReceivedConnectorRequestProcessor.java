@@ -43,6 +43,9 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 	
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
+	
+	@Value("${application.isEnabledUsageControl:false}")
+    private boolean isEnabledUsageControl;
 
 	@Autowired
 	private MultipartMessageService multipartMessageService;
@@ -113,10 +116,6 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 			}
 
 			try {
-				// Save the original message header for Usage Control Enforcement
-				if (headersParts.containsKey("Original-Message-Header")) {
-					headersParts.put("Original-Message-Header", headersParts.get("Original-Message-Header").toString());
-				}
 				if (headersParts.get(MessagePart.HEADER) instanceof String) {
 					header = headersParts.get(MessagePart.HEADER).toString();
 				} else {
@@ -142,7 +141,11 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 		}
+		
 		exchange.getMessage().setHeaders(headersParts);
 		exchange.getMessage().setBody(multipartMessage);
+		if(isEnabledUsageControl) {
+            exchange.getMessage().setHeader("Original-Message-Header", multipartMessage.getHeaderContentString());
+        }
 	}
 }

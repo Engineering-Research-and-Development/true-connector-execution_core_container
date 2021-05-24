@@ -86,10 +86,6 @@ public class SenderParseReceivedResponseMessage implements Processor {
 			}
 
 			try {
-				// Save the original message header for Usage Control Enforcement
-				if (headersParts.containsKey("Original-Message-Header"))
-					headersParts.put("Original-Message-Header", headersParts.get("Original-Message-Header").toString());
-
 				if (headersParts.get(MessagePart.HEADER) instanceof String) {
 					header = headersParts.get(MessagePart.HEADER).toString();
 				} else {

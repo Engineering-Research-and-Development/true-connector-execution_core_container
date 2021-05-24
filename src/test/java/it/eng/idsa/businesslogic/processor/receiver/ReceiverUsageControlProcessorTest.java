@@ -1,5 +1,7 @@
 package it.eng.idsa.businesslogic.processor.receiver;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,7 +29,7 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
 
 public class ReceiverUsageControlProcessorTest {
 
-	private static final String ORIGINL_HEADER = "originalHeader";
+	private static final String ORIGINAL_MESSAGE_HEADER = "Original-Message-Header";
 
 	@InjectMocks
 	private ReceiverUsageControlProcessor processor;
@@ -53,6 +55,7 @@ public class ReceiverUsageControlProcessorTest {
 	private ArtifactRequestMessage artifactRequestMessage;
 	private ArtifactResponseMessage artifactResponseMessage;
 	private DescriptionRequestMessage descriptionRequestMessage;
+	private String originalMessageHeader;
 	
 	Map<String, Object> headers;
 
@@ -60,11 +63,12 @@ public class ReceiverUsageControlProcessorTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", true);
-		headers = new HashMap<>();
-		headers.put("Original-Message-Header", ORIGINL_HEADER);
 		artifactRequestMessage = TestUtilMessageService.getArtifactRequestMessage();
 		artifactResponseMessage = TestUtilMessageService.getArtifactResponseMessage();
 		descriptionRequestMessage = TestUtilMessageService.getDescriptionRequestMessage();
+		originalMessageHeader = TestUtilMessageService.getMessageAsString(artifactRequestMessage);
+		headers = new HashMap<>();
+		headers.put(ORIGINAL_MESSAGE_HEADER, originalMessageHeader);
 	}
 
 	@Test
@@ -72,30 +76,68 @@ public class ReceiverUsageControlProcessorTest {
 		when(exchange.getMessage()).thenReturn(camelMessage);
 		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
 		when(camelMessage.getHeaders()).thenReturn(headers);
-		when(multipartMessageService.getMessage(ORIGINL_HEADER)).thenReturn(artifactRequestMessage);
+		when(multipartMessageService.getMessage(originalMessageHeader)).thenReturn(artifactRequestMessage);
 		when(multipartMessage.getHeaderContent()).thenReturn(artifactResponseMessage);
 		when(multipartMessage.getPayloadContent()).thenReturn(null);
 		
-//		when(exchange.getMessage()).thenReturn(out);
 		processor.process(exchange);
 
-		verify(rejectionMessageService).sendRejectionMessage(
-                RejectionMessageType.REJECTION_USAGE_CONTROL,
-                artifactRequestMessage);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, artifactRequestMessage);
+	}
+	
+	
+	@Test
+	public void usageControlDisabled() {
+		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", false);
+		
+		processor.process(exchange);
+		
+		verify(multipartMessageService, times(0)).getMessage(any());
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(any(), any());
 	}
 	
 	@Test
-	public void notUsageControlObject() {
+	public void usageControlEnabledMessageNotArtifactResponseMessage() {
 		when(exchange.getMessage()).thenReturn(camelMessage);
 		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
 		when(camelMessage.getHeaders()).thenReturn(headers);
-		when(multipartMessageService.getMessage(ORIGINL_HEADER)).thenReturn(descriptionRequestMessage);
-		when(multipartMessage.getHeaderContent()).thenReturn(artifactResponseMessage);
-//		when(exchange.getOut()).thenReturn(out);
+		when(multipartMessageService.getMessage(originalMessageHeader)).thenReturn(artifactRequestMessage);
+		when(multipartMessage.getHeaderContent()).thenReturn(descriptionRequestMessage);
 		
 		processor.process(exchange);
 		
-		verify(camelMessage, times(0)).setHeaders(headers);
-		verify(camelMessage, times(0)).setBody(multipartMessage);
+		verify(multipartMessageService).getMessage(originalMessageHeader);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, artifactRequestMessage);
+	}
+	
+	@Test
+	public void usageControlEnabledMessageNotArtifactRequesteMessage() {
+		when(exchange.getMessage()).thenReturn(camelMessage);
+		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
+		when(camelMessage.getHeaders()).thenReturn(headers);
+		when(multipartMessageService.getMessage(originalMessageHeader)).thenReturn(descriptionRequestMessage);
+		when(multipartMessage.getHeaderContent()).thenReturn(artifactResponseMessage);
+		
+		processor.process(exchange);
+		
+		verify(multipartMessageService).getMessage(originalMessageHeader);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, artifactRequestMessage);
+	}
+	
+	@Test
+	public void usageControlSuccessfull() {
+		when(exchange.getMessage()).thenReturn(camelMessage);
+		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
+		when(camelMessage.getHeaders()).thenReturn(headers);
+		when(multipartMessageService.getMessage(originalMessageHeader)).thenReturn(artifactRequestMessage);
+		when(multipartMessage.getHeaderContent()).thenReturn(artifactResponseMessage);
+		when(multipartMessage.getPayloadContent()).thenReturn("mockPayload");
+		
+		processor.process(exchange);
+		
+		verify(multipartMessageService).getMessage(originalMessageHeader);
+//		verify(exchange, times(3)).getMessage().setBody(any());
+		assertNull(exchange.getMessage().getHeader(ORIGINAL_MESSAGE_HEADER));
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, artifactRequestMessage);
 	}
 }
