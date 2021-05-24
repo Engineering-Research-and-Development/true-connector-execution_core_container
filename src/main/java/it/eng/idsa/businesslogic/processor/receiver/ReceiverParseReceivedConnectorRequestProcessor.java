@@ -144,8 +144,5 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 		
 		exchange.getMessage().setHeaders(headersParts);
 		exchange.getMessage().setBody(multipartMessage);
-		if(isEnabledUsageControl) {
-            exchange.getMessage().setHeader("Original-Message-Header", multipartMessage.getHeaderContentString());
-        }
 	}
 }

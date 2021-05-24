@@ -22,6 +22,9 @@ public class MapIDSCP2toMultipart implements Processor {
 	
 	@Value("${application.isEnabledUsageControl:false}")
     private boolean isEnabledUsageControl;
+	
+	@Value("${application.isReceiver}")
+	private boolean receiver;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -44,7 +47,7 @@ public class MapIDSCP2toMultipart implements Processor {
 		logger.info("IDSCP2: ids message converted to multipart");
 
 		exchange.getMessage().setBody(multipartMessage);
-		if(isEnabledUsageControl) {
+		if(isEnabledUsageControl && receiver) {
             exchange.getMessage().setHeader("Original-Message-Header", multipartMessage.getHeaderContentString());
         }
 	}
