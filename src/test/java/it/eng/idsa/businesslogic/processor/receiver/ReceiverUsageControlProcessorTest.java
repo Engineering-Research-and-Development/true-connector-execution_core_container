@@ -136,7 +136,6 @@ public class ReceiverUsageControlProcessorTest {
 		processor.process(exchange);
 		
 		verify(multipartMessageService).getMessage(originalMessageHeader);
-//		verify(exchange, times(3)).getMessage().setBody(any());
 		assertNull(exchange.getMessage().getHeader(ORIGINAL_MESSAGE_HEADER));
 		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, artifactRequestMessage);
 	}
