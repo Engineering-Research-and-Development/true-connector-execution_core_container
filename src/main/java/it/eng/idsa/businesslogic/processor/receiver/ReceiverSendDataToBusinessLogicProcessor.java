@@ -100,7 +100,6 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 		headerCleaner.removeTechnicalHeaders(headersParts);
 		logger.info("Sending response to Data Consumer");
 		
-		headerService.removeTokenHeaders(headersParts);
 		exchange.getMessage().setBody(responseString);
 		exchange.getMessage().setHeaders(headersParts);
 	}
