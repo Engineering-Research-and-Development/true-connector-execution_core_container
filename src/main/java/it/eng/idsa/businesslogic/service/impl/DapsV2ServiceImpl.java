@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -112,8 +113,12 @@ public class DapsV2ServiceImpl implements DapsService {
 	@Override
 	public boolean validateToken(String tokenValue) {
 		boolean valid = false;
-		DecodedJWT jwt = JWT.decode(tokenValue);
+		if(tokenValue==null) {
+			logger.error("Token is null");
+			return valid;
+		}
 		try {
+			DecodedJWT jwt = JWT.decode(tokenValue);
 			Algorithm algorithm = dapsUtilityProvider.provideAlgorithm(tokenValue);
 			algorithm.verify(jwt);
 			valid = true;
@@ -123,6 +128,8 @@ public class DapsV2ServiceImpl implements DapsService {
 			}
 		} catch (SignatureVerificationException e) {
 			logger.info("Token did not verified, {}", e);
+		} catch (JWTDecodeException e) {
+			logger.error("The token is empty or doesn't have a valid JSON format");
 		}
 		return valid;
 	}

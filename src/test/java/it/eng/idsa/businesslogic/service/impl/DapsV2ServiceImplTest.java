@@ -22,6 +22,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -128,6 +129,28 @@ public class DapsV2ServiceImplTest {
 		
 		when(dapsUtilityProvider.provideAlgorithm(tokenValue)).thenReturn(algorithm);
 		doThrow(SignatureVerificationException.class).when(algorithm).verify(any(DecodedJWT.class));
+		
+		boolean valid = dapsV2Service.validateToken(tokenValue);
+		assertFalse(valid);
+	}
+	
+	@Test
+	public void validateEmptyTokenFailed() throws ParseException {
+		String tokenValue = JwTokenUtil.generateToken(false);
+		
+		when(dapsUtilityProvider.provideAlgorithm(tokenValue)).thenReturn(algorithm);
+		doThrow(JWTDecodeException.class).when(algorithm).verify(any(DecodedJWT.class));
+		
+		boolean valid = dapsV2Service.validateToken(tokenValue);
+		assertFalse(valid);
+	}
+
+	@Test
+	public void validateWrongJsonFormatTokenFailed() throws ParseException {
+		String tokenValue = JwTokenUtil.generateToken(false);
+		
+		when(dapsUtilityProvider.provideAlgorithm(tokenValue)).thenReturn(algorithm);
+		doThrow(JWTDecodeException.class).when(algorithm).verify(any(DecodedJWT.class));
 		
 		boolean valid = dapsV2Service.validateToken(tokenValue);
 		assertFalse(valid);

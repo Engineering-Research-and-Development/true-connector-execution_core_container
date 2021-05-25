@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,6 +29,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import io.jsonwebtoken.JwtException;
 import it.eng.idsa.businesslogic.service.DapsService;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -139,6 +141,10 @@ public class DapsOrbiterServiceImpl implements DapsService {
 	 */
 	public boolean validateToken(String tokenValue) {
 		boolean isValid = false;
+		if(tokenValue==null) {
+			logger.error("Token is null");
+			return isValid;
+		}
 
 		logger.debug("Validating Orbiter token");
 
@@ -200,7 +206,12 @@ public class DapsOrbiterServiceImpl implements DapsService {
 	}
 
 	private boolean checkIfTokenExpired(String tokenValue) {
-		DecodedJWT jwt = JWT.decode(tokenValue);
+		DecodedJWT jwt = null;
+		try {
+			jwt = JWT.decode(tokenValue);
+		} catch (JWTDecodeException e) {
+			logger.error("The token is empty or doesn't have a valid JSON format");
+		}
 		if (jwt.getExpiresAt().before(new Date())) {
 			logger.warn("Token expired");
 			return true;
