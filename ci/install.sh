@@ -36,7 +36,7 @@ echo "Installed  Multipart Message Lib"
 echo "Installing websocket-message-streamer-lib..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-websocket_message_streamer.git
 cd market4.0-websocket_message_streamer
-mvn -U clean install
+mvn install
 cd ..
 echo "Installed websocket-message-streamer-lib"
 
@@ -44,17 +44,17 @@ echo "Cloning and Creating Docker Container from Data-App repo..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-data_app_test_BE.git
 cd market4.0-data_app_test_BE
 git checkout ${BRANCH_DATA_APP}
-mvn -U clean install
+mvn install
 docker build -f Dockerfile -t rdlabengpa/data-app .
 cd ..
 echo "Data-App is ready to start"
 
-echo "Downloading and installing Clearing-House Model..."
-git clone https://github.com/Engineering-Research-and-Development/market4.0-clearing_house.git
-cd market4.0-clearing_house
-mvn install -DskipTests
-cd ..
-echo "Clearing-House Model installed!"
+#echo "Downloading and installing Clearing-House Model..."
+#git clone https://github.com/Engineering-Research-and-Development/market4.0-clearing_house.git
+#cd market4.0-clearing_house
+#mvn install -DskipTests
+#cd ..
+#echo "Clearing-House Model installed!"
 
 echo "Creating Docker Container for ECCs..."
 mvn -U clean install -DskipTests
