@@ -4,7 +4,6 @@ echo "Downloading certificate from private repository..."
 git clone https://${GH_TOKEN}:x-oauth-basic@github.com/Engineering-Research-and-Development/private-files-repo.git
 cp -a private-files-repo/. ./ci/docker/ecc_cert
 echo "Certificate from private repository downloaded"
-BRANCH_DATA_APP=master
 
 echo "Installing Newman CLI..."
 sudo npm install -g newman@5.2.2
@@ -25,13 +24,6 @@ cp -rf ./ci/.m2/repository/de/fraunhofer/aisec/ids  $HOME/.m2/repository/de/frau
 cp -rf ./ci/.m2/repository/de/fraunhofer/dataspaces/iese  $HOME/.m2/repository/de/fraunhofer/dataspaces
 cp -f ./ci/.m2/settings/settings.xml  $HOME/.m2
 
-echo "Installing websocket-message-streamer-lib..."
-git clone https://github.com/Engineering-Research-and-Development/market4.0-websocket_message_streamer.git
-cd market4.0-websocket_message_streamer
-mvn -U clean install
-cd ..
-echo "Installed websocket-message-streamer-lib"
-
 echo "Installing Multipart Message Lib..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-ids_multipart_message_processor
 cd market4.0-ids_multipart_message_processor
@@ -39,12 +31,18 @@ mvn -U clean install
 cd ..
 echo "Installed  Multipart Message Lib"
 
+echo "Installing websocket-message-streamer-lib..."
+git clone https://github.com/Engineering-Research-and-Development/market4.0-websocket_message_streamer.git
+cd market4.0-websocket_message_streamer
+mvn -U clean install
+cd ..
+echo "Installed websocket-message-streamer-lib"
+
 echo "Cloning and Creating Docker Container from Data-App repo..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-data_app_test_BE.git
 cd market4.0-data_app_test_BE
-git checkout ${BRANCH_DATA_APP}
-mvn clean package
-docker build -t rdlabengpa/ids_be_data_app:latest .
+mvn -U clean install
+sudo docker build -f Dockerfile -t rdlabengpa/ids_be_data_app:latest .
 cd ..
 echo "Data-App is ready to start"
 
