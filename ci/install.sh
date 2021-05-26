@@ -4,7 +4,7 @@ echo "Downloading certificate from private repository..."
 git clone https://${GH_TOKEN}:x-oauth-basic@github.com/Engineering-Research-and-Development/private-files-repo.git
 cp -a private-files-repo/. ./ci/docker/ecc_cert
 echo "Certificate from private repository downloaded"
-
+BRANCH_DATA_APP=master
 
 echo "Installing Newman CLI..."
 sudo npm install -g newman@5.2.2
@@ -42,7 +42,8 @@ echo "Installed  Multipart Message Lib"
 echo "Cloning and Creating Docker Container from Data-App repo..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-data_app_test_BE.git
 cd market4.0-data_app_test_BE
-mvn -U clean install
+git checkout ${BRANCH_DATA_APP}
+mvn clean package
 docker build -f Dockerfile -t rdlabengpa/ids_be_data_app .
 cd ..
 echo "Data-App is ready to start"
