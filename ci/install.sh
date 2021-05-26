@@ -49,12 +49,12 @@ docker build -f Dockerfile -t rdlabengpa/data-app .
 cd ..
 echo "Data-App is ready to start"
 
-#echo "Downloading and installing Clearing-House Model..."
-#git clone https://github.com/Engineering-Research-and-Development/market4.0-clearing_house.git
-#cd market4.0-clearing_house
-#mvn install -DskipTests
-#cd ..
-#echo "Clearing-House Model installed!"
+echo "Downloading and installing Clearing-House Model..."
+git clone https://github.com/Engineering-Research-and-Development/market4.0-clearing_house.git
+cd market4.0-clearing_house
+mvn install -DskipTests
+cd ..
+echo "Clearing-House Model installed!"
 
 echo "Creating Docker Container for ECCs..."
 mvn -U clean install -DskipTests
