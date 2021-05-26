@@ -4,7 +4,6 @@ echo "Downloading certificate from private repository..."
 git clone https://${GH_TOKEN}:x-oauth-basic@github.com/Engineering-Research-and-Development/private-files-repo.git
 cp -a private-files-repo/. ./ci/docker/ecc_cert
 echo "Certificate from private repository downloaded"
-BRANCH_DATA_APP=master
 
 
 echo "Installing Newman CLI..."
@@ -43,7 +42,6 @@ echo "Installed websocket-message-streamer-lib"
 echo "Cloning and Creating Docker Container from Data-App repo..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-data_app_test_BE.git
 cd market4.0-data_app_test_BE
-git checkout ${BRANCH_DATA_APP}
 mvn -U clean install
 docker build -f Dockerfile -t rdlabengpa/data-app .
 cd ..
@@ -57,5 +55,5 @@ cd ..
 echo "Clearing-House Model installed!"
 
 echo "Creating Docker Container for ECCs..."
-mvn -U clean install -DskipTests
+mvn -U clean install
 docker build -f Dockerfile -t rdlabengpa/execution_core_container_bl .
