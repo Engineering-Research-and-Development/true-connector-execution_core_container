@@ -44,7 +44,7 @@ git clone https://github.com/Engineering-Research-and-Development/market4.0-data
 cd market4.0-data_app_test_BE
 git checkout ${BRANCH_DATA_APP}
 mvn clean package
-docker build -f Dockerfile -t rdlabengpa/ids_be_data_app .
+docker build -t rdlabengpa/ids_be_data_app:latest .
 cd ..
 echo "Data-App is ready to start"
 
