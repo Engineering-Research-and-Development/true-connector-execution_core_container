@@ -39,13 +39,13 @@ mvn -U clean install
 cd ..
 echo "Installed  Multipart Message Lib"
 
-#echo "Cloning and Creating Docker Container from Data-App repo..."
-#git clone https://github.com/Engineering-Research-and-Development/market4.0-data_app_test_BE.git
-#cd market4.0-data_app_test_BE
-#mvn -U clean install
-#docker build -f Dockerfile -t rdlabengpa/be_data_app .
-#cd ..
-#echo "Data-App is ready to start"
+echo "Cloning and Creating Docker Container from Data-App repo..."
+git clone https://github.com/Engineering-Research-and-Development/market4.0-data_app_test_BE.git
+cd market4.0-data_app_test_BE
+mvn -U clean install
+docker build -f Dockerfile -t rdlabengpa/be_data_app .
+cd ..
+echo "Data-App is ready to start"
 
 echo "Downloading and installing Clearing-House Model..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-clearing_house.git
