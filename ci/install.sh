@@ -43,7 +43,7 @@ echo "Cloning and Creating Docker Container from Data-App repo..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-data_app_test_BE.git
 cd market4.0-data_app_test_BE
 mvn -U clean install
-docker build -f Dockerfile -t rdlabengpa/data-app .
+docker build -f Dockerfile -t rdlabengpa/ids_be_data_app .
 cd ..
 echo "Data-App is ready to start"
 

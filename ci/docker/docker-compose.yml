@@ -40,7 +40,7 @@ services:
       - "ecc-provider:172.17.0.1"
 
   be-dataapp-provider:
-    image: rdlabengpa/data-app:latest
+    image: rdlabengpa/ids_be_data_app:latest
     environment:
        - "SPRING_PROFILES_ACTIVE=docker"  
        - DATA_APP_MULTIPART=${PROVIDER_MULTIPART_EDGE}
@@ -98,7 +98,7 @@ services:
       - "ecc-consumer:172.17.0.1"
 
   be-dataapp-consumer:
-    image:  rdlabengpa/data-app:latest
+    image:  rdlabengpa/ids_be_data_app:latest
     environment:
        - "SPRING_PROFILES_ACTIVE=docker"  
        - DATA_APP_MULTIPART=${CONSUMER_MULTIPART_EDGE}
