@@ -29,8 +29,11 @@ jobs:
       - name: Run Install
         run: ./ci/install.sh
         
+      - name: Docker Pull
+        run:  docker-compose -f ./ci/docker/docker-compose.yml pull
+        
       - name: Run docker container
-        run:  docker-compose -f ./ci/docker/docker-compose.yml up --force-recreate
+        run:  docker-compose -f ./ci/docker/docker-compose.yml up
         
       - name: Wait for cointainer starting
         run: sleep 60 
