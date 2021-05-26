@@ -29,6 +29,9 @@ jobs:
       - name: Run Install
         run: ./ci/install.sh
         
+      - name: Docker images
+        run:  docker images
+        
       - name: Run docker container
         run:  docker-compose -f ./ci/docker/docker-compose.yml up
         
