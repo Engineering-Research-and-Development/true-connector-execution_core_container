@@ -25,19 +25,19 @@ cp -rf ./ci/.m2/repository/de/fraunhofer/aisec/ids  $HOME/.m2/repository/de/frau
 cp -rf ./ci/.m2/repository/de/fraunhofer/dataspaces/iese  $HOME/.m2/repository/de/fraunhofer/dataspaces
 cp -f ./ci/.m2/settings/settings.xml  $HOME/.m2
 
-echo "Installing Multipart Message Lib..."
-git clone https://github.com/Engineering-Research-and-Development/market4.0-ids_multipart_message_processor
-cd market4.0-ids_multipart_message_processor
-mvn -U clean install
-cd ..
-echo "Installed  Multipart Message Lib"
-
 echo "Installing websocket-message-streamer-lib..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-websocket_message_streamer.git
 cd market4.0-websocket_message_streamer
 mvn -U clean install
 cd ..
 echo "Installed websocket-message-streamer-lib"
+
+echo "Installing Multipart Message Lib..."
+git clone https://github.com/Engineering-Research-and-Development/market4.0-ids_multipart_message_processor
+cd market4.0-ids_multipart_message_processor
+mvn -U clean install
+cd ..
+echo "Installed  Multipart Message Lib"
 
 echo "Cloning and Creating Docker Container from Data-App repo..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-data_app_test_BE.git
@@ -55,5 +55,5 @@ cd ..
 echo "Clearing-House Model installed!"
 
 echo "Creating Docker Container for ECCs..."
-mvn -U clean install
+mvn -U clean install -DskipTests
 docker build -f Dockerfile -t rdlabengpa/execution_core_container_bl .
