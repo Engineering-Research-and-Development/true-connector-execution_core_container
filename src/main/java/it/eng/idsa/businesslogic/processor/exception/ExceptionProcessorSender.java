@@ -4,6 +4,8 @@ import java.util.Optional;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -61,19 +63,30 @@ public class ExceptionProcessorSender implements Processor {
 			exchange.getMessage().setHeaders(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));
 		} else {
 			String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
+			headerCleaner.removeTechnicalHeaders(exchange.getMessage().getHeaders());
+			String contentType = null;
 
 			if (isEnabledDataAppWebSocket) {
 				ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration
 						.responseMessageBufferWebSocket();
 				responseMessageServerBean.add(multipartMessageString.getBytes());
 			}
-			// TODO do proper message preparation for sending rejection message in case of form (and multipartMix)
-			// make use of MultipartMessageServiceImpl.createMultipartMessage
-			headerCleaner.removeTechnicalHeaders(exchange.getMessage().getHeaders());
-			exchange.getMessage().setBody(multipartMessageString);
-			Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(multipartMessageString);
-			String contentType = "multipart/mixed; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
-			exchange.getMessage().setHeader("Content-Type", contentType);
+
+			if (RouterType.MULTIPART_MIX.equals(openDataAppReceiverRouter)) {
+				exchange.getMessage().setBody(multipartMessageString);
+				Optional<String> boundary = MultipartMessageProcessor
+						.getMessageBoundaryFromMessage(multipartMessageString);
+				contentType = "multipart/mixed; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
+				exchange.getMessage().setHeader("Content-Type", contentType);
+			} else {
+				HttpEntity resultEntity = null;
+
+				resultEntity = multipartMessageService.createMultipartMessage(message, null, null,
+						ContentType.MULTIPART_FORM_DATA);
+				contentType = resultEntity.getContentType().getValue();
+				exchange.getMessage().setBody(resultEntity.getContent().readAllBytes());
+				exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, contentType);
+			}
 		}
 	}
 }
