@@ -36,7 +36,7 @@ echo "Installed  Multipart Message Lib"
 echo "Installing websocket-message-streamer-lib..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-websocket_message_streamer.git
 cd market4.0-websocket_message_streamer
-mvn install
+mvn -U clean install
 cd ..
 echo "Installed websocket-message-streamer-lib"
 
@@ -44,7 +44,7 @@ echo "Cloning and Creating Docker Container from Data-App repo..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-data_app_test_BE.git
 cd market4.0-data_app_test_BE
 git checkout ${BRANCH_DATA_APP}
-mvn install
+mvn -U clean install
 docker build -f Dockerfile -t rdlabengpa/data-app .
 cd ..
 echo "Data-App is ready to start"
