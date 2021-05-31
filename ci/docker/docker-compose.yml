@@ -37,7 +37,7 @@ services:
        - ./ecc_resources_provider:/config
        - ./ecc_cert:/cert
     extra_hosts:
-      - "ecc-provider:172.17.0.1"
+      - "ecc-provider:127.0.0.1"
 
   be-dataapp-provider:
     image: rdlabengpa/ids_be_data_app:latest
@@ -95,7 +95,7 @@ services:
       - ./ecc_resources_consumer:/config
       - ./ecc_cert:/cert
     extra_hosts:
-      - "ecc-consumer:172.17.0.1"
+      - "ecc-consumer:127.0.0.1"
 
   be-dataapp-consumer:
     image:  rdlabengpa/ids_be_data_app:latest
