@@ -4,13 +4,11 @@ export TEST_TIMEOUT=120000 #2 min in ms
 export ITERATIONS=1
 #newman run ./ci/tests/tests.json --insecure --timeout-request ${TEST_TIMEOUT} --iteration-count ${ITERATIONS} --bail
 
-wget --no-check-certificate --quiet \
-  --method POST \
-  --timeout=0 \
-  --header 'Content-Type: text/plain' \
-  --body-data '{
+curl --location --request POST 'https://localhost:8084/proxy' \
+--header 'Content-Type: text/plain' \
+--data-raw '{
     "multipart": "mixed",
-    "Forward-To": "https://ecc-provider:8889/data",
+    "Forward-To": "https://localhost:8889/data",
 	 "message": {
 	  "@context" : {
 		"ids" : "https://w3id.org/idsa/core/"
@@ -32,5 +30,4 @@ wget --no-check-certificate --quiet \
 	"payload" : {
 		"catalog.offers.0.resourceEndpoints.path":"/pet2"
 		}
-}' \
-   'https://localhost:8084/proxy'
+}'
