@@ -33,7 +33,7 @@ jobs:
         run:  docker images
         
       - name: Run docker container
-        run: docker-compose -f ./ci/docker/docker-compose.yml up
+        run: docker-compose -f ./ci/docker/docker-compose.yml up -d
         
       - name: Wait for cointainer starting
         run: sleep 60 
