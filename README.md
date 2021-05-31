@@ -1,3 +1,5 @@
+[![CI](https://github.com/Engineering-Research-and-Development/market4.0-execution_core_container_business_logic/workflows/HTTPSE-HTTPS/badge.svg)](https://github.com/Engineering-Research-and-Development/market4.0-execution_core_container_business_logic/actions/workflows/HTTPSE-HTTPS.yml)
+
 # ENG Execution Core Container
 
 [![Build badge](https://api.travis-ci.com/Engineering-Research-and-Development/market4.0-execution_core_container_business_logic.svg)](https://travis-ci.com/github/Engineering-Research-and-Development/market4.0-execution_core_container_business_logic)<br/>
