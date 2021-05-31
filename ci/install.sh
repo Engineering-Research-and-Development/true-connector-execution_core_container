@@ -6,6 +6,7 @@ cp -a private-files-repo/. ./ci/docker/ecc_cert
 echo "Certificate from private repository downloaded"
 
 echo "Installing Newman CLI..."
+sudo npm set strict-ssl false
 sudo npm install -g newman@5.2.2
 newman --version
 echo "Newman installed, READY TO TEST..."
