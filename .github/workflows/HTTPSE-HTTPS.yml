@@ -41,10 +41,35 @@ jobs:
       - name: Check if the container is up and running
         run: docker ps -a 
       
-      - name: Run Test
-        run: ./ci/test.sh
+      - name: Run curl
+        run: |
+                curl --location --request POST 'https://localhost:8084/proxy' \
+                    --header 'Content-Type: text/plain' \
+                    --data-raw '{
+                        "multipart": "mixed",
+                        "Forward-To": "https://localhost:8889/data",
+                         "message": {
+                          "@context" : {
+                            "ids" : "https://w3id.org/idsa/core/"
+                          },
+                          "@type" : "ids:ArtifactRequestMessage",
+                          "@id" : "https://w3id.org/idsa/autogen/artifactRequestMessage/76481a41-8117-4c79-bdf4-9903ef8f825a",
+                          "ids:issued" : {
+                            "@value" : "2020-11-25T16:43:27.051+01:00",
+                            "@type" : "http://www.w3.org/2001/XMLSchema#dateTimeStamp"
+                          },
+                          "ids:modelVersion" : "4.0.0",
+                          "ids:issuerConnector" : {
+                            "@id" : "http://w3id.org/engrd/connector/"
+                          },
+                          "ids:requestedArtifact" : {
+                           "@id" : "http://w3id.org/engrd/connector/artifact/1"
+                          }
+                        },
+                        "payload" : {
+                            "catalog.offers.0.resourceEndpoints.path":"/pet2"
+                            }
+                }'|
         
       - name: Stop docker container
-        run: docker-compose -f ./ci/docker/docker-compose.yml down
-
-      
+        run: docker-compose -f ./ci/docker/docker-compose.yml down      
