@@ -68,7 +68,7 @@ public class DapsV2ServiceImplTest {
 				.request(mockRequest())
 				.protocol(Protocol.HTTP_1_1)
 				.message("ABC")
-				.body(ResponseBody.create(MediaType.get("application/json; charset=utf-8"), mockJsonResponse()))
+				.body(ResponseBody.create(mockJsonResponse(), MediaType.get("application/json; charset=utf-8")))
 				.code(200)
 				.build();
 		
@@ -90,7 +90,7 @@ public class DapsV2ServiceImplTest {
 				.request(mockRequest())
 				.protocol(Protocol.HTTP_1_1)
 				.message("ABC")
-				.body(ResponseBody.create(MediaType.get("application/json; charset=utf-8"), noTokenPresent))
+				.body(ResponseBody.create(noTokenPresent, MediaType.get("application/json; charset=utf-8")))
 				.code(200)
 				.build();
 		
@@ -136,7 +136,18 @@ public class DapsV2ServiceImplTest {
 	
 	@Test
 	public void validateEmptyTokenFailed() throws ParseException {
-		String tokenValue = JwTokenUtil.generateToken(false);
+		String tokenValue = "";
+		
+		when(dapsUtilityProvider.provideAlgorithm(tokenValue)).thenReturn(algorithm);
+		doThrow(JWTDecodeException.class).when(algorithm).verify(any(DecodedJWT.class));
+		
+		boolean valid = dapsV2Service.validateToken(tokenValue);
+		assertFalse(valid);
+	}
+	
+	@Test
+	public void validateBlankTokenFailed() throws ParseException {
+		String tokenValue = " ";
 		
 		when(dapsUtilityProvider.provideAlgorithm(tokenValue)).thenReturn(algorithm);
 		doThrow(JWTDecodeException.class).when(algorithm).verify(any(DecodedJWT.class));
