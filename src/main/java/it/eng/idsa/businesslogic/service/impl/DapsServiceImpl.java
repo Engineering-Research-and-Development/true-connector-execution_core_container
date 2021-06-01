@@ -118,7 +118,7 @@ public class DapsServiceImpl implements DapsService {
 		} catch (SignatureVerificationException e) {
 			logger.info("Token did not verified, {}", e);
 		} catch (JWTDecodeException e) {
-			logger.error("The token is empty or doesn't have a valid JSON format");
+			logger.error("Invalid token, {}", e);
 		}
 		return valid;
 	}

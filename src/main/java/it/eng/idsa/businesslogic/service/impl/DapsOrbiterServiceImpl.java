@@ -210,7 +210,7 @@ public class DapsOrbiterServiceImpl implements DapsService {
 		try {
 			jwt = JWT.decode(tokenValue);
 		} catch (JWTDecodeException e) {
-			logger.error("The token is empty or doesn't have a valid JSON format");
+			logger.error("Invalid token, {}", e);
 		}
 		if (jwt.getExpiresAt().before(new Date())) {
 			logger.warn("Token expired");
