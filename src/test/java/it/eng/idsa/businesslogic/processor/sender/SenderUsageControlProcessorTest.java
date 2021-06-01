@@ -60,7 +60,7 @@ public class SenderUsageControlProcessorTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		message = TestUtilMessageService.getArtifactRequestMessage();
+		message = TestUtilMessageService.getArtifactResponseMessage();
 		ucResult = new LinkedTreeMap<>();
 	}
 
@@ -114,6 +114,34 @@ public class SenderUsageControlProcessorTest {
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", true);
 		mockExchangeHeaderAndBody();
 		when(multipartMessage.getPayloadContent()).thenReturn("not UC payload");
+		
+		processor.process(exchange);
+		
+		verify(ucService, times(0)).enforceUsageControl(any(IdsUseObject.class));
+		verify(rejectionMessageService).sendRejectionMessage(
+                RejectionMessageType.REJECTION_USAGE_CONTROL,
+                message);
+	}
+	
+	@Test
+	public void usageControlEnabledAndPayloadNull() {
+		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", true);
+		mockExchangeHeaderAndBody();
+		when(multipartMessage.getPayloadContent()).thenReturn(null);
+		
+		processor.process(exchange);
+		
+		verify(ucService, times(0)).enforceUsageControl(any(IdsUseObject.class));
+		verify(rejectionMessageService).sendRejectionMessage(
+                RejectionMessageType.REJECTION_USAGE_CONTROL,
+                message);
+	}
+	
+	@Test
+	public void usageControlEnabledMessageNotArtifactResponseMessage(){
+		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", true);
+		message = TestUtilMessageService.getRejectionMessage();
+		mockExchangeHeaderAndBody();
 		
 		processor.process(exchange);
 		
