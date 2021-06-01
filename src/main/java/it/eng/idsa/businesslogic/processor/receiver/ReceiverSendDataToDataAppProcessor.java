@@ -125,15 +125,14 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		logger.info("response received from the DataAPP=" + responseString);
 
 		exchange.getMessage().setHeaders(returnHeadersAsMap(response.headers()));
+		if (isEnabledUsageControl) {
+			exchange.getMessage().setHeader("Original-Message-Header", originalHeader);
+		}
 		if (RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
 			exchange.getMessage().setBody(responseString);
 		} else {
 			exchange.getMessage().setHeader(MessagePart.HEADER, multipartMessageService.getHeaderContentString(responseString));
 			exchange.getMessage().setHeader(MessagePart.PAYLOAD, multipartMessageService.getPayloadContent(responseString));
-		}
-
-		if (isEnabledUsageControl) {
-			exchange.getMessage().setHeader("Original-Message-Header", originalHeader);
 		}
 	}
 	

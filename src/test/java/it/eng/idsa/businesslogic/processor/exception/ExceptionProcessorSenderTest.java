@@ -1,5 +1,7 @@
 package it.eng.idsa.businesslogic.processor.exception;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
@@ -16,6 +18,8 @@ import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -44,7 +48,7 @@ public class ExceptionProcessorSenderTest {
 	@Mock
 	private HeaderCleaner headerCleaner;
 	@Mock
-	Exception exception;
+	private Exception exception;
 	@Mock
 	HttpEntity httpEntity;
 	@Mock
@@ -53,6 +57,11 @@ public class ExceptionProcessorSenderTest {
 	private MultipartMessage multipartMessage;
 	private Map<String, Object> headers = new HashMap<>();
 	private String exceptionMessage = "EXCEPTION MESSAGE";
+	
+	 @Captor 
+	 private ArgumentCaptor<String> key;
+	 @Captor 
+	 private ArgumentCaptor<String> value;
 
 	@BeforeEach
 	public void setup() {
@@ -86,26 +95,39 @@ public class ExceptionProcessorSenderTest {
 		when(httpEntity.getContentType()).thenReturn(header);
 		when(httpEntity.getContent()).thenReturn(stubInputStream);
 		when(header.getValue())
-				.thenReturn("Content-Type: multipart/form; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6");
+				.thenReturn("multipart/form; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6");
 
 		processor.process(exchange);
 
-//    	verify(messageOut).setBody(stubInputStream.readAllBytes());
-//    	verify(messageOut).setHeader("Content-Type", "multipart/form; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6");
+    	verify(messageOut).setBody(IOUtils.toInputStream("some test data for my input stream", "UTF-8").readAllBytes());
+    	verify(messageOut).setHeader("Content-Type", "multipart/form; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6");
 
 	}
 
+	@Test
+	public void sendDataToMultipartMixed() throws Exception {
+		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", RouterType.MULTIPART_MIX,
+				String.class);
+		when(exchange.getMessage()).thenReturn(messageOut);
+
+		processor.process(exchange);
+
+		verify(messageOut).setHeader(key.capture(), value.capture());
+    	assertEquals("Content-Type", key.getValue());
+    	assertTrue(value.getValue().contains("multipart/mixed"));
+	}
+	
 	private void mockExchangeGetHttpHeaders(Exchange exchange) {
 		when(exchange.getMessage()).thenReturn(messageOut);
 		headers = new HashMap<>();
 		headers.put("Content-Type", ContentType.APPLICATION_JSON);
 		headers.put("IDS-Messagetype", "ids:ArtifactRequestMessage");
 		headers.put("IDS-Issued", "2019-05-27T13:09:42.306Z");
-		headers.put("IDS-IssuerConnector", "http://iais.fraunhofer.de/ids/mdm-connector");
+		headers.put("IDS-IssuerConnector", "http://true-connector/issuer");
 		headers.put("IDS-Id",
 				"https://w3id.org/idsa/autogen/artifactRequestMessage/d107ab28-5dc4-4f0c-a440-6d12ae6f2aab");
 		headers.put("IDS-ModelVersion", "4.0.0");
-		headers.put("IDS-RequestedArtifact", "http://mdm-connector.ids.isst.fraunhofer.de/artifact/1");
+		headers.put("IDS-RequestedArtifact", "http://true-connector/artifact/1");
 		headers.put("Payload-Content-Type", ContentType.APPLICATION_JSON);
 		when(messageOut.getHeaders()).thenReturn(headers);
 	}
