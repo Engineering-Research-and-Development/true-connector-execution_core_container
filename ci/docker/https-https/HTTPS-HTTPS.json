@@ -6,9 +6,6 @@
 	},
 	"item": [
 		{
-			"name": "Docker local",
-			"item": [
-		{
 			"name": "HTTPS-HTTPS",
 			"event": [
 				{
