@@ -32,8 +32,8 @@ jobs:
       - name: Docker images
         run:  docker images
         
-      - name: Run docker container
-        run: docker-compose -f ./ci/docker/docker-compose.yml up -d
+      - name: Run docker container HTTPS-HTTPS
+        run: docker-compose -f ./ci/docker/https-https/docker-compose.yml up -d
         
       - name: Wait for cointainer starting
         run: sleep 120 
@@ -42,9 +42,24 @@ jobs:
         run: docker ps -a 
       
       - name: Run Test
-        run: ./ci/test.sh
+        run: newman run ./ci/docker/https-https/HTTPS-HTTPS.json --timeout-request 120000 --insecure --bail --verbose
+        
+      - name: Stop docker container HTTPS-HTTPS
+        run: docker-compose -f ./ci/docker/https-https/docker-compose.yml down
+        
+      - name: Run docker container HTTPS-IDSCP
+        run: docker-compose -f ./ci/docker/https-idscp2/docker-compose.yml up -d
+        
+      - name: Wait for cointainer starting
+        run: sleep 120 
+        
+      - name: Check if the container is up and running
+        run: docker ps -a 
+      
+      - name: Run Test
+        run: newman run ./ci/docker/https-idscp2/HTTPS-IDSCP2.json --timeout-request 120000 --insecure --bail --verbose
         
       - name: Stop docker container
-        run: docker-compose -f ./ci/docker/docker-compose.yml down
+        run: docker-compose -f ./ci/docker/https-idscp2/docker-compose.yml down
 
       
