@@ -157,8 +157,8 @@ public class DapsV2ServiceImplTest {
 	}
 
 	@Test
-	public void validateWrongJsonFormatTokenFailed() throws ParseException {
-		String tokenValue = JwTokenUtil.generateToken(false);
+	public void validateWrongFormatTokenFailed() throws ParseException {
+		String tokenValue = "ABC";
 		
 		when(dapsUtilityProvider.provideAlgorithm(tokenValue)).thenReturn(algorithm);
 		doThrow(JWTDecodeException.class).when(algorithm).verify(any(DecodedJWT.class));
