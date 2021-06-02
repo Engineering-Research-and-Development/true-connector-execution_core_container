@@ -175,22 +175,22 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		
 		return new ConnectorUnavailableMessageBuilder()
 				._issued_(DateUtil.now())
-				._affectedConnector_(connector.getId())
 				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)
-				._securityToken_(dapsProvider.getDynamicAtributeToken())
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._affectedConnector_(connector.getId())
 				.build();
 	}
 
 	@Override
 	public Message getConnectorInactiveMessage() {
 		return new ConnectorUnavailableMessageBuilder()
+				._issued_(DateUtil.now())
 				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 				._securityToken_(dapsProvider.getDynamicAtributeToken())
-				._issued_(DateUtil.now())
 				._affectedConnector_(connector.getId())
 				.build();
 	}
@@ -202,6 +202,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)
 				._issued_(DateUtil.now())
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
 				._queryLanguage_(QueryLanguage.SPARQL)
 				._queryScope_(QueryScope.ALL)
 				.build();

@@ -17,10 +17,16 @@ public class SenderCreateQueryBrokerMessageProcessor implements Processor {
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
+		String payload =  exchange.getMessage().getHeader("payload") != null 
+				// case when request is multipart-form
+				? (String) exchange.getMessage().getHeader("payload")
+				// case when request is multipart-mixed
+				: exchange.getMessage().getBody(String.class);
 		MultipartMessage multipartMessage = new MultipartMessageBuilder()
 				.withHeaderContent(selfDescriptionService.getConnectorQueryMessage())
-				.withPayloadContent(exchange.getMessage().getBody(String.class)).build();
-
+				.withPayloadContent(payload)
+				.build();
+		
 		exchange.getMessage().setBody(multipartMessage);
 	}
 

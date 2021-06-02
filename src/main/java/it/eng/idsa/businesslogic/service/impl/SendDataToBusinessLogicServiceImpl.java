@@ -60,7 +60,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 			Map<String, Object> headerParts)
 			throws UnsupportedEncodingException, JsonProcessingException {
 
-		logger.info("Forwarding Message: Body: binary");
+		logger.info("Forwarding Message: Body: binary to {}", address);
 		Headers headers;
 		if (isEnabledIdscp2) {
 			Map<String, Object> headesParts = new HashMap<String, Object>();
@@ -88,7 +88,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 	@Override
 	public Response sendMessageHttpHeader(String address, MultipartMessage multipartMessage,
 			Map<String, Object> headerParts) throws IOException {
-		logger.info("Forwarding Message: http-header");
+		logger.info("Forwarding Message: http-header to {}", address);
 
 		if (!RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
 			// DataApp endpoint not http-header, must convert message to http headers
@@ -115,7 +115,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 	public Response sendMessageFormData(String address, MultipartMessage multipartMessage,
 			Map<String, Object> headerParts) throws UnsupportedEncodingException {
 
-		logger.info("Forwarding Message: Body: form-data");
+		logger.info("Forwarding Message: Body: form-data to {}", address);
 
 		Message messageForException = multipartMessage.getHeaderContent();
 
