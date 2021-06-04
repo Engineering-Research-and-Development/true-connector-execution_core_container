@@ -5,6 +5,7 @@ import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
@@ -18,6 +19,12 @@ public class MapIDSCP2toMultipart implements Processor {
 	private static final Logger logger = LoggerFactory.getLogger(MapIDSCP2toMultipart.class);
 	@Autowired
 	private MultipartMessageService multipartMessageService;
+	
+	@Value("${application.isEnabledUsageControl:false}")
+    private boolean isEnabledUsageControl;
+	
+	@Value("${application.isReceiver}")
+	private boolean receiver;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -40,5 +47,8 @@ public class MapIDSCP2toMultipart implements Processor {
 		logger.info("IDSCP2: ids message converted to multipart");
 
 		exchange.getMessage().setBody(multipartMessage);
+		if(isEnabledUsageControl && receiver) {
+            exchange.getMessage().setHeader("Original-Message-Header", multipartMessage.getHeaderContentString());
+        }
 	}
 }

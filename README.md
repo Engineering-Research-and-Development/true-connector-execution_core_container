@@ -1,6 +1,8 @@
 # ENG Execution Core Container
 [![CI](https://github.com/Engineering-Research-and-Development/market4.0-execution_core_container_business_logic/workflows/ECC/badge.svg)](https://github.com/Engineering-Research-and-Development/market4.0-execution_core_container_business_logic/actions/workflows/HTTPSE-HTTPS.yml) <br/>
 
+[![CI](https://github.com/Engineering-Research-and-Development/market4.0-execution_core_container_business_logic/workflows/ECC/badge.svg)](https://github.com/Engineering-Research-and-Development/market4.0-execution_core_container_business_logic/actions/workflows/HTTPSE-HTTPS.yml) <br/>
+
 The ENG Execution Core Container, based on the IDS Base Connector, is the core component of an IDS Connector enabling:
 * the data exchange between connectors, using HTTPS, WS over HTTPS, IDSCP2 (beta)
 * interaction with the AISEC Fraunhofer DAPS Service for requiring and validating a token
