@@ -26,22 +26,22 @@ cp -rf ./ci/.m2/repository/de/fraunhofer/dataspaces/iese  $HOME/.m2/repository/d
 cp -f ./ci/.m2/settings/settings.xml  $HOME/.m2
 
 echo "Installing Multipart Message Lib..."
-git clone https://github.com/Engineering-Research-and-Development/market4.0-ids_multipart_message_processor
-cd market4.0-ids_multipart_message_processor
+git clone https://github.com/Engineering-Research-and-Development/true-connector-multipart_message_library.git
+cd true-connector-multipart_message_library
 mvn -U clean install
 cd ..
 echo "Installed  Multipart Message Lib"
 
 echo "Installing websocket-message-streamer-lib..."
-git clone https://github.com/Engineering-Research-and-Development/market4.0-websocket_message_streamer.git
-cd market4.0-websocket_message_streamer
+git clone https://github.com/Engineering-Research-and-Development/true-connector-websocket_message_streamer.git
+cd true-connector-websocket_message_streamer
 mvn -U clean install
 cd ..
 echo "Installed websocket-message-streamer-lib"
 
 echo "Cloning and Creating Docker Container from Data-App repo..."
-git clone https://github.com/Engineering-Research-and-Development/market4.0-data_app_test_BE.git
-cd market4.0-data_app_test_BE
+git clone https://github.com/Engineering-Research-and-Development/true-connector-basic_data_app.git
+cd true-connector-basic_data_app
 mvn -U clean install
 sudo docker build -f Dockerfile -t rdlabengpa/ids_be_data_app:latest .
 cd ..
