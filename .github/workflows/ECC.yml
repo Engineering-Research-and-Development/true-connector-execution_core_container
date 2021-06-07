@@ -19,6 +19,9 @@ jobs:
           GH_TOKEN: ${{secrets.GH_TOKEN}}
           DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
           SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
+          SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
+          DOCKER_USER: ${{secrets.DOCKER_USER}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -151,5 +154,8 @@ jobs:
         
       - name: Stop docker container
         run: docker-compose -f ./ci/docker/test-cases/ws-idscp2/docker-compose.yml down -v
+        
+      - name: Run deploy
+        run: ./ci/deploy.sh
 
       
