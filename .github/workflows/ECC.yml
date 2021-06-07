@@ -121,5 +121,20 @@ jobs:
         
       - name: Stop docker container
         run: docker-compose -f ./ci/docker/test-cases/https-idscp2-header/docker-compose.yml down -v
+        
+      - name: Run docker container WS-WS
+        run: docker-compose -f ./ci/docker/test-cases/ws-ws/docker-compose.yml up -d
+        
+      - name: Wait for cointainer starting
+        run: sleep 120 
+        
+      - name: Check if the container is up and running
+        run: docker ps -a 
+      
+      - name: Run Test
+        run: newman run ./ci/docker/test-cases/ws-ws/WS-WS.json --timeout-request 120000 --insecure --bail --verbose
+        
+      - name: Stop docker container
+        run: docker-compose -f ./ci/docker/test-cases/ws-ws/docker-compose.yml down -v
 
       
