@@ -1,0 +1,60 @@
+{
+	"info": {
+		"_postman_id": "5a268edd-5fef-49fd-8b5d-63b182dc3f2b",
+		"name": "GHA",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+				{
+					"name": "HTTPS-HTTPS-header",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Body matches string\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"{\\\"firstName\\\":\\\"John\\\",\\\"lastName\\\":\\\"Doe\\\",\\\"address\\\":\\\"591  Franklin Street, Pennsylvania\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "fizz",
+								"value": "buzz"
+							},
+							{
+								"key": "Content-Type",
+								"value": "text/plain"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"multipart\": \"mixed\",\n    \"Forward-To\": \"https://localhost:8889/data\",\n\t \"message\": {\n\t  \"@context\" : {\n\t\t\"ids\" : \"https://w3id.org/idsa/core/\"\n\t  },\n\t  \"@type\" : \"ids:ArtifactRequestMessage\",\n\t  \"@id\" : \"https://w3id.org/idsa/autogen/artifactRequestMessage/76481a41-8117-4c79-bdf4-9903ef8f825a\",\n\t  \"ids:issued\" : {\n\t\t\"@value\" : \"2020-11-25T16:43:27.051+01:00\",\n\t\t\"@type\" : \"http://www.w3.org/2001/XMLSchema#dateTimeStamp\"\n\t  },\n\t  \"ids:modelVersion\" : \"4.0.0\",\n\t  \"ids:issuerConnector\" : {\n\t\t\"@id\" : \"http://w3id.org/engrd/connector/\"\n\t  },\n\t  \"ids:requestedArtifact\" : {\n\t   \"@id\" : \"http://w3id.org/engrd/connector/artifact/1\"\n\t  }\n\t},\n\t\"payload\" : {\n\t\t\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"\n\t\t}\n}"
+						},
+						"url": {
+							"raw": "https://localhost:8085/proxy",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"proxy"
+							]
+						}
+					},
+					"response": []
+				}
+			
+		}
+	]
+}
