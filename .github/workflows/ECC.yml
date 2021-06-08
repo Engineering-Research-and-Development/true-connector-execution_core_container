@@ -3,8 +3,6 @@ name: ECC
 on:
   push:
     branches: [ ]
-  #pull_request:
-  #  branches: [ master ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -35,7 +33,7 @@ jobs:
         run:  docker images
         
       - name: Run docker container HTTPS-HTTPS-mixed
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./https-https-mixed/.env up -d
+        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed/.env up -d
         
       - name: Wait for cointainer starting
         run: sleep 120 
@@ -47,10 +45,10 @@ jobs:
         run: newman run ./ci/docker/test-cases/https-https-mixed/HTTPS-HTTPS-mixed.json --timeout-request 120000 --insecure --bail --verbose
         
       - name: Stop docker container HTTPS-HTTPS-mixed
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./https-https-mixed/.env down -v
+        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed/.env down -v
         
       - name: Run docker container HTTPS-HTTPS-form
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./https-https-form/.env up -d
+        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form/.env up -d
         
       - name: Wait for cointainer starting
         run: sleep 120 
@@ -62,10 +60,10 @@ jobs:
         run: newman run ./ci/docker/test-cases/https-https-form/HTTPS-HTTPS-form.json --timeout-request 120000 --insecure --bail --verbose
         
       - name: Stop docker container HTTPS-HTTPS-form
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./https-https-form/.env down -v
+        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form/.env down -v
         
       - name: Run docker container HTTPS-HTTPS-header
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./https-https-header/.env up -d
+        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header/.env up -d
         
       - name: Wait for cointainer starting
         run: sleep 120 
@@ -77,10 +75,10 @@ jobs:
         run: newman run ./ci/docker/test-cases/https-https-header/HTTPS-HTTPS-header.json --timeout-request 120000 --insecure --bail --verbose
         
       - name: Stop docker container HTTPS-HTTPS-header
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./https-https-header/.envdown -v
+        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header/.envdown -v
         
       - name: Run docker container HTTPS-IDSCP2-mixed
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./https-idscp2-mixed/.env up -d
+        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env up -d
         
       - name: Wait for cointainer starting
         run: sleep 120 
@@ -92,10 +90,10 @@ jobs:
         run: newman run ./ci/docker/test-cases/https-idscp2-mixed/HTTPS-IDSCP2-mixed.json --timeout-request 120000 --insecure --bail --verbose
         
       - name: Stop docker container
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./https-idscp2-mixed/.env down -v
+        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env down -v
         
       - name: Run docker container HTTPS-IDSCP2-form
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./https-idscp2-form/.env up -d
+        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-form/.env up -d
         
       - name: Wait for cointainer starting
         run: sleep 120 
@@ -107,10 +105,10 @@ jobs:
         run: newman run ./ci/docker/test-cases/https-idscp2-form/HTTPS-IDSCP2-form.json --timeout-request 120000 --insecure --bail --verbose
         
       - name: Stop docker container
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./https-idscp2-form/.env down -v
+        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-form/.env down -v
         
       - name: Run docker container HTTPS-IDSCP2-header
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./https-idscp2-header/.env up -d
+        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-header/.env up -d
         
       - name: Wait for cointainer starting
         run: sleep 120 
@@ -122,10 +120,10 @@ jobs:
         run: newman run ./ci/docker/test-cases/https-idscp2-header/HTTPS-IDSCP2-header.json --timeout-request 120000 --insecure --bail --verbose
         
       - name: Stop docker container
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./https-idscp2-header/.env down -v
+        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-header/.env down -v
         
       - name: Run docker container WS-WS
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ws-ws/.env up -d
+        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/ws-ws/.env up -d
         
       - name: Wait for cointainer starting
         run: sleep 120 
@@ -137,10 +135,10 @@ jobs:
         run: newman run ./ci/docker/test-cases/ws-ws/WS-WS.json --timeout-request 120000 --insecure --bail --verbose
         
       - name: Stop docker container
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ws-ws/.env down -v
+        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/ws-ws/.env down -v
         
       - name: Run docker container WS-IDSCP2
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ws-idscp2/.env up -d
+        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/ws-idscp2/.env up -d
         
       - name: Wait for cointainer starting
         run: sleep 120 
@@ -152,7 +150,7 @@ jobs:
         run: newman run ./ci/docker/test-cases/ws-idscp2/WS-IDSCP2.json --timeout-request 120000 --insecure --bail --verbose
         
       - name: Stop docker container
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ws-idscp2/.env down -v
+        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/ws-idscp2/.env down -v
         
       - name: Run deploy
         run: ./ci/deploy.sh
