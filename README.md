@@ -1,5 +1,9 @@
 # ENG Execution Core Container
-[![CI](https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container/workflows/ECC/badge.svg)](https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container/actions/workflows/ECC.yml) <br/>
+
+[![License: AGPL](https://img.shields.io/github/license/Engineering-Research-and-Development/true-connector-execution_core_container.svg)](https://opensource.org/licenses/AGPL-3.0)
+[![CI](https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container/workflows/ECC/badge.svg)](https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container/actions/workflows/ECC.yml) 
+[![Docker badge](https://img.shields.io/docker/pulls/rdlabengpa/execution_core_container_bl.svg)](https://hub.docker.com/r/rdlabengpa/execution_core_container_bl)
+<br/>
 
 The ENG Execution Core Container, based on the IDS Base Connector, is the core component of an IDS Connector enabling:
 * the data exchange between connectors, using HTTPS, WS over HTTPS, IDSCP2 (beta)
