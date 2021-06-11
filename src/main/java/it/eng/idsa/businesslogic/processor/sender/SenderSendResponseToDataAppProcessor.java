@@ -73,21 +73,12 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 			httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
 			httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
 			//changed regarding Tecnalia problem - content lenght too long
-			StringBuilder sb = new StringBuilder();
-
-			for (int i = 0; i < 1000000; i++) {
-
-				try {
-					sb.append('a');
-				} catch (Throwable e) {
-					System.out.println(i);
-					break;
-				}
-			}
+			
 			MultipartMessage msg = new MultipartMessageBuilder()
 					.withHeaderContent(multipartMessage.getHeaderContentString()).
-					withPayloadContent(sb.toString())
+					withPayloadContent(multipartMessage.getPayloadContent())
 					.build();
+			
 			String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(msg, false);
 			Optional<String> boundaryy = MultipartMessageProcessor
 					.getMessageBoundaryFromMessage(multipartMessageString);
