@@ -5,8 +5,6 @@ import java.util.Optional;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +16,7 @@ import it.eng.idsa.businesslogic.processor.receiver.websocket.server.ResponseMes
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
@@ -64,7 +63,7 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 
 		String responseString = null;
 		String contentType = null;
-
+		
 		if (isEnabledDapsInteraction) {
 			// remove token before sending the response
 			multipartMessage = multipartMessageService.removeTokenFromMultipart(multipartMessage);
@@ -73,12 +72,19 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 		case "form":
 			httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
 			httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
-			HttpEntity resultEntity = multipartMessageService.createMultipartMessage(
-					multipartMessage.getHeaderContentString(), multipartMessage.getPayloadContent(), null,
-					ContentType.APPLICATION_JSON);
-			contentType = resultEntity.getContentType().getValue();
+			//changed regarding Tecnalia problem - content lenght too long
+			
+			MultipartMessage msg = new MultipartMessageBuilder()
+					.withHeaderContent(multipartMessage.getHeaderContentString()).
+					withPayloadContent(multipartMessage.getPayloadContent())
+					.build();
+			
+			String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(msg, false);
+			Optional<String> boundaryy = MultipartMessageProcessor
+					.getMessageBoundaryFromMessage(multipartMessageString);
+			contentType = "multipart/form; boundary=" + boundaryy.orElse("---aaa") + ";charset=UTF-8";
 			headerParts.put(Exchange.CONTENT_TYPE, contentType);
-			exchange.getMessage().setBody(resultEntity.getContent());
+			exchange.getMessage().setBody(multipartMessageString);
 			break;
 		case "mixed":
 			httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());

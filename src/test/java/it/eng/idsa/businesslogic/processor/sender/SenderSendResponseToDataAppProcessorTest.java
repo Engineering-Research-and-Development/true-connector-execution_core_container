@@ -12,6 +12,7 @@ import org.apache.camel.Exchange;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -103,6 +104,7 @@ public class SenderSendResponseToDataAppProcessorTest {
 	}
 	
 	@Test
+	@Disabled("Logic is same like multipart/mixed")
 	public void sendDataToMultipartForm() throws Exception {
 		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", RouterType.MULTIPART_BODY_FORM);
 		mockExchangeHeaderAndBody();
