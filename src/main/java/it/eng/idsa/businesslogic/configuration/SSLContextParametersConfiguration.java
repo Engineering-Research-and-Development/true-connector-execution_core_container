@@ -27,11 +27,14 @@ public class SSLContextParametersConfiguration {
 	@Value("${application.keyStorePassword}")
 	private String keyStorePassword;
 	
-	@Value("${application.trustStoreName}")
+	@Value("${application.trustStoreName:}")
 	private String trustStoreName;
 	
 	@Value("${application.trustStorePassword}")
 	private String trustStorePassword;
+	
+	@Value("${application.idscp2.isEnabled}")
+	private boolean idscp2IsEnabled;
 	
 	
 	
@@ -55,14 +58,15 @@ public class SSLContextParametersConfiguration {
         //sslContextParameters.setSecureSocketProtocol("TLSv1.3");
 
         // so that the client trusts the self-signed server certificate
-        final KeyStoreParameters trustStoreParams = new KeyStoreParameters();
-        trustStoreParams.setResource(targetDirectory +FileSystems.getDefault().getSeparator()+ trustStoreName);
-        trustStoreParams.setPassword(trustStorePassword);
-                
-        final TrustManagersParameters tmp = new TrustManagersParameters();
-        tmp.setKeyStore(trustStoreParams);
-        sslContextParameters.setTrustManagers(tmp);
-        
+		if (idscp2IsEnabled) {
+			final KeyStoreParameters trustStoreParams = new KeyStoreParameters();
+			trustStoreParams.setResource(targetDirectory + FileSystems.getDefault().getSeparator() + trustStoreName);
+			trustStoreParams.setPassword(trustStorePassword);
+
+			final TrustManagersParameters tmp = new TrustManagersParameters();
+			tmp.setKeyStore(trustStoreParams);
+			sslContextParameters.setTrustManagers(tmp);
+		}
 
        
         return sslContextParameters;

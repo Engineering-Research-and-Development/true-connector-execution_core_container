@@ -32,7 +32,7 @@ import org.springframework.stereotype.Service;
 public class KeystoreProvider {
 	
     private static final Logger logger = LoggerFactory.getLogger(KeystoreProvider.class);
-
+    
 	private KeyStore keystore;
 	private KeyStore trustManagerKeyStore;
 	private String keyStorePwd;
@@ -44,11 +44,14 @@ public class KeystoreProvider {
 							@Value("${application.keyStoreName}") String keyStoreName, 
 							@Value("${application.keyStorePassword}") String keyStorePassword, 
 							@Value("${application.keystoreAliasName}") String keystoreAliasName,
-							@Value("${application.trustStoreName}") String trustStoreName, 
-							@Value("${application.trustStorePassword}") String trustStorePwd) {
+							@Value("${application.trustStoreName:}") String trustStoreName, 
+							@Value("${application.trustStorePassword}") String trustStorePwd,
+							@Value("${application.disableSslVerification:false}") boolean disableSslVerification) {
 		
 		keyStorePwd = keyStorePassword;
 		keystoreAlias = keystoreAliasName;
+		
+		InputStream jksTrustStoreInputStream = null;
 		
 		try {
 			InputStream jksKeyStoreInputStream = Files.newInputStream(targetDirectory.resolve(keyStoreName));
@@ -59,34 +62,35 @@ public class KeystoreProvider {
 			kmf.init(keystore, keyStorePassword.toCharArray());
 			
 			logger.info("Loading trust store: " + trustStoreName);
-			InputStream jksTrustStoreInputStream = Files.newInputStream(targetDirectory.resolve(trustStoreName));
-			trustManagerKeyStore = KeyStore.getInstance("JKS");
-			trustManagerKeyStore.load(jksTrustStoreInputStream, trustStorePwd.toCharArray());
-			if(logger.isDebugEnabled()) {
-				PKIXParameters params;
-				try {
-					params = new PKIXParameters(trustManagerKeyStore);
-					Set<TrustAnchor> trustAnchors = params.getTrustAnchors();
-					List<Certificate> certificates = trustAnchors.stream()
-							.map(TrustAnchor::getTrustedCert)
-							.collect(Collectors.toList());
-					logger.debug("Cert chain: " + certificates);
-				} catch (InvalidAlgorithmParameterException e) {
-					logger.error("Error while trying to read trusted certificates");
+			if (!disableSslVerification) {
+				jksTrustStoreInputStream = Files.newInputStream(targetDirectory.resolve(trustStoreName));
+				trustManagerKeyStore = KeyStore.getInstance("JKS");
+				trustManagerKeyStore.load(jksTrustStoreInputStream, trustStorePwd.toCharArray());
+				if (logger.isDebugEnabled()) {
+					PKIXParameters params;
+					try {
+						params = new PKIXParameters(trustManagerKeyStore);
+						Set<TrustAnchor> trustAnchors = params.getTrustAnchors();
+						List<Certificate> certificates = trustAnchors.stream().map(TrustAnchor::getTrustedCert)
+								.collect(Collectors.toList());
+						logger.debug("Cert chain: " + certificates);
+					} catch (InvalidAlgorithmParameterException e) {
+						logger.error("Error while trying to read trusted certificates");
+					}
 				}
+				List<String> aliases = Collections.list(trustManagerKeyStore.aliases());
+				logger.info("Trusted certificate aliases: {}", aliases);
+				trustFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+				trustFactory.init(trustManagerKeyStore);
+
+				kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+				kmf.init(keystore, keyStorePassword.toCharArray());
+				trustFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+				trustFactory.init(trustManagerKeyStore);
+				jksTrustStoreInputStream.close();
 			}
-			List<String> aliases = Collections.list(trustManagerKeyStore.aliases());
-			logger.info("Trusted certificate aliases: {}", aliases);
-			trustFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            trustFactory.init(trustManagerKeyStore);
-			
-			kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-			kmf.init(keystore, keyStorePassword.toCharArray());
-			trustFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-			trustFactory.init(trustManagerKeyStore);
 			
 			jksKeyStoreInputStream.close();
-			jksTrustStoreInputStream.close();
 		} catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException e) {
 			logger.error("Error while loading keystore and truststore, {}", e);
 		}
