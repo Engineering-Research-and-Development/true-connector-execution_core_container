@@ -16,7 +16,6 @@ import it.eng.idsa.businesslogic.processor.receiver.websocket.server.ResponseMes
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
-import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
@@ -73,13 +72,7 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 			httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
 			httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
 			//changed regarding Tecnalia problem - content lenght too long
-			
-			MultipartMessage msg = new MultipartMessageBuilder()
-					.withHeaderContent(multipartMessage.getHeaderContentString()).
-					withPayloadContent(multipartMessage.getPayloadContent())
-					.build();
-			
-			String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(msg, false);
+			String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
 			Optional<String> boundaryy = MultipartMessageProcessor
 					.getMessageBoundaryFromMessage(multipartMessageString);
 			contentType = "multipart/form; boundary=" + boundaryy.orElse("---aaa") + ";charset=UTF-8";
