@@ -1,19 +1,17 @@
 package it.eng.idsa.businesslogic.configuration;
 
 
+import java.nio.file.FileSystems;
+
 import org.apache.camel.support.jsse.KeyManagersParameters;
-
-
-
 import org.apache.camel.support.jsse.KeyStoreParameters;
 import org.apache.camel.support.jsse.SSLContextClientParameters;
 import org.apache.camel.support.jsse.SSLContextParameters;
 import org.apache.camel.support.jsse.TrustManagersParameters;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.nio.file.FileSystems;
 
 @Configuration
 public class SSLContextParametersConfiguration {
@@ -33,43 +31,39 @@ public class SSLContextParametersConfiguration {
 	@Value("${application.trustStorePassword}")
 	private String trustStorePassword;
 	
-	@Value("${application.idscp2.isEnabled}")
-	private boolean idscp2IsEnabled;
-	
-	
-	
 	@Bean
+	@ConditionalOnProperty(
+		    value="${application.idscp2.isEnabled}", 
+		    havingValue = "true", 
+		    matchIfMissing = true)
 	public SSLContextParameters sslContext() {
-        final KeyStoreParameters ksp = new KeyStoreParameters();
-        ksp.setResource(targetDirectory +FileSystems.getDefault().getSeparator()+ keyStoreName);
-        ksp.setPassword(keyStorePassword);
-       // ksp.setType("RSA");
-        
+		final KeyStoreParameters ksp = new KeyStoreParameters();
+		ksp.setResource(targetDirectory + FileSystems.getDefault().getSeparator() + keyStoreName);
+		ksp.setPassword(keyStorePassword);
+		// ksp.setType("RSA");
 
-        final KeyManagersParameters kmp = new KeyManagersParameters();
-        kmp.setKeyStore(ksp);
-        kmp.setKeyPassword(keyStorePassword);
-        
-        final SSLContextClientParameters sslContextClientParameters = new SSLContextClientParameters();
-        final SSLContextParameters sslContextParameters = new SSLContextParameters();
-        sslContextParameters.setClientParameters(sslContextClientParameters);
-        sslContextParameters.setKeyManagers(kmp);
-        //sslContextParameters.setCertAlias("1");
-        //sslContextParameters.setSecureSocketProtocol("TLSv1.3");
+		final KeyManagersParameters kmp = new KeyManagersParameters();
+		kmp.setKeyStore(ksp);
+		kmp.setKeyPassword(keyStorePassword);
 
-        // so that the client trusts the self-signed server certificate
-		if (idscp2IsEnabled) {
-			final KeyStoreParameters trustStoreParams = new KeyStoreParameters();
-			trustStoreParams.setResource(targetDirectory + FileSystems.getDefault().getSeparator() + trustStoreName);
-			trustStoreParams.setPassword(trustStorePassword);
+		final SSLContextClientParameters sslContextClientParameters = new SSLContextClientParameters();
+		final SSLContextParameters sslContextParameters = new SSLContextParameters();
+		sslContextParameters.setClientParameters(sslContextClientParameters);
+		sslContextParameters.setKeyManagers(kmp);
+		// sslContextParameters.setCertAlias("1");
+		// sslContextParameters.setSecureSocketProtocol("TLSv1.3");
 
-			final TrustManagersParameters tmp = new TrustManagersParameters();
-			tmp.setKeyStore(trustStoreParams);
-			sslContextParameters.setTrustManagers(tmp);
-		}
+		// so that the client trusts the self-signed server certificate
 
-       
-        return sslContextParameters;
+		final KeyStoreParameters trustStoreParams = new KeyStoreParameters();
+		trustStoreParams.setResource(targetDirectory + FileSystems.getDefault().getSeparator() + trustStoreName);
+		trustStoreParams.setPassword(trustStorePassword);
+
+		final TrustManagersParameters tmp = new TrustManagersParameters();
+		tmp.setKeyStore(trustStoreParams);
+		sslContextParameters.setTrustManagers(tmp);
+
+		return sslContextParameters;
     } 
 	
 	
