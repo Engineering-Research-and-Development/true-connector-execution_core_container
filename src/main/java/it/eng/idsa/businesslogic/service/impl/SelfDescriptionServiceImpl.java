@@ -2,8 +2,10 @@
 package it.eng.idsa.businesslogic.service.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
@@ -11,6 +13,7 @@ import javax.annotation.PostConstruct;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +28,9 @@ import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.QueryLanguage;
 import de.fraunhofer.iais.eis.QueryMessageBuilder;
 import de.fraunhofer.iais.eis.QueryScope;
-import de.fraunhofer.iais.eis.Resource;
 import de.fraunhofer.iais.eis.ResourceCatalog;
-import de.fraunhofer.iais.eis.ResourceCatalogBuilder;
 import de.fraunhofer.iais.eis.SecurityProfile;
+import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import de.fraunhofer.iais.eis.util.TypedLiteral;
 import de.fraunhofer.iais.eis.util.Util;
@@ -76,9 +78,15 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 						.build())
 //				._hasEndpoint_(Util.asList(new ConnectorEndpointBuilder(new URI("https://someURL/incoming-data-channel/receivedMessage")).build()))
 				.build();
+		
+			try {
+				logger.info(MultipartMessageProcessor.serializeToJsonLD(this.connector.getResourceCatalog()));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 	}
 
-	public Connector getConnector() throws ConstraintViolationException, URISyntaxException {
+	public Connector getConnector() {
 		if (null == this.connector) {
 			this.initConnector();
 		}
@@ -126,15 +134,32 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 //	}
 
 	private java.util.List<ResourceCatalog> getCatalog() {
-		java.util.List<ResourceCatalog> catalogList = null;
+		java.util.List<ResourceCatalog> catalogList = new ArrayList<>();
 		try {
-			Resource resource = dataAppService.getResourceFromDataApp();
+//			Resource resource = dataAppService.getResourceFromDataApp();
 			ResourceCatalog catalog = null;
-			catalog = (new ResourceCatalogBuilder()
-					._offeredResource_(Util.asList(new Resource[] { resource }))
-					.build());
-			catalogList = new ArrayList<>();
+			try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("resource_catalog.json"))
+		    {
+		        String rc;
+				try {
+					rc = IOUtils.toString(inputStream, Charset.defaultCharset());
+//					CollectionType typeReference =
+//						    TypeFactory.defaultInstance().constructCollectionType(List.class, ResourceCatalog.class);
+					catalog = new Serializer().deserialize(rc, ResourceCatalog.class);
+//					catalogList = Arrays.asList(catalogListArray);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		    } catch (IOException e1) {
+				e1.printStackTrace();
+			}
 			catalogList.add(catalog);
+			
+//			try {
+//				logger.info(MultipartMessageProcessor.serializeToJsonLD(catalogList));
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
 		} catch (ConstraintViolationException e) {
 			e.printStackTrace();
 		}
