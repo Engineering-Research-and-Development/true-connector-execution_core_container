@@ -22,9 +22,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.google.gson.internal.LinkedTreeMap;
 
-import de.fraunhofer.dataspaces.iese.camel.interceptor.model.IdsUseObject;
-import de.fraunhofer.dataspaces.iese.camel.interceptor.service.UcService;
 import de.fraunhofer.iais.eis.Message;
+import it.eng.idsa.businesslogic.camel_interceptor_ucapp.model.IdsUseObject;
+import it.eng.idsa.businesslogic.camel_interceptor_ucapp.service.UcService;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;

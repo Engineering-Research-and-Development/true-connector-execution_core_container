@@ -186,6 +186,16 @@
 			<artifactId>camel-jms</artifactId>
 			<version>${camel.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.squareup.retrofit2</groupId>
+			<artifactId>retrofit</artifactId>
+			<version>2.7.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.retrofit2</groupId>
+			<artifactId>converter-gson</artifactId>
+			<version>2.7.1</version>
+		</dependency>
 
 		<!-- IDSCP -->
 		<dependency>
@@ -291,12 +301,6 @@
 			<version>1.63</version>
 		</dependency>
 
-		<!-- Usage Control -->
-		<dependency>
-			<groupId>de.fraunhofer.dataspaces.iese</groupId>
-			<artifactId>camel-interceptor-ucapp</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
 		<!-- Usage Control -->
 
 		<dependency>
