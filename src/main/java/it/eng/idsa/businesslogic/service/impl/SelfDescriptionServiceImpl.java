@@ -4,7 +4,6 @@ package it.eng.idsa.businesslogic.service.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
@@ -37,6 +36,7 @@ import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.service.ResourceDataAppService;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
+import it.eng.idsa.businesslogic.service.resources.SelfDescription;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 /**
@@ -49,7 +49,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	private static final Logger logger = LoggerFactory.getLogger(SelfDescriptionServiceImpl.class);
 	
 	private SelfDescriptionConfiguration selfDescriptionConfiguration;
-	private Connector connector;
+//	private Connector connector;
 	private URI issuerConnectorURI;
 	private ResourceDataAppService dataAppService;
 
@@ -64,7 +64,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	@PostConstruct
 	public void initConnector() throws ConstraintViolationException {
 		issuerConnectorURI = selfDescriptionConfiguration.getConnectorURI();
-		this.connector = new BaseConnectorBuilder(issuerConnectorURI)
+		Connector connector = new BaseConnectorBuilder(issuerConnectorURI)
 				._maintainer_(selfDescriptionConfiguration.getMaintainer())
 				._curator_(selfDescriptionConfiguration.getCurator())
 				._resourceCatalog_((ArrayList<? extends ResourceCatalog>) this.getCatalog())
@@ -79,25 +79,23 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 //				._hasEndpoint_(Util.asList(new ConnectorEndpointBuilder(new URI("https://someURL/incoming-data-channel/receivedMessage")).build()))
 				.build();
 		
-			try {
-				logger.info(MultipartMessageProcessor.serializeToJsonLD(this.connector.getResourceCatalog()));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+//			try {
+//				logger.info(MultipartMessageProcessor.serializeToJsonLD(connector.getResourceCatalog()));
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+			SelfDescription.getInstance().setBaseConnector(connector);
 	}
 
 	public Connector getConnector() {
-		if (null == this.connector) {
-			this.initConnector();
-		}
-		return this.connector;
+		return SelfDescription.getInstance().getConnector();
 	}
 
 	@Override
 	public String getConnectorSelfDescription() {
 		String result = null;
 		try {
-			result = MultipartMessageProcessor.serializeToJsonLD(this.connector);
+			result = MultipartMessageProcessor.serializeToJsonLD(SelfDescription.getInstance().getConnector());
 		} catch (IOException e) {
 			logger.error("Error while serializing", e);
 		}
@@ -174,7 +172,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 			._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
 			._issuerConnector_(issuerConnectorURI)
 			._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
-			._affectedConnector_(connector.getId())
+			._affectedConnector_(issuerConnectorURI)
 			.build();
 	}
 
@@ -189,7 +187,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)
 				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
-				._affectedConnector_(connector.getId())
+				._affectedConnector_(issuerConnectorURI)
 				.build();
 	}
 
@@ -201,7 +199,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		
 		return new ConnectorUnavailableMessageBuilder()
 				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
-				._affectedConnector_(connector.getId())
+				._affectedConnector_(issuerConnectorURI)
 				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
 				._issuerConnector_(issuerConnectorURI)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
@@ -218,7 +216,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._issuerConnector_(issuerConnectorURI)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 				._issued_(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()))
-				._affectedConnector_(connector.getId())
+				._affectedConnector_(issuerConnectorURI)
 				.build();
 	}
 

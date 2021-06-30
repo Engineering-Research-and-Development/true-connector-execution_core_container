@@ -17,54 +17,56 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.fraunhofer.iais.eis.Connector;
-import de.fraunhofer.iais.eis.Resource;
+import de.fraunhofer.iais.eis.Representation;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
-import it.eng.idsa.businesslogic.service.resources.OfferedResourceService;
+import it.eng.idsa.businesslogic.service.resources.RepresentationResourceService;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 @RestController
-@RequestMapping("/api/offeredResource/")
-public class OfferedResourceController {
+@RequestMapping("/api/representation/")
+public class RepresentationResourceController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(OfferedResourceController.class);
+
+	private RepresentationResourceService resourceCatalogService;
 	
-	private OfferedResourceService service;
-	
-	public OfferedResourceController(OfferedResourceService service) {
-		this.service = service;
+	public RepresentationResourceController(RepresentationResourceService resourceCatalogService) {
+		this.resourceCatalogService = resourceCatalogService;
 	}
 
 	@GetMapping
 	@ResponseBody
-	public ResponseEntity<String> getResource(@RequestHeader("resource") URI resource) throws IOException {
-		logger.debug("Fetching offered resource with id '{}'", resource);
-		Resource resourceGet = service.getOfferedResource(resource);
-		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(resourceGet));
+	public ResponseEntity<String> getRepresentationForResource(@RequestHeader("representation") URI representation)
+			throws IOException {
+		logger.debug("Fetching representation '{}'", representation);
+		return ResponseEntity.ok(
+				MultipartMessageProcessor.serializeToJsonLD(resourceCatalogService.getRepresentation(representation)));
 	}
 	
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> addOrUpdateResource(@RequestHeader("catalog") URI catalog,
-			@RequestBody String resource) throws IOException {
+	public ResponseEntity<String> addOrUpdateRepresentationToResource(@RequestHeader("resource") URI resource,
+			@RequestBody String representation) throws IOException {
 		Connector modifiedConnector = null;
 		try {
 			Serializer s = new Serializer();
-			Resource r = s.deserialize(resource, Resource.class);
-			logger.debug("Adding offered resource with id '{}' to catalog '{}'", r.getId(), catalog);
-			modifiedConnector = service.addOfferedResource(catalog, r);
+			Representation r = s.deserialize(representation, Representation.class);
+			logger.debug("Adding/Update representation with id '{}' to resource '{}'", r.getId(), resource);
+			modifiedConnector = resourceCatalogService.addOrUpdateRepresentationToResource(r, resource);
 		} catch (IOException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
 	}
 	
-
 	@DeleteMapping
 	@ResponseBody
-	public ResponseEntity<String> deleteResource(@RequestHeader("resourceId") URI resource) throws IOException {
+	public ResponseEntity<String> deleteRepresentation(@RequestHeader("representation") URI representation)
+			throws IOException {
 		Connector modifiedConnector = null;
-		logger.debug("Deleting offered resource with id '{}'", resource);
-		modifiedConnector = service.deleteOfferedResource(resource);
+		logger.debug("Deleting representation with id '{}'", representation);
+		modifiedConnector = resourceCatalogService.deleteRepresentation(representation);
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
 	}
+
 }

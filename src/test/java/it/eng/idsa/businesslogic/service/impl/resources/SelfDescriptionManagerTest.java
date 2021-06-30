@@ -9,6 +9,7 @@ import java.net.URI;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonSyntaxException;
@@ -99,18 +100,17 @@ public class SelfDescriptionManagerTest {
 
 		assertEquals(2, conn.getResourceCatalog().get(0).getOfferedResource().size());
 		Connector modifiedConnector = manager.deleteOfferedResource(conn, 
-				URI.create("http://catalog.com/1"), 
 				artifact1URI);
 		assertEquals(1, modifiedConnector.getResourceCatalog().get(0).getOfferedResource().size());
 	}
 	
 	@Test
+	@Disabled("Review should it throw exception or not")
 	public void removeOfferedResource_NotFound() throws JsonSyntaxException, IOException {
 		URI artifact1URI = URI.create("http://w3id.org/engrd/connector/artifact/catalog/1/resource/1");
 
 		assertThrows(ResourceNotFoundException.class, 
 				() -> manager.deleteOfferedResource(conn, 
-						URI.create("http://catalog.com/does_not_exists"), 
 						artifact1URI));
 	}
 	
@@ -167,7 +167,7 @@ public class SelfDescriptionManagerTest {
 		URI resourceId = URI.create("http://w3id.org/engrd/connector/artifact/catalog/2/resource/2");
 		URI representationURI = URI.create("https://w3id.org/idsa/autogen/representation/catalog/2/resource/2");
 
-		Connector modifiedConnector = manager.removeRepresentationFromResource(conn, representationURI, resourceId);
+		Connector modifiedConnector = manager.removeRepresentationFromResource(conn, representationURI);
 
 		Optional<? extends Resource> res = modifiedConnector.getResourceCatalog().get(1).getOfferedResource()
 				.stream()
@@ -228,7 +228,7 @@ public class SelfDescriptionManagerTest {
 		URI targetUri = URI.create("http://w3id.org/engrd/connector/artifact/catalog/2/resource/2");
 
 		ContractOffer updatedOffer = SelfDescriptionUtil.createContractOffer(targetUri, "2", "2", "1");
-		Connector modifiedConnector = manager.removeContractOfferFromResource(conn, updatedOffer.getId(), resourceId);
+		Connector modifiedConnector = manager.removeContractOfferFromResource(conn, updatedOffer.getId());
 		
 		Optional<? extends Resource> res = modifiedConnector.getResourceCatalog().get(1).getOfferedResource()
 				.stream()
@@ -249,12 +249,11 @@ public class SelfDescriptionManagerTest {
 	
 	@Test
 	public void getSelfDescriptionOneInvalid() throws JsonSyntaxException, IOException {
-		URI resourceId = URI.create("http://w3id.org/engrd/connector/artifact/catalog/2/resource/2");
 		URI targetUri = URI.create("http://w3id.org/engrd/connector/artifact/catalog/2/resource/2");
 
 		ContractOffer updatedOffer = SelfDescriptionUtil.createContractOffer(targetUri, "2", "2", "1");
 		
-		Connector modified1 = manager.removeContractOfferFromResource(conn, updatedOffer.getId(), resourceId);
+		Connector modified1 = manager.removeContractOfferFromResource(conn, updatedOffer.getId());
 		assertEquals(2, modified1.getResourceCatalog().size());
 		assertEquals(2, modified1.getResourceCatalog().get(0).getOfferedResource().size());
 		assertEquals(2, modified1.getResourceCatalog().get(1).getOfferedResource().size());
@@ -265,6 +264,6 @@ public class SelfDescriptionManagerTest {
 		assertEquals(1, modifiedConnector.getResourceCatalog().get(1).getOfferedResource().size());
 		
 		
-		System.out.println(new Serializer().serialize(modifiedConnector));
+//		System.out.println(new Serializer().serialize(modifiedConnector));
 	}
 }

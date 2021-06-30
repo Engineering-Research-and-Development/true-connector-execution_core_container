@@ -17,41 +17,41 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.fraunhofer.iais.eis.Connector;
-import de.fraunhofer.iais.eis.Resource;
+import de.fraunhofer.iais.eis.ContractOffer;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
-import it.eng.idsa.businesslogic.service.resources.OfferedResourceService;
+import it.eng.idsa.businesslogic.service.resources.ContractOfferService;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 @RestController
-@RequestMapping("/api/offeredResource/")
-public class OfferedResourceController {
+@RequestMapping("/api/contractOffer/")
+public class ContractOfferController {
+
+	private static final Logger logger = LoggerFactory.getLogger(ContractOfferController.class);
 	
-	private static final Logger logger = LoggerFactory.getLogger(OfferedResourceController.class);
+	private ContractOfferService service;
 	
-	private OfferedResourceService service;
-	
-	public OfferedResourceController(OfferedResourceService service) {
+	public ContractOfferController(ContractOfferService service) {
 		this.service = service;
 	}
-
+	
 	@GetMapping
 	@ResponseBody
-	public ResponseEntity<String> getResource(@RequestHeader("resource") URI resource) throws IOException {
-		logger.debug("Fetching offered resource with id '{}'", resource);
-		Resource resourceGet = service.getOfferedResource(resource);
-		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(resourceGet));
+	public ResponseEntity<String> getContractOffer(@RequestHeader("contractOffer") URI contractOffer) 
+			throws IOException {
+		logger.debug("Fetching contractOffer with id '{}'", contractOffer);
+		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(service.getContractOffer(contractOffer)));
 	}
 	
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> addOrUpdateResource(@RequestHeader("catalog") URI catalog,
-			@RequestBody String resource) throws IOException {
+	public ResponseEntity<String> addOrUpdateContractOffer(@RequestHeader("resource") URI resource,
+			@RequestBody String contractOffer) throws IOException {
 		Connector modifiedConnector = null;
 		try {
 			Serializer s = new Serializer();
-			Resource r = s.deserialize(resource, Resource.class);
-			logger.debug("Adding offered resource with id '{}' to catalog '{}'", r.getId(), catalog);
-			modifiedConnector = service.addOfferedResource(catalog, r);
+			ContractOffer co = s.deserialize(contractOffer, ContractOffer.class);
+			logger.debug("Adding contract offer with id '{}' to resource '{}'", co.getId(), resource);
+			modifiedConnector = service.addOrUpdateContractOfferToResource(co, resource);
 		} catch (IOException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
@@ -61,10 +61,12 @@ public class OfferedResourceController {
 
 	@DeleteMapping
 	@ResponseBody
-	public ResponseEntity<String> deleteResource(@RequestHeader("resourceId") URI resource) throws IOException {
+	public ResponseEntity<String> deleteContractOffer(@RequestHeader("contractOffer") URI contractOffer)
+			throws IOException {
 		Connector modifiedConnector = null;
-		logger.debug("Deleting offered resource with id '{}'", resource);
-		modifiedConnector = service.deleteOfferedResource(resource);
+		logger.debug("Deleting offered resource with id '{}'", contractOffer);
+		modifiedConnector = service.deleteContractOfferService(contractOffer);
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
 	}
+
 }

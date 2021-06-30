@@ -18,6 +18,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
+import de.fraunhofer.iais.eis.BaseConnectorImpl;
 import de.fraunhofer.iais.eis.Connector;
 import de.fraunhofer.iais.eis.ContractOffer;
 import de.fraunhofer.iais.eis.Representation;
@@ -62,7 +63,7 @@ public class SelfDescriptionManager {
 		Optional<JsonElement> opt = StreamSupport.stream(resourceCatalogJsonArray.spliterator(), false)
 			.filter(p -> p.getAsJsonObject().get(ID).getAsString().equals(resourceCatalogId.toString()))
 			.findFirst();
-		
+
 		if(opt.isPresent()) {
 			JsonElement resourceCatalog = opt.get();
 			if(resourceCatalog.getAsJsonObject().get(ID).getAsString().equals(resourceCatalogId.toString())) {
@@ -88,50 +89,73 @@ public class SelfDescriptionManager {
 			logger.info("Did not find resourceCatalog with id {}", resourceCatalogId);
 			throw new ResourceNotFoundException("Did not find resourceCatalog with id " + resourceCatalogId);
 		}
-		return serializer.deserialize(gson.toJson(jsonElement), Connector.class);
+		SelfDescription.getInstance().setBaseConnector(serializer.deserialize(gson.toJson(jsonElement), Connector.class));
+		return SelfDescription.getInstance().getConnector();
 	}
 	
 	/**
-	 * Remove resource from ResourceCatalog(resourceCatalogId).offeredResource 
+	 * Remove resource from any Resource Catalogs
 	 * @param connector
-	 * @param resourceCatalogId
 	 * @param resourceId
 	 * @return new connector instance
 	 * @throws JsonSyntaxException
 	 * @throws IOException
 	 */
-	public Connector deleteOfferedResource(Connector connector, URI resourceCatalogId, URI resourceId) 
+	public Connector deleteOfferedResource(Connector connector, URI resourceId) 
 			throws JsonSyntaxException, IOException {
-		JsonElement jsonElement = gson.fromJson(mapper.writeValueAsString(connector), JsonElement.class);
-		
-		JsonArray resourceCatalogJsonArray = (JsonArray) jsonElement.getAsJsonObject().get(RESOURCE_CATALOG);
-		Optional<JsonElement> opt = StreamSupport.stream(resourceCatalogJsonArray.spliterator(), false)
-				.filter(p -> p.getAsJsonObject().get(ID).getAsString().equals(resourceCatalogId.toString()))
-				.findFirst();
-		
-		if(opt.isPresent()) {
-			removeResource(resourceId.toString(), opt.get());
-		} else {
-			logger.info("Did not find resourceCatalog with id {}", resourceCatalogId);
-			throw new ResourceNotFoundException("Did not find resourceCatalog with id " + resourceCatalogId);
+		BaseConnectorImpl connImpl = (BaseConnectorImpl) connector;
+		boolean removed = false;
+		for(ResourceCatalog resourceCatalog : connImpl.getResourceCatalog()) {
+			removed = resourceCatalog.getOfferedResource().removeIf(or -> or.getId().equals(resourceId));
 		}
-		return serializer.deserialize(gson.toJson(jsonElement), Connector.class);
+		if(removed) {
+			logger.info("Succesfuly removed resource with id '{}'", resourceId);
+		} else {
+			 logger.info("Did not find resource with id '{}'", resourceId);
+		}
+		return connector;
 	}
 	
-	public Resource getOfferedResource(Connector connector, URI resourceCatalogId, URI resourceId) 
+	/**
+	 * Find offered resource from all catalogs
+	 * @param connector
+	 * @param resourceId
+	 * @return
+	 * @throws JsonSyntaxException
+	 * @throws IOException
+	 */
+	public Resource getOfferedResource(Connector connector, URI resourceId) 
 			throws JsonSyntaxException, IOException {
-		JsonElement jsonElement = gson.fromJson(mapper.writeValueAsString(connector), JsonElement.class);
 		
-		JsonArray resourceCatalogJsonArray = (JsonArray) jsonElement.getAsJsonObject().get(RESOURCE_CATALOG);
-		Optional<JsonElement> opt = StreamSupport.stream(resourceCatalogJsonArray.spliterator(), false)
-				.filter(p -> p.getAsJsonObject().get(ID).getAsString().equals(resourceCatalogId.toString()))
-				.findFirst();
-		
-		if(opt.isPresent()) {
-			return serializer.deserialize(gson.toJson(opt.get()), Resource.class);
-		} else {
-			throw new ResourceNotFoundException("");
+		ListIterator<? extends ResourceCatalog> litr = null;
+		litr = connector.getResourceCatalog().listIterator();
+		while(litr.hasNext()) {
+			ResourceCatalog rc = litr.next();
+			ListIterator<? extends Resource> resourceIter = rc.getOfferedResource().listIterator();
+			while(resourceIter.hasNext()) {
+				Resource resource = resourceIter.next();
+				if(resource.getId().equals(resourceId)) {
+					return (Resource) resource;
+				}
+			}
 		}
+		throw new ResourceNotFoundException("Resource with id '" + resourceId + "' not found");
+	}
+	
+	public Representation getRepresentation(URI representationId) {
+		BaseConnectorImpl connector = (BaseConnectorImpl) SelfDescription.getInstance().getConnector();
+		
+		for(ResourceCatalog resourceCatalog : connector.getResourceCatalog()) {
+			for(Resource resource : resourceCatalog.getOfferedResource()) {
+				for(Representation representation : resource.getRepresentation()) {
+					if(representation.getId().equals(representationId)) {
+						logger.debug("Found representation with id '{}'", representationId);
+						return representation;
+					}
+				}
+			}
+		}
+		throw new ResourceNotFoundException(String.format("Did not find representation with id %s", representationId));
 	}
 	
 	/**
@@ -181,13 +205,10 @@ public class SelfDescriptionManager {
 	 * Remove representation from resource
 	 * @param connector
 	 * @param representationId
-	 * @param resourceId
 	 * @return
-	 * @throws JsonSyntaxException
-	 * @throws IOException
 	 */
-	public Connector removeRepresentationFromResource(Connector connector, URI representationId, URI resourceId) 
-			throws JsonSyntaxException, IOException {
+	public Connector removeRepresentationFromResource(Connector connector, URI representationId) {
+		/*
 		JsonElement jsonElement = gson.fromJson(mapper.writeValueAsString(connector), JsonElement.class);
 		JsonArray resourceCatalogJsonArray = (JsonArray) jsonElement.getAsJsonObject().get(RESOURCE_CATALOG);
 		
@@ -213,8 +234,41 @@ public class SelfDescriptionManager {
 		}
 		
 		return serializer.deserialize(gson.toJson(jsonElement), Connector.class);
+		*/
+		
+//		BaseConnectorImpl connectorImp = (BaseConnectorImpl) connector;
+		
+		for(ResourceCatalog resourceCatalog : connector.getResourceCatalog()) {
+			for(Resource resource : resourceCatalog.getOfferedResource()) {
+				resource.getRepresentation().removeIf(rep -> rep.getId().equals(representationId));
+//				for(Representation representation : resource.getRepresentation()) {
+//					if(representation.getId().equals(representationId)) {
+//						logger.debug("Found representation with id '{}'", representationId);
+//						return representation;
+//					}
+//				}
+			}
+		}
+		return connector;
+//		throw new ResourceNotFoundException(String.format("Did not find representation with id %s", representationId));
 	}
 
+	public ContractOffer getContractOffer(URI contractOfferId) {
+		BaseConnectorImpl connector = (BaseConnectorImpl) SelfDescription.getInstance().getConnector();
+		
+		for(ResourceCatalog resourceCatalog : connector.getResourceCatalog()) {
+			for(Resource resource : resourceCatalog.getOfferedResource()) {
+				for(ContractOffer co : resource.getContractOffer()) {
+					if(co.getId().equals(contractOfferId)) {
+						logger.debug("Found contract offer with id '{}'", contractOfferId);
+						return co;
+					}
+				}
+			}
+		}
+		throw new ResourceNotFoundException(String.format("Did not find contract offer with id '{}'", contractOfferId));
+	}
+	
 	/**
 	 * Add or update contract offer to resource
 	 * @param connector
@@ -264,13 +318,10 @@ public class SelfDescriptionManager {
 	 * Remove contract offer from resource
 	 * @param connector
 	 * @param contractOfferId
-	 * @param resourceId
 	 * @return
-	 * @throws JsonSyntaxException
-	 * @throws IOException
 	 */
-	public Connector removeContractOfferFromResource(Connector connector, URI contractOfferId, URI resourceId) 
-			throws JsonSyntaxException, IOException {
+	public Connector removeContractOfferFromResource(Connector connector, URI contractOfferId)  {
+		/*
 		JsonElement jsonElement = gson.fromJson(mapper.writeValueAsString(connector), JsonElement.class);
 	JsonArray resourceCatalogJsonArray = (JsonArray) jsonElement.getAsJsonObject().get(RESOURCE_CATALOG);
 		
@@ -293,6 +344,15 @@ public class SelfDescriptionManager {
 			throw new ResourceNotFoundException(message);
 		}
 		return serializer.deserialize(gson.toJson(jsonElement), Connector.class);
+		*/
+		
+		for(ResourceCatalog resourceCatalog : connector.getResourceCatalog()) {
+			for(Resource resource : resourceCatalog.getOfferedResource()) {
+				resource.getContractOffer().removeIf(co -> co.getId().equals(contractOfferId));
+			}
+		}
+		return connector;
+		
 	}
 	
 	/**
@@ -361,4 +421,5 @@ public class SelfDescriptionManager {
 		});
 		return resource;
 	}
+
 }

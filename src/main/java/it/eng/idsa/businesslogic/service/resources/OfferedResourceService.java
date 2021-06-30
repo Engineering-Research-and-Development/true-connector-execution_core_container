@@ -11,50 +11,35 @@ import com.google.gson.JsonSyntaxException;
 
 import de.fraunhofer.iais.eis.Connector;
 import de.fraunhofer.iais.eis.Resource;
-import it.eng.idsa.businesslogic.service.SelfDescriptionService;
 
 @Service
 public class OfferedResourceService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(OfferedResourceService.class);
 
-	private Connector connector;
-
 	private SelfDescriptionManager sdManager;
-	private SelfDescriptionService sdService;
 	
-	public OfferedResourceService(SelfDescriptionManager manager, SelfDescriptionService sdService) {
+	public OfferedResourceService(SelfDescriptionManager manager) {
 		this.sdManager = manager;
-		this.sdService = sdService;
 	}
 	
-	public Resource getOfferedResource(URI resourceCatalogId, URI resourceId) {
+	public Resource getOfferedResource(URI resourceId) {
 		try {
-			return sdManager.getOfferedResource(sdService.getConnector(), resourceCatalogId, resourceId);
+			return sdManager.getOfferedResource(SelfDescription.getInstance().getConnector(), resourceId);
 		} catch (JsonSyntaxException | IOException e) {
 			logger.error("Error while trying to get offered resource", e);
 			throw new ResourceNotFoundException("Error while trying to get offered resource");
 		}
 	}
-	/*
-	public boolean addOfferedResource(URI resourceCatalogId, Resource resource) {
-		try {
-			sdManager.addOrUpdateOfferedResource(null, resourceCatalogId, resource);
-		} catch (JsonSyntaxException | IOException e) {
-			e.printStackTrace();
-		}
+
+	public Connector addOfferedResource(URI resourceCatalogId, Resource resource)
+			throws JsonSyntaxException, IOException {
+		return sdManager.addOrUpdateOfferedResource(SelfDescription.getInstance().getConnector(), resourceCatalogId,
+				resource);
 	}
 	
-	public boolean updateOfferedResource(URI resourceCatalogId, Resource resource) {
-		try {
-			sdManager.addOrUpdateOfferedResource(null, resourceCatalogId, resource);
-		} catch (JsonSyntaxException | IOException e) {
-			e.printStackTrace();
-		}
+	public Connector deleteOfferedResource(URI resourceId) throws JsonSyntaxException, IOException {
+		return sdManager.deleteOfferedResource(SelfDescription.getInstance().getConnector(), 
+				resourceId);
 	}
-	
-	public void deleteOfferedResource(URI resourceCatalogId, URI resourceId) throws JsonSyntaxException, IOException {
-		sdManager.deleteOfferedResource(connector, resourceCatalogId, resourceId);
-	}
-	*/
 }
