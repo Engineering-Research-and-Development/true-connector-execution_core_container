@@ -27,14 +27,14 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
-import de.fraunhofer.dataspaces.iese.camel.interceptor.model.Meta;
-import de.fraunhofer.dataspaces.iese.camel.interceptor.model.TargetArtifact;
-import de.fraunhofer.dataspaces.iese.camel.interceptor.model.UsageControlObject;
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.usagecontrol.model.Meta;
+import it.eng.idsa.businesslogic.usagecontrol.model.TargetArtifact;
+import it.eng.idsa.businesslogic.usagecontrol.model.UsageControlObject;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;

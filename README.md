@@ -248,3 +248,13 @@ Follow the REST endpoint or WS examples, put the server hostname/ip address in t
 
 ### Web Socket over HTTPS
 Follow the REST endpoint examples, taking care to use *wss://{RECEIVER_IP_ADDRESS}:{WS_PUBLIC_PORT}* in the Forward-To header.
+
+## Developer guide section
+
+### How to build Execution Core Container
+Clone projects from the following links and run mvn clean install
+
+[Multipart Message library](https://github.com/Engineering-Research-and-Development/true-connector-multipart_message_library)
+[WebSocket Message Streamer library](https://github.com/Engineering-Research-and-Development/market4.0-websocket_message_streamer)
+[Clearing house model](https://github.com/Engineering-Research-and-Development/market4.0-clearing_house/tree/master/clearing-house-model)
+[Execution Core Container](https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container)
