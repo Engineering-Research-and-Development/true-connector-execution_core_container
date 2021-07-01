@@ -7,10 +7,6 @@ import org.springframework.lang.Nullable;
 
 import retrofit2.Response;
 
-/**
- * @author Robin Brandstaedter <Robin.Brandstaedter@iese.fraunhofer.de>
- *
- */
 public class PolicyDeniedException extends RuntimeException {
 	  /**
 	 * 
