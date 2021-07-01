@@ -12,7 +12,7 @@
 	<groupId>it.eng.idsa</groupId>
 	<artifactId>market4.0-execution_core_container_business_logic
 	</artifactId>
-	<version>0.0.22-SNAPSHOT</version>
+	<version>0.0.23-SNAPSHOT</version>
 	<name>market4.0-execution_core_container_business_logic</name>
 	<description>Market4.0 execution core container Business Logic
 	</description>
@@ -186,6 +186,7 @@
 			<artifactId>camel-jms</artifactId>
 			<version>${camel.version}</version>
 		</dependency>
+		<!-- Use for Camel Interceptor Ucapp classes -->
 		<dependency>
 			<groupId>com.squareup.retrofit2</groupId>
 			<artifactId>retrofit</artifactId>
