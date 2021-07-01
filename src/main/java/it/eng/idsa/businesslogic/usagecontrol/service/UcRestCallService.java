@@ -1,6 +1,6 @@
-package it.eng.idsa.businesslogic.camel_interceptor_ucapp.service;
+package it.eng.idsa.businesslogic.usagecontrol.service;
 
-import it.eng.idsa.businesslogic.camel_interceptor_ucapp.model.IdsUseObject;
+import it.eng.idsa.businesslogic.usagecontrol.model.IdsUseObject;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.POST;

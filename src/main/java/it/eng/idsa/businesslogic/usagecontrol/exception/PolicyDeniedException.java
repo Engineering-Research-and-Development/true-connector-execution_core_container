@@ -1,4 +1,4 @@
-package it.eng.idsa.businesslogic.camel_interceptor_ucapp.exception;
+package it.eng.idsa.businesslogic.usagecontrol.exception;
 
 import java.io.IOException;
 import java.util.Objects;

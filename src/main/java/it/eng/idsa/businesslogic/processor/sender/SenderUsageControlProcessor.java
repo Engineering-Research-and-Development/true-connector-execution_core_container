@@ -18,13 +18,13 @@ import com.google.gson.internal.LinkedTreeMap;
 
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.camel_interceptor_ucapp.model.IdsMsgTarget;
-import it.eng.idsa.businesslogic.camel_interceptor_ucapp.model.IdsUseObject;
-import it.eng.idsa.businesslogic.camel_interceptor_ucapp.model.UsageControlObject;
-import it.eng.idsa.businesslogic.camel_interceptor_ucapp.service.UcService;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationA;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverUsageControlProcessor;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.usagecontrol.model.IdsMsgTarget;
+import it.eng.idsa.businesslogic.usagecontrol.model.IdsUseObject;
+import it.eng.idsa.businesslogic.usagecontrol.model.UsageControlObject;
+import it.eng.idsa.businesslogic.usagecontrol.service.UcService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;

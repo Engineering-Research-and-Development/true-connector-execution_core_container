@@ -1,4 +1,4 @@
-package it.eng.idsa.businesslogic.camel_interceptor_ucapp.model;
+package it.eng.idsa.businesslogic.usagecontrol.model;
 
 import java.net.URI;
 import java.time.ZonedDateTime;

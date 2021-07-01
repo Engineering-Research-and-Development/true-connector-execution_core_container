@@ -1,17 +1,21 @@
-package it.eng.idsa.businesslogic.camel_interceptor_ucapp.service;
+package it.eng.idsa.businesslogic.usagecontrol.service;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import it.eng.idsa.businesslogic.camel_interceptor_ucapp.exception.PolicyDeniedException;
-import it.eng.idsa.businesslogic.camel_interceptor_ucapp.model.IdsUseObject;
+import it.eng.idsa.businesslogic.usagecontrol.exception.PolicyDeniedException;
+import it.eng.idsa.businesslogic.usagecontrol.model.IdsUseObject;
 import retrofit2.Call;
 import retrofit2.Response;
 
 @Service
 public class UcService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(UcService.class);
 	
 	private UcRestCallService ucRestCallService;
 
@@ -29,6 +33,7 @@ public class UcService {
 			}
 			return response.body(); 
 		}catch (IOException ioe) {
+			logger.error("Uc Service has failed: {}", ioe);
 			return "";
 		}
 	}

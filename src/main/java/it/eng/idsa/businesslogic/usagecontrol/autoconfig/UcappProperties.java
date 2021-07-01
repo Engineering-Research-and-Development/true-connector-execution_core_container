@@ -1,4 +1,4 @@
-package it.eng.idsa.businesslogic.camel_interceptor_ucapp.autoconfig;
+package it.eng.idsa.businesslogic.usagecontrol.autoconfig;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

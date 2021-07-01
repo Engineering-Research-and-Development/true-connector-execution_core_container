@@ -1,11 +1,11 @@
-package it.eng.idsa.businesslogic.camel_interceptor_ucapp.config;
+package it.eng.idsa.businesslogic.usagecontrol.config;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import it.eng.idsa.businesslogic.camel_interceptor_ucapp.autoconfig.UcappProperties;
-import it.eng.idsa.businesslogic.camel_interceptor_ucapp.service.UcRestCallService;
+import it.eng.idsa.businesslogic.usagecontrol.autoconfig.UcappProperties;
+import it.eng.idsa.businesslogic.usagecontrol.service.UcRestCallService;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -15,7 +15,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 @Configuration
 @EnableConfigurationProperties({ UcappProperties.class})
-public class InterceptorConfiguration {
+public class UsageControlConfiguration {
 	
 	
 	@Bean
