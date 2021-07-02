@@ -20,6 +20,7 @@ import de.fraunhofer.iais.eis.Connector;
 import de.fraunhofer.iais.eis.ContractOffer;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.service.resources.ContractOfferService;
+import it.eng.idsa.businesslogic.service.resources.JsonException;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 @RestController
@@ -34,7 +35,7 @@ public class ContractOfferController {
 		this.service = service;
 	}
 	
-	@GetMapping
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> getContractOffer(@RequestHeader("contractOffer") URI contractOffer) 
 			throws IOException {
@@ -50,21 +51,21 @@ public class ContractOfferController {
 		try {
 			Serializer s = new Serializer();
 			ContractOffer co = s.deserialize(contractOffer, ContractOffer.class);
-			logger.debug("Adding contract offer with id '{}' to resource '{}'", co.getId(), resource);
+			logger.info("Adding contract offer with id '{}' to resource '{}'", co.getId(), resource);
 			modifiedConnector = service.addOrUpdateContractOfferToResource(co, resource);
 		} catch (IOException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			throw new JsonException("Error while processing request\n" + e.getMessage());
 		}
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
 	}
 	
 
-	@DeleteMapping
+	@DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> deleteContractOffer(@RequestHeader("contractOffer") URI contractOffer)
 			throws IOException {
 		Connector modifiedConnector = null;
-		logger.debug("Deleting offered resource with id '{}'", contractOffer);
+		logger.info("Deleting offered resource with id '{}'", contractOffer);
 		modifiedConnector = service.deleteContractOfferService(contractOffer);
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
 	}

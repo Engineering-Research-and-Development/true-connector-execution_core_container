@@ -34,12 +34,18 @@ public class OfferedResourceService {
 
 	public Connector addOfferedResource(URI resourceCatalogId, Resource resource)
 			throws JsonSyntaxException, IOException {
-		return sdManager.addOrUpdateOfferedResource(SelfDescription.getInstance().getConnector(), resourceCatalogId,
+		Connector connector = sdManager.addOrUpdateOfferedResource(SelfDescription.getInstance().getConnector(), resourceCatalogId,
 				resource);
+		SelfDescription.getInstance().setBaseConnector(connector);
+		sdManager.saveConnector();
+		return connector;
 	}
 	
 	public Connector deleteOfferedResource(URI resourceId) throws JsonSyntaxException, IOException {
-		return sdManager.deleteOfferedResource(SelfDescription.getInstance().getConnector(), 
+		Connector connector = sdManager.deleteOfferedResource(SelfDescription.getInstance().getConnector(), 
 				resourceId);
+		SelfDescription.getInstance().setBaseConnector(connector);
+		sdManager.saveConnector();
+		return connector;
 	}
 }

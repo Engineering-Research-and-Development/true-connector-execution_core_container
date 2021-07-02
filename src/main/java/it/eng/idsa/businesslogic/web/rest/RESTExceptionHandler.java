@@ -1,6 +1,8 @@
 package it.eng.idsa.businesslogic.web.rest;
 
-import org.json.JSONObject;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -12,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import it.eng.idsa.businesslogic.service.resources.JsonException;
 import it.eng.idsa.businesslogic.service.resources.ResourceNotFoundException;
 
 @ControllerAdvice
@@ -21,7 +24,7 @@ public class RESTExceptionHandler {
 	private static final Logger logger = LoggerFactory.getLogger(RESTExceptionHandler.class);
 
 	@ExceptionHandler(value = { ResourceNotFoundException.class })
-	public ResponseEntity<JSONObject> handleResourceNotFoundException(final ResourceNotFoundException exception) {
+	public ResponseEntity<?> handleResourceNotFoundException(final ResourceNotFoundException exception) {
 		if (logger.isErrorEnabled()) {
 			logger.error("A resource not found exception has been caught. [exception=({})]",
 					exception == null ? "Passed null as exception" : exception.getMessage(), exception);
@@ -31,9 +34,26 @@ public class RESTExceptionHandler {
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.set("X-Error", "true");
 
-		final var body = new JSONObject();
-		body.put("message", exception.getMessage());
+		Map<String, String> map = new HashMap<>();
+	    map.put("message", exception.getMessage());
 
-		return new ResponseEntity<>(body, headers, HttpStatus.NOT_FOUND);
+		return new ResponseEntity<>(map, headers, HttpStatus.NOT_FOUND);
+	}
+	
+	@ExceptionHandler(value = { JsonException.class })
+	public ResponseEntity<?> handleJsonException(final JsonException exception) {
+		if (logger.isErrorEnabled()) {
+			logger.error("Json exception has been caught. [exception=({})]",
+					exception == null ? "Passed null as exception" : exception.getMessage(), exception);
+		}
+
+		final var headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("X-Error", "true");
+
+		Map<String, String> map = new HashMap<>();
+	    map.put("message", exception.getMessage());
+
+		return new ResponseEntity<>(map, headers, HttpStatus.BAD_REQUEST);
 	}
 }

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import de.fraunhofer.iais.eis.Connector;
 import de.fraunhofer.iais.eis.Resource;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
+import it.eng.idsa.businesslogic.service.resources.JsonException;
 import it.eng.idsa.businesslogic.service.resources.OfferedResourceService;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
@@ -34,7 +35,7 @@ public class OfferedResourceController {
 		this.service = service;
 	}
 
-	@GetMapping
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> getResource(@RequestHeader("resource") URI resource) throws IOException {
 		logger.debug("Fetching offered resource with id '{}'", resource);
@@ -42,7 +43,7 @@ public class OfferedResourceController {
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(resourceGet));
 	}
 	
-	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> addOrUpdateResource(@RequestHeader("catalog") URI catalog,
 			@RequestBody String resource) throws IOException {
@@ -50,20 +51,20 @@ public class OfferedResourceController {
 		try {
 			Serializer s = new Serializer();
 			Resource r = s.deserialize(resource, Resource.class);
-			logger.debug("Adding offered resource with id '{}' to catalog '{}'", r.getId(), catalog);
+			logger.info("Adding offered resource with id '{}' to catalog '{}'", r.getId(), catalog);
 			modifiedConnector = service.addOfferedResource(catalog, r);
 		} catch (IOException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			throw new JsonException("Error while processing request\n" + e.getMessage());
 		}
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
 	}
 	
 
-	@DeleteMapping
+	@DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> deleteResource(@RequestHeader("resourceId") URI resource) throws IOException {
+	public ResponseEntity<String> deleteResource(@RequestHeader("resource") URI resource) throws IOException {
 		Connector modifiedConnector = null;
-		logger.debug("Deleting offered resource with id '{}'", resource);
+		logger.info("Deleting offered resource with id '{}'", resource);
 		modifiedConnector = service.deleteOfferedResource(resource);
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
 	}

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import javax.validation.constraints.NotNull;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import de.fraunhofer.iais.eis.Action;
@@ -47,7 +48,6 @@ import it.eng.idsa.multipart.util.DateUtil;
 
 
 public class SelfDescriptionUtil {
-
 	
 	private static final @NotNull URI ISSUER_CONNECTOR = URI.create("https://issuer.connector.com");
 	private static URI MAINTAINER = URI.create("https://maintainer.connector.com");
@@ -63,42 +63,15 @@ public class SelfDescriptionUtil {
 		String RESOURCE_TITLE = "Resource title";
 		String RESOURCE_DESCRIPTION = "Resource description";
 		
-//		Constraint before = new ConstraintBuilder()
-//				._leftOperand_(LeftOperand.POLICY_EVALUATION_TIME)
-//				._operator_(BinaryOperator.AFTER)
-//				._rightOperand_(new RdfResource("2020-10-01T00:00:00Z", URI.create("xsd:datetime")))
-//				.build();
-//		Constraint after = new ConstraintBuilder()
-//				._leftOperand_(LeftOperand.POLICY_EVALUATION_TIME)
-//				._operator_(BinaryOperator.BEFORE)
-//				._rightOperand_(new RdfResource("2021-31-12T23:59:00Z", URI.create("xsd:datetime")))
-//				.build();
-				
 		URI artifact1URI = URI.create("http://w3id.org/engrd/connector/artifact/catalog/" + catalogNumber + "/resource/1");
-//		Artifact artifact1 = new ArtifactBuilder(URI.create("http://w3id.org/engrd/connector/artifact/catalog/" + catalogNumber + "/artifact/1"))
-//				._creationDate_(DateUtil.now())
-//				._fileName_("some_file_catalog_" + catalogNumber + "_1" + ".pdf")
-//				.build();
-		Representation defaultRepresentation1 = new DataRepresentationBuilder(URI.create("https://w3id.org/idsa/autogen/representation/catalog/" + catalogNumber + "/resource/1"))
+		Representation defaultRepresentation1 = new DataRepresentationBuilder(
+					URI.create("https://w3id.org/idsa/autogen/representation/catalog/" + catalogNumber + "/resource/1/representation/1"))
 				._created_(DateUtil.now())
 				._instance_(Util.asList(getArtifact(
 						URI.create("http://w3id.org/engrd/connector/artifact/catalog/" + catalogNumber + "/artifact/1"), 
 						"some_file_catalog_" + catalogNumber + "_1" + ".pdf")))
 				.build();
-//		Permission permission1 = new PermissionBuilder(URI.create("http://example.com/policy/catalog/" + catalogNumber + "/restrict-access-interval"))
-//				._target_(artifact1URI)
-//				._assignee_(Util.asList(URI.create("https://assignee.com")))
-//				._assigner_(Util.asList(URI.create("https://assigner.com")))
-//				._action_(Util.asList(Action.USE))
-//				._constraint_(Util.asList(before, after))
-//				.build();
-//		URI contractOffer1 = URI.create("https://w3id.org/idsa/autogen/contractOffer/catalog/" + catalogNumber + "/offer/1");
-//		ContractOffer offer1 = new ContractOfferBuilder(contractOffer1)
-//				._consumer_(URI.create("https://consumer.com"))
-//				._provider_(URI.create("https://provider.com"))
-//				._permission_(Util.asList(permission1))
-//				._contractDate_(DateUtil.now())
-//				.build();
+
 		ContractOffer offer1 = createContractOffer(artifact1URI, catalogNumber, "1", "1");
 		
 		Resource offeredResource1 = (new DataResourceBuilder(artifact1URI))
@@ -116,31 +89,14 @@ public class SelfDescriptionUtil {
 				.build();
 		//---------------------------------
 		URI artifact2URI = URI.create("http://w3id.org/engrd/connector/artifact/catalog/" + catalogNumber + "/resource/2");
-//		Artifact artifact2 = new ArtifactBuilder(URI.create("http://w3id.org/engrd/connector/artifact/catalog/" + catalogNumber + "/artifact/2"))
-//				._creationDate_(DateUtil.now())
-//				._fileName_("some_file_catalog_" + catalogNumber + "_2" + ".pdf")
-//				.build();
-		Representation defaultRepresentation2 = new ImageRepresentationBuilder(URI.create("https://w3id.org/idsa/autogen/representation/catalog/" + catalogNumber + "/resource/2"))
+		Representation defaultRepresentation2 = new ImageRepresentationBuilder(
+					URI.create("https://w3id.org/idsa/autogen/representation/catalog/" + catalogNumber + "/resource/2/representation/1"))
 				._created_(DateUtil.now())
 				._instance_(Util.asList(getArtifact(
 						URI.create("http://w3id.org/engrd/connector/artifact/catalog/" + catalogNumber + "/artifact/2"), 
 						"some_file_catalog_" + catalogNumber + "_2" + ".pdf")))
 				.build();
 		
-//		Permission permission2 = new PermissionBuilder(URI.create("http://example.com/policy/catalog/" + catalogNumber + "restrict-access-interval"))
-//				._target_(artifact2URI)
-//				._assignee_(Util.asList(URI.create("https://assignee.com")))
-//				._assigner_(Util.asList(URI.create("https://assigner.com")))
-//				._action_(Util.asList(Action.USE))
-//				._constraint_(Util.asList(before, after))
-//				.build();
-//		URI contractOffer2 = URI.create("https://w3id.org/idsa/autogen/contractOffer/catalog/" + catalogNumber + "/offer/2");
-//		ContractOffer offer2 = new ContractOfferBuilder(contractOffer2)
-//				._consumer_(URI.create("https://consumer.com"))
-//				._provider_(URI.create("https://provider.com"))
-//				._permission_(Util.asList(permission2))
-//				._contractDate_(DateUtil.now())
-//				.build();
 		ContractOffer offer2 = createContractOffer(artifact2URI, catalogNumber, "2" , "1");
 		Resource offeredResource2 = (new ImageResourceBuilder(artifact2URI))
 				._title_(Util.asList(new TypedLiteral(RESOURCE_TITLE)))
@@ -263,6 +219,7 @@ public class SelfDescriptionUtil {
 	}
 	
 	@Test
+	@Disabled("Used only for development purposes to get self descriptionn document")
 	public void getConnector() throws IOException {
 		Connector connector = getBaseConnector();
 		assertNotNull(connector);

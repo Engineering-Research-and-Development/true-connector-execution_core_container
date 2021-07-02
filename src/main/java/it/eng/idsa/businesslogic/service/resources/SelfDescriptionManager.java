@@ -1,7 +1,11 @@
 package it.eng.idsa.businesslogic.service.resources;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Optional;
@@ -9,6 +13,7 @@ import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,6 +31,8 @@ import de.fraunhofer.iais.eis.Resource;
 import de.fraunhofer.iais.eis.ResourceCatalog;
 import de.fraunhofer.iais.eis.ids.jsonld.JsonLDModule;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
+import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 @Service
 public class SelfDescriptionManager {
@@ -37,15 +44,18 @@ public class SelfDescriptionManager {
 	protected static final String CONTRACT_OFFER = "ids:contractOffer";
 	
 	private static final Logger logger = LoggerFactory.getLogger(SelfDescriptionManager.class);
-	
+
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static Gson gson = new Gson();
-	
 	private Serializer serializer = new Serializer();
+	
+	@Autowired
+	private SelfDescriptionConfiguration selfDescriptionConfiguration;
 	
 	static {
 		mapper.registerModule(new JsonLDModule());
 	}
+	
 	/**
 	 * Adds resource to Offered resources in Resource Catalog with resourceCatalogId if Resource does not exists</br>
 	 * Otherwise updates existing resource (remove it and add as whole)
@@ -89,8 +99,9 @@ public class SelfDescriptionManager {
 			logger.info("Did not find resourceCatalog with id {}", resourceCatalogId);
 			throw new ResourceNotFoundException("Did not find resourceCatalog with id " + resourceCatalogId);
 		}
-		SelfDescription.getInstance().setBaseConnector(serializer.deserialize(gson.toJson(jsonElement), Connector.class));
-		return SelfDescription.getInstance().getConnector();
+//		SelfDescription.getInstance().setBaseConnector(serializer.deserialize(gson.toJson(jsonElement), Connector.class));
+//		return SelfDescription.getInstance().getConnector();
+		return serializer.deserialize(gson.toJson(jsonElement), Connector.class);
 	}
 	
 	/**
@@ -155,7 +166,7 @@ public class SelfDescriptionManager {
 				}
 			}
 		}
-		throw new ResourceNotFoundException(String.format("Did not find representation with id %s", representationId));
+		throw new ResourceNotFoundException(String.format("Did not find representation with id '%s'", representationId));
 	}
 	
 	/**
@@ -197,7 +208,6 @@ public class SelfDescriptionManager {
 			logger.info(message);
 			throw new ResourceNotFoundException(message);
 		}
-		
 		return serializer.deserialize(gson.toJson(jsonElement), Connector.class);
 	}
 	
@@ -208,49 +218,13 @@ public class SelfDescriptionManager {
 	 * @return
 	 */
 	public Connector removeRepresentationFromResource(Connector connector, URI representationId) {
-		/*
-		JsonElement jsonElement = gson.fromJson(mapper.writeValueAsString(connector), JsonElement.class);
-		JsonArray resourceCatalogJsonArray = (JsonArray) jsonElement.getAsJsonObject().get(RESOURCE_CATALOG);
-		
-		JsonElement[] resource = findOfferedResource(resourceId, resourceCatalogJsonArray);
-		
-		if(resource[0] != null) {
-			logger.info("Found resource to remove representation");
-			// TODO - find if such representation exits or not
-			Optional<JsonElement> opt = StreamSupport.stream(resource[0].getAsJsonObject().get(REPRESENTATION).getAsJsonArray().spliterator(), false)
-					.filter(p -> p.getAsJsonObject().get(ID).getAsString().equals(representationId.toString()))
-					.findFirst();
-			if(opt.isPresent()) {
-				logger.debug("About to remove existing representation");
-				removeRepresentation(representationId.toString(), 
-						resource[0].getAsJsonObject().get(REPRESENTATION).getAsJsonArray());
-			} else {
-				logger.info(String.format("Representation with id '{}' for resource with id '{}' not found", representationId, resourceId));
-			}
-		} else {
-			String message = String.format("Resource with id '{}' to remove representation '{}' not found", resourceId, representationId);
-			logger.info(message);
-			throw new ResourceNotFoundException(message);
-		}
-		
-		return serializer.deserialize(gson.toJson(jsonElement), Connector.class);
-		*/
-		
-//		BaseConnectorImpl connectorImp = (BaseConnectorImpl) connector;
 		
 		for(ResourceCatalog resourceCatalog : connector.getResourceCatalog()) {
 			for(Resource resource : resourceCatalog.getOfferedResource()) {
 				resource.getRepresentation().removeIf(rep -> rep.getId().equals(representationId));
-//				for(Representation representation : resource.getRepresentation()) {
-//					if(representation.getId().equals(representationId)) {
-//						logger.debug("Found representation with id '{}'", representationId);
-//						return representation;
-//					}
-//				}
 			}
 		}
 		return connector;
-//		throw new ResourceNotFoundException(String.format("Did not find representation with id %s", representationId));
 	}
 
 	public ContractOffer getContractOffer(URI contractOfferId) {
@@ -266,7 +240,7 @@ public class SelfDescriptionManager {
 				}
 			}
 		}
-		throw new ResourceNotFoundException(String.format("Did not find contract offer with id '{}'", contractOfferId));
+		throw new ResourceNotFoundException(String.format("Did not find contract offer with id '%s'", contractOfferId));
 	}
 	
 	/**
@@ -309,10 +283,8 @@ public class SelfDescriptionManager {
 			logger.info(message);
 			throw new ResourceNotFoundException(message);
 		}
-		
 		return serializer.deserialize(gson.toJson(jsonElement), Connector.class);
 	}
-	
 	
 	/**
 	 * Remove contract offer from resource
@@ -321,38 +293,12 @@ public class SelfDescriptionManager {
 	 * @return
 	 */
 	public Connector removeContractOfferFromResource(Connector connector, URI contractOfferId)  {
-		/*
-		JsonElement jsonElement = gson.fromJson(mapper.writeValueAsString(connector), JsonElement.class);
-	JsonArray resourceCatalogJsonArray = (JsonArray) jsonElement.getAsJsonObject().get(RESOURCE_CATALOG);
-		
-		JsonElement[] resource = findOfferedResource(resourceId, resourceCatalogJsonArray);
-		
-		if(resource[0] != null) {
-			logger.info("Found resource to add or update contract offer");
-			// TODO - find if such representation exits or not
-			Optional<JsonElement> opt = StreamSupport.stream(resource[0].getAsJsonObject().get(CONTRACT_OFFER).getAsJsonArray().spliterator(), false)
-					.filter(p -> p.getAsJsonObject().get(ID).getAsString().equals(contractOfferId.toString()))
-					.findFirst();
-			if(opt.isPresent()) {
-				logger.debug("About to remove existing contract offer");
-				removeRepresentation(contractOfferId.toString(), 
-						resource[0].getAsJsonObject().get(CONTRACT_OFFER).getAsJsonArray());
-			} 
-		} else {
-			String message = String.format("Resource with id '%s' to remove contract offer '%s' not found", resourceId, contractOfferId.toString());
-			logger.info(message);
-			throw new ResourceNotFoundException(message);
-		}
-		return serializer.deserialize(gson.toJson(jsonElement), Connector.class);
-		*/
-		
 		for(ResourceCatalog resourceCatalog : connector.getResourceCatalog()) {
 			for(Resource resource : resourceCatalog.getOfferedResource()) {
 				resource.getContractOffer().removeIf(co -> co.getId().equals(contractOfferId));
 			}
 		}
 		return connector;
-		
 	}
 	
 	/**
@@ -361,31 +307,82 @@ public class SelfDescriptionManager {
 	 * @param connector
 	 * @return
 	 */
-	public Connector getConnector(Connector connector) {
+	public Connector getValidConnector(Connector connector) {
 		ListIterator<? extends ResourceCatalog> litr = null;
 		litr = connector.getResourceCatalog().listIterator();
 		while(litr.hasNext()) {
 			ResourceCatalog rc = litr.next();
-			ListIterator<? extends Resource> resourceIter = rc.getOfferedResource().listIterator();
-			while(resourceIter.hasNext()) {
-				Resource r = resourceIter.next();
-				boolean emptyContractOffer = r.getContractOffer().size() == 0;
-				boolean validRepresentation = false;
-				ListIterator<? extends Representation> representationIter = r.getRepresentation().listIterator();
-				while(representationIter.hasNext()) {
-					Representation rep = representationIter.next();
-					validRepresentation = rep.getInstance().size() != 0;
+			if(rc.getOfferedResource() != null) {
+				ListIterator<? extends Resource> resourceIter = rc.getOfferedResource().listIterator();
+				while(resourceIter.hasNext()) {
+					Resource r = resourceIter.next();
+					boolean emptyContractOffer = r.getContractOffer() !=null ? r.getContractOffer().size() == 0 : true;
+					boolean validRepresentation = false;
+					if(r.getRepresentation() != null) {
+						ListIterator<? extends Representation> representationIter = r.getRepresentation().listIterator();
+						while(representationIter.hasNext()) {
+							Representation rep = representationIter.next();
+							validRepresentation = rep.getInstance().size() != 0;
+						}
+					}
+					if(!emptyContractOffer && validRepresentation) {
+						logger.debug("Valid resource");
+					} else {
+						resourceIter.remove();
+					}
 				}
-				if(!emptyContractOffer && validRepresentation) {
-					logger.debug("Valid resource");
-				} else {
-					resourceIter.remove();
-				}
+			} else {
+				logger.info("Empty resource catalog - returning self description document as is");
 			}
 		}
 		return connector;
 	}
 
+	public void saveConnector() {
+		logger.info("Persisting connector to file storage");
+		try {
+			String connectorAsString = MultipartMessageProcessor.serializeToJsonLD(SelfDescription.getInstance().getConnector());
+			FileOutputStream fos = null;
+			try {
+				fos = new FileOutputStream(
+						selfDescriptionConfiguration.getFileLocation()
+						+ File.separator 
+						+ SelfDescriptionConfiguration.SELF_DECRIPTION_FILE_NAME);
+				fos.write(connectorAsString.getBytes());
+			} finally {
+				if(fos != null) {
+					fos.close();
+				}
+			}
+		} catch (IOException e) {
+			logger.error("Error while trying to save connector to filesystem", e);
+		}
+	}
+	
+	public Connector loadConnector() {
+		logger.debug("File location : ", selfDescriptionConfiguration.getFileLocation());
+		File selfDescriptionFile = new File(selfDescriptionConfiguration.getFileLocation()
+				 + File.separator + SelfDescriptionConfiguration.SELF_DECRIPTION_FILE_NAME);
+		Connector connector = null;
+		if(selfDescriptionFile.exists() && !selfDescriptionFile.isDirectory()) { 
+		    logger.info("Found existing self description document at {}", selfDescriptionFile.getAbsoluteFile());
+		    // if exists - load it
+		    String content;
+			try {
+				logger.debug("Reading connector from file...");
+				content = Files.readString(selfDescriptionFile.toPath(), StandardCharsets.UTF_8);
+				logger.debug("Deserializing from file...");
+				connector = new Serializer().deserialize(content, Connector.class);
+				logger.debug("Setting loaded connector...");
+				SelfDescription.getInstance().setBaseConnector(connector);
+				logger.debug("Done with loading connector from file.");
+			} catch (IOException e) {
+				logger.error("Error while loading connector from file '{}'", selfDescriptionFile.getAbsoluteFile());
+			}
+		}
+		return connector;
+	}
+	
 	private void removeResource(String resourceId, JsonElement resourceCatalog) {
 		JsonArray offeredResources = resourceCatalog.getAsJsonObject().get(OFFERED_RESOURCE).getAsJsonArray();
 		Iterator<JsonElement> it = offeredResources.iterator();

@@ -30,14 +30,20 @@ public class RepresentationResourceService {
 	
 	public Connector addOrUpdateRepresentationToResource(Representation representation, URI resourceId)
 			throws JsonSyntaxException, IOException {
-		return sdManager.addOrUpdateRepresentationToResource(SelfDescription.getInstance().getConnector(),
+		Connector connector = sdManager.addOrUpdateRepresentationToResource(SelfDescription.getInstance().getConnector(),
 				representation, resourceId);
+		SelfDescription.getInstance().setBaseConnector(connector);
+		sdManager.saveConnector();
+		return connector;
 	}
 
 	public Connector deleteRepresentation(URI representation) 
 			throws JsonSyntaxException, IOException {
-		return sdManager.removeRepresentationFromResource(SelfDescription.getInstance().getConnector(), 
+		Connector connector = sdManager.removeRepresentationFromResource(SelfDescription.getInstance().getConnector(), 
 				representation);
+		SelfDescription.getInstance().setBaseConnector(connector);
+		sdManager.saveConnector();
+		return connector;
 	}
 	
 

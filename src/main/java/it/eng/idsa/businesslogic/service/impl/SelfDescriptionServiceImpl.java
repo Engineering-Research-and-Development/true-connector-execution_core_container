@@ -2,17 +2,15 @@
 package it.eng.idsa.businesslogic.service.impl;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +25,10 @@ import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.QueryLanguage;
 import de.fraunhofer.iais.eis.QueryMessageBuilder;
 import de.fraunhofer.iais.eis.QueryScope;
+import de.fraunhofer.iais.eis.Resource;
 import de.fraunhofer.iais.eis.ResourceCatalog;
+import de.fraunhofer.iais.eis.ResourceCatalogBuilder;
 import de.fraunhofer.iais.eis.SecurityProfile;
-import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import de.fraunhofer.iais.eis.util.TypedLiteral;
 import de.fraunhofer.iais.eis.util.Util;
@@ -37,6 +36,7 @@ import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.service.ResourceDataAppService;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
 import it.eng.idsa.businesslogic.service.resources.SelfDescription;
+import it.eng.idsa.businesslogic.service.resources.SelfDescriptionManager;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 /**
@@ -49,22 +49,36 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	private static final Logger logger = LoggerFactory.getLogger(SelfDescriptionServiceImpl.class);
 	
 	private SelfDescriptionConfiguration selfDescriptionConfiguration;
-//	private Connector connector;
+	private SelfDescriptionManager selfDescriptionManager;
 	private URI issuerConnectorURI;
 	private ResourceDataAppService dataAppService;
 
 	@Autowired
 	public SelfDescriptionServiceImpl(
 			SelfDescriptionConfiguration selfDescriptionConfiguration,
-			ResourceDataAppService dataAppService) {
+			ResourceDataAppService dataAppService,
+			SelfDescriptionManager selfDescriptionManager) {
 		this.selfDescriptionConfiguration = selfDescriptionConfiguration;
 		this.dataAppService = dataAppService;
+		this.selfDescriptionManager = selfDescriptionManager;
 	}
 
 	@PostConstruct
-	public void initConnector() throws ConstraintViolationException {
+	public void initConnector() {
+		// check if self description file exists
+		logger.info("Preparing self description document...");
+		Connector connector = selfDescriptionManager.loadConnector();
+		if(connector == null) {
+			connector = createDefaultSelfDescription();
+		}
+		logger.info("Done creating self description document.");
+		SelfDescription.getInstance().setBaseConnector(connector);
+	}
+
+	private Connector createDefaultSelfDescription() {
+		logger.info("Creating default selfDescription from properties");
 		issuerConnectorURI = selfDescriptionConfiguration.getConnectorURI();
-		Connector connector = new BaseConnectorBuilder(issuerConnectorURI)
+		return new BaseConnectorBuilder(issuerConnectorURI)
 				._maintainer_(selfDescriptionConfiguration.getMaintainer())
 				._curator_(selfDescriptionConfiguration.getCurator())
 				._resourceCatalog_((ArrayList<? extends ResourceCatalog>) this.getCatalog())
@@ -78,24 +92,18 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 						.build())
 //				._hasEndpoint_(Util.asList(new ConnectorEndpointBuilder(new URI("https://someURL/incoming-data-channel/receivedMessage")).build()))
 				.build();
-		
-//			try {
-//				logger.info(MultipartMessageProcessor.serializeToJsonLD(connector.getResourceCatalog()));
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-			SelfDescription.getInstance().setBaseConnector(connector);
 	}
 
 	public Connector getConnector() {
-		return SelfDescription.getInstance().getConnector();
+		logger.debug("Parsing whole self description document to remove non valid resources");
+		return selfDescriptionManager.getValidConnector(SelfDescription.getInstance().getConnector());
 	}
 
 	@Override
 	public String getConnectorSelfDescription() {
 		String result = null;
 		try {
-			result = MultipartMessageProcessor.serializeToJsonLD(SelfDescription.getInstance().getConnector());
+			result = MultipartMessageProcessor.serializeToJsonLD(getConnector());
 		} catch (IOException e) {
 			logger.error("Error while serializing", e);
 		}
@@ -132,36 +140,31 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 //	}
 
 	private java.util.List<ResourceCatalog> getCatalog() {
-		java.util.List<ResourceCatalog> catalogList = new ArrayList<>();
-		try {
-//			Resource resource = dataAppService.getResourceFromDataApp();
-			ResourceCatalog catalog = null;
-			try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("resource_catalog.json"))
-		    {
-		        String rc;
-				try {
-					rc = IOUtils.toString(inputStream, Charset.defaultCharset());
-//					CollectionType typeReference =
-//						    TypeFactory.defaultInstance().constructCollectionType(List.class, ResourceCatalog.class);
-					catalog = new Serializer().deserialize(rc, ResourceCatalog.class);
-//					catalogList = Arrays.asList(catalogListArray);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-		    } catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			catalogList.add(catalog);
-			
-//			try {
-//				logger.info(MultipartMessageProcessor.serializeToJsonLD(catalogList));
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-		} catch (ConstraintViolationException e) {
-			e.printStackTrace();
-		}
+		List<ResourceCatalog> catalogList = new ArrayList<>();
+		ArrayList<Resource> offeredResources = new ArrayList<>();
+		catalogList.add(new ResourceCatalogBuilder()._offeredResource_(offeredResources).build());
 		return catalogList;
+//		try {
+////			Resource resource = dataAppService.getResourceFromDataApp();
+//			ResourceCatalog catalog = null;
+//			try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("resource_catalog.json"))
+//		    {
+//		        String rc;
+//				try {
+//					rc = IOUtils.toString(inputStream, Charset.defaultCharset());
+////					CollectionType typeReference =
+////						    TypeFactory.defaultInstance().constructCollectionType(List.class, ResourceCatalog.class);
+//					catalog = new Serializer().deserialize(rc, ResourceCatalog.class);
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//		    } catch (IOException e1) {
+//				e1.printStackTrace();
+//			}
+//			catalogList.add(catalog);
+//		} catch (ConstraintViolationException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	@Override

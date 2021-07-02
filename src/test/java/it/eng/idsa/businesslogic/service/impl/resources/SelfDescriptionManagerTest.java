@@ -21,7 +21,6 @@ import de.fraunhofer.iais.eis.DataResource;
 import de.fraunhofer.iais.eis.ImageResource;
 import de.fraunhofer.iais.eis.ImageResourceBuilder;
 import de.fraunhofer.iais.eis.Resource;
-import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import de.fraunhofer.iais.eis.util.TypedLiteral;
 import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.businesslogic.service.resources.ResourceNotFoundException;
@@ -29,7 +28,6 @@ import it.eng.idsa.businesslogic.service.resources.SelfDescriptionManager;
 
 public class SelfDescriptionManagerTest {
 
-	
 	private SelfDescriptionManager manager;
 	private Connector conn;
 	
@@ -240,7 +238,7 @@ public class SelfDescriptionManagerTest {
 	
 	@Test
 	public void getSelfDescriptionValid() {
-		Connector modifiedConnector = manager.getConnector(conn);
+		Connector modifiedConnector = manager.getValidConnector(conn);
 		
 		assertEquals(2, modifiedConnector.getResourceCatalog().size());
 		assertEquals(2, modifiedConnector.getResourceCatalog().get(0).getOfferedResource().size());
@@ -258,7 +256,7 @@ public class SelfDescriptionManagerTest {
 		assertEquals(2, modified1.getResourceCatalog().get(0).getOfferedResource().size());
 		assertEquals(2, modified1.getResourceCatalog().get(1).getOfferedResource().size());
 
-		Connector modifiedConnector = manager.getConnector(modified1);
+		Connector modifiedConnector = manager.getValidConnector(modified1);
 		assertEquals(2, modifiedConnector.getResourceCatalog().size());
 		assertEquals(2, modifiedConnector.getResourceCatalog().get(0).getOfferedResource().size());
 		assertEquals(1, modifiedConnector.getResourceCatalog().get(1).getOfferedResource().size());
@@ -266,4 +264,5 @@ public class SelfDescriptionManagerTest {
 		
 //		System.out.println(new Serializer().serialize(modifiedConnector));
 	}
+	
 }
