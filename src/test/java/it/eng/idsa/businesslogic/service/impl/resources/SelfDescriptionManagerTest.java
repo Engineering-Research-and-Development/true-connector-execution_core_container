@@ -136,7 +136,7 @@ public class SelfDescriptionManagerTest {
 		URI resourceId = URI.create("http://w3id.org/engrd/connector/artifact/catalog/2/resource/2");
 		Artifact artifact = SelfDescriptionUtil.getArtifact(URI.create("http://w3id.org/engrd/connector/artifact/catalog/2/artifact/2"), 
 				"test_file.txt");
-		URI representationURI = URI.create("https://w3id.org/idsa/autogen/representation/catalog/2/resource/2");
+		URI representationURI = URI.create("https://w3id.org/idsa/autogen/representation/catalog/2/resource/2/representation/1");
 		Connector modifiedConnector = manager.addOrUpdateRepresentationToResource(conn, 
 				SelfDescriptionUtil.getTextRepresentation(representationURI, artifact), 
 				resourceId);
@@ -163,7 +163,7 @@ public class SelfDescriptionManagerTest {
 	@Test
 	public void removeRepresentation() throws JsonSyntaxException, IOException {
 		URI resourceId = URI.create("http://w3id.org/engrd/connector/artifact/catalog/2/resource/2");
-		URI representationURI = URI.create("https://w3id.org/idsa/autogen/representation/catalog/2/resource/2");
+		URI representationURI = URI.create("https://w3id.org/idsa/autogen/representation/catalog/2/resource/2/representation/1");
 
 		Connector modifiedConnector = manager.removeRepresentationFromResource(conn, representationURI);
 
