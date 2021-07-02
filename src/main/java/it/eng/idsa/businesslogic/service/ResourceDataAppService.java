@@ -12,5 +12,7 @@ public interface ResourceDataAppService {
 
 	Resource getResourceFromDataApp();
 	
+	Resource[] getResourcesFromDataApp(String catalogNumber);
+	
 	ContractOffer getContractOfferFromDataApp();
 }

@@ -65,7 +65,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		this.connector = new BaseConnectorBuilder(issuerConnectorURI)
 				._maintainer_(selfDescriptionConfiguration.getMaintainer())
 				._curator_(selfDescriptionConfiguration.getCurator())
-				._resourceCatalog_((ArrayList<? extends ResourceCatalog>) this.getCatalog())
+				._resourceCatalog_((ArrayList<? extends ResourceCatalog>) this.getCatalogs())
 				._securityProfile_(SecurityProfile.BASE_SECURITY_PROFILE)
 				._inboundModelVersion_(Util.asList(new String[] { selfDescriptionConfiguration.getInformationModelVersion() }))
 				._title_(Util.asList(new TypedLiteral(selfDescriptionConfiguration.getTitle())))
@@ -135,6 +135,28 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 					.build());
 			catalogList = new ArrayList<>();
 			catalogList.add(catalog);
+		} catch (ConstraintViolationException e) {
+			e.printStackTrace();
+		}
+		return catalogList;
+	}
+	
+	private java.util.List<ResourceCatalog> getCatalogs() {
+		java.util.List<ResourceCatalog> catalogList = null;
+		try {
+			catalogList = new ArrayList<>();
+			Resource[] resource1 = dataAppService.getResourcesFromDataApp("1");
+			ResourceCatalog catalog1 = null;
+			catalog1 = new ResourceCatalogBuilder(URI.create("http://catalog1.com"))
+					._offeredResource_(Util.asList(resource1))
+					.build();
+			catalogList.add(catalog1);
+			Resource[] resource2 = dataAppService.getResourcesFromDataApp("2");
+			ResourceCatalog catalog2 = null;
+			catalog2 = new ResourceCatalogBuilder(URI.create("http://catalog2.com"))
+					._offeredResource_(Util.asList(resource2))
+					.build();
+			catalogList.add(catalog2);
 		} catch (ConstraintViolationException e) {
 			e.printStackTrace();
 		}
