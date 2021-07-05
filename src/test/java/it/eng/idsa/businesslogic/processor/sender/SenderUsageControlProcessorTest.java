@@ -31,8 +31,8 @@ import it.eng.idsa.businesslogic.usagecontrol.service.UcService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
-import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
 
 public class SenderUsageControlProcessorTest {
 

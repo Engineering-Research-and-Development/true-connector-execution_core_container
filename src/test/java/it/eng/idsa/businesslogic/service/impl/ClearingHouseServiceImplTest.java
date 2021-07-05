@@ -20,7 +20,7 @@ import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.HashFileService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
-import it.eng.idsa.businesslogic.util.TestUtilMessageService;
+import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
 
 public class ClearingHouseServiceImplTest {
 	

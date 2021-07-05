@@ -27,8 +27,8 @@ import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RequestResponseUtil;
 import it.eng.idsa.businesslogic.util.RouterType;
-import it.eng.idsa.businesslogic.util.TestUtilMessageService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
 import okhttp3.Request;
 import okhttp3.Response;
 
