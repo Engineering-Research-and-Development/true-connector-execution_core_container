@@ -36,7 +36,7 @@
 		</repository>
 		<repository>
     		<id>github</id>
-   		    <url>https://${GH_TOKEN}:x-oauth-basic@maven.pkg.github.com/Engineering-Research-and-Development/true-connector-multipart_message_library</url>
+   		    <url>https://${GH_PACKAGE_REPO_PASSWORD}:x-oauth-basic@maven.pkg.github.com/Engineering-Research-and-Development/true-connector-multipart_message_library</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
