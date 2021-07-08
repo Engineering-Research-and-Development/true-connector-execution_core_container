@@ -32,10 +32,10 @@
 		<repository>
 			<id>snapshots</id>
 			<name>maven-snapshots</name>
-			<url>http://maven.iais.fraunhofer.de/artifactory/eis-ids-public</url>
+			<url>https://maven.iais.fraunhofer.de/artifactory/eis-ids-public</url>
 		</repository>
 		<repository>
-    		<id>github</id>
+    		<id>github_mmp</id>
    		    <url>https://${GH_PACKAGE_REPO_PASSWORD}:x-oauth-basic@maven.pkg.github.com/Engineering-Research-and-Development/true-connector-multipart_message_library</url>
 			<releases>
 				<enabled>true</enabled>
