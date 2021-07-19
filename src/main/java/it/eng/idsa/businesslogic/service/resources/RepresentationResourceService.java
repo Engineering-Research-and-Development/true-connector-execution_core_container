@@ -25,12 +25,21 @@ public class RepresentationResourceService {
 
 	public Representation getRepresentation(URI representationId) {
 		logger.debug("About to search representation with id '{}'", representationId);
-		return sdManager.getRepresentation(representationId);
+		return sdManager.getRepresentation(SelfDescription.getInstance().getConnector(), representationId);
 	}
 	
-	public Connector addOrUpdateRepresentationToResource(Representation representation, URI resourceId)
+	public Connector addRepresentationToResource(Representation representation, URI resourceId)
 			throws JsonSyntaxException, IOException {
-		Connector connector = sdManager.addOrUpdateRepresentationToResource(SelfDescription.getInstance().getConnector(),
+		Connector connector = sdManager.addRepresentationToResource(SelfDescription.getInstance().getConnector(),
+				representation, resourceId);
+		SelfDescription.getInstance().setBaseConnector(connector);
+		sdManager.saveConnector();
+		return connector;
+	}
+	
+	public Connector updateRepresentationToResource(Representation representation, URI resourceId)
+			throws JsonSyntaxException, IOException {
+		Connector connector = sdManager.updateRepresentationToResource(SelfDescription.getInstance().getConnector(),
 				representation, resourceId);
 		SelfDescription.getInstance().setBaseConnector(connector);
 		sdManager.saveConnector();

@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import it.eng.idsa.businesslogic.service.resources.BadRequestException;
 import it.eng.idsa.businesslogic.service.resources.JsonException;
 import it.eng.idsa.businesslogic.service.resources.ResourceNotFoundException;
 
@@ -38,6 +39,24 @@ public class RESTExceptionHandler {
 	    map.put("message", exception.getMessage());
 
 		return new ResponseEntity<>(map, headers, HttpStatus.NOT_FOUND);
+	}
+	
+	
+	@ExceptionHandler(value = { BadRequestException.class })
+	public ResponseEntity<?> handleBadRequestException(final BadRequestException exception) {
+		if (logger.isErrorEnabled()) {
+			logger.error("A bad request exception has been caught. [exception=({})]",
+					exception == null ? "Passed null as exception" : exception.getMessage(), exception);
+		}
+
+		final var headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("X-Error", "true");
+
+		Map<String, String> map = new HashMap<>();
+	    map.put("message", exception.getMessage());
+
+		return new ResponseEntity<>(map, headers, HttpStatus.BAD_REQUEST);
 	}
 	
 	@ExceptionHandler(value = { JsonException.class })

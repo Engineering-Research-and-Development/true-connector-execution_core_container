@@ -28,9 +28,18 @@ public class ContractOfferService {
 		return sdManager.getContractOffer(contractOfferId);
 	}
 	
-	public Connector addOrUpdateContractOfferToResource(ContractOffer contractOffer, URI resourceId)
+	public Connector addContractOfferToResource(ContractOffer contractOffer, URI resourceId)
 			throws JsonSyntaxException, IOException {
-		Connector connector = sdManager.addOrUpdateContractOfferToResource(SelfDescription.getInstance().getConnector(),
+		Connector connector = sdManager.addContractOfferToResource(SelfDescription.getInstance().getConnector(),
+				contractOffer, resourceId);
+		SelfDescription.getInstance().setBaseConnector(connector);
+		sdManager.saveConnector();
+		return connector;
+	}
+	
+	public Connector updateContractOfferToResource(ContractOffer contractOffer, URI resourceId)
+			throws JsonSyntaxException, IOException {
+		Connector connector = sdManager.updateContractOfferToResource(SelfDescription.getInstance().getConnector(),
 				contractOffer, resourceId);
 		SelfDescription.getInstance().setBaseConnector(connector);
 		sdManager.saveConnector();

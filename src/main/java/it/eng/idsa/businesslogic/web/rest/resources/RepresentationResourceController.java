@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,14 +47,30 @@ public class RepresentationResourceController {
 	
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> addOrUpdateRepresentationToResource(@RequestHeader("resource") URI resource,
+	public ResponseEntity<String> addRepresentationToResource(@RequestHeader("resource") URI resource,
 			@RequestBody String representation) throws IOException {
 		Connector modifiedConnector = null;
 		try {
 			Serializer s = new Serializer();
 			Representation r = s.deserialize(representation, Representation.class);
-			logger.info("Adding/Update representation with id '{}' to resource '{}'", r.getId(), resource);
-			modifiedConnector = resourceCatalogService.addOrUpdateRepresentationToResource(r, resource);
+			logger.info("Adding representation with id '{}' to resource '{}'", r.getId(), resource);
+			modifiedConnector = resourceCatalogService.addRepresentationToResource(r, resource);
+		} catch (IOException e) {
+			throw new JsonException("Error while processing request\n" + e.getMessage());
+		}
+		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
+	}
+	
+	@PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<String> updateRepresentationToResource(@RequestHeader("resource") URI resource,
+			@RequestBody String representation) throws IOException {
+		Connector modifiedConnector = null;
+		try {
+			Serializer s = new Serializer();
+			Representation r = s.deserialize(representation, Representation.class);
+			logger.info("Update representation with id '{}' to resource '{}'", r.getId(), resource);
+			modifiedConnector = resourceCatalogService.updateRepresentationToResource(r, resource);
 		} catch (IOException e) {
 			throw new JsonException("Error while processing request\n" + e.getMessage());
 		}

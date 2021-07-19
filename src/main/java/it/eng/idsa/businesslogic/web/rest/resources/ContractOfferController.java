@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,7 +53,23 @@ public class ContractOfferController {
 			Serializer s = new Serializer();
 			ContractOffer co = s.deserialize(contractOffer, ContractOffer.class);
 			logger.info("Adding contract offer with id '{}' to resource '{}'", co.getId(), resource);
-			modifiedConnector = service.addOrUpdateContractOfferToResource(co, resource);
+			modifiedConnector = service.addContractOfferToResource(co, resource);
+		} catch (IOException e) {
+			throw new JsonException("Error while processing request\n" + e.getMessage());
+		}
+		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
+	}
+	
+	@PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<String> updateContractOffer(@RequestHeader("resource") URI resource,
+			@RequestBody String contractOffer) throws IOException {
+		Connector modifiedConnector = null;
+		try {
+			Serializer s = new Serializer();
+			ContractOffer co = s.deserialize(contractOffer, ContractOffer.class);
+			logger.info("Updatig contract offer with id '{}' to resource '{}'", co.getId(), resource);
+			modifiedConnector = service.addContractOfferToResource(co, resource);
 		} catch (IOException e) {
 			throw new JsonException("Error while processing request\n" + e.getMessage());
 		}

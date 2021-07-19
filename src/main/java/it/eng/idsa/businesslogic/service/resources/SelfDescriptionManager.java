@@ -6,22 +6,16 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
+import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 
 import de.fraunhofer.iais.eis.BaseConnectorImpl;
 import de.fraunhofer.iais.eis.Connector;
@@ -29,7 +23,6 @@ import de.fraunhofer.iais.eis.ContractOffer;
 import de.fraunhofer.iais.eis.Representation;
 import de.fraunhofer.iais.eis.Resource;
 import de.fraunhofer.iais.eis.ResourceCatalog;
-import de.fraunhofer.iais.eis.ids.jsonld.JsonLDModule;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -44,76 +37,74 @@ public class SelfDescriptionManager {
 	protected static final String CONTRACT_OFFER = "ids:contractOffer";
 	
 	private static final Logger logger = LoggerFactory.getLogger(SelfDescriptionManager.class);
-
-	private static ObjectMapper mapper = new ObjectMapper();
-	private static Gson gson = new Gson();
-	private Serializer serializer = new Serializer();
 	
 	@Autowired
 	private SelfDescriptionConfiguration selfDescriptionConfiguration;
 	
-	static {
-		mapper.registerModule(new JsonLDModule());
-	}
+	/**
+	 * Offered Resource
+	 */
 	
 	/**
 	 * Adds resource to Offered resources in Resource Catalog with resourceCatalogId if Resource does not exists</br>
-	 * Otherwise updates existing resource (remove it and add as whole)
+	 * Otherwise throws BadRequestException
 	 * @param connector
 	 * @param resourceCatalogId
 	 * @param resource
 	 * @return new connector instance
-	 * @throws JsonSyntaxException
-	 * @throws IOException
 	 */
-	public Connector addOrUpdateOfferedResource(Connector connector, URI resourceCatalogId, Resource resource) throws JsonSyntaxException, IOException {
-		JsonElement jsonElement = gson.fromJson(mapper.writeValueAsString(connector), JsonElement.class);
-		JsonArray resourceCatalogJsonArray = (JsonArray) jsonElement.getAsJsonObject().get(RESOURCE_CATALOG);
-		
-		Optional<JsonElement> opt = StreamSupport.stream(resourceCatalogJsonArray.spliterator(), false)
-			.filter(p -> p.getAsJsonObject().get(ID).getAsString().equals(resourceCatalogId.toString()))
-			.findFirst();
+	@SuppressWarnings("unchecked")
+	public Connector addOfferedResource(Connector connector, URI resourceCatalogId, Resource resource) {
+		ResourceCatalog resourceCatalog = checkIfResourceCatalogExists(connector, resourceCatalogId);
 
-		if(opt.isPresent()) {
-			JsonElement resourceCatalog = opt.get();
-			if(resourceCatalog.getAsJsonObject().get(ID).getAsString().equals(resourceCatalogId.toString())) {
-				logger.debug("Found resourceCatalog with id {}", resourceCatalogId);
+		boolean existingOfferedResource = resourceCatalog.getOfferedResource().stream()
+				.anyMatch(r -> r.getId().equals(resource.getId()));
 				
-				JsonArray offeredResources = resourceCatalog.getAsJsonObject().get(OFFERED_RESOURCE).getAsJsonArray();
-				
-				// find if such resource exists so we can remove it and add in next step
-				removeResource(resource.getId().toString(), resourceCatalog);
-				
-				JsonObject add = null;
-				try {
-					add = gson.fromJson(serializer.serialize(resource), JsonObject.class);
-				} catch (JsonSyntaxException | IOException e) {
-					logger.error("Error while converting resource to json object", e);
-				}
-				offeredResources.add(gson.toJsonTree(add));
-			} else {
-				logger.info("Did not find resourceCatalog with id {}", resourceCatalogId);
-				throw new ResourceNotFoundException("Did not find resourceCatalog with id " + resourceCatalogId);
-			}
+		if(!existingOfferedResource) {
+			logger.debug("Resource with id '{}' does not exists in catalog - proceeding with adding it", resource.getId());
+			logger.info("Adding resource to catalog");
+			((List<Resource>) resourceCatalog.getOfferedResource()).add(resource);
 		} else {
-			logger.info("Did not find resourceCatalog with id {}", resourceCatalogId);
-			throw new ResourceNotFoundException("Did not find resourceCatalog with id " + resourceCatalogId);
+			logger.info("Resource with id '{}' already exists", resource.getId());
+			throw new BadRequestException(String.format("Resource with id '%s' already exists",  resource.getId()));
 		}
-//		SelfDescription.getInstance().setBaseConnector(serializer.deserialize(gson.toJson(jsonElement), Connector.class));
-//		return SelfDescription.getInstance().getConnector();
-		return serializer.deserialize(gson.toJson(jsonElement), Connector.class);
+		return connector;
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	/**
+	 * Update resource for giver resource catalog
+	 * @param connector
+	 * @param resourceCatalogId
+	 * @param resource
+	 * @return updated connector
+	 */
+	public Connector updateOfferedResource(Connector connector, URI resourceCatalogId, Resource resource) {
+		ResourceCatalog resourceCatalog = checkIfResourceCatalogExists(connector, resourceCatalogId);
+
+		Predicate<Resource> equalResource = r -> r.getId().equals(resource.getId());
+		boolean existingOfferedResource = resourceCatalog.getOfferedResource().stream()
+				.anyMatch(equalResource);
+		
+		if(existingOfferedResource) {
+			logger.debug("Found resource with id '{}' for update/replace", resource.getId());
+			resourceCatalog.getOfferedResource().removeIf(equalResource);
+			logger.info("Updating resource");
+			((ArrayList<Resource>) resourceCatalog.getOfferedResource()).add(resource);
+		} else {
+			logger.info("Resource with id '{}' does not exist, cannot update", resource.getId());
+			throw new ResourceNotFoundException(String.format("Resource with id '%s' does not exist", resource.getId()));
+		}
+		return connector;
+	}
+
 	/**
 	 * Remove resource from any Resource Catalogs
 	 * @param connector
 	 * @param resourceId
 	 * @return new connector instance
-	 * @throws JsonSyntaxException
-	 * @throws IOException
 	 */
-	public Connector deleteOfferedResource(Connector connector, URI resourceId) 
-			throws JsonSyntaxException, IOException {
+	public Connector deleteOfferedResource(Connector connector, URI resourceId) {
 		BaseConnectorImpl connImpl = (BaseConnectorImpl) connector;
 		boolean removed = false;
 		for(ResourceCatalog resourceCatalog : connImpl.getResourceCatalog()) {
@@ -132,39 +123,52 @@ public class SelfDescriptionManager {
 	 * @param connector
 	 * @param resourceId
 	 * @return
-	 * @throws JsonSyntaxException
-	 * @throws IOException
 	 */
-	public Resource getOfferedResource(Connector connector, URI resourceId) 
-			throws JsonSyntaxException, IOException {
+	public Resource getOfferedResource(Connector connector, URI resourceId) {
 		
-		ListIterator<? extends ResourceCatalog> litr = null;
-		litr = connector.getResourceCatalog().listIterator();
-		while(litr.hasNext()) {
-			ResourceCatalog rc = litr.next();
-			ListIterator<? extends Resource> resourceIter = rc.getOfferedResource().listIterator();
-			while(resourceIter.hasNext()) {
-				Resource resource = resourceIter.next();
-				if(resource.getId().equals(resourceId)) {
-					return (Resource) resource;
-				}
-			}
+		Optional<Resource> resource = Optional.ofNullable(connector.getResourceCatalog().stream()
+			.flatMap(rc -> rc.getOfferedResource().stream())
+			.filter(or -> or.getId().equals(resourceId))
+			.findFirst()
+			.orElse(null));
+		
+		if(resource.isPresent()) {
+			return resource.get();
 		}
 		throw new ResourceNotFoundException("Resource with id '" + resourceId + "' not found");
 	}
 	
-	public Representation getRepresentation(URI representationId) {
-		BaseConnectorImpl connector = (BaseConnectorImpl) SelfDescription.getInstance().getConnector();
-		
-		for(ResourceCatalog resourceCatalog : connector.getResourceCatalog()) {
-			for(Resource resource : resourceCatalog.getOfferedResource()) {
-				for(Representation representation : resource.getRepresentation()) {
-					if(representation.getId().equals(representationId)) {
-						logger.debug("Found representation with id '{}'", representationId);
-						return representation;
-					}
-				}
-			}
+	private ResourceCatalog checkIfResourceCatalogExists(Connector connector, URI resourceCatalogId) {
+		ResourceCatalog resourceCatalog = connector.getResourceCatalog().stream()
+			.filter(rc -> rc.getId().equals(resourceCatalogId))
+			.findAny()
+			.orElse(null);
+		if(resourceCatalog == null) {
+			logger.info("Did not find resourceCatalog with id {}", resourceCatalogId);
+			throw new ResourceNotFoundException("Did not find resourceCatalog with id " + resourceCatalogId);
+		}
+		logger.debug("Found resource catalog with Id to add new resource");
+		return resourceCatalog;
+	}
+	
+	/**
+	 * Representation
+	 */
+	
+	/**
+	 * Return representation with provided id
+	 * @param representationId
+	 * @return
+	 */
+	public Representation getRepresentation(Connector connector, URI representationId) {
+		Optional<Representation> representation = Optional.ofNullable(connector.getResourceCatalog().stream()
+				.flatMap(rc -> rc.getOfferedResource().stream())
+				.flatMap(or -> or.getRepresentation().stream())
+				.filter(r -> r.getId().equals(representationId))
+				.findFirst()
+				.orElse(null));
+		if(representation.isPresent()) {
+			return representation.get();
 		}
 		throw new ResourceNotFoundException(String.format("Did not find representation with id '%s'", representationId));
 	}
@@ -175,42 +179,50 @@ public class SelfDescriptionManager {
 	 * @param representation
 	 * @param resourceId
 	 * @return
-	 * @throws JsonSyntaxException
-	 * @throws IOException
 	 */
-	public Connector addOrUpdateRepresentationToResource(Connector connector, Representation representation, URI resourceId) 
-			throws JsonSyntaxException, IOException {
-		JsonElement jsonElement = gson.fromJson(mapper.writeValueAsString(connector), JsonElement.class);
-		JsonArray resourceCatalogJsonArray = (JsonArray) jsonElement.getAsJsonObject().get(RESOURCE_CATALOG);
+	public Connector addRepresentationToResource(Connector connector, Representation representation, URI resourceId) {
+		Resource resource = getOfferedResource(connector, resourceId);
 		
-		JsonElement[] resource = findOfferedResource(resourceId, resourceCatalogJsonArray);
-		if(resource[0] != null) {
-			logger.info("Found resource to add new representation");
-			JsonObject add = null;
-			try {
-				add = gson.fromJson(serializer.serialize(representation), JsonObject.class);
-			} catch (JsonSyntaxException | IOException e) {
-				logger.error("Error while converting resource to json object", e);
-			}
-			// TODO - find if such representation exits or not
-			Optional<JsonElement> opt = StreamSupport.stream(resource[0].getAsJsonObject().get(REPRESENTATION).getAsJsonArray().spliterator(), false)
-					.filter(p -> p.getAsJsonObject().get(ID).getAsString().equals(representation.getId().toString()))
-					.findFirst();
-			if(opt.isPresent()) {
-				logger.info("Removing existing representation before updating it");
-				removeRepresentation(representation.getId().toString(), 
-						resource[0].getAsJsonObject().get(REPRESENTATION).getAsJsonArray());
-			}
-			resource[0].getAsJsonObject().get(REPRESENTATION).getAsJsonArray().add(gson.toJsonTree(add));
-			
+		Predicate<Representation> equalRepresentation = r -> r.getId().equals(representation.getId());
+		boolean representationExists = resource.getRepresentation().stream()
+				.anyMatch(equalRepresentation);	
+		
+		if(!representationExists) {
+			logger.info("Addind representation with id '{}' to resource '{}'", representation.getId(), resourceId);
+			((List<Representation>) resource.getRepresentation()).add(representation);
 		} else {
-			String message = String.format("Resource with id '%s' to add new representation not found", resourceId);
-			logger.info(message);
-			throw new ResourceNotFoundException(message);
+			logger.info("Representation with id '{}' already exists", representation.getId());
+			throw new BadRequestException(String.format("Representation with id '%s' already exists",  representation.getId()));
 		}
-		return serializer.deserialize(gson.toJson(jsonElement), Connector.class);
+		return connector;
 	}
 	
+	@SuppressWarnings("unchecked")
+	/**
+	 * Update representation for given resource
+	 * @param connector
+	 * @param representation
+	 * @param resourceId
+	 * @return
+	 */
+	public Connector updateRepresentationToResource(Connector connector, Representation representation, URI resourceId) {
+		Resource resource = getOfferedResource(connector, resourceId);
+		
+		Predicate<Representation> equalRepresentation = r -> r.getId().equals(representation.getId());
+		boolean representationExists = resource.getRepresentation().stream()
+				.anyMatch(equalRepresentation);
+		if(representationExists) {
+			logger.debug("Found existing representation for update");
+			resource.getRepresentation().removeIf(equalRepresentation);
+			logger.info("Updating representation");
+			((List<Representation>) resource.getRepresentation()).add(representation);
+		} else {
+			logger.info("Representation with id '{}' does not exist, cannot update", representation.getId());
+			throw new ResourceNotFoundException(String.format("Representation with id '%s' does not exist", representation.getId()));
+		}
+		return connector;
+	}
+
 	/**
 	 * Remove representation from resource
 	 * @param connector
@@ -218,7 +230,6 @@ public class SelfDescriptionManager {
 	 * @return
 	 */
 	public Connector removeRepresentationFromResource(Connector connector, URI representationId) {
-		
 		for(ResourceCatalog resourceCatalog : connector.getResourceCatalog()) {
 			for(Resource resource : resourceCatalog.getOfferedResource()) {
 				resource.getRepresentation().removeIf(rep -> rep.getId().equals(representationId));
@@ -227,6 +238,16 @@ public class SelfDescriptionManager {
 		return connector;
 	}
 
+	
+	/**
+	 * Contract offer
+	 */
+	
+	/**
+	 * 
+	 * @param contractOfferId
+	 * @return
+	 */
 	public ContractOffer getContractOffer(URI contractOfferId) {
 		BaseConnectorImpl connector = (BaseConnectorImpl) SelfDescription.getInstance().getConnector();
 		
@@ -252,38 +273,48 @@ public class SelfDescriptionManager {
 	 * @throws JsonSyntaxException
 	 * @throws IOException
 	 */
-	public Connector addOrUpdateContractOfferToResource(Connector connector, ContractOffer contractOffer, URI resourceId) 
-			throws JsonSyntaxException, IOException {
-		JsonElement jsonElement = gson.fromJson(mapper.writeValueAsString(connector), JsonElement.class);
-		JsonArray resourceCatalogJsonArray = (JsonArray) jsonElement.getAsJsonObject().get(RESOURCE_CATALOG);
+	public Connector addContractOfferToResource(Connector connector, ContractOffer contractOffer, URI resourceId)  {
+		Resource resource = getOfferedResource(connector, resourceId);
+
+		Predicate<ContractOffer> equalContractOffer = co -> co.getId().equals(contractOffer.getId());
+		boolean contractOfferExists = resource.getContractOffer().stream()
+				.anyMatch(equalContractOffer);	
 		
-		JsonElement[] resource = findOfferedResource(resourceId, resourceCatalogJsonArray);
-		
-		if(resource[0] != null) {
-			logger.info("Found resource to add or update contract offer");
-			// TODO - find if such representation exits or not
-			Optional<JsonElement> opt = StreamSupport.stream(resource[0].getAsJsonObject().get(CONTRACT_OFFER).getAsJsonArray().spliterator(), false)
-					.filter(p -> p.getAsJsonObject().get(ID).getAsString().equals(contractOffer.getId().toString()))
-					.findFirst();
-			if(opt.isPresent()) {
-				logger.debug("About to remove existing contract offer");
-				removeRepresentation(contractOffer.getId().toString(), 
-						resource[0].getAsJsonObject().get(CONTRACT_OFFER).getAsJsonArray());
-			} 
-			JsonObject add = null;
-			try {
-				add = gson.fromJson(serializer.serialize(contractOffer), JsonObject.class);
-			} catch (JsonSyntaxException | IOException e) {
-				logger.error("Error while converting contract offer to json object", e);
-			}
-			resource[0].getAsJsonObject().get(CONTRACT_OFFER).getAsJsonArray().add(gson.toJsonTree(add));
+		if(!contractOfferExists) {
+			logger.info("Addind contract offer with id '{}' to resource '{}'", contractOffer.getId(), resourceId);
+			((List<ContractOffer>) resource.getContractOffer()).add(contractOffer);
 		} else {
-			String message = String.format("Resource with id '%s' to remove contract offer '%s' not found", 
-					resourceId, contractOffer.getId());
-			logger.info(message);
-			throw new ResourceNotFoundException(message);
+			logger.info("Contract offer with id '{}' already exists", contractOffer.getId());
+			throw new BadRequestException(String.format("Contract offer with id '%s' already exists",  contractOffer.getId()));
 		}
-		return serializer.deserialize(gson.toJson(jsonElement), Connector.class);
+		return connector;
+		
+	}
+	
+	/**
+	 * Updating contract offer for representation 
+	 * @param connector
+	 * @param contractOffer
+	 * @param resourceId
+	 * @return
+	 */
+	public Connector updateContractOfferToResource(Connector connector, ContractOffer contractOffer, URI resourceId)  {
+		Resource resource = getOfferedResource(connector, resourceId);
+		
+		Predicate<ContractOffer> equalContractOffer = co -> co.getId().equals(contractOffer.getId());
+		boolean contractOfferExists = resource.getContractOffer().stream()
+				.anyMatch(equalContractOffer);	
+		
+		if(contractOfferExists) {
+			logger.debug("Found existing contract offer for update");
+			resource.getContractOffer().removeIf(equalContractOffer);
+			logger.info("Updating contract offer");
+			((List<ContractOffer>) resource.getContractOffer()).add(contractOffer);
+		} else {
+			logger.info("Contract offer with id '{}' does not exist, cannot update", contractOffer.getId());
+			throw new ResourceNotFoundException(String.format("Contract offer with id '%s' does not exist", contractOffer.getId()));
+		}
+		return connector;
 	}
 	
 	/**
@@ -381,42 +412,6 @@ public class SelfDescriptionManager {
 			}
 		}
 		return connector;
-	}
-	
-	private void removeResource(String resourceId, JsonElement resourceCatalog) {
-		JsonArray offeredResources = resourceCatalog.getAsJsonObject().get(OFFERED_RESOURCE).getAsJsonArray();
-		Iterator<JsonElement> it = offeredResources.iterator();
-		while (it.hasNext()) {
-			JsonElement jsonObject = it.next();
-		    if (jsonObject.getAsJsonObject().get(ID).getAsString().equals(resourceId)) {
-		    	logger.debug("Removing resource with id {}", resourceId);
-		        it.remove();
-		    }
-		}
-	}
-	
-	private void removeRepresentation(String id, JsonArray resourceCatalog) {
-		Iterator<JsonElement> it = resourceCatalog.iterator();
-		while (it.hasNext()) {
-			JsonElement jsonObject = it.next();
-		    if (jsonObject.getAsJsonObject().get(ID).getAsString().equals(id)) {
-		    	logger.debug("Removing object with id {}", id);
-		        it.remove();
-		    }
-		}
-	}
-	
-	// TODO find better solution not to use wrapper/array to get resource
-	private JsonElement[] findOfferedResource(URI resourceId, JsonArray resourceCatalogJsonArray) {
-		JsonElement[] resource = new JsonElement[] {null};
-		resourceCatalogJsonArray.forEach(rc -> {
-			rc.getAsJsonObject().get(OFFERED_RESOURCE).getAsJsonArray().forEach(or -> {
-				if(or.getAsJsonObject().get(ID).getAsString().equals(resourceId.toString())) {
-					resource[0] = or;
-				} 
-			});
-		});
-		return resource;
 	}
 
 }
