@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [0.0.25-SNAPSHOT] - 2021-07-19
+## [0.0.25-SNAPSHOT] - 2021-07-23
  
 ### Added
  - added API endpoints and logic for dynamic modification of Self Description document
