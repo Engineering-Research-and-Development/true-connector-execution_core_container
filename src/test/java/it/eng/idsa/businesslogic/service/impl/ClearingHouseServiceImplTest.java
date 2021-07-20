@@ -30,7 +30,7 @@ import it.eng.idsa.businesslogic.service.HashFileService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.util.DateUtil;
-import it.eng.idsa.multipart.util.TestUtilMessageService;
+import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
 
 public class ClearingHouseServiceImplTest {
 	

@@ -1,0 +1,23 @@
+<settings mlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+	<mirrors>
+		<mirror>
+		  <id>insecure-repo</id>
+		  <mirrorOf>external:http:*</mirrorOf>
+		  <url>http://maven.iais.fraunhofer.de/artifactory/eis-ids-public</url>
+		  <blocked>false</blocked>
+		</mirror>
+	</mirrors>
+	<servers>
+		<server>
+			<id>github_mmp</id> 
+			<username>Engineering-Research-and-Development</username>
+			<password>${env.GH_PACKAGE_REPO_PASSWORD}</password> 
+		</server>
+		<server>
+			<id>github_wss</id> 
+			<username>Engineering-Research-and-Development</username>
+			<password>${env.GH_PACKAGE_REPO_PASSWORD}</password> 
+		</server>
+	</servers>
+</settings>

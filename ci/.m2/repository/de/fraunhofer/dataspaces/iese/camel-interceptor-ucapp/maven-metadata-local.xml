@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>de.fraunhofer.dataspaces.iese</groupId>
+  <artifactId>camel-interceptor-ucapp</artifactId>
+  <versioning>
+    <versions>
+      <version>0.0.1-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20210119133229</lastUpdated>
+  </versioning>
+</metadata>

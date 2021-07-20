@@ -249,7 +249,7 @@ public class CamelRouteSender extends RouteBuilder {
     		logger.info("WSS communication between ECC and dataApp");
     			    
     	    from("timer://timerEndpointA?repeatCount=-1")
-    	    	.routeId("IDSCP2 - sender - WSS internal")
+    	    	.routeId("Sender - dataApp-ECC over WSS and ECC-ECC over IDSCP2")
 	        	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
 	            .process(fileRecreatorProcessor)
 				.process(parseReceivedDataFromDAppProcessorBodyBinary)

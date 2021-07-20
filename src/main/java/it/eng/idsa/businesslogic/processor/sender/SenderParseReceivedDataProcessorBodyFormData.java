@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -31,6 +32,9 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
 public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 
 	private static final Logger logger = LoggerFactory.getLogger(SenderParseReceivedDataProcessorBodyFormData.class);
+	
+	@Autowired
+	private ProtocolValidationService protocolValidationService;
 
 	@Autowired
 	private MultipartMessageService multipartMessageService;
@@ -41,8 +45,6 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 
-		String contentType;
-		String forwardTo;
 		String header = null;
 		String payload = null;
 		Message message = null;
@@ -52,12 +54,6 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 		logger.info("Received multipart/form request");
 
 		try {
-			// Create headers parts
-			contentType = receivedDataHeader.get("Content-Type").toString();
-			receivedDataHeader.put("Content-Type", contentType);
-			forwardTo = receivedDataHeader.get("Forward-To").toString();
-			receivedDataHeader.put("Forward-To", forwardTo);
-
 			// Create multipart message parts
 			if (receivedDataHeader.containsKey(MessagePart.HEADER)) {
 				if(receivedDataHeader.get(MessagePart.HEADER) instanceof DataHandler) {
@@ -83,6 +79,10 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 					.withHeaderContent(header)
 					.withPayloadContent(payload)
 					.build();
+			
+			String forwardTo = receivedDataHeader.get("Forward-To").toString();
+			forwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+			receivedDataHeader.replace("Forward-To", forwardTo);
 
 			// Return exchange
 			exchange.getMessage().setHeaders(receivedDataHeader);

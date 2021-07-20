@@ -1,6 +1,10 @@
 # ENG Execution Core Container
 
-[![Build badge](https://api.travis-ci.com/Engineering-Research-and-Development/market4.0-execution_core_container_business_logic.svg)](https://travis-ci.com/github/Engineering-Research-and-Development/market4.0-execution_core_container_business_logic)<br/>
+[![License: AGPL](https://img.shields.io/github/license/Engineering-Research-and-Development/true-connector-execution_core_container.svg)](https://opensource.org/licenses/AGPL-3.0)
+[![CI](https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container/workflows/ECC/badge.svg)](https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container/actions/workflows/ECC.yml) 
+[![Docker badge](https://img.shields.io/docker/pulls/rdlabengpa/execution_core_container_bl.svg)](https://hub.docker.com/r/rdlabengpa/execution_core_container_bl)
+<br/>
+
 The ENG Execution Core Container, based on the IDS Base Connector, is the core component of an IDS Connector enabling:
 * the data exchange between connectors, using HTTPS, WS over HTTPS, IDSCP2 (beta)
 * interaction with the AISEC Fraunhofer DAPS Service for requiring and validating a token
@@ -14,6 +18,7 @@ The configuration should be performed customizing the following variables in the
 * **DATA_APP_ENDPOINT=192.168.56.1:8083/incoming-data-app/dataAppIncomingMessageReceiver** DataAPP endpoint for receiveing data (F endpoint in the above picture)
 * **MULTIPART=mixed** DataAPP endpoint Content Type (choose mixed for Multipart/mixed or form for Multipart/form-data) 
 * Edit external port if need (default values: **8086** for **web sockets over HTTPS**, **8090** for **http**, **8887** for **A endpoint** and  **8889** for **B endpoint**)
+* Forward-To protocol validation can be changed by editing **application.validateProtocol**. Default value is *true* and Forward-To URL must be set like http(https,wss)://example.com, if you choose *false* Forward-To URL can be set like http(https,wss)://example.com or just example.com and the protocol chosen (from application.properties)will be automatically set (it will be overwritten! example: http://example.com will be wss://example if you chose wss in the properties). 
 
 If you want to use your own certificate for the AISEC Fraunhofer DAPS server: 
 * Put **DAPS certificates** into the cert folder and edit related settings (i.e., *application.keyStoreName*, *application.keyStorePassword*) into the *resources/application.properties* file
@@ -243,3 +248,13 @@ Follow the REST endpoint or WS examples, put the server hostname/ip address in t
 
 ### Web Socket over HTTPS
 Follow the REST endpoint examples, taking care to use *wss://{RECEIVER_IP_ADDRESS}:{WS_PUBLIC_PORT}* in the Forward-To header.
+
+## Developer guide section
+
+### How to build Execution Core Container
+Clone projects from the following links and run mvn clean install
+
+[Multipart Message library](https://github.com/Engineering-Research-and-Development/true-connector-multipart_message_library)
+[WebSocket Message Streamer library](https://github.com/Engineering-Research-and-Development/market4.0-websocket_message_streamer)
+[Clearing house model](https://github.com/Engineering-Research-and-Development/market4.0-clearing_house/tree/master/clearing-house-model)
+[Execution Core Container](https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container)

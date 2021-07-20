@@ -56,27 +56,28 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 	private SenderClientService okHttpClient;
 
 	@Override
-	public Response sendMessageBinary(String address, MultipartMessage multipartMessage,
-			Map<String, Object> headerParts)
+	public Response sendMessageBinary(String address, MultipartMessage message, Map<String, Object> httpHeaders)
 			throws UnsupportedEncodingException, JsonProcessingException {
 
-		logger.info("Forwarding Message: Body: binary to {}", address);
+		logger.info("Forwarding Message: Body: binary");
+		MultipartMessage multiMessage = message;;
+		
 		Headers headers;
 		if (isEnabledIdscp2) {
 			Map<String, Object> headesParts = new HashMap<String, Object>();
 			headesParts.put("idscp2", "idscp2");
 			headers = fillHeaders(headesParts);
 		} else {
-			headers = fillHeaders(headerParts);
+			headers = fillHeaders(httpHeaders);
 		}
 
 		String payloadContentType;
-		if (headerParts.get("Payload-Content-Type") != null) {
-			payloadContentType = headerParts.get("Payload-Content-Type").toString();
+		if (httpHeaders.get("Payload-Content-Type") != null) {
+			payloadContentType = httpHeaders.get("Payload-Content-Type").toString();
 		} else {
 			payloadContentType = javax.ws.rs.core.MediaType.TEXT_PLAIN.toString();
 		}
-		RequestBody requestBody = okHttpClient.createMultipartMixRequest(multipartMessage, payloadContentType);
+		RequestBody requestBody = okHttpClient.createMultipartMixRequest(multiMessage, payloadContentType);
 		try {
 			return okHttpClient.sendMultipartMixRequest(address, headers, requestBody);
 		} catch (IOException e) {
@@ -88,15 +89,13 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 	@Override
 	public Response sendMessageHttpHeader(String address, MultipartMessage multipartMessage,
 			Map<String, Object> headerParts) throws IOException {
-		logger.info("Forwarding Message: http-header to {}", address);
+		logger.info("Forwarding Message: http-header");
 
 		if (!RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
 			// DataApp endpoint not http-header, must convert message to http headers
 			headerParts.putAll(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));
 		}
-//		if (isEnabledDapsInteraction) {
-			headerParts.putAll(headerService.transformJWTTokenToHeaders(multipartMessage.getToken()));
-//		}
+		headerParts.putAll(headerService.transformJWTTokenToHeaders(multipartMessage.getToken()));
 		String ctPayload = getPayloadContentType(headerParts);
 		Headers httpHeaders = fillHeaders(headerParts);
 
@@ -112,16 +111,15 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 	}
 
 	@Override
-	public Response sendMessageFormData(String address, MultipartMessage multipartMessage,
-			Map<String, Object> headerParts) throws UnsupportedEncodingException {
+	public Response sendMessageFormData(String address, MultipartMessage message, Map<String, Object> headerParts)
+			throws UnsupportedEncodingException {
 
-		logger.info("Forwarding Message: Body: form-data to {}", address);
+		logger.info("Forwarding Message: Body: form-data");
 
-		Message messageForException = multipartMessage.getHeaderContent();
-
+		Message messageForException = message.getHeaderContent();
 		String ctPayload = getPayloadContentType(headerParts);
 		Headers headers = fillHeaders(headerParts);
-		RequestBody body = okHttpClient.createMultipartFormRequest(multipartMessage, ctPayload);
+		RequestBody body = okHttpClient.createMultipartFormRequest(message, ctPayload);
 
 		Response response = null;
 		try {
@@ -138,9 +136,9 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		headerCleaner.removeTechnicalHeaders(headerParts);
 
 		Map<String, String> mapAsString = new HashMap<>();
-
+		// TODO consider removing idscp2-header from exchange once when it is consumed, if applicable - MapIDSCP2toMultipart
 		headerParts.forEach((name, value) -> {
-			if (!"Content-Length".equals(name) && !"Content-Type".equals(name)) {
+			if (!"Content-Length".equals(name) && !"Content-Type".equals(name) && !"idscp2-header".equals(name)) {
 				if (value != null) {
 					mapAsString.put(name, value.toString());
 				}

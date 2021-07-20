@@ -18,7 +18,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.multipart.util.TestUtilMessageService;
+import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
 
 public class MultipartMessageServiceImplTest {
 	

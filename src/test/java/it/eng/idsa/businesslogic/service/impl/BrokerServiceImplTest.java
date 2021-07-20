@@ -25,7 +25,7 @@ import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.util.RequestResponseUtil;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.util.TestUtilMessageService;
+import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
 import okhttp3.Request;
 import okhttp3.ResponseBody;
 
