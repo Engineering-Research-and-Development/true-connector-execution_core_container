@@ -72,7 +72,7 @@ public class ClearingHouseServiceImplTest {
 		when(restTemplate.postForObject(any(String.class), any(), any())).thenReturn(null);
 		when(dapsProvider.getDynamicAtributeToken()).thenReturn(TestUtilMessageService.getDynamicAttributeToken());
 		when(selfDescriptionConfiguration.getConnectorURI()).thenReturn(URI.create("http://auto-generated"));
-		ReflectionTestUtils.setField(clearingHouseServiceImpl, "informationModelVersion", "4.0.6", String.class);
+		ReflectionTestUtils.setField(clearingHouseServiceImpl, "informationModelVersion", "4.1.1", String.class);
 	}
 	
 	  @Test
@@ -98,7 +98,7 @@ public class ClearingHouseServiceImplTest {
           ._issuerConnector_(URI.create("https://issuerConnector"))
           ._recipientConnector_(List.of(URI.create("https://recipient.connector")))
           ._senderAgent_(URI.create("https://sender.agent"))
-          ._recipientAgent_(null)
+          ._recipientAgent_(List.of(URI.create("https://recipient.agent")))
           ._transferContract_(null)
           ._securityToken_(null) //mandatory in SPECS but non suitable for Blockchain
           ._authorizationToken_(null)

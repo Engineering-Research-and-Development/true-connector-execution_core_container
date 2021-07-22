@@ -97,7 +97,7 @@ Content-Length: 333
     "@value" : "2020-11-25T16:43:27.051+01:00",
     "@type" : "http://www.w3.org/2001/XMLSchema#dateTimeStamp"
   },
-  "ids:modelVersion" : "4.0.0",
+  "ids:modelVersion" : "4.1.1",
   "ids:issuerConnector" : {
     "@id" : "http://w3id.org/engrd/connector/"
   },
@@ -135,7 +135,7 @@ Content-Length: 333
     "@value" : "2020-11-25T16:43:27.051+01:00",
     "@type" : "http://www.w3.org/2001/XMLSchema#dateTimeStamp"
   },
-  "ids:modelVersion" : "4.0.0",
+  "ids:modelVersion" : "4.1.1",
   "ids:issuerConnector" : {
     "@id" : "http://w3id.org/engrd/connector/"
   },
@@ -172,7 +172,7 @@ curl --location --request POST 'https://{IPADDRESS}:{A_ENDPOINT_PUBLIC_PORT}/inc
     \"@value\" : \"2020-11-25T16:33:13.502+01:00\",
     \"@type\" : \"http://www.w3.org/2001/XMLSchema#dateTimeStamp\"
   },
-  \"ids:modelVersion\" : \"4.0.0\",
+  \"ids:modelVersion\" : \"4.1.1\",
   \"ids:requestedArtifact\" : {
     \"@id\" : \"http://w3id.org/engrd/connector/artifact/1\"
   }
@@ -200,7 +200,7 @@ curl --location --request POST 'https://{IPADDRESS}:8887/incoming-data-app/multi
     \"@value\" : \"2020-11-25T16:33:13.502+01:00\",
     \"@type\" : \"http://www.w3.org/2001/XMLSchema#dateTimeStamp\"
   },
-  \"ids:modelVersion\" : \"4.0.0\",
+  \"ids:modelVersion\" : \"4.1.1\",
   \"ids:requestedArtifact\" : {
     \"@id\" : \"http://w3id.org/engrd/connector/artifact/1\"
   }
@@ -218,7 +218,7 @@ curl --location --request POST 'https://{IPADDRESS}:{A_ENDPOINT_PUBLIC_PORT}/inc
 --header 'IDS-Id: https://w3id.org/idsa/autogen/artifactResponseMessage/eb3ab487-dfb0-4d18-b39a-585514dd044f' \
 --header 'IDS-Issued: 2019-05-27T13:09:42.306Z' \
 --header 'IDS-IssuerConnector: http://w3id.org/engrd/connector/' \
---header 'IDS-ModelVersion: 4.0.0' \
+--header 'IDS-ModelVersion: 4.1.1' \
 --header 'IDS-RequestedArtifact: http://w3id.org/engrd/connector/artifact/1' \
 --data-raw '{"catalog.offers.0.resourceEndpoints.path":"/pet2"}'
 ```
@@ -233,7 +233,7 @@ curl --location --request POST 'https://{IPADDRESS}:8887/incoming-data-app/multi
 --header 'IDS-Id: https://w3id.org/idsa/autogen/artifactResponseMessage/eb3ab487-dfb0-4d18-b39a-585514dd044f' \
 --header 'IDS-Issued: 2019-05-27T13:09:42.306Z' \
 --header 'IDS-IssuerConnector: http://w3id.org/engrd/connector/' \
---header 'IDS-ModelVersion: 4.0.0' \
+--header 'IDS-ModelVersion: 4.1.1' \
 --header 'IDS-RequestedArtifact: http://w3id.org/engrd/connector/artifact/1' \
 --data-raw '{"catalog.offers.0.resourceEndpoints.path":"/pet2"}'
 ```

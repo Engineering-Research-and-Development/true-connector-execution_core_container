@@ -19,7 +19,7 @@ import de.fraunhofer.iais.eis.DynamicAttributeTokenBuilder;
 import de.fraunhofer.iais.eis.TokenFormat;
 import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
-import it.eng.idsa.multipart.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 @Service
 public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
@@ -46,8 +46,8 @@ public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 	public String provideToken() {
 		logger.info("Requesting token");
 		if(!useDaps) {
-			logger.info("Daps not configured but must use some token - using value {}", TestUtilMessageService.TOKEN_VALUE);
-			return TestUtilMessageService.TOKEN_VALUE;
+			logger.info("Daps not configured but must use some token - using value {}", UtilMessageService.TOKEN_VALUE);
+			return UtilMessageService.TOKEN_VALUE;
 		}
 		if (tokenCaching) {
 			//Checking if cached token is still valid

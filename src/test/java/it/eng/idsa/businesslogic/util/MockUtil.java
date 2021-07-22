@@ -9,7 +9,7 @@ import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
-import it.eng.idsa.multipart.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class MockUtil {
 	
@@ -28,8 +28,8 @@ public class MockUtil {
 		ReflectionTestUtils.setField(rejectionMessageService, "dapsProvider", dapsProvider);
 		ReflectionTestUtils.setField(rejectionMessageService, "informationModelVersion", INFO_MODEL_VERSION);
 		ReflectionTestUtils.setField(rejectionMessageService, "selfDescriptionConfiguration", selfDescriptionConfiguration, SelfDescriptionConfiguration.class);
-		when(dapsProvider.getDynamicAtributeToken()).thenReturn(TestUtilMessageService.getDynamicAttributeToken());
-		when(selfDescriptionConfiguration.getConnectorURI()).thenReturn(TestUtilMessageService.ISSUER_CONNECTOR);
+		when(dapsProvider.getDynamicAtributeToken()).thenReturn(UtilMessageService.getDynamicAttributeToken());
+		when(selfDescriptionConfiguration.getConnectorURI()).thenReturn(UtilMessageService.ISSUER_CONNECTOR);
 		return rejectionMessageService;
 	}
 

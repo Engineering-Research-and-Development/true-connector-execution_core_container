@@ -22,9 +22,9 @@
 		<start-class>it.eng.idsa.businesslogic.Application</start-class>
 		<camel.version>3.7.0</camel.version>
 		<tomcat.version>9.0.24</tomcat.version>
-		<information.model.version>4.0.6</information.model.version>
+		<information.model.version>4.1.1</information.model.version>
 		<application.basedir>${basedir}</application.basedir>
-		<multipart.message.processor.version>1.0.9-SNAPSHOT</multipart.message.processor.version>
+		<multipart.message.processor.version>1.0.10-SNAPSHOT</multipart.message.processor.version>
 		<idscp2.libraries.version>0.4.2</idscp2.libraries.version>
 	</properties>
 

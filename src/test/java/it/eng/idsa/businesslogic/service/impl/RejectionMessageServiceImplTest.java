@@ -19,7 +19,7 @@ import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
-import it.eng.idsa.multipart.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class RejectionMessageServiceImplTest {
 
@@ -42,10 +42,10 @@ public class RejectionMessageServiceImplTest {
 	@BeforeEach
 	public void init() {
 		MockitoAnnotations.initMocks(this);
-		ReflectionTestUtils.setField(rejectionMessageServiceImpl, "informationModelVersion", "4.0.6", String.class);
-		when(dapsProvider.getDynamicAtributeToken()).thenReturn(TestUtilMessageService.getDynamicAttributeToken());
+		ReflectionTestUtils.setField(rejectionMessageServiceImpl, "informationModelVersion", "4.1.1", String.class);
+		when(dapsProvider.getDynamicAtributeToken()).thenReturn(UtilMessageService.getDynamicAttributeToken());
 		when(selfDescriptionConfiguration.getConnectorURI()).thenReturn(URI.create("http://auto-generated"));
-		message = TestUtilMessageService.getArtifactResponseMessage();
+		message = UtilMessageService.getArtifactResponseMessage();
 	}
 
 	@Test

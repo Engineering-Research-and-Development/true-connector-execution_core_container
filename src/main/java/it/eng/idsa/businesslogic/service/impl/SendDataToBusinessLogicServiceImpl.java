@@ -97,6 +97,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		}
 		headerParts.putAll(headerService.transformJWTTokenToHeaders(multipartMessage.getToken()));
 		String ctPayload = getPayloadContentType(headerParts);
+		//change the method below for http headers else the header service doesn't make sense
 		Headers httpHeaders = fillHeaders(headerParts);
 
 		Response response;

@@ -92,6 +92,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		messageAsMap.put("IDS-SecurityToken-TokenFormat", tokenFormatAsMap.get("@id").toString());
 	}
 
+	//here we have all mandatory fields
 	@Override
 	public Map<String, Object> getHeaderMessagePartAsMap(Map<String, Object> headers) {
 		Map<String, Object> headerAsMap = new HashMap<>();
@@ -147,7 +148,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		headers.remove("IDS-TransferContract");
 		headers.remove("IDS-CorrelationMessage");
 		headers.remove("IDS-RequestedArtifact");
-
+		headers.remove("IDS-SenderAgent");
 	}
 
 	@Override
@@ -182,6 +183,9 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		}
 		if (messageAsMap.get("requestedArtifact") != null) {
 			headers.put("IDS-RequestedArtifact", messageAsMap.get("requestedArtifact"));
+		}
+		if (messageAsMap.get("senderAgent") != null) {
+			headers.put("IDS-SenderAgent", messageAsMap.get("senderAgent"));
 		}
 		return headers;
 	}
@@ -283,6 +287,13 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 				headers.put("IDS-RequestedArtifact", ((Map)messageAsMap.get("ids:requestedArtifact")).get("@id"));
 			} else {
 				headers.put("IDS-RequestedArtifact", messageAsMap.get("ids:requestedArtifact"));
+			}
+		}
+		if (messageAsMap.get("ids:senderAgent") != null) {
+			if(messageAsMap.get("ids:senderAgent") instanceof Map) {
+				headers.put("IDS-SenderAgent", ((Map)messageAsMap.get("ids:senderAgent")).get("@id"));
+			} else {
+				headers.put("IDS-SenderAgent", messageAsMap.get("ids:senderAgent"));
 			}
 		}
 		if (messageAsMap.get("ids:rejectionReason") != null) {

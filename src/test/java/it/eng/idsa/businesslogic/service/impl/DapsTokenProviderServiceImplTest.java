@@ -18,7 +18,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.util.JwTokenUtil;
-import it.eng.idsa.multipart.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class DapsTokenProviderServiceImplTest {
 
@@ -80,7 +80,7 @@ public class DapsTokenProviderServiceImplTest {
 	@Test
 	public void fetchTokenDapsDisabled() {
 		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "useDaps", false);
-		assertEquals(TestUtilMessageService.TOKEN_VALUE, dapsTokenProviderServiceImpl.provideToken());
+		assertEquals(UtilMessageService.TOKEN_VALUE, dapsTokenProviderServiceImpl.provideToken());
 		verify(dapsService, times(0)).getJwtToken();
 	}
 }
