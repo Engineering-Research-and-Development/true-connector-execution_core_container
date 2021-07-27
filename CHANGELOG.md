@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
  
 ### Added
  - added API endpoints and logic for dynamic modification of Self Description document
+ - new properties
+	 application.selfdescription.filelocation
+	 spring.security.user.name
+	 spring.security.user.password
  
 ### Changed
  - updated developer information with missing dependency

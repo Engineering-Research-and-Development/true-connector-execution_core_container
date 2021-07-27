@@ -33,7 +33,6 @@ import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import de.fraunhofer.iais.eis.util.TypedLiteral;
 import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
-import it.eng.idsa.businesslogic.service.ResourceDataAppService;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
 import it.eng.idsa.businesslogic.service.resources.SelfDescription;
 import it.eng.idsa.businesslogic.service.resources.SelfDescriptionManager;
@@ -51,15 +50,12 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	private SelfDescriptionConfiguration selfDescriptionConfiguration;
 	private SelfDescriptionManager selfDescriptionManager;
 	private URI issuerConnectorURI;
-	private ResourceDataAppService dataAppService;
 
 	@Autowired
 	public SelfDescriptionServiceImpl(
 			SelfDescriptionConfiguration selfDescriptionConfiguration,
-			ResourceDataAppService dataAppService,
 			SelfDescriptionManager selfDescriptionManager) {
 		this.selfDescriptionConfiguration = selfDescriptionConfiguration;
-		this.dataAppService = dataAppService;
 		this.selfDescriptionManager = selfDescriptionManager;
 	}
 
