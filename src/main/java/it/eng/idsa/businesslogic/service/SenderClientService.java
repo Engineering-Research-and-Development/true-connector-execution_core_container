@@ -21,6 +21,17 @@ public interface SenderClientService {
 	 Response sendMultipartMixRequest(String targetURL, Headers httpHeaders, RequestBody requestBody) throws IOException;
 	
 	 /**
+	 * Sends multiaprt mix request. </br>
+	 * For creating correct request body {@link #createMultipartMixRequest}
+	 * @param targetURL
+	 * @param httpHeaders
+	 * @param payloadContentType
+	 * @return
+	 * @throws IOException
+	 */
+	 Response sendMultipartMixRequestPayload(String targetURL, Headers httpHeaders, String payloadContentType) throws IOException;
+		
+	 /**
 	  * Sends multiaprt form request. </br>
 	  * For creating correct form request body {@link #createMultipartFormRequest}
 	  * @param targetURL

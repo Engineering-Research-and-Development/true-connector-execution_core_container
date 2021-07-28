@@ -1,6 +1,17 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.0.25-SNAPSHOT] - 2021-07-23
+ 
+### Added
+ - added API endpoints and logic for dynamic modification of Self Description document
+ - new properties
+	 application.selfdescription.filelocation
+	 spring.security.user.name
+	 spring.security.user.password
+ 
+### Changed
+ - updated developer information with missing dependency
  
 ## [0.0.24-SNAPSHOT] - 2021-07-08
  
