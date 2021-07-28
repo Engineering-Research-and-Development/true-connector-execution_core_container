@@ -136,6 +136,16 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 			sa.put("@id", (String)  headers.get("IDS-SenderAgent"));
 			headerAsMap.put("ids:senderAgent", sa);
 		}
+		if (headers.get("IDS-RequestedElement") != null) {
+			Map<String, String> re = new HashMap<>();
+			re.put("@id", (String)  headers.get("IDS-RequestedElement"));
+			headerAsMap.put("ids:requestedElement", re);
+		}
+		if (headers.get("IDS-RejectionReason") != null) {
+			Map<String, String> rr = new HashMap<>();
+			rr.put("@id", (String)  headers.get("IDS-RejectionReason"));
+			headerAsMap.put("ids:rejectionReason", rr);
+		}
 		return headerAsMap;
 	}
 
@@ -149,6 +159,8 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		headers.remove("IDS-CorrelationMessage");
 		headers.remove("IDS-RequestedArtifact");
 		headers.remove("IDS-SenderAgent");
+		headers.remove("IDS-RequestedElement");
+		headers.remove("IDS-RejectionReason");
 	}
 
 	@Override
@@ -187,6 +199,12 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		if (messageAsMap.get("senderAgent") != null) {
 			headers.put("IDS-SenderAgent", messageAsMap.get("senderAgent"));
 		}
+		if (messageAsMap.get("requestedElement") != null) {
+			headers.put("IDS-RequestedElement", messageAsMap.get("requestedElement"));
+		}
+		if (messageAsMap.get("rejectionReason") != null) {
+			headers.put("IDS-RejectionReason", messageAsMap.get("rejectionReason"));
+		}
 		return headers;
 	}
 
@@ -221,6 +239,12 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		}
 		if (headersParts.get("IDS-SenderAgent") != null) {
 			headerContentHeaders.put("IDS-SenderAgent", headersParts.get("IDS-SenderAgent"));
+		}
+		if (headersParts.get("IDS-RequestedElement") != null) {
+			headerContentHeaders.put("IDS-RequestedElement", headersParts.get("IDS-RequestedElement"));
+		}
+		if (headersParts.get("IDS-RejectionReason") != null) {
+			headerContentHeaders.put("IDS-RejectionReason", headersParts.get("IDS-RejectionReason"));
 		}
 
 		if (isEnabledDapsInteraction && headersParts.get("IDS-SecurityToken-TokenValue") != null) {
@@ -294,6 +318,13 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 				headers.put("IDS-SenderAgent", ((Map)messageAsMap.get("ids:senderAgent")).get("@id"));
 			} else {
 				headers.put("IDS-SenderAgent", messageAsMap.get("ids:senderAgent"));
+			}
+		}
+		if (messageAsMap.get("ids:requestedElement") != null) {
+			if(messageAsMap.get("ids:requestedElement") instanceof Map) {
+				headers.put("IDS-RequestedElement", ((Map)messageAsMap.get("ids:requestedElement")).get("@id"));
+			} else {
+				headers.put("IDS-RequestedElement", messageAsMap.get("ids:requestedElement"));
 			}
 		}
 		if (messageAsMap.get("ids:rejectionReason") != null) {
