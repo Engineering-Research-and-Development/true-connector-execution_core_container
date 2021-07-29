@@ -27,6 +27,7 @@ cp -f ./ci/.m2/settings/settings.xml  $HOME/.m2
 
 echo "Installing Multipart Message Lib..."
 git clone https://github.com/Engineering-Research-and-Development/true-connector-multipart_message_library.git
+git checkout infomodel_4.0.6
 cd true-connector-multipart_message_library
 mvn -U clean install
 cd ..
@@ -34,6 +35,7 @@ echo "Installed  Multipart Message Lib"
 
 echo "Installing websocket-message-streamer-lib..."
 git clone https://github.com/Engineering-Research-and-Development/true-connector-websocket_message_streamer.git
+git checkout infomodel_4.0.6
 cd true-connector-websocket_message_streamer
 mvn -U clean install
 cd ..
@@ -41,6 +43,7 @@ echo "Installed websocket-message-streamer-lib"
 
 echo "Cloning and Creating Docker Container from Data-App repo..."
 git clone https://github.com/Engineering-Research-and-Development/true-connector-basic_data_app.git
+git checkout infomodel_4.0.6
 cd true-connector-basic_data_app
 mvn -U clean install
 sudo docker build -f Dockerfile -t rdlabengpa/ids_be_data_app:latest .
@@ -49,6 +52,7 @@ echo "Data-App is ready to start"
 
 echo "Downloading and installing Clearing-House Model..."
 git clone https://github.com/Engineering-Research-and-Development/market4.0-clearing_house.git
+git checkout infomodel_4.0.6
 cd market4.0-clearing_house
 mvn install -DskipTests
 cd ..
