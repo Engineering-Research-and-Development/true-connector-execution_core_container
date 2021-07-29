@@ -39,6 +39,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	private RejectionMessageService rejectionMessageService;
 	@Mock
 	private DapsTokenProviderService dapsProvider;
+	@Mock
 	private ProtocolValidationService protocolValidationService;
 
 	private MultipartMessage multipartMessage;
