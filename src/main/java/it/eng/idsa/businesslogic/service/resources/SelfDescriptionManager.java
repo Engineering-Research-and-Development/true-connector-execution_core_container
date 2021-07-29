@@ -411,6 +411,7 @@ public class SelfDescriptionManager {
 				logger.debug("Done with loading connector from file.");
 			} catch (IOException e) {
 				logger.error("Error while loading connector from file '{}'", selfDescriptionFile.getAbsoluteFile());
+				logger.debug(e.getMessage());
 			}
 		}
 		return connector;
