@@ -21,6 +21,8 @@ import it.eng.idsa.businesslogic.service.ProcessExecutor;
 public class SelfDescriptionConfiguration {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SelfDescriptionConfiguration.class);
+	
+	public static final String SELF_DECRIPTION_FILE_NAME = "self_description.json";
 
 	@Value("${camel.component.http4.use-global-ssl-context-parameters}")
 	private boolean useHttps;
@@ -200,11 +202,16 @@ public class SelfDescriptionConfiguration {
 		return this.selfDescription.getCurator();
 	}
 	
+	public String getFileLocation() {
+		return this.selfDescription.getFilelocation();
+	}
+	
 	public static class SelfDescription {
 		private String description;
 		private String title;
 		private URI maintainer;
 		private URI curator;
+		private String filelocation;
 		
 		public String getDescription() {
 			return description;
@@ -236,6 +243,14 @@ public class SelfDescriptionConfiguration {
 
 		public void setCurator(URI curator) {
 			this.curator = curator;
+		}
+		
+		public String getFilelocation() {
+			return filelocation;
+		}
+
+		public void setFilelocation(String filelocation) {
+			this.filelocation = filelocation;
 		}
 	}
 }

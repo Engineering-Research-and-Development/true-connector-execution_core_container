@@ -61,8 +61,8 @@ public class KeystoreProvider {
 			kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 			kmf.init(keystore, keyStorePassword.toCharArray());
 			
-			logger.info("Loading trust store: " + trustStoreName);
 			if (!disableSslVerification) {
+				logger.info("Loading trust store: " + trustStoreName);
 				jksTrustStoreInputStream = Files.newInputStream(targetDirectory.resolve(trustStoreName));
 				trustManagerKeyStore = KeyStore.getInstance("JKS");
 				trustManagerKeyStore.load(jksTrustStoreInputStream, trustStorePwd.toCharArray());

@@ -4,6 +4,7 @@ import java.net.URISyntaxException;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 
+import de.fraunhofer.iais.eis.Connector;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 
@@ -12,6 +13,9 @@ import de.fraunhofer.iais.eis.util.ConstraintViolationException;
  **/
 
 public interface SelfDescriptionService {
+	
+	Connector getConnector();
+	
 	/**
 	 * Returns String representation of BaseConnector class instance
 	 * @return

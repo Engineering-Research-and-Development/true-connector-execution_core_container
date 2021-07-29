@@ -18,9 +18,7 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 public class ProtocolValidationServiceImplTest {
 	
     private static final String HTTPS = "https";
-	
 	private static final String HTTP = "http";
-	
 	private static final String WSS = "wss";
 	
 	@InjectMocks
@@ -42,7 +40,6 @@ public class ProtocolValidationServiceImplTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 	}
-	
 	
 	@Test
 	public void validateProtocolNoDelimiterInForwardTo() {

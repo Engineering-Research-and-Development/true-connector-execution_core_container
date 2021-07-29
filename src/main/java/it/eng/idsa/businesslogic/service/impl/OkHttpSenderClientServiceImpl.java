@@ -106,4 +106,20 @@ public class OkHttpSenderClientServiceImpl implements SenderClientService {
 		}
 		return multipartBodyBuilder.build();
 	}
+
+	@Override
+	public Response sendMultipartMixRequestPayload(String targetURL, Headers httpHeaders, String payload) throws IOException {
+		RequestBody body = null;
+		body = RequestBody.create(
+			payload,
+			null);
+	
+		Request.Builder requestBuilder = new Request.Builder()
+				  .headers(httpHeaders)
+			      .url(targetURL)
+			      .post(body);
+		Request request = requestBuilder.build();
+		return client.newCall(request).execute();
+	}
+
 }

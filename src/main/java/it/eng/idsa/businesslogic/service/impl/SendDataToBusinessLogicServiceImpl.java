@@ -78,8 +78,11 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 			payloadContentType = javax.ws.rs.core.MediaType.TEXT_PLAIN.toString();
 		}
 		RequestBody requestBody = okHttpClient.createMultipartMixRequest(multiMessage, payloadContentType);
+//		String requestBody = MultipartMessageProcessor.multipartMessagetoString(multiMessage);
 		try {
+//			return okHttpClient.sendMultipartMixRequestPayload(address, headers, requestBody);
 			return okHttpClient.sendMultipartMixRequest(address, headers, requestBody);
+
 		} catch (IOException e) {
 			logger.error("Error while calling Receiver", e);
 		}
