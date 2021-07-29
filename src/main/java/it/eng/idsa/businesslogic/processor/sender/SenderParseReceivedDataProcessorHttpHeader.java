@@ -49,16 +49,16 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 		payload = exchange.getMessage().getBody(String.class);
 		
 		try {
-			headerContentHeaders = headerService.getHeaderContentHeaders(headersParts);
-			String header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
-			message = multipartMessageService.getMessage(header);
+//			headerContentHeaders = headerService.getHeaderContentHeaders(headersParts);
+//			String header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
+			message = headerService.headersToMessage(headersParts);
 			if(message==null) {
 				logger.error("Message could not be created - check if all required headers are present.");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 			}
 			MultipartMessage multipartMessage = new MultipartMessageBuilder()
 					.withHttpHeader(headerService.convertMapToStringString(headerContentHeaders))
-					.withHeaderContent(header)
+//					.withHeaderContent(header)
 					.withHeaderContent(message)
 					.withPayloadContent(payload)
 					.build();

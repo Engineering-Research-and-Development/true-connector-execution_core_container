@@ -1,16 +1,16 @@
 package it.eng.idsa.businesslogic.service;
 
-import java.io.IOException;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
-import it.eng.idsa.multipart.domain.MultipartMessage;
+import de.fraunhofer.iais.eis.Message;
 
 public interface HttpHeaderService {
 	
+	Map<String, Object> messageToHeaders(Message message);
+	Message headersToMessage(Map<String, Object> headers);
+	
+	Map<String, String> convertMapToStringString(Map<String, Object> map);
+	/*
 	String getHeaderMessagePartFromHttpHeadersWithoutToken(Map<String, Object> headers) throws JsonProcessingException;
 
 	Map<String, Object> prepareMessageForSendingAsHttpHeadersWithToken(String header) throws JsonParseException, JsonMappingException, IOException;
@@ -29,8 +29,8 @@ public interface HttpHeaderService {
 
 	Map<String, Object> getHeaderContentHeaders(Map<String, Object> headersParts);
 	
-	Map<String, String> convertMapToStringString(Map<String, Object> map);
 	
 	Map<String, Object> transformJWTTokenToHeaders(String token)
 			throws JsonMappingException, JsonProcessingException;
+*/
 }

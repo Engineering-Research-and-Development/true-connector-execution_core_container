@@ -102,6 +102,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 		logger.debug("Starting Camel Routes...receiver side");
 		camelContext.getShutdownStrategy().setLogInflightExchangesOnTimeout(false);
 		camelContext.getShutdownStrategy().setTimeout(3);
+		camelContext.setCaseInsensitiveHeaders(false);
 
 		//@formatter:off
 		onException(ExceptionForProcessor.class, RuntimeException.class)

@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -200,11 +202,19 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	}
 
 	private Map<String, Object> returnHeadersAsMap(Headers headers) {
-		Map<String, List<String>> multiMap = headers.toMultimap();
-		Map<String, Object> result = 
-				multiMap.entrySet()
-			           .stream()
-			           .collect(Collectors.toMap(Map.Entry::getKey, e -> String.join(", ", e.getValue())));
-		return result;
+//		return headers.names().stream()
+//				.collect(Collectors.toMap(Set::entry, n -> headers.get(Set::entry)));
+		Map<String, Object> map = new HashMap<>();
+ 		headers.names().forEach(name -> map.put(name, String.join(", ", headers.get(name))));
+ 		
+ 		headers.forEach(pair -> System.out.println(pair.getFirst() + " , " + pair.getSecond()));
+
+		return map;
+//		Map<String, List<String>> multiMap = headers.toMultimap();
+//		Map<String, Object> result = 
+//				multiMap.entrySet()
+//			           .stream()
+//			           .collect(Collectors.toMap(Map.Entry::getKey, e -> String.join(", ", e.getValue())));
+//		return result;
 	}
 }

@@ -23,6 +23,7 @@ import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 import okhttp3.Headers;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -106,10 +107,12 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 			Map<String, Object> headerParts, boolean eccCommunication) throws IOException {
 		logger.info("Forwarding Message: http-header");
 
-		headerParts.putAll(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));
-		if (eccCommunication && isEnabledDapsInteraction) {
-			headerParts.putAll(headerService.transformJWTTokenToHeaders(multipartMessage.getToken()));
-		}
+		headerParts.putAll(headerService.messageToHeaders(multipartMessage.getHeaderContent()));
+
+//		headerParts.putAll(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));
+//		if (eccCommunication && isEnabledDapsInteraction) {
+//			headerParts.putAll(headerService.transformJWTTokenToHeaders(multipartMessage.getToken()));
+//		}
 		String ctPayload = getPayloadContentType(headerParts);
 		Headers httpHeaders = fillHeaders(headerParts);
 

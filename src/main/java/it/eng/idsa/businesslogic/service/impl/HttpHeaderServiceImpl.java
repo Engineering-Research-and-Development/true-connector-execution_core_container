@@ -1,30 +1,29 @@
 package it.eng.idsa.businesslogic.service.impl;
 
-import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import javax.xml.datatype.XMLGregorianCalendar;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import de.fraunhofer.iais.eis.DynamicAttributeTokenBuilder;
-import de.fraunhofer.iais.eis.Token;
-import de.fraunhofer.iais.eis.TokenFormat;
-import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
+import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.ids.jsonld.custom.XMLGregorianCalendarDeserializer;
+import de.fraunhofer.iais.eis.ids.jsonld.custom.XMLGregorianCalendarSerializer;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
-import it.eng.idsa.multipart.domain.MultipartMessage;
 
 @Service
 public class HttpHeaderServiceImpl implements HttpHeaderService {
@@ -33,7 +32,130 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 	
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean isEnabledDapsInteraction;
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public Map<String, Object> messageToHeaders(Message message) {
+		Map<String, Object> headers = new HashMap<>();
+		ObjectMapper mapper = new ObjectMapper();
+		// exclude null values from map
+		mapper.setSerializationInclusion(Include.NON_NULL);
+		
+		SimpleModule simpleModule = new SimpleModule();
+		simpleModule.addSerializer(XMLGregorianCalendar.class, new XMLGregorianCalendarSerializer());
+		mapper.registerModule(simpleModule);
+		
+		Map<String, Object> messageAsMap = mapper.convertValue(message, new TypeReference<Map<String, Object>>() {
+		});
+		
+		messageAsMap.entrySet().forEach(entry -> {
+			if(entry.getKey().equals("@id")) {
+				headers.put("IDS-Id", entry.getValue());
+			} else if(entry.getKey().equals("@type")) {
+				headers.put("IDS-Messagetype", entry.getValue());
+			} else if (entry.getKey().equals("ids:securityToken")) {
+				headers.put("IDS-SecurityToken-Type", ((Map<String, Object>) entry.getValue()).get("@type"));
+				headers.put("IDS-SecurityToken-Id", ((Map<String, Object>) entry.getValue()).get("@id"));
+				headers.put("IDS-SecurityToken-TokenFormat", ((Map<String, Object>)((Map<String, Object>) entry.getValue()).get("ids:tokenFormat")).get("@id"));
+				headers.put("IDS-SecurityToken-TokenValue", ((Map<String, Object>) entry.getValue()).get("ids:tokenValue"));
+			} else if(entry.getValue() instanceof Map) {
+				Map<String, Object> valueMap = (Map<String, Object>) entry.getValue();
+				if(valueMap.get("@id") != null) {
+					headers.put(entry.getKey().replace("ids:", "IDS-"), valueMap.get("@id"));
+				} else if(valueMap.get("@value") != null) {
+					headers.put(entry.getKey().replace("ids:", "IDS-"), valueMap.get("@value"));
+				}
+			} else {
+				headers.put(entry.getKey().replace("ids:", "IDS-"), entry.getValue());
+			}
+		});
+		return headers;
+	}
 
+	@Override
+	public Message headersToMessage(Map<String, Object> headers) {
+		// bare in mind that in rumtime, headers is org.apache.camel.util.CaseInsensitiveMap
+		// which means that headers.get("aaa") is the same like headers.get("Aaa")
+		Map<String, Object> messageAsHeader = new HashMap<>();
+
+		ObjectMapper mapper = new ObjectMapper();
+		SimpleModule simpleModule = new SimpleModule();
+		simpleModule.addDeserializer(XMLGregorianCalendar.class, new XMLGregorianCalendarDeserializer());
+		mapper.registerModule(simpleModule);
+
+		// exclude null values from map
+		mapper.setSerializationInclusion(Include.NON_NULL);
+		
+		Map<String, Object> tokeAsMap = null;
+		if( headers.containsKey("IDS-SecurityToken-Type")) {
+			tokeAsMap = processDAPSTokenHeaders(headers);
+		}
+		String type = (String) headers.get("IDS-Messagetype");
+		String id = (String) headers.get("IDS-Id");
+		
+		// handle RecipientConnector - List
+		List<URI> recipientConnector = null;
+		if(headers.containsKey("IDS-recipientConnector")) {
+			String ss = (String) headers.get("IDS-recipientConnector");
+			recipientConnector = Stream.of(ss.split(","))
+					.map(String::trim)
+					.map(URI::create)
+					.collect(Collectors.toList());
+			headers.remove("IDS-recipientConnector");
+		}
+		List<URI> recipientAgent = null;
+		// handle RecipientAgent - List
+		if(headers.containsKey("IDS-recipientagent")) {
+			recipientAgent = Stream.of(((String) headers.get("IDS-recipientAgent")).split(","))
+					.map(String::trim)
+					.map(URI::create)
+					.collect(Collectors.toList());
+			headers.remove("IDS-recipientagent");
+		}
+			
+		messageAsHeader = headers.entrySet().stream()
+				.filter(e -> StringUtils.containsIgnoreCase(e.getKey(), "IDS-"))
+				.collect(java.util.stream.Collectors.toMap(
+						e -> e.getKey().replace("IDS-", "ids:"), 
+						e -> e.getValue()));
+		
+		messageAsHeader.put("ids:securityToken", tokeAsMap);
+		messageAsHeader.put("ids:recipientConnector", recipientConnector);
+		messageAsHeader.put("ids:recipientAgent", recipientAgent);
+		messageAsHeader.remove("IDS-Messagetype");
+		messageAsHeader.remove("IDS-Id");
+		messageAsHeader.put("@type", type);
+		messageAsHeader.put("@id", id);
+
+		return mapper.convertValue(messageAsHeader, Message.class);
+	}
+	
+	private Map<String, Object> processDAPSTokenHeaders(Map<String, Object> headers) {
+		Map<String, Object> tokenAsMap = new HashMap<>();
+		Map<String, Object> tokenFormatAsMap = new HashMap<>();
+		tokenAsMap.put("@type", headers.get("IDS-SecurityToken-Type"));
+		tokenAsMap.put("@id", headers.get("IDS-SecurityToken-Id"));
+		tokenFormatAsMap.put("@id", headers.get("IDS-SecurityToken-TokenFormat"));
+		tokenAsMap.put("ids:tokenFormat", tokenFormatAsMap);
+		tokenAsMap.put("ids:tokenValue", headers.get("IDS-SecurityToken-TokenValue"));
+		
+		headers.remove("IDS-SecurityToken-Type");
+		headers.remove("IDS-SecurityToken-Id");
+		headers.remove("IDS-SecurityToken-TokenFormat");
+		headers.remove("IDS-SecurityToken-TokenValue");
+		return tokenAsMap;
+	}
+	
+	@Override
+	public Map<String, String> convertMapToStringString(Map<String, Object> map) {
+		return map.entrySet().stream().filter(entry -> entry.getValue() instanceof String)
+				.collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue()));
+	}
+
+	/*
+	 * OLD Methods, considered for removal
+	 */
+/*
 	@Override
 	public String getHeaderMessagePartFromHttpHeadersWithToken(Map<String, Object> headers)
 			throws JsonProcessingException {
@@ -276,11 +398,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		return headers;
 	}
 
-	@Override
-	public Map<String, String> convertMapToStringString(Map<String, Object> map) {
-		return map.entrySet().stream().filter(entry -> entry.getValue() instanceof String)
-				.collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue()));
-	}
+
 
 	@Override
 	public Map<String, Object> transformJWTTokenToHeaders(String token)
@@ -301,5 +419,6 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		}
 		return tokenAsMap;
 	}
+*/
 
 }

@@ -69,8 +69,8 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 		}
 		switch (openDataAppReceiverRouter) {
 		case "form":
-			httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
-			httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
+//			httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
+//			httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
 			//changed regarding Tecnalia problem - content lenght too long
 			String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
 			Optional<String> boundaryy = MultipartMessageProcessor
@@ -80,8 +80,8 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 			exchange.getMessage().setBody(multipartMessageString);
 			break;
 		case "mixed":
-			httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
-			httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
+//			httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
+//			httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
 			responseString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
 			
 			Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(responseString);

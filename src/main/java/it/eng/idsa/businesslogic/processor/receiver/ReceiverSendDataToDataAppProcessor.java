@@ -67,8 +67,8 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
 	
-	@Autowired
-	private HttpHeaderService httpHeaderService;
+//	@Autowired
+//	private HttpHeaderService httpHeaderService;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -76,9 +76,9 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		
-		if (!RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
-        	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
-		}
+//		if (!RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
+//        	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
+//		}
 
 		// Get header, payload and message
 		Message message = multipartMessage.getHeaderContent();
