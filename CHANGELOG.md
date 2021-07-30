@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.0.26-SNAPSHOT] - 2021-07-29
+ 
+### Changed
+ - infomodel version has been changed to 4.1.1
+
 ## [0.0.25-SNAPSHOT] - 2021-07-23
  
 ### Added
