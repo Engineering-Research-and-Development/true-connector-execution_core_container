@@ -76,7 +76,7 @@ public class ExceptionProcessorSenderTest {
 	public void processExceptionHttpHeader() throws Exception {
 		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", RouterType.HTTP_HEADER, String.class);
 		mockExchangeGetHttpHeaders(exchange);
-		when(headerService.prepareMessageForSendingAsHttpHeaders(any(MultipartMessage.class))).thenReturn(headers);
+		when(headerService.messageToHeaders(any(de.fraunhofer.iais.eis.Message.class))).thenReturn(headers);
 		processor.process(exchange);
 
 		verify(messageOut).setBody(multipartMessage);

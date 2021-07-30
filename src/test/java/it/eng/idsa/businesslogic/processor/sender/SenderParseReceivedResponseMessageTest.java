@@ -72,9 +72,9 @@ public class SenderParseReceivedResponseMessageTest {
 	public void parseHttpHeaderResponse() throws Exception {
 		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER, String.class);
 		mockExchangeHeaderAndBody();
-		
+
 		when(camelMessage.getBody(String.class)).thenReturn(PAYLOAD);
-		when(headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headers)).thenReturn(headerAsString);
+		when(headerService.headersToMessage(headers)).thenReturn(TestUtilMessageService.getArtifactRequestMessageWithToken());
 		
 		processor.process(exchange);
 		

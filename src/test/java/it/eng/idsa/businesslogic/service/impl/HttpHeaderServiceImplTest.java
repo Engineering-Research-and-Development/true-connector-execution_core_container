@@ -20,6 +20,7 @@ import de.fraunhofer.iais.eis.ArtifactResponseMessageImpl;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import okhttp3.Headers;
 
 public class HttpHeaderServiceImplTest {
 	
@@ -43,99 +44,6 @@ public class HttpHeaderServiceImplTest {
 		headers.put("foo", "bar");
 		headers.put("Forward-To", "https://forwardToURL");
 	}
-	
-	/*
-	@Test
-	public void headerMessagePartFromHttpHeadersWithToken() throws JsonProcessingException, JSONException {
-		assertEquals(headerMessagePart, httpHeaderServiceImpl.getHeaderMessagePartFromHttpHeadersWithoutToken(headers));
-	}
-	
-	@Test
-	public void getHeaderContentHeadersTest() {
-		Map<String, Object> result = httpHeaderServiceImpl.getHeaderContentHeaders(headers);
-		assertNotNull(result);
-		assertNull(result.get("foo"));
-		verifyIDSHeadersPresent(result);
-	}
-
-	private void verifyIDSHeadersPresent(Map<String, Object> result) {
-		assertNotNull(result.get("IDS-Messagetype"));
-		assertNotNull(result.get("IDS-Issued"));
-		assertNotNull(result.get("IDS-IssuerConnector"));
-		assertNotNull(result.get("IDS-CorrelationMessage"));
-		assertNotNull(result.get("IDS-TransferContract"));
-		assertNotNull(result.get("IDS-Id"));
-		assertNotNull(result.get("IDS-ModelVersion"));
-	}
-	
-	@Test
-	public void getHeaderMessagePartAsMapTest() {
-		Map<String, Object> result = httpHeaderServiceImpl.getHeaderMessagePartAsMap(headers);
-		assertNotNull(result.get("@type"));
-		assertNotNull(result.get("@id"));
-		assertNotNull(result.get("issued"));
-		assertNotNull(result.get("modelVersion"));
-		assertNotNull(result.get("issuerConnector"));
-		assertNotNull(result.get("transferContract"));
-		assertNotNull(result.get("correlationMessage"));
-		assertNotNull(result.get("requestedArtifact"));
-	}
-	
-//	@Test
-//	public void prepareMessageForSendingAsHttpHeadersWithoutTokenTest() throws IOException {
-//		Map<String, Object> result = httpHeaderServiceImpl.prepareMessageForSendingAsHttpHeadersWithoutToken(headerMessagePart);
-//		verifyIDSHeadersPresent(result);
-//	}
-	
-	@Test
-	public void prepareMessageForSendingAsHttpHeadersTest() throws IOException {
-		Map<String, Object> result = httpHeaderServiceImpl.prepareMessageForSendingAsHttpHeaders(multipartMessage);
-		verifyIDSHeadersPresent(result);
-		verifyIDSHeadersCorrectValues(result);
-	}
-	
-	@Test
-	public void transformJWTTokenToHeadersTest() throws JsonProcessingException {
-		Map<String, Object> tokenAsMap = httpHeaderServiceImpl.transformJWTTokenToHeaders(TOKEN_VALUE);
-		assertFalse(tokenAsMap.isEmpty());
-		assertEquals(4, tokenAsMap.size());
-		assertEquals(TOKEN_VALUE, tokenAsMap.get("IDS-SecurityToken-TokenValue"));
-	}
-
-	@Test
-	public void getHeaderMessagePartFromHttpHeadersWithTokenTest() throws JsonProcessingException {
-		addTokenToMap(headers);
-		String headerString = httpHeaderServiceImpl.getHeaderMessagePartFromHttpHeadersWithToken(headers);
-		assertNotNull(headerString);
-		assertTrue(headerString.contains(TOKEN_VALUE));
-	}
-	
-	@Test
-	public void getHeaderMessagePartFromHttpHeadersWithoutTokenTest() throws JsonProcessingException {
-		addTokenToMap(headers);
-		String headerString = httpHeaderServiceImpl.getHeaderMessagePartFromHttpHeadersWithoutToken(headers);
-		assertNotNull(headerString);
-		assertFalse(headerString.contains(TOKEN_VALUE));
-	}
-
-	private void addTokenToMap(Map<String, Object> headers) {
-		headers.put("IDS-SecurityToken-Type", "ids:DynamicAttributeToken");
-		headers.put("IDS-SecurityToken-Id", "https://w3id.org/idsa/autogen/dynamicAttributeToken/1");
-		headers.put("IDS-SecurityToken-TokenFormat", "idsc:JWT");
-		headers.put("IDS-SecurityToken-TokenValue", TOKEN_VALUE );
-	}
-
-
-	private void verifyIDSHeadersCorrectValues(Map<String, Object> result) {
-		assertEquals(result.get("IDS-Messagetype"), "ids:"+multipartMessage.getHeaderContent().getClass().getSimpleName().replace("Impl", ""));
-		assertEquals(result.get("IDS-Issued"), multipartMessage.getHeaderContent().getIssued().toString());
-		assertEquals(result.get("IDS-IssuerConnector"), multipartMessage.getHeaderContent().getIssuerConnector().toString());
-		assertEquals(result.get("IDS-CorrelationMessage"), multipartMessage.getHeaderContent().getCorrelationMessage().toString());
-		assertEquals(result.get("IDS-TransferContract"), multipartMessage.getHeaderContent().getTransferContract().toString());
-		assertEquals(result.get("IDS-Id"), multipartMessage.getHeaderContent().getId().toString());
-		assertEquals(result.get("IDS-ModelVersion"), multipartMessage.getHeaderContent().getModelVersion());
-	}
-*/
 	
 	@Test
 	public void messageToHeadersTest_ArtifactRequestMessage() {
@@ -215,5 +123,24 @@ public class HttpHeaderServiceImplTest {
 		
 		ArtifactResponseMessage result = (ArtifactResponseMessage) httpHeaderServiceImpl.headersToMessage(headers);
 		assertNotNull(result);
+	}
+	
+	@Test
+	public void okHttpHeadersToMapTest() {
+		Headers.Builder hb = new Headers.Builder();
+
+		hb.add("IDS-MessageType", "ids:ArtifactRequestMessage");
+		hb.add("IDS-recipientAgent", "https://agent1.com");
+		hb.add("IDS-recipientAgent", "https://agent2.com");
+		hb.add("IDS-Id", "https://www.id.com");
+		hb.add("IDS-RecipientConnector", "https://connector1.com");
+		hb.add("IDS-RecipientConnector", "https://connector2.com");
+		hb.add("IDS-InfoModel", "4.0.0");
+		
+		Map<String, Object> headersAsMap = httpHeaderServiceImpl.okHttpHeadersToMap(hb.build());
+		assertEquals(headersAsMap.get("IDS-MessageType"), "ids:ArtifactRequestMessage");
+		assertEquals(((List<String>) headersAsMap.get("IDS-RecipientConnector")).size(), 2);
+		assertEquals(((List<String>) headersAsMap.get("IDS-recipientAgent")).size(), 2);
+		assertEquals(headersAsMap.get("IDS-InfoModel"), "4.0.0");
 	}
 }
