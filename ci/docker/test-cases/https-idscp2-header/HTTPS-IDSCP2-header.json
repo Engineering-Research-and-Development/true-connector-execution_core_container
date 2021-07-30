@@ -37,7 +37,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"multipart\": \"http-header\",\n    \"Forward-To\": \"https://ecc-provider:8890/data\",\n\t\"messageAsHeaders\": {\n        \"IDS-RequestedArtifact\":\"http://w3id.org/engrd/connector/artifact/1\",\n        \"IDS-Messagetype\":\"ids:ArtifactRequestMessage\",\n        \"IDS-ModelVersion\":\"4.0.0\",\n        \"IDS-Issued\":\"2021-01-15T13:09:42.306Z\",\n        \"IDS-Id\":\"https://w3id.org/idsa/autogen/artifactResponseMessage/eb3ab487-dfb0-4d18-b39a-585514dd044f\",\n        \"IDS-IssuerConnector\":\"http://w3id.org/engrd/connector/\"\n        },\n\t\"payload\" : {\n\t\t\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"\n\t\t}\n}"
+							"raw": "{\r\n    \"multipart\": \"http-header\",\r\n    \"Forward-To\": \"https://ecc-provider:8890/data\",\r\n    \"messageType\": \"ArtifactRequestMessage\" ,\r\n    \"requestedArtifact\": \"http://w3id.org/engrd/connector/artifact/1\" ,\r\n     \"payload\" : {\r\n\t\t\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"\r\n\t\t}\r\n}"
 						},
 						"url": {
 							"raw": "https://localhost:8085/proxy",
