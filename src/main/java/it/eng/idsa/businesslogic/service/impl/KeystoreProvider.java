@@ -30,29 +30,31 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class KeystoreProvider {
-	
-    private static final Logger logger = LoggerFactory.getLogger(KeystoreProvider.class);
-    
+
+	private static final Logger logger = LoggerFactory.getLogger(KeystoreProvider.class);
+
 	private KeyStore keystore;
 	private KeyStore trustManagerKeyStore;
 	private String keyStorePwd;
 	private String keystoreAlias;
 	private KeyManagerFactory kmf;
 	private TrustManagerFactory trustFactory;
-	
+	@Value("${application.isEnabledDapsInteraction}")
+	private boolean isEnabledDapsInteraction;
+
 	public KeystoreProvider(@Value("${application.targetDirectory}") Path targetDirectory,
-							@Value("${application.keyStoreName}") String keyStoreName, 
-							@Value("${application.keyStorePassword}") String keyStorePassword, 
-							@Value("${application.keystoreAliasName}") String keystoreAliasName,
-							@Value("${application.trustStoreName:}") String trustStoreName, 
-							@Value("${application.trustStorePassword}") String trustStorePwd,
-							@Value("${application.disableSslVerification:false}") boolean disableSslVerification) {
-		
+			@Value("${application.keyStoreName}") String keyStoreName,
+			@Value("${application.keyStorePassword}") String keyStorePassword,
+			@Value("${application.keystoreAliasName}") String keystoreAliasName,
+			@Value("${application.trustStoreName:}") String trustStoreName,
+			@Value("${application.trustStorePassword}") String trustStorePwd,
+			@Value("${application.disableSslVerification:false}") boolean disableSslVerification) {
+
 		keyStorePwd = keyStorePassword;
 		keystoreAlias = keystoreAliasName;
-		
+
 		InputStream jksTrustStoreInputStream = null;
-		
+
 		try {
 			InputStream jksKeyStoreInputStream = Files.newInputStream(targetDirectory.resolve(keyStoreName));
 			keystore = KeyStore.getInstance("JKS");
@@ -60,7 +62,7 @@ public class KeystoreProvider {
 			keystore.load(jksKeyStoreInputStream, keyStorePassword.toCharArray());
 			kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 			kmf.init(keystore, keyStorePassword.toCharArray());
-			
+
 			if (!disableSslVerification) {
 				logger.info("Loading trust store: " + trustStoreName);
 				jksTrustStoreInputStream = Files.newInputStream(targetDirectory.resolve(trustStoreName));
@@ -89,21 +91,29 @@ public class KeystoreProvider {
 				trustFactory.init(trustManagerKeyStore);
 				jksTrustStoreInputStream.close();
 			}
-			
+
 			jksKeyStoreInputStream.close();
-		} catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException e) {
-			logger.error("Error while loading keystore and truststore, {}", e);
+		} catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException
+				| UnrecoverableKeyException e) {
+			if (isEnabledDapsInteraction) {
+				logger.error("Error while loading keystore and truststore, {}", e);
+			} else {
+				logger.info("**********************************************************************");
+				logger.info("DAPS Interaction disabled. KeyStore or trustStore not correctly loaded");
+				logger.info("**********************************************************************");
+			}
+			;
 		}
 	}
-	
+
 	public KeyManagerFactory getKeystoreFactory() {
 		return kmf;
 	}
-	
+
 	public TrustManagerFactory getTrustManagerFactory() {
 		return trustFactory;
 	}
-	
+
 	public Key getPrivateKey() {
 		try {
 			return keystore.getKey(keystoreAlias, keyStorePwd.toCharArray());
@@ -112,7 +122,7 @@ public class KeystoreProvider {
 		}
 		return null;
 	}
-	
+
 	public X509Certificate getCertificate() {
 		try {
 			return (X509Certificate) keystore.getCertificate(keystoreAlias);
