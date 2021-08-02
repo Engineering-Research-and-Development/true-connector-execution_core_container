@@ -29,4 +29,6 @@ public interface HttpHeaderService {
 	 * @return
 	 */
 	Map<String, Object> okHttpHeadersToMap(Headers headers);
+	
+	Map<String, Object> getIDSHeaders(Map<String, Object> headers);
 }

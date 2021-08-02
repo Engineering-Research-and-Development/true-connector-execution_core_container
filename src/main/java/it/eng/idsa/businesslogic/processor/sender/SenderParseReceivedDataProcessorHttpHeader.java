@@ -49,7 +49,7 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 		payload = exchange.getMessage().getBody(String.class);
 		
 		try {
-//			headerContentHeaders = headerService.getHeaderContentHeaders(headersParts);
+			headerContentHeaders = headerService.getIDSHeaders(headersParts);
 //			String header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
 			message = headerService.headersToMessage(headersParts);
 			if(message==null) {

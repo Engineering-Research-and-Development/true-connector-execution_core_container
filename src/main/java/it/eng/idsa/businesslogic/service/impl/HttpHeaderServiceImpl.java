@@ -118,11 +118,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 			headers.remove("IDS-recipientAgent");
 		}
 			
-		messageAsHeader = headers.entrySet().stream()
-				.filter(e -> StringUtils.containsIgnoreCase(e.getKey(), "IDS-"))
-				.collect(java.util.stream.Collectors.toMap(
-						e -> e.getKey().replace("IDS-", "ids:"), 
-						e -> e.getValue()));
+		messageAsHeader = getIDSHeaders(headers);
 		
 		messageAsHeader.put("ids:securityToken", tokeAsMap);
 		messageAsHeader.put("ids:recipientConnector", recipientConnector);
@@ -133,6 +129,14 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		messageAsHeader.put("@id", id);
 
 		return mapper.convertValue(messageAsHeader, Message.class);
+	}
+
+	public Map<String, Object> getIDSHeaders(Map<String, Object> headers) {
+		return headers.entrySet().stream()
+				.filter(e -> StringUtils.containsIgnoreCase(e.getKey(), "IDS-"))
+				.collect(java.util.stream.Collectors.toMap(
+						e -> e.getKey().replace("IDS-", "ids:"), 
+						e -> e.getValue()));
 	}
 	
 	private Map<String, Object> processDAPSTokenHeaders(Map<String, Object> headers) {
