@@ -66,7 +66,7 @@ public class ReceiverSendDataToBusinessLogicProcessorTest {
 		when(multipartMessage.getPayloadContent()).thenReturn(PAYLOAD_CONTENT);
 		when(multipartMessage.getHttpHeaders()).thenReturn(new HashMap<>());
 		headers = createHeadersAsMessge();
-		when(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage)).thenReturn(headers);
+		when(headerService.messageToHeaders(multipartMessage.getHeaderContent())).thenReturn(headers);
 
 		processor.process(exchange);
 

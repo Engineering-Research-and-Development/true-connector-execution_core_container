@@ -1,18 +1,29 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [0.0.26-SNAPSHOT] - 2021-07-29
+## [0.0.28-SNAPSHOT] - 2021-08-03
  
 ### Changed
  - infomodel version has been changed to 4.1.1
+ 
+## [0.0.27-SNAPSHOT] - 2021-08-02
 
+### Changed
+ - updated the Daps interaction: in case of disabled Daps interaction is no more needed to define keystore, trustore and the related properties
+ - disabled fetch token on start up in case of Daps interaction disabled
+
+## [0.0.26-SNAPSHOT] - 2021-07-30
+ 
+### Changed
+ - updated logic for using objectMapper to convert from IDS Message to Map and creating Map from incoming headers to convert back to IDS Message
+ 
 ## [0.0.25-SNAPSHOT] - 2021-07-23
  
 ### Added
  - added API endpoints and logic for dynamic modification of Self Description document
- - new properties
-	 application.selfdescription.filelocation
-	 spring.security.user.name
+ - new properties</br>
+	 application.selfdescription.filelocation</br>
+	 spring.security.user.name</br>
 	 spring.security.user.password
  
 ### Changed

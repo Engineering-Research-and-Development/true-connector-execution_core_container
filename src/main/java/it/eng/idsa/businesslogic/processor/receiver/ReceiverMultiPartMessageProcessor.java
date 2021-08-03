@@ -46,8 +46,8 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 	@Value("${application.openDataAppReceiverRouter}")
 	private String dataAppSendRouter;
 
-	@Autowired
-	private MultipartMessageService multipartMessageService;
+//	@Autowired
+//	private MultipartMessageService multipartMessageService;
 
 	@Autowired
 	private HttpHeaderService headerService;
@@ -63,12 +63,10 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 		Map<String, Object> headersParts = exchange.getMessage().getHeaders();
 		Message message = null;
 		MultipartMessage multipartMessage = null;
-		logger.info("Processing response from DataApp");
-		
+
 		headersParts.put("Is-Enabled-DataApp-WebSocket", isEnabledDataAppWebSocket);
 		
 		if (RouterType.HTTP_HEADER.equals(dataAppSendRouter)) { 
-			logger.debug("Received http header response");
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
 			if (exchange.getMessage().getBody() != null) {
 				payload = exchange.getMessage().getBody(String.class);
@@ -77,14 +75,14 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 			// create Message object from IDS-* headers, needs for UsageControl flow
-			header = headerService.getHeaderMessagePartFromHttpHeaders(headersParts);
-			message = multipartMessageService.getMessage(header);
+//			header = headerService.headersToMessage(headersParts);
+			message = headerService.headersToMessage(headersParts);
 			multipartMessage = new MultipartMessageBuilder()
-					.withHeaderContent(header)
-					.withPayloadContent(payload).build();
+					.withHeaderContent(message)
+					.withPayloadContent(payload)
+					.build();
 
 		} else {
-			logger.debug("Received mixed/form response");
 
 			if (!headersParts.containsKey(MessagePart.HEADER)) {
 				logger.error("Multipart message header is missing");

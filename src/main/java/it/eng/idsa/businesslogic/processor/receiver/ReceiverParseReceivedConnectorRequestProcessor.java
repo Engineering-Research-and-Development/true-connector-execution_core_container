@@ -67,33 +67,29 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 
 		headersParts.put("Is-Enabled-DataApp-WebSocket", isEnabledDataAppWebSocket);
 		
-		logger.info("Received response on B-endpoint");
-		
 		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) { 
-			logger.debug("Http-header request");
 			// create Message object from IDS-* headers, needs for UsageControl flow
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
-			header = headerService.getHeaderMessagePartFromHttpHeaders(headersParts);
-			message = multipartMessageService.getMessage(header);
+//			header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
+			message = headerService.headersToMessage(headersParts);
 			if(message == null) {
 				logger.error("Message could not be created - check if all required headers are present.");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
 			}
-			
-			if (null != headersParts.get("IDS-SecurityToken-TokenValue")) {
-				token = headersParts.get("IDS-SecurityToken-TokenValue").toString();
-			}
+//			if (null != headersParts.get("IDS-SecurityToken-TokenValue")) {
+//				token = headersParts.get("IDS-SecurityToken-TokenValue").toString();
+//			}
+			token = message.getSecurityToken() != null ? message.getSecurityToken().getTokenValue() : null;
 			payload = exchange.getMessage().getBody(String.class);
 			 
 			multipartMessage = new MultipartMessageBuilder()
-					.withHeaderContent(header)
+					.withHeaderContent(message)
 					.withPayloadContent(payload)
 					.withToken(token)
 					.build();
 			
 		} 
 		else if(RouterType.MULTIPART_MIX.equals(eccHttpSendRouter)) {
-			logger.debug("Multipart/mixed request");
 			String receivedDataBodyBinary = MessageHelper.extractBodyAsString(exchange.getMessage());
 			multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
 			if (isEnabledDapsInteraction) {
@@ -109,7 +105,6 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 					.build();
 		}
 		else {
-			logger.debug("Multipart/form request");
 			if (!headersParts.containsKey(MessagePart.HEADER)) {
 				logger.error("Multipart message header is missing");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
@@ -146,8 +141,6 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 		}
-		logger.debug("Incomming message {}", multipartMessage.getHeaderContentString());
-		logger.debug("Payload {}", multipartMessage.getPayloadContent());
 		
 		exchange.getMessage().setHeaders(headersParts);
 		exchange.getMessage().setBody(multipartMessage);

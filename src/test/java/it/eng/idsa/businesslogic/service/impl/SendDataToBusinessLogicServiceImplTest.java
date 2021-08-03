@@ -179,7 +179,7 @@ public class SendDataToBusinessLogicServiceImplTest {
 		Headers headers = Headers.of(messageAsMap.entrySet().stream()
 				.collect(Collectors.toMap(Map.Entry::getKey, e -> (String)e.getValue())));
 		
-		when(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage)).thenReturn(messageAsMap);
+		when(headerService.messageToHeaders(multipartMessage.getHeaderContent())).thenReturn(messageAsMap);
 		when(okHttpClient.sendHttpHeaderRequest(URL, headers, multipartMessage.getPayloadContent(), MediaType.TEXT_PLAIN.toString()))
 			.thenReturn(response);
 		
@@ -203,7 +203,7 @@ public class SendDataToBusinessLogicServiceImplTest {
 		Headers headers = Headers.of(messageAsMap.entrySet().stream()
 				.collect(Collectors.toMap(Map.Entry::getKey, e -> (String)e.getValue())));
 		
-		when(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage)).thenReturn(messageAsMap);
+		when(headerService.messageToHeaders(multipartMessage.getHeaderContent())).thenReturn(messageAsMap);
 		when(okHttpClient.sendHttpHeaderRequest(URL, headers, multipartMessage.getPayloadContent(), MediaType.TEXT_PLAIN.toString()))
 			.thenReturn(response);
 		

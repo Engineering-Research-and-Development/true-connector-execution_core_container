@@ -1,30 +1,30 @@
 package it.eng.idsa.businesslogic.service.impl;
 
-import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import javax.xml.datatype.XMLGregorianCalendar;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import de.fraunhofer.iais.eis.DynamicAttributeTokenBuilder;
-import de.fraunhofer.iais.eis.Token;
-import de.fraunhofer.iais.eis.TokenFormat;
-import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
+import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.ids.jsonld.custom.XMLGregorianCalendarDeserializer;
+import de.fraunhofer.iais.eis.ids.jsonld.custom.XMLGregorianCalendarSerializer;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
-import it.eng.idsa.multipart.domain.MultipartMessage;
+import okhttp3.Headers;
 
 @Service
 public class HttpHeaderServiceImpl implements HttpHeaderService {
@@ -34,26 +34,114 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean isEnabledDapsInteraction;
 	
-	static Map<String, String> contextPart;
-	
-	static {
-		contextPart = new HashMap<>();
-		contextPart.put("ids", "https://w3id.org/idsa/core/");
-		contextPart.put("idsc",  "https://w3id.org/idsa/code/");
+	@SuppressWarnings("unchecked")
+	@Override
+	public Map<String, Object> messageToHeaders(Message message) {
+		logger.debug("Converting message to http-headers");
+		Map<String, Object> headers = new HashMap<>();
+		ObjectMapper mapper = new ObjectMapper();
+		// exclude null values from map
+		mapper.setSerializationInclusion(Include.NON_NULL);
+		
+		SimpleModule simpleModule = new SimpleModule();
+		simpleModule.addSerializer(XMLGregorianCalendar.class, new XMLGregorianCalendarSerializer());
+		mapper.registerModule(simpleModule);
+		
+		Map<String, Object> messageAsMap = mapper.convertValue(message, new TypeReference<Map<String, Object>>() {
+		});
+		
+		messageAsMap.entrySet().forEach(entry -> {
+			if(entry.getKey().equals("@id")) {
+				headers.put("IDS-Id", entry.getValue());
+			} else if(entry.getKey().equals("@type")) {
+				headers.put("IDS-Messagetype", entry.getValue());
+			} else if (entry.getKey().equals("ids:securityToken")) {
+				headers.put("IDS-SecurityToken-Type", ((Map<String, Object>) entry.getValue()).get("@type"));
+				headers.put("IDS-SecurityToken-Id", ((Map<String, Object>) entry.getValue()).get("@id"));
+				headers.put("IDS-SecurityToken-TokenFormat", ((Map<String, Object>)((Map<String, Object>) entry.getValue()).get("ids:tokenFormat")).get("@id"));
+				headers.put("IDS-SecurityToken-TokenValue", ((Map<String, Object>) entry.getValue()).get("ids:tokenValue"));
+			} else if(entry.getValue() instanceof Map) {
+				Map<String, Object> valueMap = (Map<String, Object>) entry.getValue();
+				if(valueMap.get("@id") != null) {
+					headers.put(entry.getKey().replace("ids:", "IDS-"), valueMap.get("@id"));
+				} else if(valueMap.get("@value") != null) {
+					headers.put(entry.getKey().replace("ids:", "IDS-"), valueMap.get("@value"));
+				}
+			} else {
+				headers.put(entry.getKey().replace("ids:", "IDS-"), entry.getValue());
+			}
+		});
+		return headers;
 	}
 
 	@Override
-	public String getHeaderMessagePartFromHttpHeaders(Map<String, Object> headers)
-			throws IOException {
+	public Message headersToMessage(Map<String, Object> headers) {
+		// bare in mind that in rumtime, headers is org.apache.camel.util.CaseInsensitiveMap
+		// which means that headers.get("aaa") is the same like headers.get("Aaa")
+		logger.debug("Converting http-headers to message");
 
-		Map<String, Object> headerAsMap = getHeaderMessagePartAsMap(headers);
-		Map<String, Object> tokenAsMap = addTokenHeadersToReceivedMessageHeaders(headers);
+		Map<String, Object> messageAsHeader = new HashMap<>();
 
-		headerAsMap.put("ids:securityToken", tokenAsMap);
-		return new Serializer().serialize(headerAsMap);
+		ObjectMapper mapper = new ObjectMapper();
+		SimpleModule simpleModule = new SimpleModule();
+		simpleModule.addDeserializer(XMLGregorianCalendar.class, new XMLGregorianCalendarDeserializer());
+		mapper.registerModule(simpleModule);
+
+		// exclude null values from map
+		mapper.setSerializationInclusion(Include.NON_NULL);
+		
+		Map<String, Object> tokeAsMap = null;
+		if( headers.containsKey("IDS-SecurityToken-Type")) {
+			tokeAsMap = processDAPSTokenHeaders(headers);
+		}
+		String type = (String) headers.get("IDS-Messagetype");
+		String id = (String) headers.get("IDS-Id");
+		
+		// handle recipientConnector - List
+		List<URI> recipientConnector = new ArrayList<>();
+		if(headers.containsKey("IDS-recipientConnector")) {
+			if(headers.get("IDS-recipientConnector") instanceof String) {
+				recipientConnector.add(URI.create((String) headers.get("IDS-recipientConnector")));
+			} else {
+				recipientConnector = (List<URI>) headers.get("IDS-recipientConnector");
+			}
+			headers.remove("IDS-recipientConnector");
+		}
+		// handle recipientAgent - List
+		List<URI> recipientAgent = new ArrayList<>();
+		if(headers.containsKey("IDS-recipientAgent")) {
+			if(headers.get("IDS-recipientAgent") instanceof String) {
+				recipientAgent.add(URI.create((String) headers.get("IDS-recipientAgent")));
+			} else {
+				recipientAgent = (List<URI>) headers.get("IDS-recipientAgent");
+			}
+			headers.remove("IDS-recipientAgent");
+		}
+			
+		messageAsHeader = getIDSHeaders(headers);
+		
+		messageAsHeader.put("ids:securityToken", tokeAsMap);
+		messageAsHeader.put("ids:recipientConnector", recipientConnector);
+		messageAsHeader.put("ids:recipientAgent", recipientAgent);
+		messageAsHeader.remove("IDS-Messagetype");
+		messageAsHeader.remove("IDS-Id");
+		messageAsHeader.put("@type", type);
+		messageAsHeader.put("@id", id);
+		
+		headers.entrySet().removeIf(entry -> entry.getKey().contains("IDS") || entry.getKey().contains("ids"));
+
+		return mapper.convertValue(messageAsHeader, Message.class);
 	}
 
-	private Map<String, Object> addTokenHeadersToReceivedMessageHeaders(Map<String, Object> headers) {
+	public Map<String, Object> getIDSHeaders(Map<String, Object> headers) {
+		return headers.entrySet().stream()
+				.filter(e -> StringUtils.containsIgnoreCase(e.getKey(), "IDS-"))
+				.collect(java.util.stream.Collectors.toMap(
+						e -> e.getKey().replace("IDS-", "ids:"), 
+						e -> e.getValue()));
+	}
+	
+	private Map<String, Object> processDAPSTokenHeaders(Map<String, Object> headers) {
 		Map<String, Object> tokenAsMap = new HashMap<>();
 		Map<String, Object> tokenFormatAsMap = new HashMap<>();
 		tokenAsMap.put("@type", headers.get("IDS-SecurityToken-Type"));
@@ -61,279 +149,14 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		tokenFormatAsMap.put("@id", headers.get("IDS-SecurityToken-TokenFormat"));
 		tokenAsMap.put("ids:tokenFormat", tokenFormatAsMap);
 		tokenAsMap.put("ids:tokenValue", headers.get("IDS-SecurityToken-TokenValue"));
-		return tokenAsMap;
-	}
-
-	@Override
-	public void removeTokenHeaders(Map<String, Object> headers) {
+		
 		headers.remove("IDS-SecurityToken-Type");
 		headers.remove("IDS-SecurityToken-Id");
 		headers.remove("IDS-SecurityToken-TokenFormat");
 		headers.remove("IDS-SecurityToken-TokenValue");
+		return tokenAsMap;
 	}
-
-	@Override
-	public Map<String, Object> prepareMessageForSendingAsHttpHeadersWithToken(String header)
-			throws JsonParseException, JsonMappingException, IOException {
-
-		Map<String, Object> messageAsMap = prepareMessageForSendingAsHttpHeadersWithoutToken(header);
-		addTokenToPreparedMessage(header, messageAsMap);
-		return messageAsMap;
-	}
-
-	private void addTokenToPreparedMessage(String header, Map<String, Object> messageAsMap) throws IOException {
-		Map<String, Object> messageAsMapWithToken = new ObjectMapper().readValue(header, Map.class);
-
-		Map<String, Object> tokenAsMap = (Map<String, Object>) messageAsMapWithToken.get("securityToken");
-		messageAsMap.put("IDS-SecurityToken-Type", tokenAsMap.get("@type").toString());
-		messageAsMap.put("IDS-SecurityToken-Id", tokenAsMap.get("@id").toString());
-		messageAsMap.put("IDS-SecurityToken-TokenValue", tokenAsMap.get("tokenValue").toString());
-		Map<String, Object> tokenFormatAsMap = (Map<String, Object>) tokenAsMap.get("tokenFormat");
-		messageAsMap.put("IDS-SecurityToken-TokenFormat", tokenFormatAsMap.get("@id").toString());
-	}
-
-	//here we have all mandatory fields
-	@Override
-	public Map<String, Object> getHeaderMessagePartAsMap(Map<String, Object> headers) {
-		Map<String, Object> headerAsMap = new HashMap<>();
-
-		headerAsMap.put("@context", contextPart);
-		if (headers.get("IDS-Messagetype") != null) {
-			headerAsMap.put("@type", headers.get("IDS-Messagetype"));
-		}
-		if (headers.get("IDS-Id") != null) {
-			headerAsMap.put("@id", headers.get("IDS-Id"));
-		}
-		if (headers.get("IDS-Issued") != null) {
-			Map<String, String> issued = new HashMap<>();
-			issued.put("@value", (String) headers.get("IDS-Issued"));
-			issued.put("@type", "http://www.w3.org/2001/XMLSchema#dateTimeStamp");
-			headerAsMap.put("ids:issued", issued);
-		}
-		if (headers.get("IDS-ModelVersion") != null) {
-			headerAsMap.put("ids:modelVersion", headers.get("IDS-ModelVersion"));
-		}
-		if (headers.get("IDS-IssuerConnector") != null) {
-			Map<String, String> ic = new HashMap<>();
-			ic.put("@id", (String) headers.get("IDS-IssuerConnector"));
-			headerAsMap.put("ids:issuerConnector", ic);
-		}
-		if (headers.get("IDS-TransferContract") != null) {
-			headerAsMap.put("ids:transferContract", headers.get("IDS-TransferContract"));
-		}
-		if (headers.get("IDS-CorrelationMessage") != null) {
-			Map<String, String> cm = new HashMap<>();
-			cm.put("@id", (String) headers.get("IDS-CorrelationMessage"));
-			headerAsMap.put("ids:correlationMessage", cm);
-		}
-		if (headers.get("IDS-RequestedArtifact") != null) {
-			Map<String, String> ra = new HashMap<>();
-			ra.put("@id", (String) headers.get("IDS-RequestedArtifact"));
-			headerAsMap.put("ids:requestedArtifact", ra);
-		}
-		if (headers.get("IDS-SenderAgent") != null) {
-			Map<String, String> sa = new HashMap<>();
-			sa.put("@id", (String)  headers.get("IDS-SenderAgent"));
-			headerAsMap.put("ids:senderAgent", sa);
-		}
-		if (headers.get("IDS-RequestedElement") != null) {
-			Map<String, String> re = new HashMap<>();
-			re.put("@id", (String)  headers.get("IDS-RequestedElement"));
-			headerAsMap.put("ids:requestedElement", re);
-		}
-		if (headers.get("IDS-RejectionReason") != null) {
-			Map<String, String> rr = new HashMap<>();
-			rr.put("@id", (String)  headers.get("IDS-RejectionReason"));
-			headerAsMap.put("ids:rejectionReason", rr);
-		}
-		return headerAsMap;
-	}
-
-	public void removeMessageHeadersWithoutToken(Map<String, Object> headers) {
-		headers.remove("IDS-Messagetype");
-		headers.remove("IDS-Id");
-		headers.remove("IDS-Issued");
-		headers.remove("IDS-ModelVersion");
-		headers.remove("IDS-IssuerConnector");
-		headers.remove("IDS-TransferContract");
-		headers.remove("IDS-CorrelationMessage");
-		headers.remove("IDS-RequestedArtifact");
-		headers.remove("IDS-SenderAgent");
-		headers.remove("IDS-RequestedElement");
-		headers.remove("IDS-RejectionReason");
-	}
-
-	@Override
-	public Map<String, Object> prepareMessageForSendingAsHttpHeadersWithoutToken(String header) throws IOException {
-		ObjectMapper oMapper = new ObjectMapper();
-		Map<String, Object> messageAsMap = null;
-		messageAsMap = oMapper.readValue(header, new TypeReference<Map<String, Object>>() {
-		});
-
-		Map<String, Object> headers = new HashMap<>();
-
-		if (messageAsMap.get("@type") != null) {
-			headers.put("IDS-Messagetype", (String) messageAsMap.get("@type"));
-		}
-		if (messageAsMap.get("@id") != null) {
-			headers.put("IDS-Id", messageAsMap.get("@id"));
-		}
-		if (messageAsMap.get("issued") != null) {
-			headers.put("IDS-Issued", messageAsMap.get("issued"));
-		}
-		if (messageAsMap.get("modelVersion") != null) {
-			headers.put("IDS-ModelVersion", messageAsMap.get("modelVersion"));
-		}
-		if (messageAsMap.get("issuerConnector") != null) {
-			headers.put("IDS-IssuerConnector", messageAsMap.get("issuerConnector"));
-		}
-		if (messageAsMap.get("transferContract") != null) {
-			headers.put("IDS-TransferContract", messageAsMap.get("transferContract"));
-		}
-		if (messageAsMap.get("correlationMessage") != null) {
-			headers.put("IDS-CorrelationMessage", messageAsMap.get("correlationMessage"));
-		}
-		if (messageAsMap.get("requestedArtifact") != null) {
-			headers.put("IDS-RequestedArtifact", messageAsMap.get("requestedArtifact"));
-		}
-		if (messageAsMap.get("senderAgent") != null) {
-			headers.put("IDS-SenderAgent", messageAsMap.get("senderAgent"));
-		}
-		if (messageAsMap.get("requestedElement") != null) {
-			headers.put("IDS-RequestedElement", messageAsMap.get("requestedElement"));
-		}
-		if (messageAsMap.get("rejectionReason") != null) {
-			headers.put("IDS-RejectionReason", messageAsMap.get("rejectionReason"));
-		}
-		return headers;
-	}
-
-	@Override
-	public Map<String, Object> getHeaderContentHeaders(Map<String, Object> headersParts) {
-
-		Map<String, Object> headerContentHeaders = new HashMap<>();
-
-		if (headersParts.get("IDS-Messagetype") != null) {
-			headerContentHeaders.put("IDS-Messagetype", headersParts.get("IDS-Messagetype"));
-		}
-		if (headersParts.get("IDS-Messagetype") != null) {
-			headerContentHeaders.put("IDS-Id", headersParts.get("IDS-Id"));
-		}
-		if (headersParts.get("IDS-Issued") != null) {
-			headerContentHeaders.put("IDS-Issued", headersParts.get("IDS-Issued"));
-		}
-		if (headersParts.get("IDS-ModelVersion") != null) {
-			headerContentHeaders.put("IDS-ModelVersion", headersParts.get("IDS-ModelVersion"));
-		}
-		if (headersParts.get("IDS-IssuerConnector") != null) {
-			headerContentHeaders.put("IDS-IssuerConnector", headersParts.get("IDS-IssuerConnector"));
-		}
-		if (headersParts.get("IDS-TransferContract") != null) {
-			headerContentHeaders.put("IDS-TransferContract", headersParts.get("IDS-TransferContract"));
-		}
-		if (headersParts.get("IDS-CorrelationMessage") != null) {
-			headerContentHeaders.put("IDS-CorrelationMessage", headersParts.get("IDS-CorrelationMessage"));
-		}
-		if (headersParts.get("IDS-RequestedArtifact") != null) {
-			headerContentHeaders.put("IDS-RequestedArtifact", headersParts.get("IDS-RequestedArtifact"));
-		}
-		if (headersParts.get("IDS-SenderAgent") != null) {
-			headerContentHeaders.put("IDS-SenderAgent", headersParts.get("IDS-SenderAgent"));
-		}
-		if (headersParts.get("IDS-RequestedElement") != null) {
-			headerContentHeaders.put("IDS-RequestedElement", headersParts.get("IDS-RequestedElement"));
-		}
-		if (headersParts.get("IDS-RejectionReason") != null) {
-			headerContentHeaders.put("IDS-RejectionReason", headersParts.get("IDS-RejectionReason"));
-		}
-
-		if (isEnabledDapsInteraction && headersParts.get("IDS-SecurityToken-TokenValue") != null) {
-			headerContentHeaders.put("IDS-SecurityToken-Type", headersParts.get("IDS-SecurityToken-Type"));
-			headerContentHeaders.put("IDS-SecurityToken-Id", headersParts.get("IDS-SecurityToken-Id"));
-			headerContentHeaders.put("IDS-SecurityToken-TokenFormat",
-					headersParts.get("IDS-SecurityToken-TokenFormat"));
-			headerContentHeaders.put("IDS-SecurityToken-TokenValue", headersParts.get("IDS-SecurityToken-TokenValue"));
-		}
-
-		return headerContentHeaders;
-	}
-
-	@Override
-	public Map<String, Object> prepareMessageForSendingAsHttpHeaders(MultipartMessage multipartMessage)
-			throws IOException {
-		ObjectMapper oMapper = new ObjectMapper();
-		Map<String, Object> messageAsMap = null;
-		messageAsMap = oMapper.readValue(multipartMessage.getHeaderContentString(),
-				new TypeReference<Map<String, Object>>() {
-				});
-
-		Map<String, Object> headers = new HashMap<>();
-
-		if (messageAsMap.get("@type") != null) {
-			headers.put("IDS-Messagetype", (String) messageAsMap.get("@type"));
-		}
-		if (messageAsMap.get("@id") != null) {
-			headers.put("IDS-Id", messageAsMap.get("@id"));
-		}
-		if (messageAsMap.get("ids:issued") != null) {
-			if(messageAsMap.get("ids:issued") instanceof Map) {
-				headers.put("IDS-Issued", ((Map)messageAsMap.get("ids:issued")).get("@value"));
-			} else {
-				headers.put("IDS-Issued", messageAsMap.get("ids:issued"));
-			}
-		}
-		if (messageAsMap.get("ids:modelVersion") != null) {
-			headers.put("IDS-ModelVersion", messageAsMap.get("ids:modelVersion"));
-		}
-		if (messageAsMap.get("ids:issuerConnector") != null) {
-			if(messageAsMap.get("ids:issuerConnector") instanceof Map) {
-				headers.put("IDS-IssuerConnector", ((Map)messageAsMap.get("ids:issuerConnector")).get("@id"));
-			} else {
-				headers.put("IDS-IssuerConnector", messageAsMap.get("ids:issuerConnector"));
-			}
-		}
-		if (messageAsMap.get("ids:transferContract") != null) {
-			if(messageAsMap.get("ids:transferContract") instanceof Map) {
-				headers.put("IDS-TransferContract", ((Map)messageAsMap.get("ids:transferContract")).get("@id"));
-			} else {
-				headers.put("IDS-TransferContract", messageAsMap.get("ids:transferContract"));
-			}
-		}
-		if (messageAsMap.get("ids:correlationMessage") != null) {
-			if(messageAsMap.get("ids:correlationMessage") instanceof Map) {
-				headers.put("IDS-CorrelationMessage", ((Map)messageAsMap.get("ids:correlationMessage")).get("@id"));
-			} else {
-				headers.put("IDS-CorrelationMessage", messageAsMap.get("ids:correlationMessage"));
-			}
-		}
-		if (messageAsMap.get("ids:requestedArtifact") != null) {
-			if(messageAsMap.get("ids:requestedArtifact") instanceof Map) {
-				headers.put("IDS-RequestedArtifact", ((Map)messageAsMap.get("ids:requestedArtifact")).get("@id"));
-			} else {
-				headers.put("IDS-RequestedArtifact", messageAsMap.get("ids:requestedArtifact"));
-			}
-		}
-		if (messageAsMap.get("ids:senderAgent") != null) {
-			if(messageAsMap.get("ids:senderAgent") instanceof Map) {
-				headers.put("IDS-SenderAgent", ((Map)messageAsMap.get("ids:senderAgent")).get("@id"));
-			} else {
-				headers.put("IDS-SenderAgent", messageAsMap.get("ids:senderAgent"));
-			}
-		}
-		if (messageAsMap.get("ids:requestedElement") != null) {
-			if(messageAsMap.get("ids:requestedElement") instanceof Map) {
-				headers.put("IDS-RequestedElement", ((Map)messageAsMap.get("ids:requestedElement")).get("@id"));
-			} else {
-				headers.put("IDS-RequestedElement", messageAsMap.get("ids:requestedElement"));
-			}
-		}
-		if (messageAsMap.get("ids:rejectionReason") != null) {
-			Map<String, Object> rejectionReason = (Map<String, Object>) messageAsMap.get("ids:rejectionReason");
-			headers.put("IDS-RejectionReason", rejectionReason.get("@id"));
-		}
-		return headers;
-	}
-
+	
 	@Override
 	public Map<String, String> convertMapToStringString(Map<String, Object> map) {
 		return map.entrySet().stream().filter(entry -> entry.getValue() instanceof String)
@@ -341,23 +164,20 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 	}
 
 	@Override
-	public Map<String, Object> transformJWTTokenToHeaders(String token)
-			throws JsonProcessingException {
-		Map<String, Object> tokenAsMap = new HashMap<>();
-		Token tokenJsonValue = new DynamicAttributeTokenBuilder()._tokenFormat_(TokenFormat.JWT)._tokenValue_(token).build();
-		String tokenValueSerialized = new Serializer().serializePlainJson(tokenJsonValue);
-		JSONParser parser = new JSONParser();
-		JSONObject jsonObjectToken;
-		try {
-			jsonObjectToken = (JSONObject) parser.parse(tokenValueSerialized);
-			tokenAsMap.put("IDS-SecurityToken-Type", jsonObjectToken.get("@type").toString());
-			tokenAsMap.put("IDS-SecurityToken-Id", tokenJsonValue.getId().toString());
-			tokenAsMap.put("IDS-SecurityToken-TokenFormat", tokenJsonValue.getTokenFormat().toString());
-			tokenAsMap.put("IDS-SecurityToken-TokenValue", token);
-		} catch (ParseException e) {
-			logger.error("Error while trying to convert from String to json", e);
+	public Map<String, Object> okHttpHeadersToMap(Headers headers) {
+		logger.debug("Converting headers to map");
+		Map<String, Object> originalHeaders = new HashMap<>();
+
+		for (String name : headers.names()) {
+			List<String> value = headers.values(name);
+			if (value.size() == 1) {
+				originalHeaders.put(name, value.get(0));
+			} else {
+				originalHeaders.put(name, value);
+			}
+			originalHeaders.keySet().size();
 		}
-		return tokenAsMap;
+		return originalHeaders;
 	}
 
 }

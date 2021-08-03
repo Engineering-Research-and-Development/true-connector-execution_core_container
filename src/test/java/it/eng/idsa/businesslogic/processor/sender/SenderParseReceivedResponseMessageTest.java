@@ -25,8 +25,8 @@ import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.MessagePart;
-import it.eng.idsa.businesslogic.util.MockUtil;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
@@ -72,9 +72,9 @@ public class SenderParseReceivedResponseMessageTest {
 	public void parseHttpHeaderResponse() throws Exception {
 		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER, String.class);
 		mockExchangeHeaderAndBody();
-		
+
 		when(camelMessage.getBody(String.class)).thenReturn(PAYLOAD);
-		when(headerService.getHeaderMessagePartFromHttpHeaders(headers)).thenReturn(headerAsString);
+		when(headerService.headersToMessage(headers)).thenReturn(TestUtilMessageService.getArtifactRequestMessageWithToken());
 		
 		processor.process(exchange);
 		
@@ -109,10 +109,10 @@ public class SenderParseReceivedResponseMessageTest {
 		mockExchangeHeaderAndBody();
 //		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER.label, String.class);
 		
-		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService);
+		rejectionMessageService = new RejectionMessageServiceImpl();
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
 				rejectionMessageService, RejectionMessageService.class);
-
+		
 		assertThrows(ExceptionForProcessor.class,
 	            ()->{
 	            	processor.process(exchange);

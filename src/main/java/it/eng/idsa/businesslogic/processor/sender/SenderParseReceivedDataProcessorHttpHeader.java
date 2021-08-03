@@ -47,26 +47,23 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 		// Get from the input "exchange"
 		headersParts = exchange.getMessage().getHeaders();
 		payload = exchange.getMessage().getBody(String.class);
-		logger.info("Received http header request");
-
+		
 		try {
-			headerContentHeaders = headerService.getHeaderContentHeaders(headersParts);
-			String header = headerService.getHeaderMessagePartFromHttpHeaders(headersParts);
-			message = multipartMessageService.getMessage(header);
-			if(message == null) {
+			headerContentHeaders = headerService.getIDSHeaders(headersParts);
+//			String header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
+			message = headerService.headersToMessage(headersParts);
+			if(message==null) {
 				logger.error("Message could not be created - check if all required headers are present.");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 			}
 			MultipartMessage multipartMessage = new MultipartMessageBuilder()
 					.withHttpHeader(headerService.convertMapToStringString(headerContentHeaders))
-					.withHeaderContent(header)
+//					.withHeaderContent(header)
 					.withHeaderContent(message)
 					.withPayloadContent(payload)
 					.build();
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
 			
-			logger.debug("Header part {}", multipartMessage.getHeaderContentString());
-			logger.debug("Payload part {}", multipartMessage.getPayloadContent());
 			String forwardTo = headersParts.get("Forward-To").toString();
 			forwardTo = protocolValidationService.validateProtocol(forwardTo, message);
 			headersParts.replace("Forward-To", forwardTo);

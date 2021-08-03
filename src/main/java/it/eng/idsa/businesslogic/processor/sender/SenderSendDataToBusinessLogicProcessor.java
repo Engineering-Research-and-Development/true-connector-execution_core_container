@@ -5,12 +5,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -22,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.sender.websocket.client.MessageWebSocketOverHttpSender;
+import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
@@ -29,7 +28,6 @@ import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import okhttp3.Headers;
 import okhttp3.Response;
 
 /**
@@ -66,6 +64,9 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 
 	@Autowired
 	private MessageWebSocketOverHttpSender messageWebSocketOverHttpSender;
+	
+	@Autowired
+	private HttpHeaderService httpHeaderService;
 
 	private String webSocketHost;
 	private Integer webSocketPort;
@@ -147,7 +148,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		logger.info("data received from destination " + forwardTo);
 		logger.info("response received from the DataAPP=" + responseString);
 
-		exchange.getMessage().setHeaders(returnHeadersAsMap(response.headers()));
+		exchange.getMessage().setHeaders(httpHeaderService.okHttpHeadersToMap(response.headers()));
 		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) {
 			exchange.getMessage().setBody(responseString);
 		} else {
@@ -197,14 +198,5 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 			logger.info("Error while parsing body, {}", e.getMessage());
 		}
 		return responseString;
-	}
-
-	private Map<String, Object> returnHeadersAsMap(Headers headers) {
-		Map<String, List<String>> multiMap = headers.toMultimap();
-		Map<String, Object> result = 
-				multiMap.entrySet()
-			           .stream()
-			           .collect(Collectors.toMap(Map.Entry::getKey, e -> String.join(", ", e.getValue())));
-		return result;
 	}
 }

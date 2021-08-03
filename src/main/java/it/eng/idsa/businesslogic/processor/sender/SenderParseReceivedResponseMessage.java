@@ -60,20 +60,22 @@ public class SenderParseReceivedResponseMessage implements Processor {
 		Message message = null;
 		MultipartMessage multipartMessage = null;
 		String token = null;
-		logger.info("Parse received response");
-		
+
 		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) {
 			payload = exchange.getMessage().getBody(String.class);
-			header = headerService.getHeaderMessagePartFromHttpHeaders(headersParts);
+			message = headerService.headersToMessage(headersParts);
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
 
-			if (headersParts.get("IDS-SecurityToken-TokenValue") != null) {
-				token = headersParts.get("IDS-SecurityToken-TokenValue").toString();
-			}
+//			if (headersParts.get("IDS-SecurityToken-TokenValue") != null) {
+//				token = headersParts.get("IDS-SecurityToken-TokenValue").toString();
+//			}
+			token = message.getSecurityToken() != null ? message.getSecurityToken().getTokenValue() : null;
+
 			multipartMessage = new MultipartMessageBuilder()
-					.withHeaderContent(header)
+					.withHeaderContent(message)
 					.withPayloadContent(payload)
-					.withToken(token).build();
+					.withToken(token)
+					.build();
 
 		} else {
 			if (!headersParts.containsKey(MessagePart.HEADER)) {
@@ -108,9 +110,6 @@ public class SenderParseReceivedResponseMessage implements Processor {
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 		}
-		logger.debug("Header part {}", multipartMessage.getHeaderContentString());
-		logger.debug("Payload part {}", multipartMessage.getPayloadContent());
-		
 		exchange.getMessage().setHeaders(headersParts);
 		exchange.getMessage().setBody(multipartMessage);
 	}
