@@ -99,7 +99,7 @@ public class KeystoreProvider {
 				logger.error("Error while loading keystore and truststore, {}", e);
 			} else {
 				logger.info("**********************************************************************");
-				logger.info("DAPS Interaction disabled. KeyStore or trustStore not correctly loaded");
+				logger.info("DAPS Interaction disabled. KeyStore and/or trustStore not loaded");
 				logger.info("**********************************************************************");
 			}
 			;

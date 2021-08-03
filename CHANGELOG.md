@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.0.27-SNAPSHOT] - 2021-08-02
+
+### Changed
+ - updated the Daps interaction: in case of disabled Daps interaction is no more needed to define keystore, trustore and the related properties
+ - disabled fetch token on start up in case of Daps interaction disabled
+
 ## [0.0.26-SNAPSHOT] - 2021-07-30
  
 ### Changed
