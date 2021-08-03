@@ -34,6 +34,9 @@ public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 	
 	@Value("${application.fetchTokenOnStartup}")
 	private boolean fetchTokenOnStartup;
+	
+	@Value("${application.isEnabledDapsInteraction}")
+	private boolean isEnabledDapsInteraction;
 
 	@Override
 	public String provideToken() {
@@ -64,7 +67,7 @@ public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 	
 	@EventListener(ApplicationReadyEvent.class)
 	public void fetchTokenOnStartup() {
-		if (fetchTokenOnStartup && StringUtils.isBlank(cachedToken)) {
+		if ((fetchTokenOnStartup && isEnabledDapsInteraction) && StringUtils.isBlank(cachedToken)) {
 			logger.info("Fetching DAT token on startup");
 			provideToken();
 		}
