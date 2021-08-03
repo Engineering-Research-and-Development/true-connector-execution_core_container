@@ -110,7 +110,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		// handle recipientAgent - List
 		List<URI> recipientAgent = new ArrayList<>();
 		if(headers.containsKey("IDS-recipientAgent")) {
-			if(headers.get("IDS-recipientConnector") instanceof String) {
+			if(headers.get("IDS-recipientAgent") instanceof String) {
 				recipientAgent.add(URI.create((String) headers.get("IDS-recipientAgent")));
 			} else {
 				recipientAgent = (List<URI>) headers.get("IDS-recipientAgent");
@@ -127,6 +127,8 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		messageAsHeader.remove("IDS-Id");
 		messageAsHeader.put("@type", type);
 		messageAsHeader.put("@id", id);
+		
+		headers.entrySet().removeIf(entry -> entry.getKey().contains("IDS") || entry.getKey().contains("ids"));
 
 		return mapper.convertValue(messageAsHeader, Message.class);
 	}

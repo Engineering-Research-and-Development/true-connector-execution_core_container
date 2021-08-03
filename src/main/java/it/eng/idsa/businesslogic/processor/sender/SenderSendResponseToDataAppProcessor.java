@@ -92,6 +92,7 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 			break;
 		case "http-header":
 			responseString = multipartMessage.getPayloadContent();
+			exchange.getMessage().getHeaders().putAll(httpHeaderService.messageToHeaders(multipartMessage.getHeaderContent()));
 			exchange.getMessage().setBody(responseString);
 			break;
 		}

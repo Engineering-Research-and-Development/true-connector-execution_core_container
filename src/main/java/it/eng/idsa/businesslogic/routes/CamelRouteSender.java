@@ -129,7 +129,7 @@ public class CamelRouteSender extends RouteBuilder {
 
 		camelContext.getShutdownStrategy().setLogInflightExchangesOnTimeout(false);
 		camelContext.getShutdownStrategy().setTimeout(3);
-		camelContext.setCaseInsensitiveHeaders(false);
+//		camelContext.setCaseInsensitiveHeaders(false);
 		//@formatter:off
 		onException(ExceptionForProcessor.class, RuntimeException.class)
 			.handled(true)
