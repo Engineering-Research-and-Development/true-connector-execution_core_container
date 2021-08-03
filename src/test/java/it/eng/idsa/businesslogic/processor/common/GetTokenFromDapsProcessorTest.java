@@ -106,7 +106,7 @@ public class GetTokenFromDapsProcessorTest {
 		assertEquals(TestUtilMessageService.TOKEN_VALUE, argCaptorMultipartMessage.getValue().getToken());
 		
 		verify(dapsTokenProviderService).provideToken();
-		verify(multipartMessageService, times(0)).addToken(message, TestUtilMessageService.TOKEN_VALUE);
+//		verify(multipartMessageService, times(0)).addToken(message, TestUtilMessageService.TOKEN_VALUE);
 	}
 	
 	@Test

@@ -2,9 +2,7 @@ package it.eng.idsa.businesslogic.processor.receiver;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -24,7 +22,6 @@ import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import okhttp3.Headers;
 import okhttp3.Response;
 
 /**
@@ -58,6 +55,9 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
+	
+	@Autowired
+	private HttpHeaderService httpHeaderService;
 
 	private String originalHeader;
 
@@ -67,8 +67,8 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
 	
-	@Autowired
-	private HttpHeaderService httpHeaderService;
+//	@Autowired
+//	private HttpHeaderService httpHeaderService;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -76,9 +76,9 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		
-		if (!RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
-        	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
-		}
+//		if (!RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
+//        	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
+//		}
 
 		// Get header, payload and message
 		Message message = multipartMessage.getHeaderContent();
@@ -124,7 +124,7 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		logger.info("data sent to destination: " + openApiDataAppAddress);
 		logger.info("response received from the DataAPP=" + responseString);
 
-		exchange.getMessage().setHeaders(returnHeadersAsMap(response.headers()));
+		exchange.getMessage().setHeaders(httpHeaderService.okHttpHeadersToMap(response.headers()));
 		if (isEnabledUsageControl) {
 			exchange.getMessage().setHeader("Original-Message-Header", originalHeader);
 		}
@@ -150,15 +150,6 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 			logger.info("Error while parsing body, {}", e.getMessage());
 		}
 		return responseString;
-	}
-
-	private Map<String, Object> returnHeadersAsMap(Headers headers) {
-		Map<String, List<String>> multiMap = headers.toMultimap();
-		Map<String, Object> result = 
-				multiMap.entrySet()
-			           .stream()
-			           .collect(Collectors.toMap(Map.Entry::getKey, e -> String.join(", ", e.getValue())));
-		return result;
 	}
 
 }

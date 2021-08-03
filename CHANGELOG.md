@@ -1,13 +1,18 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.0.26-SNAPSHOT] - 2021-07-30
+ 
+### Changed
+ - updated logic for using objectMapper to convert from IDS Message to Map and creating Map from incoming headers to convert back to IDS Message
+ 
 ## [0.0.25-SNAPSHOT] - 2021-07-23
  
 ### Added
  - added API endpoints and logic for dynamic modification of Self Description document
- - new properties
-	 application.selfdescription.filelocation
-	 spring.security.user.name
+ - new properties</br>
+	 application.selfdescription.filelocation</br>
+	 spring.security.user.name</br>
 	 spring.security.user.password
  
 ### Changed

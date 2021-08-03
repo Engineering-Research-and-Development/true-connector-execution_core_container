@@ -20,6 +20,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
+import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
@@ -29,6 +30,7 @@ import it.eng.idsa.businesslogic.util.RequestResponseUtil;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import okhttp3.Headers;
 import okhttp3.Request;
 import okhttp3.Response;
 
@@ -41,6 +43,8 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	private SendDataToBusinessLogicService sendDataToBusinessLogicService;
 	@Mock
 	private MultipartMessageService multipartMessageService;
+	@Mock
+	private HttpHeaderService httpHeaderService;
 	
 	@Mock
 	private Exchange exchange;
@@ -50,6 +54,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	private MultipartMessage multipartMessage;
 
 	private Map<String, Object> headers = new HashMap<>();
+	private Headers okHeaders;
 	private Message message;
 	private static final String FORWARD_TO = "http://forward.to";
 	private static final String PAYLOAD_RESPONSE = "payload response data";
@@ -67,6 +72,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 		MockitoAnnotations.initMocks(this);
 		message = TestUtilMessageService.getArtifactRequestMessage();
 		headers.put("Forward-To", FORWARD_TO);
+		when(httpHeaderService.okHttpHeadersToMap(okHeaders)).thenReturn(headers);
 	}
 
 	@Test

@@ -106,10 +106,12 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 			Map<String, Object> headerParts, boolean eccCommunication) throws IOException {
 		logger.info("Forwarding Message: http-header");
 
-		headerParts.putAll(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));
-		if (eccCommunication && isEnabledDapsInteraction) {
-			headerParts.putAll(headerService.transformJWTTokenToHeaders(multipartMessage.getToken()));
-		}
+		headerParts.putAll(headerService.messageToHeaders(multipartMessage.getHeaderContent()));
+
+//		headerParts.putAll(headerService.prepareMessageForSendingAsHttpHeaders(multipartMessage));
+//		if (eccCommunication && isEnabledDapsInteraction) {
+//			headerParts.putAll(headerService.transformJWTTokenToHeaders(multipartMessage.getToken()));
+//		}
 		String ctPayload = getPayloadContentType(headerParts);
 		Headers httpHeaders = fillHeaders(headerParts);
 
