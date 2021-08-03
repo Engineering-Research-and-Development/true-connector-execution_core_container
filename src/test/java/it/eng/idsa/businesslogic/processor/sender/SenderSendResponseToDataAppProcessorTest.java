@@ -76,8 +76,6 @@ public class SenderSendResponseToDataAppProcessorTest {
 		// need to do it with any(String) since json sting can have different ordering
 		verify(camelMessage).setBody(any(String.class));
 		verify(multipartMessageService, times(0)).removeTokenFromMultipart(multipartMessage);
-		verify(httpHeaderService).removeTokenHeaders(exchange.getMessage().getHeaders());
-    	verify(httpHeaderService).removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
     	verify(headerCleaner).removeTechnicalHeaders(exchange.getMessage().getHeaders());
     	verify(headerCleaner).removeTechnicalHeaders(camelMessage.getHeaders());
 
@@ -96,8 +94,6 @@ public class SenderSendResponseToDataAppProcessorTest {
 		
 		verify(multipartMessageService).removeTokenFromMultipart(multipartMessage);
 		verify(camelMessage).setBody(any(String.class));
-		verify(httpHeaderService).removeTokenHeaders(exchange.getMessage().getHeaders());
-    	verify(httpHeaderService).removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
     	verify(headerCleaner).removeTechnicalHeaders(exchange.getMessage().getHeaders());
     	verify(headerCleaner).removeTechnicalHeaders(camelMessage.getHeaders());
 
@@ -117,11 +113,8 @@ public class SenderSendResponseToDataAppProcessorTest {
 		
 		processor.process(exchange);
 		
-		verify(httpHeaderService).removeTokenHeaders(exchange.getMessage().getHeaders());
-    	verify(httpHeaderService).removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
     	verify(camelMessage).setBody(httpEntity.getContent());
     	verify(headerCleaner).removeTechnicalHeaders(camelMessage.getHeaders());
-
 	}
 	
 	@Test
@@ -132,9 +125,6 @@ public class SenderSendResponseToDataAppProcessorTest {
 		processor.process(exchange);
 		
 		verify(camelMessage).setBody(multipartMessage.getPayloadContent());
-		
-		verify(httpHeaderService ,times(0)).removeTokenHeaders(exchange.getMessage().getHeaders());
-    	verify(httpHeaderService, times(0)).removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
     	verify(headerCleaner).removeTechnicalHeaders(camelMessage.getHeaders());
 	}
 	

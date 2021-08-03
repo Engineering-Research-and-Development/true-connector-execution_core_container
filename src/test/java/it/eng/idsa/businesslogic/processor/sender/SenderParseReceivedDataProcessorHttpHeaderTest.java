@@ -66,8 +66,7 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 		mockExchangeGetHttpHeaders(exchange);
 		msg = TestUtilMessageService.getArtifactRequestMessage();
 		header = TestUtilMessageService.getMessageAsString(msg);
-		when(httpHeaderService.getHeaderContentHeaders(httpHeaders)).thenReturn(headerContentHeaders);
-		when(httpHeaderService.getHeaderMessagePartFromHttpHeadersWithoutToken(httpHeaders)).thenReturn(header);
+		when(httpHeaderService.headersToMessage(httpHeaders)).thenReturn(msg);
 		when(multipartMessageService.getMessage(header)).thenReturn(msg);
 //		when(exchange.getOut()).thenReturn(messageOut);
 
@@ -83,13 +82,13 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	}
 	
 	@Test
+	// TODO fix this test
 	public void processHttpHeaderRequiredHeadersNotPresent() throws Exception {
 		mockExchangeGetHttpHeaders(exchange);
 		httpHeaders.remove("IDS-Messagetype");
 		msg = TestUtilMessageService.getArtifactRequestMessage();
 		header = TestUtilMessageService.getMessageAsString(msg);
-		when(httpHeaderService.getHeaderContentHeaders(httpHeaders)).thenReturn(headerContentHeaders);
-		when(httpHeaderService.getHeaderMessagePartFromHttpHeadersWithoutToken(httpHeaders)).thenReturn(header);
+		when(httpHeaderService.headersToMessage(httpHeaders)).thenReturn(null);
 		when(multipartMessageService.getMessage(header)).thenReturn(null);
 
 		processor.process(exchange);

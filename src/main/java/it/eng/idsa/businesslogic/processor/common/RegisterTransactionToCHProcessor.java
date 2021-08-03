@@ -41,7 +41,7 @@ public class RegisterTransactionToCHProcessor implements Processor {
 		// Send data to CH
 		boolean registrationStatus = clearingHouseService.registerTransaction(multipartMessage.getHeaderContent(), multipartMessage.getPayloadContent());
 		if (registrationStatus) {
-			logger.info("Clearing house registered succesfully");
+			logger.info("Clearing house registered successfully");
 		}else {
 			logger.info("Failed to register to clearing house");
 		}

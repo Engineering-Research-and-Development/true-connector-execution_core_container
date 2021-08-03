@@ -70,20 +70,20 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) { 
 			// create Message object from IDS-* headers, needs for UsageControl flow
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
-			header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
-			message = multipartMessageService.getMessage(header);
+//			header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
+			message = headerService.headersToMessage(headersParts);
 			if(message == null) {
 				logger.error("Message could not be created - check if all required headers are present.");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
 			}
-			
-			if (null != headersParts.get("IDS-SecurityToken-TokenValue")) {
-				token = headersParts.get("IDS-SecurityToken-TokenValue").toString();
-			}
+//			if (null != headersParts.get("IDS-SecurityToken-TokenValue")) {
+//				token = headersParts.get("IDS-SecurityToken-TokenValue").toString();
+//			}
+			token = message.getSecurityToken() != null ? message.getSecurityToken().getTokenValue() : null;
 			payload = exchange.getMessage().getBody(String.class);
 			 
 			multipartMessage = new MultipartMessageBuilder()
-					.withHeaderContent(header)
+					.withHeaderContent(message)
 					.withPayloadContent(payload)
 					.withToken(token)
 					.build();

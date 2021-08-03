@@ -46,8 +46,8 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 	@Value("${application.openDataAppReceiverRouter}")
 	private String dataAppSendRouter;
 
-	@Autowired
-	private MultipartMessageService multipartMessageService;
+//	@Autowired
+//	private MultipartMessageService multipartMessageService;
 
 	@Autowired
 	private HttpHeaderService headerService;
@@ -75,11 +75,12 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 			// create Message object from IDS-* headers, needs for UsageControl flow
-			header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
-			message = multipartMessageService.getMessage(header);
+//			header = headerService.headersToMessage(headersParts);
+			message = headerService.headersToMessage(headersParts);
 			multipartMessage = new MultipartMessageBuilder()
-					.withHeaderContent(header)
-					.withPayloadContent(payload).build();
+					.withHeaderContent(message)
+					.withPayloadContent(payload)
+					.build();
 
 		} else {
 
