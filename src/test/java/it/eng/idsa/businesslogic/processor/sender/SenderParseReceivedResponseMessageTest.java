@@ -74,7 +74,7 @@ public class SenderParseReceivedResponseMessageTest {
 		mockExchangeHeaderAndBody();
 
 		when(camelMessage.getBody(String.class)).thenReturn(PAYLOAD);
-		when(headerService.headersToMessage(headers)).thenReturn(TestUtilMessageService.getArtifactRequestMessageWithToken());
+		when(headerService.headersToMessage(headers)).thenReturn(TestUtilMessageService.getArtifactRequestMessage());
 		
 		processor.process(exchange);
 		

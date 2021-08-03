@@ -46,7 +46,7 @@ public class HttpHeaderServiceImplTest {
 	
 	@Test
 	public void messageToHeadersTest_ArtifactRequestMessage() {
-		Message message = TestUtilMessageService.getArtifactRequestMessageWithToken();
+		Message message = TestUtilMessageService.getArtifactRequestMessage();
 		
 		Map<String, Object> headers = httpHeaderServiceImpl.messageToHeaders(message);
 		assertNotNull(headers.entrySet());
@@ -57,7 +57,7 @@ public class HttpHeaderServiceImplTest {
 	
 	@Test
 	public void headersToMessageTest_ArtifactRequestMessage() {
-		ArtifactRequestMessage originalMessage = TestUtilMessageService.getArtifactRequestMessageWithToken();
+		ArtifactRequestMessage originalMessage = TestUtilMessageService.getArtifactRequestMessage();
 		Map<String, Object> headers = httpHeaderServiceImpl.messageToHeaders(originalMessage);
 		ArtifactRequestMessage message = (ArtifactRequestMessage) httpHeaderServiceImpl.headersToMessage(headers);
 		assertNotNull(message);
@@ -71,7 +71,7 @@ public class HttpHeaderServiceImplTest {
 	
 	@Test
 	public void messageToHeadersTest_DescriptionRequestMessage() {
-		Message message = TestUtilMessageService.getDescriptionRequestMessage();
+		Message message = TestUtilMessageService.getDescriptionRequestMessage(null);
 		
 		Map<String, Object> headers = httpHeaderServiceImpl.messageToHeaders(message);
 		assertNotNull(headers.entrySet());
@@ -83,7 +83,7 @@ public class HttpHeaderServiceImplTest {
 	
 	@Test
 	public void headersToMessageTest_ArtifactRequestMessage_AdditionalHeaders() {
-		ArtifactRequestMessage originalMessage = TestUtilMessageService.getArtifactRequestMessageWithToken();
+		ArtifactRequestMessage originalMessage = TestUtilMessageService.getArtifactRequestMessage();
 		Map<String, Object> headers = httpHeaderServiceImpl.messageToHeaders(originalMessage);
 		headers.put("Accept", "*/*");
 		headers.put("foo", null);

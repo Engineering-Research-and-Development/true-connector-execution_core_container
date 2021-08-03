@@ -75,7 +75,7 @@ public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 	
 	@EventListener(ApplicationReadyEvent.class)
 	public void fetchTokenOnStartup() {
-		if ((fetchTokenOnStartup && isEnabledDapsInteraction) && StringUtils.isBlank(cachedToken)) {
+		if ((fetchTokenOnStartup && useDaps) && StringUtils.isBlank(cachedToken)) {
 			logger.info("Fetching DAT token on startup");
 			provideToken();
 		}

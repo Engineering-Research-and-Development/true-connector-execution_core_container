@@ -75,7 +75,6 @@ public class ValidateTokenProcessor implements Processor {
 		}
 		
 		logger.info("is token valid: "+isTokenValid);
-		multipartMessage = multipartMessageService.removeTokenFromMultipart(multipartMessage);
 //		httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
 		multipartMessage = new MultipartMessageBuilder().withHeaderContent(multipartMessage.getHeaderContent())
 				.withHttpHeader(multipartMessage.getHttpHeaders()).withHeaderHeader(multipartMessage.getHeaderHeader())
