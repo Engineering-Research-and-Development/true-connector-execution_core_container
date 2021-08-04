@@ -70,27 +70,17 @@ public class GetTokenFromDapsProcessor implements Processor {
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN_LOCAL_ISSUES, message);
 		}
 
-//		logger.info("token=" + token);
-//		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) {
-//			// TODO move this to SendDataToBussinessLogicServiceImpl
-//			multipartMessage = new MultipartMessageBuilder().withHttpHeader(multipartMessage.getHttpHeaders())
-//					.withHeaderHeader(multipartMessage.getHeaderHeader())
-//					.withHeaderContent(multipartMessage.getHeaderContent())
-//					.withPayloadHeader(multipartMessage.getPayloadHeader())
-//					.withPayloadContent(multipartMessage.getPayloadContent()).withToken(token).build();
-//		} else {
-			String messageStringWithToken = multipartMessageService.addToken(message, token);
-			logger.debug("messageStringWithToken=\n" + messageStringWithToken);
+		String messageStringWithToken = multipartMessageService.addToken(message, token);
+		logger.debug("messageStringWithToken=\n" + messageStringWithToken);
 
-			multipartMessage = new MultipartMessageBuilder()
-					.withHttpHeader(multipartMessage.getHttpHeaders())
-					.withHeaderHeader(multipartMessage.getHeaderHeader())
-					.withHeaderContent(messageStringWithToken)
-					.withPayloadHeader(multipartMessage.getPayloadHeader())
-					.withPayloadContent(multipartMessage.getPayloadContent())
-					.withToken(token)
-					.build();
-//		}
+		multipartMessage = new MultipartMessageBuilder()
+				.withHttpHeader(multipartMessage.getHttpHeaders())
+				.withHeaderHeader(multipartMessage.getHeaderHeader())
+				.withHeaderContent(messageStringWithToken)
+				.withPayloadHeader(multipartMessage.getPayloadHeader())
+				.withPayloadContent(multipartMessage.getPayloadContent())
+				.withToken(token)
+				.build();
 		// Return exchange
 		exchange.getMessage().setBody(multipartMessage);
 		exchange.getMessage().setHeaders(headersParts);

@@ -111,7 +111,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		List<URI> recipientAgent = new ArrayList<>();
 		if(headers.containsKey("IDS-recipientAgent")) {
 			if(headers.get("IDS-recipientAgent") instanceof String) {
-				recipientAgent.add(URI.create((String) headers.get("IDS-recipientAgent")));
+				recipientAgent.add(URI.create((String) headers.get("IDS-RecipientAgent")));
 			} else {
 				recipientAgent = (List<URI>) headers.get("IDS-recipientAgent");
 			}
@@ -137,7 +137,8 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		return headers.entrySet().stream()
 				.filter(e -> StringUtils.containsIgnoreCase(e.getKey(), "IDS-"))
 				.collect(java.util.stream.Collectors.toMap(
-						e -> e.getKey().replace("IDS-", "ids:"), 
+						//TODO infomodel 4.1.1 requires ids:senderAgent and not ids:SenderAgent; provide more elegant fix
+						e -> e.getKey().replace("IDS-", "ids:").replace(e.getKey().substring(4,5), e.getKey().substring(4,5).toLowerCase()),
 						e -> e.getValue()));
 	}
 	
