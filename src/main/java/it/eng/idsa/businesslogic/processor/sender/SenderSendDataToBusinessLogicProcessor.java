@@ -103,14 +103,17 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 			this.handleResponseWebSocket(exchange, message, response, forwardTo);
 		} else {
 			// Send MultipartMessage HTTPS
-			Response response = this.sendMultipartMessage(headerParts,	forwardTo, message,  multipartMessage);
-			// Check response
-			sendDataToBusinessLogicService.checkResponse(message, response, forwardTo);
-			// Handle response
-			this.handleResponse(exchange, message, response, forwardTo);
-
-			if (response != null) {
-				response.close();
+			Response response = null;
+			try {
+				response = this.sendMultipartMessage(headerParts,	forwardTo, message,  multipartMessage);
+				// Check response
+				sendDataToBusinessLogicService.checkResponse(message, response, forwardTo);
+				// Handle response
+				this.handleResponse(exchange, message, response, forwardTo);
+			} finally {
+				if (response != null) {
+					response.close();
+				}
 			}
 		}
 	}
@@ -122,15 +125,15 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		// -- Send message using HTTPS
 			switch (eccHttpSendRouter) {
 			case "mixed": {
-				response = sendDataToBusinessLogicService.sendMessageBinary(forwardTo, multipartMessage, headerParts, true);
+				response = sendDataToBusinessLogicService.sendMessageBinary(forwardTo, multipartMessage, headerParts);
 				break;
 			}
 			case "form": {
-				response = sendDataToBusinessLogicService.sendMessageFormData(forwardTo, multipartMessage, headerParts, true);
+				response = sendDataToBusinessLogicService.sendMessageFormData(forwardTo, multipartMessage, headerParts);
 				break;
 			}
 			case "http-header": {
-				response = sendDataToBusinessLogicService.sendMessageHttpHeader(forwardTo, multipartMessage, headerParts, true);
+				response = sendDataToBusinessLogicService.sendMessageHttpHeader(forwardTo, multipartMessage, headerParts);
 				break;
 			}
 			default:

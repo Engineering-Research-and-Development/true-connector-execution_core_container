@@ -89,13 +89,13 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER, String.class);
 		mockExchangeHeaderAndBody();
 		
-		when(sendDataToBusinessLogicService.sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers, true))
+		when(sendDataToBusinessLogicService.sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers))
 			.thenReturn(response);
 		doNothing().when(sendDataToBusinessLogicService).checkResponse(message, response, FORWARD_TO);
 		
 		processor.process(exchange);
 		
-		verify(sendDataToBusinessLogicService).sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers, true);
+		verify(sendDataToBusinessLogicService).sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers);
 		verify(camelMessage).setBody(PAYLOAD_RESPONSE);
 	}
 	
@@ -115,7 +115,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 				RequestResponseUtil.createResponseBodyJsonUTF8(PAYLOAD_RESPONSE), 
 				404);
 		
-		when(sendDataToBusinessLogicService.sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers, true))
+		when(sendDataToBusinessLogicService.sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers))
 			.thenReturn(response);
 		doThrow(ExceptionForProcessor.class).when(sendDataToBusinessLogicService).checkResponse(message, response, FORWARD_TO);
 	
@@ -124,7 +124,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	            	processor.process(exchange);
 	            });
 		
-		verify(sendDataToBusinessLogicService).sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers, true);
+		verify(sendDataToBusinessLogicService).sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers);
 	}
 
 	@Test
@@ -135,7 +135,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 
 		mockExchangeHeaderAndBody();
 		
-		when(sendDataToBusinessLogicService.sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers, true))
+		when(sendDataToBusinessLogicService.sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers))
 			.thenReturn(null);
 		doThrow(ExceptionForProcessor.class).when(sendDataToBusinessLogicService).checkResponse(message, null, FORWARD_TO);
 	
@@ -144,7 +144,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	            	processor.process(exchange);
 	            });
 		
-		verify(sendDataToBusinessLogicService).sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers, true);
+		verify(sendDataToBusinessLogicService).sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers);
 	}
 	
 	@Test
@@ -160,7 +160,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 				RequestResponseUtil.createResponseBodyJsonUTF8(PAYLOAD_RESPONSE), 
 				200);
 		
-		when(sendDataToBusinessLogicService.sendMessageBinary(FORWARD_TO, multipartMessage, headers, true))
+		when(sendDataToBusinessLogicService.sendMessageBinary(FORWARD_TO, multipartMessage, headers))
 			.thenReturn(response);
 		
 		when(multipartMessageService.getHeaderContentString(PAYLOAD_RESPONSE)).thenReturn(HEADER_MESSAGE_STRING);
@@ -168,7 +168,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 		
 		processor.process(exchange);
 		
-		verify(sendDataToBusinessLogicService).sendMessageBinary(FORWARD_TO, multipartMessage, headers, true);
+		verify(sendDataToBusinessLogicService).sendMessageBinary(FORWARD_TO, multipartMessage, headers);
 		verify(camelMessage).setHeader(MessagePart.HEADER, HEADER_MESSAGE_STRING);
 		verify(camelMessage).setHeader(MessagePart.PAYLOAD, PAYLOAD);
 	}
@@ -185,7 +185,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 				"ABC", 
 				RequestResponseUtil.createResponseBodyJsonUTF8(PAYLOAD_RESPONSE), 
 				200);
-		when(sendDataToBusinessLogicService.sendMessageFormData(FORWARD_TO, multipartMessage, headers, true))
+		when(sendDataToBusinessLogicService.sendMessageFormData(FORWARD_TO, multipartMessage, headers))
 			.thenReturn(response);
 		
 		when(multipartMessageService.getHeaderContentString(PAYLOAD_RESPONSE)).thenReturn(HEADER_MESSAGE_STRING);
@@ -193,7 +193,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 		
 		processor.process(exchange);
 		
-		verify(sendDataToBusinessLogicService).sendMessageFormData(FORWARD_TO, multipartMessage, headers, true);
+		verify(sendDataToBusinessLogicService).sendMessageFormData(FORWARD_TO, multipartMessage, headers);
 		verify(camelMessage).setHeader(MessagePart.HEADER, HEADER_MESSAGE_STRING);
 		verify(camelMessage).setHeader(MessagePart.PAYLOAD, PAYLOAD);
 	}
