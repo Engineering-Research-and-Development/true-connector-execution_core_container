@@ -102,7 +102,6 @@ public class KeystoreProvider {
 				logger.info("DAPS Interaction disabled. KeyStore and/or trustStore not loaded");
 				logger.info("**********************************************************************");
 			}
-			;
 		}
 	}
 
