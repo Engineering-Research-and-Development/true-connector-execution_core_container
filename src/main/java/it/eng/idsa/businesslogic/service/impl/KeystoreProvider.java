@@ -39,8 +39,6 @@ public class KeystoreProvider {
 	private String keystoreAlias;
 	private KeyManagerFactory kmf;
 	private TrustManagerFactory trustFactory;
-	@Value("${application.isEnabledDapsInteraction}")
-	private boolean isEnabledDapsInteraction;
 
 	public KeystoreProvider(@Value("${application.targetDirectory}") Path targetDirectory,
 			@Value("${application.keyStoreName}") String keyStoreName,
@@ -48,7 +46,8 @@ public class KeystoreProvider {
 			@Value("${application.keystoreAliasName}") String keystoreAliasName,
 			@Value("${application.trustStoreName:}") String trustStoreName,
 			@Value("${application.trustStorePassword}") String trustStorePwd,
-			@Value("${application.disableSslVerification:false}") boolean disableSslVerification) {
+			@Value("${application.disableSslVerification:false}") boolean disableSslVerification,
+			@Value("${application.isEnabledDapsInteraction}") boolean isEnabledDapsInteraction) {
 
 		keyStorePwd = keyStorePassword;
 		keystoreAlias = keystoreAliasName;
@@ -96,13 +95,12 @@ public class KeystoreProvider {
 		} catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException
 				| UnrecoverableKeyException e) {
 			if (isEnabledDapsInteraction) {
-				logger.error("Error while loading keystore and truststore, {}", e);
+				logger.error("Error while loading keystore and/or truststore. DAPS interaction will not work.", e);
 			} else {
 				logger.info("**********************************************************************");
 				logger.info("DAPS Interaction disabled. KeyStore and/or trustStore not loaded");
 				logger.info("**********************************************************************");
 			}
-			;
 		}
 	}
 
