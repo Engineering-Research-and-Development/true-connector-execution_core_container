@@ -1,18 +1,11 @@
 package it.eng.idsa.businesslogic.util;
 
-import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
-import org.junit.jupiter.api.Test;
-
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-
-import de.fraunhofer.iais.eis.BaseConnectorBuilder;
-import de.fraunhofer.iais.eis.Connector;
-import it.eng.idsa.businesslogic.service.resources.SelfDescription;
 
 public class JwTokenUtil {
 	
