@@ -71,6 +71,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		}
 		logger.info("Done creating self description document.");
 		SelfDescription.getInstance().setBaseConnector(connector);
+		issuerConnectorURI = getConnector().getId();
 	}
 
 	private Connector createDefaultSelfDescription() {
