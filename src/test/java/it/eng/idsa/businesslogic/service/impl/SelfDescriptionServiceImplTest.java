@@ -48,7 +48,6 @@ public class SelfDescriptionServiceImplTest {
 	private URI endpointUri = URI.create("https://defaultEndpoint");
 	private URI senderAgent = URI.create("https://senderAgent.com");
 
-	
 	@BeforeEach
 	public void setup() throws ConstraintViolationException, URISyntaxException {
 		MockitoAnnotations.initMocks(this);
@@ -61,9 +60,9 @@ public class SelfDescriptionServiceImplTest {
 		when(configuration.getDefaultEndpoint()).thenReturn(endpointUri);
 		when(configuration.getMaintainer()).thenReturn(maintainerURI);
 		when(configuration.getSenderAgent()).thenReturn(senderAgent);
+		when(selfDescriptionManager.getValidConnector(any(Connector.class))).thenReturn(SelfDescriptionUtil.getBaseConnector());
 		selfDefinitionService = new SelfDescriptionServiceImpl(configuration, dapsProvider, selfDescriptionManager);
 		selfDefinitionService.initConnector();
-		when(selfDescriptionManager.getValidConnector(any())).thenReturn(SelfDescriptionUtil.getBaseConnector());
 	}
 
 	@Test
