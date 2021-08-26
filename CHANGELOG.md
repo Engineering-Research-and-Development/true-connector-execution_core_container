@@ -1,10 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [0.0.28-SNAPSHOT] - 2021-08-03
+## [0.1.0-SNAPSHOT] - 2021-08-27
  
 ### Changed
  - infomodel version has been changed to 4.1.1
+ 
+ ### Added
+ - mandatory fields/properties to RejectionMessages 
  
 ## [0.0.27-SNAPSHOT] - 2021-08-02
 
