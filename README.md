@@ -25,7 +25,7 @@ If you want to use your own certificate for the AISEC Fraunhofer DAPS server:
 
 Finally, run the application:
 
-*  Execute `docker-compose up &`
+*  Execute `docker-compose up`
 
 
 ## Endpoints
