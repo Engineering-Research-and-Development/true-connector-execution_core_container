@@ -25,7 +25,7 @@
 		<information.model.version>4.1.1</information.model.version>
 		<application.basedir>${basedir}</application.basedir>
 		<multipart.message.processor.version>1.0.10-SNAPSHOT</multipart.message.processor.version>
-		<idscp2.libraries.version>0.4.2</idscp2.libraries.version>
+		<idscp2.libraries.version>0.5.2</idscp2.libraries.version>
 	</properties>
 
 	<repositories>
@@ -376,13 +376,13 @@
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20201115</version>
+			<version>20210307</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.bitbucket.b_c</groupId>
 			<artifactId>jose4j</artifactId>
-			<version>0.7.6</version>
+			<version>0.7.8</version>
 		</dependency>
 
 		<dependency>
@@ -390,6 +390,11 @@
 			<artifactId>protoc</artifactId>
 			<version>3.15.5</version>
 			<type>pom</type>
+		</dependency>
+		<dependency>
+			<groupId>de.fhg.aisec.ids</groupId>
+			<artifactId>idscp2-rat-tpm2d</artifactId>
+			<version>0.2.2</version>
 		</dependency>
 		<!-- IDSCP2 -->
 
