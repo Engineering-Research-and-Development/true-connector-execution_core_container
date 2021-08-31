@@ -63,12 +63,12 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 			} else if(entry.getValue() instanceof Map) {
 				Map<String, Object> valueMap = (Map<String, Object>) entry.getValue();
 				if(valueMap.get("@id") != null) {
-					headers.put(entry.getKey().replace("ids:", "IDS-"), valueMap.get("@id"));
+					headers.put(entry.getKey().replace("ids:", "IDS-").replace(entry.getKey().substring(4,5), entry.getKey().substring(4,5).toUpperCase()), valueMap.get("@id"));
 				} else if(valueMap.get("@value") != null) {
-					headers.put(entry.getKey().replace("ids:", "IDS-"), valueMap.get("@value"));
+					headers.put(entry.getKey().replace("ids:", "IDS-").replace(entry.getKey().substring(4,5), entry.getKey().substring(4,5).toUpperCase()), valueMap.get("@value"));
 				}
 			} else {
-				headers.put(entry.getKey().replace("ids:", "IDS-"), entry.getValue());
+				headers.put(entry.getKey().replace("ids:", "IDS-").replace(entry.getKey().substring(4,5), entry.getKey().substring(4,5).toUpperCase()), entry.getValue());
 			}
 		});
 		return headers;
