@@ -137,7 +137,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		return headers.entrySet().stream()
 				.filter(e -> StringUtils.containsIgnoreCase(e.getKey(), "IDS-"))
 				.collect(java.util.stream.Collectors.toMap(
-						e -> e.getKey().replace("IDS-", "ids:"), 
+						e -> e.getKey().replace("IDS-", "ids:").replace(e.getKey().substring(4,5), e.getKey().substring(4,5).toLowerCase()),
 						e -> e.getValue()));
 	}
 	
