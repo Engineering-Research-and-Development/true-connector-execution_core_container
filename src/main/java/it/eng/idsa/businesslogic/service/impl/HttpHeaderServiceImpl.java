@@ -52,8 +52,11 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		
 		messageAsMap.entrySet().forEach(entry -> {
 			if(entry.getKey().equals("@id")) {
-				headers.put("IDS-Id", entry.getValue());
+				headers.put("IDS-Id", message.getId().toString());
 			} else if(entry.getKey().equals("@type")) {
+				// when using Java it looks like this
+				// headers.put("IDS-Messagetype", "ids:" + message.getClass().getInterfaces()[1].getSimpleName());
+				// for now we agreed to use the following, because of simplicity
 				headers.put("IDS-Messagetype", entry.getValue());
 			} else if (entry.getKey().equals("ids:securityToken")) {
 				headers.put("IDS-SecurityToken-Type", ((Map<String, Object>) entry.getValue()).get("@type"));
