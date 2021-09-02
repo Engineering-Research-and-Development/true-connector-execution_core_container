@@ -52,23 +52,26 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		
 		messageAsMap.entrySet().forEach(entry -> {
 			if(entry.getKey().equals("@id")) {
-				headers.put("IDS-Id", entry.getValue());
+				headers.put("IDS-Id", message.getId().toString());
 			} else if(entry.getKey().equals("@type")) {
+				// when using Java it looks like this
+				// headers.put("IDS-Messagetype", "ids:" + message.getClass().getInterfaces()[1].getSimpleName());
+				// for now we agreed to use the following, because of simplicity
 				headers.put("IDS-Messagetype", entry.getValue());
 			} else if (entry.getKey().equals("ids:securityToken")) {
 				headers.put("IDS-SecurityToken-Type", ((Map<String, Object>) entry.getValue()).get("@type"));
-				headers.put("IDS-SecurityToken-Id", ((Map<String, Object>) entry.getValue()).get("@id"));
-				headers.put("IDS-SecurityToken-TokenFormat", ((Map<String, Object>)((Map<String, Object>) entry.getValue()).get("ids:tokenFormat")).get("@id"));
-				headers.put("IDS-SecurityToken-TokenValue", ((Map<String, Object>) entry.getValue()).get("ids:tokenValue"));
+                headers.put("IDS-SecurityToken-Id", message.getSecurityToken().getId().toString());
+                headers.put("IDS-SecurityToken-TokenFormat", message.getSecurityToken().getTokenFormat().toString());
+                headers.put("IDS-SecurityToken-TokenValue", message.getSecurityToken().getTokenValue());
 			} else if(entry.getValue() instanceof Map) {
 				Map<String, Object> valueMap = (Map<String, Object>) entry.getValue();
 				if(valueMap.get("@id") != null) {
-					headers.put(entry.getKey().replace("ids:", "IDS-"), valueMap.get("@id"));
+					headers.put(entry.getKey().replaceFirst("ids:", "IDS-").replaceFirst(entry.getKey().substring(4,5), entry.getKey().substring(4,5).toUpperCase()), valueMap.get("@id"));
 				} else if(valueMap.get("@value") != null) {
-					headers.put(entry.getKey().replace("ids:", "IDS-"), valueMap.get("@value"));
+					headers.put(entry.getKey().replaceFirst("ids:", "IDS-").replaceFirst(entry.getKey().substring(4,5), entry.getKey().substring(4,5).toUpperCase()), valueMap.get("@value"));
 				}
 			} else {
-				headers.put(entry.getKey().replace("ids:", "IDS-"), entry.getValue());
+				headers.put(entry.getKey().replaceFirst("ids:", "IDS-").replaceFirst(entry.getKey().substring(4,5), entry.getKey().substring(4,5).toUpperCase()), entry.getValue());
 			}
 		});
 		return headers;
@@ -99,23 +102,23 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		
 		// handle recipientConnector - List
 		List<URI> recipientConnector = new ArrayList<>();
-		if(headers.containsKey("IDS-recipientConnector")) {
-			if(headers.get("IDS-recipientConnector") instanceof String) {
-				recipientConnector.add(URI.create((String) headers.get("IDS-recipientConnector")));
+		if(headers.containsKey("IDS-RecipientConnector")) {
+			if(headers.get("IDS-RecipientConnector") instanceof String) {
+				recipientConnector.add(URI.create((String) headers.get("IDS-RecipientConnector")));
 			} else {
-				recipientConnector = (List<URI>) headers.get("IDS-recipientConnector");
+				recipientConnector = (List<URI>) headers.get("IDS-RecipientConnector");
 			}
-			headers.remove("IDS-recipientConnector");
+			headers.remove("IDS-RecipientConnector");
 		}
 		// handle recipientAgent - List
 		List<URI> recipientAgent = new ArrayList<>();
-		if(headers.containsKey("IDS-recipientAgent")) {
-			if(headers.get("IDS-recipientAgent") instanceof String) {
+		if(headers.containsKey("IDS-RecipientAgent")) {
+			if(headers.get("IDS-RecipientAgent") instanceof String) {
 				recipientAgent.add(URI.create((String) headers.get("IDS-RecipientAgent")));
 			} else {
-				recipientAgent = (List<URI>) headers.get("IDS-recipientAgent");
+				recipientAgent = (List<URI>) headers.get("IDS-RecipientAgent");
 			}
-			headers.remove("IDS-recipientAgent");
+			headers.remove("IDS-RecipientAgent");
 		}
 			
 		messageAsHeader = getIDSHeaders(headers);
@@ -137,8 +140,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		return headers.entrySet().stream()
 				.filter(e -> StringUtils.containsIgnoreCase(e.getKey(), "IDS-"))
 				.collect(java.util.stream.Collectors.toMap(
-						//TODO infomodel 4.1.1 requires ids:senderAgent and not ids:SenderAgent; provide more elegant fix
-						e -> e.getKey().replace("IDS-", "ids:").replace(e.getKey().substring(4,5), e.getKey().substring(4,5).toLowerCase()),
+						e -> e.getKey().replaceFirst("IDS-", "ids:").replaceFirst(e.getKey().substring(4,5), e.getKey().substring(4,5).toLowerCase()),
 						e -> e.getValue()));
 	}
 	
@@ -171,6 +173,9 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 
 		for (String name : headers.names()) {
 			List<String> value = headers.values(name);
+			if (name.startsWith("IDS-")) {
+				name = name.replaceFirst(name.substring(4,5), name.substring(4,5).toUpperCase());
+			}
 			if (value.size() == 1) {
 				originalHeaders.put(name, value.get(0));
 			} else {
