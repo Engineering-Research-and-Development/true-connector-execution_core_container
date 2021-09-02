@@ -20,9 +20,24 @@ jobs:
       - name: Git Checkout
         uses: actions/checkout@v2
       
-      - name: Run Install
-        run: ./ci/install.sh
+      - name: Run env setup
+        run: ./ci/setupEnv.sh
         
+      - name: Run multipart message lib
+        run: ./ci/mmLib.sh
+        
+      - name: Run websocket-message-streamer-lib
+        run: ./ci/wmsLib.sh
+        
+      - name: Run Cloning and Creating Docker Container from Data-App repo
+        run: ./ci/dataApp.sh
+        
+      - name: Run Downloading and installing Clearing-House Model
+        run: ./ci/ch.sh
+        
+      - name: Run Creating Docker Container for ECCs
+        run: ./ci/ecc.sh
+      
       - name: Docker images
         run:  docker images
         
