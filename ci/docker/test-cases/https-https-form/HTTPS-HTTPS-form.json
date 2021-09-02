@@ -37,7 +37,7 @@
 						],
 						"body": {
 							"mode": "raw",
-					        "raw": "{\r\n    \"multipart\": \"form\",\r\n    \"Forward-To\": \"https://ecc-provider:8889/data\",\r\n    \"messageType\": \"ArtifactRequestMessage\" ,\r\n    \"requestedArtifact\": \"http://w3id.org/engrd/connector/artifact/2\" ,\r\n     \"payload\" : {\r\n\t\t\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"\r\n\t\t}\r\n}"
+					        "raw": "{\r\n    \"multipart\": \"form\",\r\n    \"Forward-To\": \"https://ecc-provider:8889/data\",\r\n    \"messageType\": \"ArtifactRequestMessage\" ,\r\n    \"requestedArtifact\": \"http://w3id.org/engrd/connector/artifact/1\" ,\r\n     \"payload\" : {\r\n\t\t\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"\r\n\t\t}\r\n}"
 						},
 						"url": {
 							"raw": "https://localhost:8085/proxy",
