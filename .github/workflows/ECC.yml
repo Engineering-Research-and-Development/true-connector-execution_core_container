@@ -38,8 +38,9 @@ jobs:
       - name: Run Test HTTPS-HTTPS-mixed
         run: newman run ./ci/docker/test-cases/https-https-mixed/HTTPS-HTTPS-mixed.json --timeout-request 120000 --insecure --verbose -x
         
-      - name: Run Test docker logs
-        run: docker-compose logs -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed/.env up -d
+      - name: Dump docker logs on failure
+        if: failure()
+        uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container HTTPS-HTTPS-mixed
         run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed/.env down -v
