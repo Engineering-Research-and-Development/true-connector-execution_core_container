@@ -36,7 +36,7 @@ jobs:
         run: docker ps -a 
       
       - name: Run Test HTTPS-HTTPS-mixed
-        run: newman run ./ci/docker/test-cases/https-https-mixed/HTTPS-HTTPS-mixed.json --timeout-request 120000 --insecure --verbose
+        run: newman run ./ci/docker/test-cases/https-https-mixed/HTTPS-HTTPS-mixed.json --timeout-request 120000 --insecure --verbose -x
         
       - name: Run Test docker logs
         run: docker-compose logs -f ./ci/docker/test-cases/docker-compose.yml
