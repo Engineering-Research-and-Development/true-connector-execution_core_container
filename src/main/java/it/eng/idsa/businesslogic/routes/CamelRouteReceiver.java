@@ -173,7 +173,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 					// Send to the Endpoint: F
 					.process(sendDataToDataAppProcessor)
 					.process(multiPartMessageProcessor)
-					.process(getTokenFromDapsProcessor)
 					.process(registerTransactionToCHProcessor)
 					.process(receiverUsageControlProcessor)
 					.process(mapMultipartToIDSCP2);
@@ -192,7 +191,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 					// Send to the Endpoint: F
 					.process(sendDataToDataAppProcessorOverWS)
 					.process(multiPartMessageProcessor)
-					.process(getTokenFromDapsProcessor)
 					.process(receiverUsageControlProcessor)
 					.process(registerTransactionToCHProcessor)
 					.process(mapMultipartToIDSCP2);
