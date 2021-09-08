@@ -2,6 +2,7 @@ package it.eng.idsa.businesslogic.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URI;
@@ -68,6 +69,8 @@ public class HttpHeaderServiceImplTest {
 
 		assertNotNull(message.getSecurityToken());
 		assertEquals(TestUtilMessageService.TOKEN_VALUE, message.getSecurityToken().getTokenValue());
+		// verify that message is serialized correct and that there are no properties that could not be parsed
+		assertNull(message.getProperties());
 	}
 	
 	@Test
@@ -97,6 +100,8 @@ public class HttpHeaderServiceImplTest {
 
 		assertNotNull(message.getSecurityToken());
 		assertEquals(TestUtilMessageService.TOKEN_VALUE, message.getSecurityToken().getTokenValue());
+		// verify that message is serialized correct and that there are no properties that could not be parsed
+		assertNull(message.getProperties());
 	}
 	
 	@Test
@@ -123,6 +128,8 @@ public class HttpHeaderServiceImplTest {
 		
 		ArtifactResponseMessage result = (ArtifactResponseMessage) httpHeaderServiceImpl.headersToMessage(headers);
 		assertNotNull(result);
+		// verify that message is serialized correct and that there are no properties that could not be parsed
+		assertNull(result.getProperties());
 	}
 	
 	@Test

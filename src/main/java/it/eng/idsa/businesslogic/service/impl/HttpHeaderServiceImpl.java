@@ -131,8 +131,8 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		messageAsHeader.put("@type", type);
 		messageAsHeader.put("@id", id);
 		
-		headers.entrySet().removeIf(entry -> entry.getKey().startsWith("IDS") || entry.getKey().startsWith("ids"));
-
+		headers.entrySet().removeIf(entry -> entry.getKey().startsWith("IDS-") || entry.getKey().startsWith("ids:"));
+		
 		return mapper.convertValue(messageAsHeader, Message.class);
 	}
 
@@ -181,7 +181,6 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 			} else {
 				originalHeaders.put(name, value);
 			}
-			originalHeaders.keySet().size();
 		}
 		return originalHeaders;
 	}
