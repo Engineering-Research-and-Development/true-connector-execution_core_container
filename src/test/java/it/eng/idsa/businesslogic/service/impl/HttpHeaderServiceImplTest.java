@@ -19,6 +19,7 @@ import de.fraunhofer.iais.eis.ArtifactResponseMessageImpl;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 import okhttp3.Headers;
 
 public class HttpHeaderServiceImplTest {
@@ -33,17 +34,17 @@ public class HttpHeaderServiceImplTest {
 		
 		headers = new HashMap<String, Object>();
 		headers.put("IDS-Messagetype","ids:ArtifactResponseMessage");
-		headers.put("IDS-Issued","2019-05-27T13:09:42.306Z");
-		headers.put("IDS-IssuerConnector","http://iais.fraunhofer.de/ids/mdm-connector");
-		headers.put("IDS-CorrelationMessage","http://industrialdataspace.org/connectorUnavailableMessage/1a421b8c-3407-44a8-aeb9-253f145c869a");
-		headers.put("IDS-TransferContract","https://mdm-connector.ids.isst.fraunhofer.de/examplecontract/bab-bayern-sample/");
+		headers.put("IDS-Issued", UtilMessageService.ISSUED.toString());
+		headers.put("IDS-IssuerConnector", UtilMessageService.ISSUER_CONNECTOR);
+		headers.put("IDS-CorrelationMessage", UtilMessageService.CORRELATION_MESSAGE);
+		headers.put("IDS-TransferContract", UtilMessageService.TRANSFER_CONTRACT);
 		headers.put("IDS-Id","https://w3id.org/idsa/autogen/artifactResponseMessage/eb3ab487-dfb0-4d18-b39a-585514dd044f");
-		headers.put("IDS-ModelVersion","4.0.0");
-		headers.put("IDS-RequestedArtifact", "http://mdm-connector.ids.isst.fraunhofer.de/artifact/1");
+		headers.put("IDS-ModelVersion", UtilMessageService.MODEL_VERSION);
+		headers.put("IDS-RequestedArtifact", "http://w3id.org/engrd/connector/artifact/1");
 		headers.put("foo", "bar");
 		headers.put("Forward-To", "https://forwardToURL");
 	}
-	
+
 	@Test
 	public void messageToHeadersTest_ArtifactRequestMessage() {
 		Message message = TestUtilMessageService.getArtifactRequestMessage();
@@ -134,12 +135,12 @@ public class HttpHeaderServiceImplTest {
 		hb.add("IDS-Id", "https://www.id.com");
 		hb.add("IDS-RecipientConnector", "https://connector1.com");
 		hb.add("IDS-RecipientConnector", "https://connector2.com");
-		hb.add("IDS-InfoModel", "4.0.0");
+		hb.add("IDS-InfoModel", UtilMessageService.MODEL_VERSION);
 		
 		Map<String, Object> headersAsMap = httpHeaderServiceImpl.okHttpHeadersToMap(hb.build());
 		assertEquals(headersAsMap.get("IDS-MessageType"), "ids:ArtifactRequestMessage");
 		assertEquals(((List<String>) headersAsMap.get("IDS-RecipientConnector")).size(), 2);
 		assertEquals(((List<String>) headersAsMap.get("IDS-RecipientAgent")).size(), 2);
-		assertEquals(headersAsMap.get("IDS-InfoModel"), "4.0.0");
+		assertEquals(headersAsMap.get("IDS-InfoModel"), UtilMessageService.MODEL_VERSION);
 	}
 }

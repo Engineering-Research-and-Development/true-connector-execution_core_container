@@ -126,12 +126,12 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		messageAsHeader.put("ids:securityToken", tokeAsMap);
 		messageAsHeader.put("ids:recipientConnector", recipientConnector);
 		messageAsHeader.put("ids:recipientAgent", recipientAgent);
-		messageAsHeader.remove("IDS-Messagetype");
-		messageAsHeader.remove("IDS-Id");
+		messageAsHeader.remove("ids:messagetype");
+		messageAsHeader.remove("ids:id");
 		messageAsHeader.put("@type", type);
 		messageAsHeader.put("@id", id);
 		
-		headers.entrySet().removeIf(entry -> entry.getKey().contains("IDS") || entry.getKey().contains("ids"));
+		headers.entrySet().removeIf(entry -> entry.getKey().startsWith("IDS") || entry.getKey().startsWith("ids"));
 
 		return mapper.convertValue(messageAsHeader, Message.class);
 	}
