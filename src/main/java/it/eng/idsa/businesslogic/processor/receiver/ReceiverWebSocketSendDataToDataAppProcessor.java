@@ -11,9 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.sender.websocket.client.MessageWebSocketOverHttpSender;
@@ -57,7 +54,7 @@ public class ReceiverWebSocketSendDataToDataAppProcessor implements Processor {
         MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 
         // Get header, payload and message
-        String header = filterHeader(multipartMessage.getHeaderContentString());
+        String header = multipartMessage.getHeaderContentString();
         String payload = null;
         this.originalHeader = header;
         payload = multipartMessage.getPayloadContent();
@@ -69,11 +66,6 @@ public class ReceiverWebSocketSendDataToDataAppProcessor implements Processor {
         // Handle response
         handleResponse(exchange, message, response, configuration.getOpenDataAppReceiver());
       }	
-
-      private String filterHeader(String header) throws JsonMappingException, JsonProcessingException {
-      	Message message = multipartMessageService.getMessage(header);
-      	return multipartMessageService.removeToken(message);
-      }
 
       private void handleResponse(Exchange exchange, Message message, String response, String openApiDataAppAddress) throws UnsupportedOperationException, IOException {
           if (response == null) {
