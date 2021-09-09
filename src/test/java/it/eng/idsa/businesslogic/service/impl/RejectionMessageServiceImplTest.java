@@ -43,7 +43,6 @@ public class RejectionMessageServiceImplTest {
 	@BeforeEach
 	public void init() {
 		MockitoAnnotations.initMocks(this);
-		ReflectionTestUtils.setField(rejectionMessageServiceImpl, "informationModelVersion", "4.1.1", String.class);
 		when(dapsProvider.getDynamicAtributeToken()).thenReturn(UtilMessageService.getDynamicAttributeToken());
 		when(selfDescriptionConfiguration.getConnectorURI()).thenReturn(URI.create("http://auto-generated"));
 		message = UtilMessageService.getArtifactResponseMessage();

@@ -123,8 +123,6 @@ public class SenderParseReceivedResponseMessageTest {
 				selfDescriptionConfiguration, SelfDescriptionConfiguration.class);
 		ReflectionTestUtils.setField(rejectionMessageService, "dapsProvider", 
 				dapsTokenProviderService, DapsTokenProviderService.class);
-		ReflectionTestUtils.setField(rejectionMessageService, "informationModelVersion", 
-				"4.1.1", String.class);
 		
 		assertThrows(ExceptionForProcessor.class,
 	            ()->{

@@ -7,7 +7,6 @@ import java.net.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +23,7 @@ import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 import it.eng.idsa.multipart.util.DateUtil;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 /**
  *
@@ -42,9 +42,6 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 	
 	@Autowired
 	private SelfDescriptionConfiguration selfDescriptionConfiguration;
-
-	@Value("${information.model.version}")
-	private String informationModelVersion;
 
 	@Override
 	public void sendRejectionMessage(RejectionMessageType rejectionMessageType, Message message) {
@@ -90,15 +87,11 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		return rejectionMessage;
 	}
 
-	public void setInformationModelVersion(String informationModelVersion) {
-		this.informationModelVersion = informationModelVersion;
-	}
-
 	private Message createResultMessage(Message header) {
 		return new ResultMessageBuilder()
 				._issuerConnector_(whoIAm())
 				._issued_(DateUtil.now())
-				._modelVersion_(informationModelVersion)
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
 				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
 				._securityToken_(dapsProvider.getDynamicAtributeToken())
@@ -110,7 +103,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		return new RejectionMessageBuilder()
 				._issuerConnector_(whoIAm())
 				._issued_(DateUtil.now())
-				._modelVersion_(informationModelVersion)
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
 				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
 				._rejectionReason_(RejectionReason.MALFORMED_MESSAGE)
@@ -123,7 +116,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		return new RejectionMessageBuilder()
 				._issuerConnector_(whoIAm())
 				._issued_(DateUtil.now())
-				._modelVersion_(informationModelVersion)
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
 				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
 				._rejectionReason_(RejectionReason.NOT_AUTHENTICATED)
@@ -142,7 +135,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		return new RejectionMessageBuilder()
 				._issuerConnector_(URI.create("http://auto-generated.com"))
 				._issued_(DateUtil.now())
-				._modelVersion_(informationModelVersion)
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				//._recipientConnectors_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
 				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
 				._rejectionReason_(RejectionReason.MALFORMED_MESSAGE)
@@ -155,7 +148,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		return new RejectionMessageBuilder()
 				._issuerConnector_(header!=null?header.getIssuerConnector():URI.create("http://auto-generated.com"))
 				._issued_(DateUtil.now())
-				._modelVersion_(informationModelVersion)
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
 				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
 				._rejectionReason_(RejectionReason.NOT_AUTHENTICATED)
@@ -168,7 +161,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		return new RejectionMessageBuilder()
 				._issuerConnector_(header!=null?header.getIssuerConnector():URI.create("http://auto-generated.com"))
 				._issued_(DateUtil.now())
-				._modelVersion_(informationModelVersion)
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
 				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
 				._rejectionReason_(RejectionReason.NOT_FOUND)
@@ -181,7 +174,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		return new RejectionMessageBuilder()
 				._issuerConnector_(header!=null?header.getIssuerConnector():URI.create("http://auto-generated.com"))
 				._issued_(DateUtil.now())
-				._modelVersion_(informationModelVersion)
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
 				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
 				._rejectionReason_(RejectionReason.NOT_AUTHORIZED)

@@ -13,7 +13,6 @@ import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class MockUtil {
 	
-	private static final String INFO_MODEL_VERSION = "4.0.6";
 	
 	/**
 	 * Creates rejectionService, mocks dapsProvider call and sets InfoModel version
@@ -26,7 +25,6 @@ public class MockUtil {
 		SelfDescriptionConfiguration selfDescriptionConfiguration = mock(SelfDescriptionConfiguration.class);
 		DapsTokenProviderService dapsProvider = mock(DapsTokenProviderService.class);
 		ReflectionTestUtils.setField(rejectionMessageService, "dapsProvider", dapsProvider);
-		ReflectionTestUtils.setField(rejectionMessageService, "informationModelVersion", INFO_MODEL_VERSION);
 		ReflectionTestUtils.setField(rejectionMessageService, "selfDescriptionConfiguration", selfDescriptionConfiguration, SelfDescriptionConfiguration.class);
 		when(dapsProvider.getDynamicAtributeToken()).thenReturn(UtilMessageService.getDynamicAttributeToken());
 		when(selfDescriptionConfiguration.getConnectorURI()).thenReturn(UtilMessageService.ISSUER_CONNECTOR);

@@ -38,7 +38,6 @@ public class SelfDescriptionServiceImplTest {
 	private Connector connectorMock;
 	private SelfDescriptionServiceImpl selfDefinitionService;
 
-	private String infoModelVersion = "4.0.0";
 	private URI connectorURI = URI.create("http://connectorURI");
 	private URI curratorURI = URI.create("http://curratorURI");
 	private URI maintainerURI = URI.create("http://maintainerURI");
@@ -52,7 +51,6 @@ public class SelfDescriptionServiceImplTest {
 	public void setup() throws ConstraintViolationException, URISyntaxException {
 		MockitoAnnotations.initMocks(this);
 		when(dapsProvider.getDynamicAtributeToken()).thenReturn(dynamicAttributeToken);
-		when(configuration.getInformationModelVersion()).thenReturn(infoModelVersion);
 		when(configuration.getConnectorURI()).thenReturn(connectorURI);
 		when(configuration.getTitle()).thenReturn(title);
 		when(configuration.getDescription()).thenReturn(description);

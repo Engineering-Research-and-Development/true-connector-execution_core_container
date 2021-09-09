@@ -35,6 +35,7 @@ import it.eng.idsa.businesslogic.service.resources.SelfDescription;
 import it.eng.idsa.businesslogic.service.resources.SelfDescriptionManager;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 import it.eng.idsa.multipart.util.DateUtil;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 /**
  * @author Antonio Scatoloni and Gabriele De Luca
@@ -82,10 +83,10 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._curator_(selfDescriptionConfiguration.getCurator())
 				._resourceCatalog_(this.getCatalog())
 				._securityProfile_(SecurityProfile.BASE_SECURITY_PROFILE)
-				._inboundModelVersion_(Util.asList(new String[] { selfDescriptionConfiguration.getInformationModelVersion() }))
+				._inboundModelVersion_(Util.asList(new String[] { UtilMessageService.MODEL_VERSION }))
 				._title_(Util.asList(new TypedLiteral(selfDescriptionConfiguration.getTitle())))
 				._description_(Util.asList(new TypedLiteral(selfDescriptionConfiguration.getDescription())))
-				._outboundModelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
+				._outboundModelVersion_(UtilMessageService.MODEL_VERSION)
 				._hasDefaultEndpoint_(new ConnectorEndpointBuilder(selfDescriptionConfiguration.getDefaultEndpoint())
 						._accessURL_(selfDescriptionConfiguration.getDefaultEndpoint())
 						.build())
@@ -123,7 +124,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 			._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 			._issued_(DateUtil.now())
 			._issuerConnector_(issuerConnectorURI)
-			._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
+			._modelVersion_(UtilMessageService.MODEL_VERSION)
 			._securityToken_(dapsProvider.getDynamicAtributeToken())
 			._affectedConnector_(connector.getId())
 			.build();
@@ -134,7 +135,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	public Message getConnectorUpdateMessage() {
 		return new ConnectorUpdateMessageBuilder()
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
-				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._issuerConnector_(issuerConnectorURI)
 				._issued_(DateUtil.now())
 				._securityToken_(dapsProvider.getDynamicAtributeToken())
@@ -149,7 +150,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		
 		return new ConnectorUnavailableMessageBuilder()
 				._issued_(DateUtil.now())
-				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._issuerConnector_(issuerConnectorURI)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 				._securityToken_(dapsProvider.getDynamicAtributeToken())
@@ -161,7 +162,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	public Message getConnectorInactiveMessage() {
 		return new ConnectorUnavailableMessageBuilder()
 				._issued_(DateUtil.now())
-				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._issuerConnector_(issuerConnectorURI)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 				._securityToken_(dapsProvider.getDynamicAtributeToken())
@@ -173,7 +174,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	public Message getConnectorQueryMessage() {
 		return new QueryMessageBuilder()
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
-				._modelVersion_(selfDescriptionConfiguration.getInformationModelVersion())
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._issuerConnector_(issuerConnectorURI)
 				._issued_(DateUtil.now())
 				._securityToken_(dapsProvider.getDynamicAtributeToken())

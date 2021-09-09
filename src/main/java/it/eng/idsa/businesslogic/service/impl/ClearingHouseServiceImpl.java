@@ -10,7 +10,6 @@ import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -35,6 +34,7 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.clearinghouse.model.Body;
 import it.eng.idsa.clearinghouse.model.NotificationContent;
 import it.eng.idsa.multipart.util.DateUtil;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 /**
  * @author Milan Karajovic and Gabriele De Luca
@@ -58,9 +58,6 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	@Autowired
 	private DapsTokenProviderService dapsProvider;
 
-	@Value("${information.model.version}")
-	private String informationModelVersion;
-
 	@Autowired
 	private RestTemplate restTemplate;
 
@@ -77,7 +74,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			// Create Message for Clearing House
 
 			LogMessage logInfo = new LogMessageBuilder()
-					._modelVersion_(informationModelVersion)
+					._modelVersion_(UtilMessageService.MODEL_VERSION)
 					._issuerConnector_(whoIAm())
 					._issued_(DateUtil.now())
 					._senderAgent_(correlatedMessage.getSenderAgent())

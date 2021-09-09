@@ -27,7 +27,8 @@ public class SelfDescriptionConfiguration {
 	@Value("${camel.component.http4.use-global-ssl-context-parameters}")
 	private boolean useHttps;
 	
-	@Value("${information.model.version}")
+//	@Value("${information.model.version}")
+//	TODO remove this property and it's usage
 	private String informationModelVersion;
 	
 	@Autowired

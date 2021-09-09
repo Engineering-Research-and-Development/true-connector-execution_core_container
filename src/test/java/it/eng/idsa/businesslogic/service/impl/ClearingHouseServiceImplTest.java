@@ -72,7 +72,6 @@ public class ClearingHouseServiceImplTest {
 		when(restTemplate.postForObject(any(String.class), any(), any())).thenReturn(null);
 		when(dapsProvider.getDynamicAtributeToken()).thenReturn(TestUtilMessageService.getDynamicAttributeToken());
 		when(selfDescriptionConfiguration.getConnectorURI()).thenReturn(URI.create("http://auto-generated"));
-		ReflectionTestUtils.setField(clearingHouseServiceImpl, "informationModelVersion", "4.1.1", String.class);
 	}
 	
 	  @Test
