@@ -64,7 +64,7 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 					.build();
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
 			
-			String forwardTo = headersParts.get("Forward-To").toString();
+			String forwardTo = (String) headersParts.get("Forward-To");
 			forwardTo = protocolValidationService.validateProtocol(forwardTo, message);
 			headersParts.replace("Forward-To", forwardTo);
 			

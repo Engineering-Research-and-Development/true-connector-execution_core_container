@@ -86,35 +86,38 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		this.originalHeader = multipartMessage.getHeaderContentString();
 		// Send data to the endpoint F for the Open API Data App
 		Response response = null;
-		switch (openDataAppReceiverRouter) {
+		try {
+			switch (openDataAppReceiverRouter) {
 			case "mixed": {
 				response = sendDataToBusinessLogicService.sendMessageBinary(configuration.getOpenDataAppReceiver(),
-						multipartMessage, headerParts, false);
+						multipartMessage, headerParts);
 				break;
 			}
 			case "form": {
 				response = sendDataToBusinessLogicService.sendMessageFormData(configuration.getOpenDataAppReceiver(),
-						multipartMessage, headerParts, false);
+						multipartMessage, headerParts);
 				break;
 			}
 			case "http-header": {
 				response = sendDataToBusinessLogicService.sendMessageHttpHeader(configuration.getOpenDataAppReceiver(),
-						multipartMessage, headerParts, false);
+						multipartMessage, headerParts);
 				break;
 			}
 			default: {
 				logger.error("Applicaton property: application.openDataAppReceiverRouter is not properly set");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 			}
-		}
-		
-		// Check response
-		sendDataToBusinessLogicService.checkResponse(message, response, configuration.getOpenDataAppReceiver());
-		// Handle response
-		handleResponse(exchange, message, response, configuration.getOpenDataAppReceiver());
-
-		if (response != null) {
-			response.close();
+			}
+			
+			// Check response
+			sendDataToBusinessLogicService.checkResponse(message, response, configuration.getOpenDataAppReceiver());
+			// Handle response
+			handleResponse(exchange, message, response, configuration.getOpenDataAppReceiver());
+			
+		} finally {
+			if (response != null) {
+				response.close();
+			}
 		}
 	}
 

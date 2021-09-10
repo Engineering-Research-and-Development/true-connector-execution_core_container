@@ -26,7 +26,7 @@ public class SenderCreateQueryBrokerMessageProcessor implements Processor {
 				.withHeaderContent(selfDescriptionService.getConnectorQueryMessage())
 				.withPayloadContent(exchange.getMessage().getBody(String.class)).build();
 		
-		String forwardTo = exchange.getMessage().getHeader("Forward-To").toString();
+		String forwardTo = (String) exchange.getMessage().getHeader("Forward-To");
 		forwardTo = protocolValidationService.validateProtocol(forwardTo, multipartMessage.getHeaderContent());
 
 		exchange.getMessage().setHeader("Forward-To", forwardTo);

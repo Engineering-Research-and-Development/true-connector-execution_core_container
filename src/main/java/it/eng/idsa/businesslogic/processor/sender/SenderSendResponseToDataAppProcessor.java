@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationA;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.ResponseMessageBufferBean;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -29,9 +28,6 @@ import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 public class SenderSendResponseToDataAppProcessor implements Processor {
 
 	private static final Logger logger = LoggerFactory.getLogger(SenderSendResponseToDataAppProcessor.class);
-
-	@Autowired
-	private MultipartMessageService multipartMessageService;
 
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
@@ -63,14 +59,8 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 		String responseString = null;
 		String contentType = null;
 		
-		if (isEnabledDapsInteraction) {
-			// remove token before sending the response
-			multipartMessage = multipartMessageService.removeTokenFromMultipart(multipartMessage);
-		}
 		switch (openDataAppReceiverRouter) {
 		case "form":
-//			httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
-//			httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
 			//changed regarding Tecnalia problem - content lenght too long
 			String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
 			Optional<String> boundaryy = MultipartMessageProcessor
@@ -80,8 +70,6 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 			exchange.getMessage().setBody(multipartMessageString);
 			break;
 		case "mixed":
-//			httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
-//			httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
 			responseString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
 			
 			Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(responseString);

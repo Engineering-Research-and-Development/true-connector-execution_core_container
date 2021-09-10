@@ -20,8 +20,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.DapsService;
-import it.eng.idsa.businesslogic.service.HttpHeaderService;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -36,11 +34,6 @@ public class ValidateTokenProcessorTest {
 
 	@Mock
 	private DapsService dapsService;
-	@Mock
-	private MultipartMessageService multipartMessageService;
-
-	@Mock
-	private HttpHeaderService httpHeaderService;
 
 	@Mock
 	private Exchange exchange;
@@ -77,13 +70,9 @@ public class ValidateTokenProcessorTest {
 		when(multipartMessage.getToken()).thenReturn(TOKEN);
 		when(dapsService.validateToken(TOKEN)).thenReturn(true);
 
-		when(multipartMessageService.removeTokenFromMultipart(multipartMessage)).thenReturn(multipartMessage);
-
 		processor.process(exchange);
 
 		verify(dapsService).validateToken(TOKEN);
-		verify(camelMessage).setHeaders(headers);
-		verify(camelMessage).setBody(any(MultipartMessage.class));
 	}
 
 	@Test

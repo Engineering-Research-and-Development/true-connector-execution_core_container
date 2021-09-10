@@ -1,5 +1,6 @@
 package it.eng.idsa.businesslogic.service.impl;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import de.fraunhofer.iais.eis.ids.jsonld.custom.XMLGregorianCalendarDeserializer;
 import de.fraunhofer.iais.eis.ids.jsonld.custom.XMLGregorianCalendarSerializer;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
@@ -37,7 +39,14 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, Object> messageToHeaders(Message message) {
-		logger.debug("Converting message to http-headers");
+		//TODO use UtilMessageService from MultipartMessageProcessor in upcoming releases
+		if (logger.isDebugEnabled()) {
+			try {
+				logger.debug("Converting following message to http-headers: \r\n {}", new Serializer().serialize(message));
+			} catch (IOException e) {
+				logger.error("Could not serialize message: {}", e.getMessage());
+			}
+		}
 		Map<String, Object> headers = new HashMap<>();
 		ObjectMapper mapper = new ObjectMapper();
 		// exclude null values from map
@@ -52,25 +61,31 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		
 		messageAsMap.entrySet().forEach(entry -> {
 			if(entry.getKey().equals("@id")) {
-				headers.put("IDS-Id", entry.getValue());
+				headers.put("IDS-Id", message.getId().toString());
 			} else if(entry.getKey().equals("@type")) {
+				// when using Java it looks like this
+				// headers.put("IDS-Messagetype", "ids:" + message.getClass().getInterfaces()[1].getSimpleName());
+				// for now we agreed to use the following, because of simplicity
 				headers.put("IDS-Messagetype", entry.getValue());
 			} else if (entry.getKey().equals("ids:securityToken")) {
 				headers.put("IDS-SecurityToken-Type", ((Map<String, Object>) entry.getValue()).get("@type"));
-				headers.put("IDS-SecurityToken-Id", ((Map<String, Object>) entry.getValue()).get("@id"));
-				headers.put("IDS-SecurityToken-TokenFormat", ((Map<String, Object>)((Map<String, Object>) entry.getValue()).get("ids:tokenFormat")).get("@id"));
-				headers.put("IDS-SecurityToken-TokenValue", ((Map<String, Object>) entry.getValue()).get("ids:tokenValue"));
+                headers.put("IDS-SecurityToken-Id", message.getSecurityToken().getId().toString());
+                headers.put("IDS-SecurityToken-TokenFormat", message.getSecurityToken().getTokenFormat().toString());
+                headers.put("IDS-SecurityToken-TokenValue", message.getSecurityToken().getTokenValue());
 			} else if(entry.getValue() instanceof Map) {
 				Map<String, Object> valueMap = (Map<String, Object>) entry.getValue();
 				if(valueMap.get("@id") != null) {
-					headers.put(entry.getKey().replace("ids:", "IDS-"), valueMap.get("@id"));
+					headers.put(entry.getKey().replaceFirst("ids:", "IDS-").replaceFirst(entry.getKey().substring(4,5), entry.getKey().substring(4,5).toUpperCase()), valueMap.get("@id"));
 				} else if(valueMap.get("@value") != null) {
-					headers.put(entry.getKey().replace("ids:", "IDS-"), valueMap.get("@value"));
+					headers.put(entry.getKey().replaceFirst("ids:", "IDS-").replaceFirst(entry.getKey().substring(4,5), entry.getKey().substring(4,5).toUpperCase()), valueMap.get("@value"));
 				}
 			} else {
-				headers.put(entry.getKey().replace("ids:", "IDS-"), entry.getValue());
+				headers.put(entry.getKey().replaceFirst("ids:", "IDS-").replaceFirst(entry.getKey().substring(4,5), entry.getKey().substring(4,5).toUpperCase()), entry.getValue());
 			}
 		});
+		
+		logger.debug("Message converted, following headers are the result: \r\n {}", headers.toString());
+		
 		return headers;
 	}
 
@@ -78,7 +93,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 	public Message headersToMessage(Map<String, Object> headers) {
 		// bare in mind that in rumtime, headers is org.apache.camel.util.CaseInsensitiveMap
 		// which means that headers.get("aaa") is the same like headers.get("Aaa")
-		logger.debug("Converting http-headers to message");
+		logger.debug("Converting following http-headers to message: \r\n {}", headers.toString());
 
 		Map<String, Object> messageAsHeader = new HashMap<>();
 
@@ -99,23 +114,23 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		
 		// handle recipientConnector - List
 		List<URI> recipientConnector = new ArrayList<>();
-		if(headers.containsKey("IDS-recipientConnector")) {
-			if(headers.get("IDS-recipientConnector") instanceof String) {
-				recipientConnector.add(URI.create((String) headers.get("IDS-recipientConnector")));
+		if(headers.containsKey("IDS-RecipientConnector")) {
+			if(headers.get("IDS-RecipientConnector") instanceof String) {
+				recipientConnector.add(URI.create((String) headers.get("IDS-RecipientConnector")));
 			} else {
-				recipientConnector = (List<URI>) headers.get("IDS-recipientConnector");
+				recipientConnector = (List<URI>) headers.get("IDS-RecipientConnector");
 			}
-			headers.remove("IDS-recipientConnector");
+			headers.remove("IDS-RecipientConnector");
 		}
 		// handle recipientAgent - List
 		List<URI> recipientAgent = new ArrayList<>();
-		if(headers.containsKey("IDS-recipientAgent")) {
-			if(headers.get("IDS-recipientAgent") instanceof String) {
-				recipientAgent.add(URI.create((String) headers.get("IDS-recipientAgent")));
+		if(headers.containsKey("IDS-RecipientAgent")) {
+			if(headers.get("IDS-RecipientAgent") instanceof String) {
+				recipientAgent.add(URI.create((String) headers.get("IDS-RecipientAgent")));
 			} else {
-				recipientAgent = (List<URI>) headers.get("IDS-recipientAgent");
+				recipientAgent = (List<URI>) headers.get("IDS-RecipientAgent");
 			}
-			headers.remove("IDS-recipientAgent");
+			headers.remove("IDS-RecipientAgent");
 		}
 			
 		messageAsHeader = getIDSHeaders(headers);
@@ -128,16 +143,27 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		messageAsHeader.put("@type", type);
 		messageAsHeader.put("@id", id);
 		
-		headers.entrySet().removeIf(entry -> entry.getKey().contains("IDS") || entry.getKey().contains("ids"));
-
-		return mapper.convertValue(messageAsHeader, Message.class);
+		headers.entrySet().removeIf(entry -> entry.getKey().startsWith("IDS-") || entry.getKey().startsWith("ids:"));
+		
+		Message message = mapper.convertValue(messageAsHeader, Message.class);
+		
+		// TODO use UtilMessageService from MultipartMessageProcessor in upcoming releases
+		if (logger.isDebugEnabled()) {
+			try {
+				logger.debug("Headers converted, following message is the result: \\r\\n {}", new Serializer().serialize(message));
+			} catch (IOException e) {
+				logger.error("Could not serialize message: {}", e.getMessage());
+			}
+		}
+		
+		return message;
 	}
 
 	public Map<String, Object> getIDSHeaders(Map<String, Object> headers) {
 		return headers.entrySet().stream()
 				.filter(e -> StringUtils.containsIgnoreCase(e.getKey(), "IDS-"))
 				.collect(java.util.stream.Collectors.toMap(
-						e -> e.getKey().replace("IDS-", "ids:"), 
+						e -> e.getKey().replaceFirst("IDS-", "ids:").replaceFirst(e.getKey().substring(4,5), e.getKey().substring(4,5).toLowerCase()),
 						e -> e.getValue()));
 	}
 	
@@ -165,18 +191,22 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 
 	@Override
 	public Map<String, Object> okHttpHeadersToMap(Headers headers) {
-		logger.debug("Converting headers to map");
+		logger.debug("Converting okHttpHeaders to map: \r\n {}", headers.toString());
 		Map<String, Object> originalHeaders = new HashMap<>();
 
 		for (String name : headers.names()) {
 			List<String> value = headers.values(name);
+			if (name.startsWith("IDS-")) {
+				name = name.replaceFirst(name.substring(4,5), name.substring(4,5).toUpperCase());
+			}
 			if (value.size() == 1) {
 				originalHeaders.put(name, value.get(0));
 			} else {
 				originalHeaders.put(name, value);
 			}
-			originalHeaders.keySet().size();
 		}
+		logger.debug("OkHttpHeaders converted, following map is the result: \r\n {}", originalHeaders.toString());
+
 		return originalHeaders;
 	}
 

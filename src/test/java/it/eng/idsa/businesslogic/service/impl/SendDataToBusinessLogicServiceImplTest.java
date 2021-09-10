@@ -60,8 +60,6 @@ public class SendDataToBusinessLogicServiceImplTest {
 	
 	Map<String, Object> messageAsMap;
 	
-	private boolean eccCommunication = true;
-
 	private String URL = "https://mock.address.com";
 	
 	private static final String RESPONSE_SUCCESFULL_MESSAGE = "response message OK";
@@ -99,7 +97,7 @@ public class SendDataToBusinessLogicServiceImplTest {
 				200);
 		when(okHttpClient.sendMultipartMixRequest(URL, headers, mixRequestBody)).thenReturn(response);
 		
-		Response result = service.sendMessageBinary(URL, multipartMessage, headerParts, eccCommunication);
+		Response result = service.sendMessageBinary(URL, multipartMessage, headerParts);
 		
 		assertNotNull(result);
 		assertTrue(result.isSuccessful());
@@ -120,7 +118,7 @@ public class SendDataToBusinessLogicServiceImplTest {
 				400);
 		when(okHttpClient.sendMultipartMixRequest(URL, headers, mixRequestBody)).thenReturn(response);
 		
-		Response result = service.sendMessageBinary(URL, multipartMessage, headerParts, eccCommunication);
+		Response result = service.sendMessageBinary(URL, multipartMessage, headerParts);
 		
 		assertNotNull(result);
 		assertEquals(result.code(), 400);
@@ -142,7 +140,7 @@ public class SendDataToBusinessLogicServiceImplTest {
 			.thenReturn(formRequestBody);
 		when(okHttpClient.sendMultipartFormRequest(URL, headers, formRequestBody))
 			.thenReturn(response);
-		Response result = service.sendMessageFormData(URL, multipartMessage, headerParts, eccCommunication);
+		Response result = service.sendMessageFormData(URL, multipartMessage, headerParts);
 		
 		assertNotNull(result);
 		assertTrue(result.isSuccessful());
@@ -164,7 +162,7 @@ public class SendDataToBusinessLogicServiceImplTest {
 			.thenReturn(formRequestBody);
 		when(okHttpClient.sendMultipartFormRequest(URL, headers, formRequestBody))
 			.thenReturn(response);
-		Response result = service.sendMessageFormData(URL, multipartMessage, headerParts, eccCommunication);
+		Response result = service.sendMessageFormData(URL, multipartMessage, headerParts);
 		
 		assertNotNull(result);
 		assertEquals(result.code(), 400);
@@ -188,7 +186,7 @@ public class SendDataToBusinessLogicServiceImplTest {
 		when(okHttpClient.sendHttpHeaderRequest(URL, headers, multipartMessage.getPayloadContent(), MediaType.TEXT_PLAIN.toString()))
 			.thenReturn(response);
 		
-		Response result = service.sendMessageHttpHeader(URL, multipartMessage, headerParts, eccCommunication);
+		Response result = service.sendMessageHttpHeader(URL, multipartMessage, headerParts);
 		
 		assertNotNull(result);
 		assertTrue(result.isSuccessful());
@@ -212,7 +210,7 @@ public class SendDataToBusinessLogicServiceImplTest {
 		when(okHttpClient.sendHttpHeaderRequest(URL, headers, multipartMessage.getPayloadContent(), MediaType.TEXT_PLAIN.toString()))
 			.thenReturn(response);
 		
-		Response result = service.sendMessageHttpHeader(URL, multipartMessage, headerParts, eccCommunication);
+		Response result = service.sendMessageHttpHeader(URL, multipartMessage, headerParts);
 		
 		assertNotNull(result);
 		assertEquals(result.code(), 400);

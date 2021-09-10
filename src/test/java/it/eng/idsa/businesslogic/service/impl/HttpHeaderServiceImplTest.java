@@ -44,6 +44,7 @@ public class HttpHeaderServiceImplTest {
 		headers.put("Forward-To", "https://forwardToURL");
 	}
 	
+	
 	@Test
 	public void messageToHeadersTest_ArtifactRequestMessage() {
 		Message message = TestUtilMessageService.getArtifactRequestMessageWithToken();
@@ -108,7 +109,7 @@ public class HttpHeaderServiceImplTest {
 		((ArtifactResponseMessageImpl) artifactResponseMessage ).setRecipientConnector(recipentConnector);
 		
 		Map<String, Object> headers = httpHeaderServiceImpl.messageToHeaders(artifactResponseMessage);
-		assertEquals(2, ((List<URI>) headers.get("IDS-recipientConnector")).size());
+		assertEquals(2, ((List<URI>) headers.get("IDS-RecipientConnector")).size());
 	}
 	
 	@Test
@@ -139,7 +140,7 @@ public class HttpHeaderServiceImplTest {
 		Map<String, Object> headersAsMap = httpHeaderServiceImpl.okHttpHeadersToMap(hb.build());
 		assertEquals(headersAsMap.get("IDS-MessageType"), "ids:ArtifactRequestMessage");
 		assertEquals(((List<String>) headersAsMap.get("IDS-RecipientConnector")).size(), 2);
-		assertEquals(((List<String>) headersAsMap.get("IDS-recipientAgent")).size(), 2);
+		assertEquals(((List<String>) headersAsMap.get("IDS-RecipientAgent")).size(), 2);
 		assertEquals(headersAsMap.get("IDS-InfoModel"), "4.0.0");
 	}
 }
