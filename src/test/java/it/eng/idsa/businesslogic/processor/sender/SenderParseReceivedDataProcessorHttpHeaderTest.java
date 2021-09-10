@@ -82,6 +82,27 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	}
 	
 	@Test
+	public void processHttpHeadersForwardTo_Null() throws Exception {
+		forwardTo = null;
+		mockExchangeGetHttpHeaders(exchange);
+		msg = TestUtilMessageService.getArtifactRequestMessage();
+		header = TestUtilMessageService.getMessageAsString(msg);
+		when(httpHeaderService.headersToMessage(httpHeaders)).thenReturn(msg);
+		when(multipartMessageService.getMessage(header)).thenReturn(msg);
+//		when(exchange.getOut()).thenReturn(messageOut);
+
+		processor.process(exchange);
+
+		MultipartMessage multipartMessage = new MultipartMessageBuilder().withHttpHeader(new HashMap<>())
+				.withHeaderContent(header)
+				.withHeaderContent(msg)
+				.withPayloadContent(null).build();
+
+		verify(message).setBody(multipartMessage);
+		verify(rejectionMessageService,times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, msg);
+	}
+	
+	@Test
 	// TODO fix this test
 	public void processHttpHeaderRequiredHeadersNotPresent() throws Exception {
 		mockExchangeGetHttpHeaders(exchange);

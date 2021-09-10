@@ -65,7 +65,7 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 			
 			//String wsURI = "wss://0.0.0.0:8086"+ HttpWebSocketServerBean.WS_URL;
 			String url = HttpWebSocketMessagingLogicA.getInstance().getForwardTo();
-			forwardTo = null != receivedDataHeader.get("Forward-To")? receivedDataHeader.get("Forward-To").toString() : url;
+			forwardTo = null != receivedDataHeader.get("Forward-To")? (String) receivedDataHeader.get("Forward-To") : url;
 			forwardTo = protocolValidationService.validateProtocol(forwardTo, message);
 			headesParts.put("Forward-To", forwardTo);
 			

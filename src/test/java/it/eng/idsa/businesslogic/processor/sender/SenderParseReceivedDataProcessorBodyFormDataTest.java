@@ -74,6 +74,22 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 		
 		verify(message).setBody(multipartMessage);
 	}
+	
+	@Test
+	public void processBodyFormTestForwardTo_Null() throws Exception {
+		forwardTo = null;
+		mockExchangeGetHeaders(exchange);
+		when(multipartMessageService.getMessage(headerAsString)).thenReturn(msg);
+		
+		processor.process(exchange);
+		
+		MultipartMessage multipartMessage = new MultipartMessageBuilder()
+				.withHeaderContent(msg)
+				.withPayloadContent(PAYLOAD_STRING)
+				.build();
+		
+		verify(message).setBody(multipartMessage);
+	}
 
 	private void mockExchangeGetHeaders(Exchange exchange) throws UnsupportedEncodingException {
 		when(exchange.getMessage()).thenReturn(message);

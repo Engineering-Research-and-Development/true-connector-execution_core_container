@@ -44,6 +44,7 @@ public class HttpHeaderServiceImplTest {
 		headers.put("Forward-To", "https://forwardToURL");
 	}
 	
+	
 	@Test
 	public void messageToHeadersTest_ArtifactRequestMessage() {
 		Message message = TestUtilMessageService.getArtifactRequestMessageWithToken();

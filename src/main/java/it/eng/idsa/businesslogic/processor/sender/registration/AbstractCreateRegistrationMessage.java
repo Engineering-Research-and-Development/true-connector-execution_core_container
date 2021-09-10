@@ -56,7 +56,7 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 					.build();
 		}
 		
-		String forwardTo = receivedDataHeader.get("Forward-To").toString();
+		String forwardTo = (String) receivedDataHeader.get("Forward-To");
 		forwardTo = protocolValidationService.validateProtocol(forwardTo, multipartMessage.getHeaderContent());
 		headersParts.put("Forward-To", forwardTo);
 		
