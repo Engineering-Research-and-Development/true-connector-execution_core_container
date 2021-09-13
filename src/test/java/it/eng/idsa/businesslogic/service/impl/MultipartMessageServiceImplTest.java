@@ -38,7 +38,7 @@ public class MultipartMessageServiceImplTest {
 	public void testParseJsonLdMessageOnlyHeader() {
 		String message = "--5h-mAJBSLPxhWW0KWTF-eHuB2KedYdNJMF2uYvF\r\n" + 
 				"Content-Disposition: form-data; name=\"header\"\r\n" + 
-				"Content-Type: application/json+ld\r\n" + 
+				"Content-Type: application/ld+json\r\n" + 
 				"Content-Length: 1070\r\n" + 
 				"\r\n" + 
 				"{\r\n" + 
