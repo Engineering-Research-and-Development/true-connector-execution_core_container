@@ -62,7 +62,7 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 		switch (openDataAppReceiverRouter) {
 		case "form":
 			//changed regarding Tecnalia problem - content lenght too long
-			String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
+			String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);
 			Optional<String> boundaryy = MultipartMessageProcessor
 					.getMessageBoundaryFromMessage(multipartMessageString);
 			contentType = "multipart/form; boundary=" + boundaryy.orElse("---aaa") + ";charset=UTF-8";
@@ -70,7 +70,7 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 			exchange.getMessage().setBody(multipartMessageString);
 			break;
 		case "mixed":
-			responseString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
+			responseString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);
 			
 			Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(responseString);
 			contentType = "multipart/mixed; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
@@ -90,8 +90,7 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 		exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
 
 		if (isEnabledWebSocket) {
-			String responseMultipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage,
-					false);
+			String responseMultipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);
 			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration
 					.responseMessageBufferWebSocket();
 			responseMessageServerBean.add(responseMultipartMessageString.getBytes());
