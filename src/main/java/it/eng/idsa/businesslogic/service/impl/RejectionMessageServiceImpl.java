@@ -51,7 +51,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		MultipartMessage multipartMessage = new MultipartMessageBuilder()
 				.withHeaderContent(rejectionMessage)
 				.build();
-		String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
+		String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);
 
 		throw new ExceptionForProcessor(multipartMessageString);
 	}

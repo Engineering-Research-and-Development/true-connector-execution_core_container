@@ -57,6 +57,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 			throws UnsupportedEncodingException, JsonProcessingException {
 
 		logger.info("Forwarding Message: Body: binary");
+		
 		Headers headers;
 		if (isEnabledIdscp2) {
 			Map<String, Object> headesParts = new HashMap<String, Object>();

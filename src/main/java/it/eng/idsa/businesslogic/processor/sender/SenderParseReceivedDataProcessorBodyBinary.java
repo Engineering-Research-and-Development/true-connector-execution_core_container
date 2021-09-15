@@ -60,7 +60,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 			
 			logger.debug("Header part {}", multipartMessage.getHeaderContentString());
 			logger.debug("Payload part {}", multipartMessage.getPayloadContent());
-			String forwardTo = headerParts.get("Forward-To").toString();
+			String forwardTo = (String) headerParts.get("Forward-To");
 			forwardTo = protocolValidationService.validateProtocol(forwardTo, message);
 			headerParts.replace("Forward-To", forwardTo);
 

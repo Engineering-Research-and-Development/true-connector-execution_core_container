@@ -80,7 +80,7 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 					.withPayloadContent(payload)
 					.build();
 			
-			String forwardTo = receivedDataHeader.get("Forward-To").toString();
+			String forwardTo =(String) receivedDataHeader.get("Forward-To");
 			forwardTo = protocolValidationService.validateProtocol(forwardTo, message);
 			receivedDataHeader.replace("Forward-To", forwardTo);
 

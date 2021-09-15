@@ -62,7 +62,7 @@ public class ExceptionProcessorSender implements Processor {
 			exchange.getMessage().setBody(null);
 			exchange.getMessage().setHeaders(headerService.messageToHeaders(multipartMessage.getHeaderContent()));
 		} else {
-			String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
+			String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);
 			headerCleaner.removeTechnicalHeaders(exchange.getMessage().getHeaders());
 			String contentType = null;
 

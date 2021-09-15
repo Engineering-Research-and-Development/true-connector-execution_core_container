@@ -380,7 +380,7 @@ public class SelfDescriptionManager {
 				fos = new FileOutputStream(
 						selfDescriptionConfiguration.getFileLocation()
 						+ File.separator 
-						+ SelfDescriptionConfiguration.SELF_DECRIPTION_FILE_NAME);
+						+ SelfDescriptionConfiguration.SELF_DESCRIPTION_FILE_NAME);
 				fos.write(connectorAsString.getBytes());
 			} finally {
 				if(fos != null) {
@@ -395,7 +395,7 @@ public class SelfDescriptionManager {
 	public Connector loadConnector() {
 		logger.debug("File location : ", selfDescriptionConfiguration.getFileLocation());
 		File selfDescriptionFile = new File(selfDescriptionConfiguration.getFileLocation()
-				 + File.separator + SelfDescriptionConfiguration.SELF_DECRIPTION_FILE_NAME);
+				 + File.separator + SelfDescriptionConfiguration.SELF_DESCRIPTION_FILE_NAME);
 		Connector connector = null;
 		if(selfDescriptionFile.exists() && !selfDescriptionFile.isDirectory()) { 
 		    logger.info("Found existing self description document at {}", selfDescriptionFile.getAbsoluteFile());

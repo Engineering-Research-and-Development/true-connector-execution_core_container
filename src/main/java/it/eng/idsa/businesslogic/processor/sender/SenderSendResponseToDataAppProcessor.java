@@ -58,6 +58,10 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 
 		String responseString = null;
 		String contentType = null;
+
+		
+		
+		
 		switch (openDataAppReceiverRouter) {
 		case "form":
 //			httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
@@ -93,10 +97,8 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 		exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
 
 		if (isEnabledWebSocket) {
-			String responseMultipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage,
-					false);
-			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration
-					.responseMessageBufferWebSocket();
+			String responseMultipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);
+			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration.responseMessageBufferWebSocket();
 			responseMessageServerBean.add(responseMultipartMessageString.getBytes());
 		}
 	}

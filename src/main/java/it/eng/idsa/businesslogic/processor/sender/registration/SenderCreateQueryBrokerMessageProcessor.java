@@ -32,7 +32,7 @@ public class SenderCreateQueryBrokerMessageProcessor implements Processor {
 				.build();
 		
 		
-		String forwardTo = exchange.getMessage().getHeader("Forward-To").toString();
+		String forwardTo = (String) exchange.getMessage().getHeader("Forward-To");
 		forwardTo = protocolValidationService.validateProtocol(forwardTo, multipartMessage.getHeaderContent());
 
 		exchange.getMessage().setHeader("Forward-To", forwardTo);

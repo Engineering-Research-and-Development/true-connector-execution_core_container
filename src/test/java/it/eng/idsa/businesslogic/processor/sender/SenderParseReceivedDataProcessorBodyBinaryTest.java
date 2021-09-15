@@ -116,6 +116,25 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 
 		verify(messageOut).setBody(multipartMessage);
 	}
+	
+	@Test
+	public void processWithForwardTo_Null() throws Exception {
+		forwardTo = null;
+		multipartMessage = new MultipartMessageBuilder()
+				.withHeaderContent(TestUtilMessageService.getArtifactRequestMessage())
+				.withPayloadContent("foo bar")
+				.build();
+		receivedDataBodyBinary = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, false);
+		msg = TestUtilMessageService.getArtifactRequestMessage();
+		when(exchange.getMessage()).thenReturn(messageOut);
+		when(messageOut.getBody(String.class)).thenReturn(receivedDataBodyBinary);
+		mockExchangeGetHttpHeaders();
+
+		processor.process(exchange);
+
+		verify(messageOut).setBody(multipartMessage);
+
+	}
 
 	private void mockExchangeGetHttpHeaders() {
 		httpHeaders = new HashMap<>();

@@ -19,7 +19,6 @@ import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessageImpl;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.util.Util;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
 import it.eng.idsa.multipart.util.UtilMessageService;
 import okhttp3.Headers;
 
@@ -45,10 +44,10 @@ public class HttpHeaderServiceImplTest {
 		headers.put("foo", "bar");
 		headers.put("Forward-To", "https://forwardToURL");
 	}
-
+	
 	@Test
 	public void messageToHeadersTest_ArtifactRequestMessage() {
-		Message message = TestUtilMessageService.getArtifactRequestMessage();
+		Message message = UtilMessageService.getArtifactRequestMessage();
 		
 		Map<String, Object> headers = httpHeaderServiceImpl.messageToHeaders(message);
 		assertNotNull(headers.entrySet());
@@ -59,7 +58,7 @@ public class HttpHeaderServiceImplTest {
 	
 	@Test
 	public void headersToMessageTest_ArtifactRequestMessage() {
-		ArtifactRequestMessage originalMessage = TestUtilMessageService.getArtifactRequestMessage();
+		ArtifactRequestMessage originalMessage = UtilMessageService.getArtifactRequestMessage();
 		Map<String, Object> headers = httpHeaderServiceImpl.messageToHeaders(originalMessage);
 		ArtifactRequestMessage message = (ArtifactRequestMessage) httpHeaderServiceImpl.headersToMessage(headers);
 		assertNotNull(message);
@@ -68,26 +67,25 @@ public class HttpHeaderServiceImplTest {
 		assertEquals(originalMessage.getRequestedArtifact(), message.getRequestedArtifact());
 
 		assertNotNull(message.getSecurityToken());
-		assertEquals(TestUtilMessageService.TOKEN_VALUE, message.getSecurityToken().getTokenValue());
+		assertEquals(UtilMessageService.TOKEN_VALUE, message.getSecurityToken().getTokenValue());
 		// verify that message is serialized correct and that there are no properties that could not be parsed
 		assertNull(message.getProperties());
 	}
 	
 	@Test
 	public void messageToHeadersTest_DescriptionRequestMessage() {
-		Message message = TestUtilMessageService.getDescriptionRequestMessage(null);
+		Message message = UtilMessageService.getDescriptionRequestMessage(null);
 		
 		Map<String, Object> headers = httpHeaderServiceImpl.messageToHeaders(message);
 		assertNotNull(headers.entrySet());
 		assertEquals(headers.get("IDS-Messagetype"), "ids:DescriptionRequestMessage");
 		assertEquals(headers.get("IDS-Id"), message.getId().toString());
-		// TODO token not present with current info model version
-//		assertEquals(headers.get("IDS-SecurityToken-Value"), message.getSecurityToken().getTokenValue());
+		assertEquals(headers.get("IDS-SecurityToken-TokenValue"), message.getSecurityToken().getTokenValue());
 	}
 	
 	@Test
 	public void headersToMessageTest_ArtifactRequestMessage_AdditionalHeaders() {
-		ArtifactRequestMessage originalMessage = TestUtilMessageService.getArtifactRequestMessage();
+		ArtifactRequestMessage originalMessage = UtilMessageService.getArtifactRequestMessage();
 		Map<String, Object> headers = httpHeaderServiceImpl.messageToHeaders(originalMessage);
 		headers.put("Accept", "*/*");
 		headers.put("foo", null);
@@ -99,14 +97,14 @@ public class HttpHeaderServiceImplTest {
 		assertEquals(originalMessage.getRequestedArtifact(), message.getRequestedArtifact());
 
 		assertNotNull(message.getSecurityToken());
-		assertEquals(TestUtilMessageService.TOKEN_VALUE, message.getSecurityToken().getTokenValue());
+		assertEquals(UtilMessageService.TOKEN_VALUE, message.getSecurityToken().getTokenValue());
 		// verify that message is serialized correct and that there are no properties that could not be parsed
 		assertNull(message.getProperties());
 	}
 	
 	@Test
 	public void artifactResponseMessageToHeaders() {
-		ArtifactResponseMessage artifactResponseMessage = TestUtilMessageService.getArtifactResponseMessage();
+		ArtifactResponseMessage artifactResponseMessage = UtilMessageService.getArtifactResponseMessage();
 		ArrayList<URI> recipentConnector = Util.asList(
 				URI.create("https://connector1.com"),
 				URI.create("https://connector2.com"));
@@ -119,7 +117,7 @@ public class HttpHeaderServiceImplTest {
 	
 	@Test
 	public void artifactResponseMessageToMessage() {
-		ArtifactResponseMessage artifactResponseMessage = TestUtilMessageService.getArtifactResponseMessage();
+		ArtifactResponseMessage artifactResponseMessage = UtilMessageService.getArtifactResponseMessage();
 		ArrayList<URI> recipentConnector = Util.asList(
 				URI.create("https://connector1.com"),
 				URI.create("https://connector2.com"));

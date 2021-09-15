@@ -113,8 +113,8 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 			sendDataToBusinessLogicService.checkResponse(message, response, configuration.getOpenDataAppReceiver());
 			// Handle response
 			handleResponse(exchange, message, response, configuration.getOpenDataAppReceiver());
-		}
-		finally {
+			
+		} finally {
 			if (response != null) {
 				response.close();
 			}
