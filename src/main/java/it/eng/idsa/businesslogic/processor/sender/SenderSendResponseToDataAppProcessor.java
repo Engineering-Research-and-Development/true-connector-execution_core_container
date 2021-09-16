@@ -58,16 +58,11 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 
 		String responseString = null;
 		String contentType = null;
-
-		
-		
 		
 		switch (openDataAppReceiverRouter) {
 		case "form":
-//			httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
-//			httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
 			//changed regarding Tecnalia problem - content lenght too long
-			String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
+			String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);
 			Optional<String> boundaryy = MultipartMessageProcessor
 					.getMessageBoundaryFromMessage(multipartMessageString);
 			contentType = "multipart/form; boundary=" + boundaryy.orElse("---aaa") + ";charset=UTF-8";
@@ -75,9 +70,7 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 			exchange.getMessage().setBody(multipartMessageString);
 			break;
 		case "mixed":
-//			httpHeaderService.removeTokenHeaders(exchange.getMessage().getHeaders());
-//			httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
-			responseString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false);
+			responseString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);
 			
 			Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(responseString);
 			contentType = "multipart/mixed; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
