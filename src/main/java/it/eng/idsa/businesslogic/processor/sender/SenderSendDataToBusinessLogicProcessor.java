@@ -85,37 +85,37 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		message = multipartMessage.getHeaderContent();
 
 		String forwardTo = (String) headerParts.get("Forward-To");
-
-		if (isEnabledWebSocket) {
-			// check & exstract HTTPS WebSocket IP and Port
-			try {
-				this.extractWebSocketIPAndPort(forwardTo, REGEX_WSS);
-			} catch (Exception e) {
-				logger.info("... bad wss URL - '{}', {}", forwardTo, e.getMessage());
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-						message);
-			}
-
-			// -- Send data using HTTPS - (Client) - WebSocket
-			String response = messageWebSocketOverHttpSender.sendMultipartMessageWebSocketOverHttps(this.webSocketHost,
+		logger.info("Sending data to business logic ...");
+			if (isEnabledWebSocket) {
+				// check & exstract HTTPS WebSocket IP and Port
+				try {
+					this.extractWebSocketIPAndPort(forwardTo, REGEX_WSS);
+				} catch (Exception e) {
+					logger.info("... bad wss URL - '{}', {}", forwardTo, e.getMessage());
+					rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
+							message);
+				}
+				
+				// -- Send data using HTTPS - (Client) - WebSocket
+				String response = messageWebSocketOverHttpSender.sendMultipartMessageWebSocketOverHttps(this.webSocketHost,
 						this.webSocketPort, header, payload, message);
-			// Handle response
-			this.handleResponseWebSocket(exchange, message, response, forwardTo);
-		} else {
-			// Send MultipartMessage HTTPS
-			Response response = null;
-			try {
-				response = this.sendMultipartMessage(headerParts,	forwardTo, message,  multipartMessage);
-				// Check response
-				sendDataToBusinessLogicService.checkResponse(message, response, forwardTo);
 				// Handle response
-				this.handleResponse(exchange, message, response, forwardTo);
-			} finally {
-				if (response != null) {
-					response.close();
+				this.handleResponseWebSocket(exchange, message, response, forwardTo);
+			} else {
+				Response httpResponse = null;
+				try {
+					// Send MultipartMessage HTTPS
+					httpResponse = this.sendMultipartMessage(headerParts, forwardTo, message, multipartMessage);
+					// Check response
+					sendDataToBusinessLogicService.checkResponse(message, httpResponse, forwardTo);
+					// Handle response
+					this.handleResponse(exchange, message, httpResponse, forwardTo);
+				} finally {
+					if (httpResponse != null) {
+						httpResponse.close();
+					}
 				}
 			}
-		}
 	}
 
 	private Response sendMultipartMessage(Map<String, Object> headerParts, String forwardTo, Message message, MultipartMessage multipartMessage)

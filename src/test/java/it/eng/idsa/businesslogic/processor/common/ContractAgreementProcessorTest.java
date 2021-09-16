@@ -18,7 +18,7 @@ import de.fraunhofer.iais.eis.ContractAgreementMessage;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.CommunicationService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.util.MockUtil;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
 
@@ -72,14 +72,14 @@ public class ContractAgreementProcessorTest {
 	
 	@Test
 	public void verifyContractAgreementFailed_NoPayload() throws Exception {
-		rejectionMessageService = new RejectionMessageServiceImpl();
+		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService);
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
 				rejectionMessageService, RejectionMessageService.class);
 		
 		when(exchange.getMessage()).thenReturn(camelMessage);
 		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
 		when(multipartMessage.getHeaderContent()).thenReturn(contractAggreAgreementMessage);
-		
+
 		assertThrows(ExceptionForProcessor.class,
 	            ()->{
 	            	processor.process(exchange);

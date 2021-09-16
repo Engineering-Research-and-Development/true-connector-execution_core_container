@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
@@ -36,6 +37,8 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	private de.fraunhofer.iais.eis.Message msg;
 	@Mock
 	private RejectionMessageService rejectionMessageService;
+	@Mock
+	private DapsTokenProviderService dapsProvider;
 	@Mock
 	private ProtocolValidationService protocolValidationService;
 

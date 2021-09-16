@@ -1,6 +1,5 @@
 package it.eng.idsa.businesslogic.processor.common;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -18,12 +17,11 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class ValidateTokenProcessorTest {
 
@@ -41,8 +39,8 @@ public class ValidateTokenProcessorTest {
 	private org.apache.camel.Message camelMessage;
 	@Mock
 	private MultipartMessage multipartMessage;
-
-	private RejectionMessageService rejectionMessageService = new RejectionMessageServiceImpl();
+	@Mock
+	private RejectionMessageService rejectionMessageService;
 	private Map<String, Object> headers = new HashMap<>();
 	private Message message;
 
@@ -62,7 +60,7 @@ public class ValidateTokenProcessorTest {
 
 	@Test
 	public void validateTokenSuccess() throws Exception {
-		message = TestUtilMessageService.getArtifactRequestMessage();
+		message = UtilMessageService.getArtifactRequestMessage();
 		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", true);
 
 		mockExchangeHeaderAndBody();
@@ -73,25 +71,23 @@ public class ValidateTokenProcessorTest {
 		processor.process(exchange);
 
 		verify(dapsService).validateToken(TOKEN);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN, message);
 	}
 
 	@Test
 	public void validateTokenFailed() throws Exception {
-		message = TestUtilMessageService.getArtifactRequestMessage();
+		message = UtilMessageService.getArtifactRequestMessage();
 		ReflectionTestUtils.setField(processor, "isEnabledDapsInteraction", true);
-		ReflectionTestUtils.setField(processor, "rejectionMessageService", rejectionMessageService, RejectionMessageService.class);
 
 		mockExchangeHeaderAndBody();
 
 		when(multipartMessage.getToken()).thenReturn(TOKEN);
 		when(dapsService.validateToken(TOKEN)).thenReturn(false);
 
-		assertThrows(ExceptionForProcessor.class,
-	            ()->{
-	            	processor.process(exchange);
-	            });
+		processor.process(exchange);
 
 		verify(dapsService).validateToken(TOKEN);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN, message);
 
 	}
 	

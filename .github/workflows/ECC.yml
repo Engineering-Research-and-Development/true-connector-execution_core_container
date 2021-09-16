@@ -20,9 +20,24 @@ jobs:
       - name: Git Checkout
         uses: actions/checkout@v2
       
-      - name: Run Install
-        run: ./ci/install.sh
+      - name: Run env setup
+        run: ./ci/setupEnv.sh
         
+      - name: Run multipart message lib
+        run: ./ci/mmLib.sh
+        
+      - name: Run websocket-message-streamer-lib
+        run: ./ci/wmsLib.sh
+        
+      - name: Run Cloning and Creating Docker Container from Data-App repo
+        run: ./ci/dataApp.sh
+        
+      - name: Run Downloading and installing Clearing-House Model
+        run: ./ci/ch.sh
+        
+      - name: Run Creating Docker Container for ECCs
+        run: ./ci/ecc.sh
+      
       - name: Docker images
         run:  docker images
         
@@ -38,6 +53,10 @@ jobs:
       - name: Run Test HTTPS-HTTPS-mixed
         run: newman run ./ci/docker/test-cases/https-https-mixed/HTTPS-HTTPS-mixed.json --timeout-request 120000 --insecure --bail --verbose
         
+      - name: Dump docker HTTPS-HTTPS-mixed
+        if: failure()
+        uses: jwalton/gh-docker-logs@v1
+        
       - name: Stop docker container HTTPS-HTTPS-mixed
         run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed/.env down -v
         
@@ -52,6 +71,10 @@ jobs:
       
       - name: Run Test HTTPS-HTTPS-form
         run: newman run ./ci/docker/test-cases/https-https-form/HTTPS-HTTPS-form.json --timeout-request 120000 --insecure --bail --verbose
+      
+      - name: Dump docker HTTPS-HTTPS-form
+        if: failure()
+        uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container HTTPS-HTTPS-form
         run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form/.env down -v
@@ -70,6 +93,10 @@ jobs:
         
       - name: Stop docker container HTTPS-HTTPS-header
         run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header/.envdown -v
+      
+      - name: Dump docker HTTPS-HTTPS-header
+        if: failure()
+        uses: jwalton/gh-docker-logs@v1
         
       - name: Run docker container HTTPS-IDSCP2-mixed
         run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env up -d
@@ -80,8 +107,12 @@ jobs:
       - name: Check if the container is up and running
         run: docker ps -a 
       
-      - name: Run Test
+      - name: Run Test HTTPS-IDSCP2-mixed
         run: newman run ./ci/docker/test-cases/https-idscp2-mixed/HTTPS-IDSCP2-mixed.json --timeout-request 120000 --insecure --bail --verbose
+        
+      - name: Dump docker HTTPS-IDSCP2-mixed
+        if: failure()
+        uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container
         run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env down -v
@@ -95,8 +126,12 @@ jobs:
       - name: Check if the container is up and running
         run: docker ps -a 
       
-      - name: Run Test
+      - name: Run Test HTTPS-IDSCP2-form
         run: newman run ./ci/docker/test-cases/https-idscp2-form/HTTPS-IDSCP2-form.json --timeout-request 120000 --insecure --bail --verbose
+        
+      - name: Dump docker HTTPS-IDSCP2-form
+        if: failure()
+        uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container
         run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-form/.env down -v
@@ -110,8 +145,12 @@ jobs:
       - name: Check if the container is up and running
         run: docker ps -a 
       
-      - name: Run Test
+      - name: Run Test HTTPS-IDSCP2-header
         run: newman run ./ci/docker/test-cases/https-idscp2-header/HTTPS-IDSCP2-header.json --timeout-request 120000 --insecure --bail --verbose
+        
+      - name: Dump docker HTTPS-IDSCP2-header
+        if: failure()
+        uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container
         run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-header/.env down -v
@@ -125,8 +164,12 @@ jobs:
       - name: Check if the container is up and running
         run: docker ps -a 
       
-      - name: Run Test
+      - name: Run Test WS-WS
         run: newman run ./ci/docker/test-cases/ws-ws/WS-WS.json --timeout-request 120000 --insecure --bail --verbose
+        
+      - name: Dump docker WS-WS
+        if: failure()
+        uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container
         run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/ws-ws/.env down -v
@@ -140,8 +183,12 @@ jobs:
       - name: Check if the container is up and running
         run: docker ps -a 
       
-      - name: Run Test
+      - name: Run Test WS-IDSCP2
         run: newman run ./ci/docker/test-cases/ws-idscp2/WS-IDSCP2.json --timeout-request 120000 --insecure --bail --verbose
+        
+      - name: Dump docker WS-IDSCP2
+        if: failure()
+        uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container
         run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/ws-idscp2/.env down -v

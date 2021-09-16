@@ -25,11 +25,11 @@ import com.google.gson.internal.LinkedTreeMap;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.usagecontrol.model.IdsUseObject;
 import it.eng.idsa.businesslogic.usagecontrol.service.UcService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.MessagePart;
+import it.eng.idsa.businesslogic.util.MockUtil;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
@@ -90,7 +90,7 @@ public class SenderUsageControlProcessorTest {
 	@Test
 	public void usageControlEnabledAndInhibited() {
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", true);
-		rejectionMessageService = new RejectionMessageServiceImpl();
+		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService);
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
 				rejectionMessageService, RejectionMessageService.class);
 

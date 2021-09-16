@@ -51,7 +51,8 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 
 		// Get from the input "exchange"
 		Map<String, Object> receivedDataHeader = exchange.getMessage().getHeaders();
-		
+		logger.info("Received multipart/form request");
+
 		try {
 			// Create multipart message parts
 			if (receivedDataHeader.containsKey(MessagePart.HEADER)) {
@@ -62,6 +63,7 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 					header = (String) receivedDataHeader.get(MessagePart.HEADER);
 				}
 			} 
+			logger.debug("Header part {}", header);
 			message = multipartMessageService.getMessage(header);
 			if (receivedDataHeader.containsKey(MessagePart.PAYLOAD)) {
 				if(receivedDataHeader.get(MessagePart.PAYLOAD) instanceof DataHandler) {
@@ -71,6 +73,7 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 					payload = (String) receivedDataHeader.get(MessagePart.PAYLOAD);
 				}
 			}
+			logger.debug("Payload part {}", payload);
 
 			MultipartMessage multipartMessage = new MultipartMessageBuilder()
 					.withHeaderContent(header)

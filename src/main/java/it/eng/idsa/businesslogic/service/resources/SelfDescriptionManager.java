@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.JsonSyntaxException;
+
 import de.fraunhofer.iais.eis.BaseConnectorImpl;
 import de.fraunhofer.iais.eis.Connector;
 import de.fraunhofer.iais.eis.ContractOffer;
@@ -378,7 +380,7 @@ public class SelfDescriptionManager {
 				fos = new FileOutputStream(
 						selfDescriptionConfiguration.getFileLocation()
 						+ File.separator 
-						+ SelfDescriptionConfiguration.SELF_DECRIPTION_FILE_NAME);
+						+ SelfDescriptionConfiguration.SELF_DESCRIPTION_FILE_NAME);
 				fos.write(connectorAsString.getBytes());
 			} finally {
 				if(fos != null) {
@@ -393,7 +395,7 @@ public class SelfDescriptionManager {
 	public Connector loadConnector() {
 		logger.debug("File location : ", selfDescriptionConfiguration.getFileLocation());
 		File selfDescriptionFile = new File(selfDescriptionConfiguration.getFileLocation()
-				 + File.separator + SelfDescriptionConfiguration.SELF_DECRIPTION_FILE_NAME);
+				 + File.separator + SelfDescriptionConfiguration.SELF_DESCRIPTION_FILE_NAME);
 		Connector connector = null;
 		if(selfDescriptionFile.exists() && !selfDescriptionFile.isDirectory()) { 
 		    logger.info("Found existing self description document at {}", selfDescriptionFile.getAbsoluteFile());
@@ -409,6 +411,7 @@ public class SelfDescriptionManager {
 				logger.debug("Done with loading connector from file.");
 			} catch (IOException e) {
 				logger.error("Error while loading connector from file '{}'", selfDescriptionFile.getAbsoluteFile());
+				logger.debug(e.getMessage());
 			}
 		}
 		return connector;

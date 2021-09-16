@@ -65,7 +65,7 @@ public class ReceiverUsageControlProcessorTest {
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", true);
 		artifactRequestMessage = TestUtilMessageService.getArtifactRequestMessage();
 		artifactResponseMessage = TestUtilMessageService.getArtifactResponseMessage();
-		descriptionRequestMessage = TestUtilMessageService.getDescriptionRequestMessage();
+		descriptionRequestMessage = TestUtilMessageService.getDescriptionRequestMessage(null);
 		originalMessageHeader = TestUtilMessageService.getMessageAsString(artifactRequestMessage);
 		headers = new HashMap<>();
 		headers.put(ORIGINAL_MESSAGE_HEADER, originalMessageHeader);

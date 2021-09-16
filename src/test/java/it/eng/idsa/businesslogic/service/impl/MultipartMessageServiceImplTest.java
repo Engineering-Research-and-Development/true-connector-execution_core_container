@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URISyntaxException;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -40,7 +38,7 @@ public class MultipartMessageServiceImplTest {
 	public void testParseJsonLdMessageOnlyHeader() {
 		String message = "--5h-mAJBSLPxhWW0KWTF-eHuB2KedYdNJMF2uYvF\r\n" + 
 				"Content-Disposition: form-data; name=\"header\"\r\n" + 
-				"Content-Type: application/json+ld\r\n" + 
+				"Content-Type: application/ld+json\r\n" + 
 				"Content-Length: 1070\r\n" + 
 				"\r\n" + 
 				"{\r\n" + 
@@ -97,35 +95,19 @@ public class MultipartMessageServiceImplTest {
 	}
 	
 	@Test
-	public void removeToken() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
-		String result = service.removeToken(TestUtilMessageService.getArtifactRequestMessageWithToken());
-		assertNotNull(result);
-		assertFalse(result.contains("securityToken"));
-	}
-	
-	@Test
 	public void addToken() {
 		Message message = TestUtilMessageService.getArtifactRequestMessage();
-		String token = "DUMMY_TOKEN_VALUE";
+		String token = "DUMMY_TOKEN_VALUE_UPDATE";
 		String messageWithToken = service.addToken(message, token );
 		assertNotNull(messageWithToken);
 		assertTrue(messageWithToken.contains(token));
+		assertFalse(messageWithToken.contains(TestUtilMessageService.TOKEN_VALUE));
 	}
 	
 	@Test
 	public void getToken() throws JsonProcessingException {
-		String token = service.getToken(TestUtilMessageService.getArtifactRequestMessageWithToken());
+		String token = service.getToken(TestUtilMessageService.getArtifactRequestMessage());
 		assertNotNull(token);
 	}
-	@Test
-	public void removeTokenFromMessage() {
-		Message removeTokenMsg = service.removeTokenFromMessage(TestUtilMessageService.getArtifactRequestMessageWithToken());
-		assertNull(removeTokenMsg.getSecurityToken());
-	}
-
-	@Test
-	public void removeTokenFromMessageWihtoutToken() {
-		Message removeTokenMsg = service.removeTokenFromMessage(TestUtilMessageService.getArtifactRequestMessage());
-		assertNull(removeTokenMsg.getSecurityToken());
-	}
+	
 }

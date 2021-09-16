@@ -4,17 +4,12 @@
 package it.eng.idsa.businesslogic.service.impl;
 
 import java.net.URI;
-import java.util.GregorianCalendar;
-
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -22,16 +17,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import de.fraunhofer.iais.eis.LogMessage;
 import de.fraunhofer.iais.eis.LogMessageBuilder;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.service.ClearingHouseService;
+import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.HashFileService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.clearinghouse.model.Body;
 import it.eng.idsa.clearinghouse.model.NotificationContent;
+import it.eng.idsa.multipart.util.DateUtil;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 /**
  * @author Milan Karajovic and Gabriele De Luca
@@ -48,18 +51,18 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
-
-	@Value("${information.model.version}")
-	private String informationModelVersion;
+	
+	@Autowired
+	private SelfDescriptionConfiguration selfDescriptionConfiguration;
+	
+	@Autowired
+	private DapsTokenProviderService dapsProvider;
 
 	@Autowired
 	private RestTemplate restTemplate;
 
 	@Autowired
 	private HashFileService hashService;
-
-	@Autowired
-	private MultipartMessageServiceImpl multipartMessageServiceImpl;
 
 	@Override
 	public boolean registerTransaction(Message correlatedMessage, String payload) {
@@ -69,16 +72,19 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			logger.info("registerTransaction...");
 			String endpoint = configuration.getClearingHouseUrl();
 			// Create Message for Clearing House
-			XMLGregorianCalendar xgcal = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar());
 
-			// Infomodel version 4.0.0
-			LogMessage logInfo = new LogMessageBuilder()._modelVersion_(informationModelVersion)
-					._issuerConnector_(whoIAm())._issued_(xgcal).build();
+			LogMessage logInfo = new LogMessageBuilder()
+					._modelVersion_(UtilMessageService.MODEL_VERSION)
+					._issuerConnector_(whoIAm())
+					._issued_(DateUtil.now())
+					._senderAgent_(correlatedMessage.getSenderAgent())
+					._securityToken_(dapsProvider.getDynamicAtributeToken())
+					.build();
 
 			NotificationContent notificationContent = new NotificationContent();
 			notificationContent.setHeader(logInfo);
 			Body body = new Body();
-			body.setHeader(multipartMessageServiceImpl.removeTokenFromMessage(correlatedMessage));
+			body.setHeader(correlatedMessage);
 			String hash = hashService.hash(payload);
 			body.setPayload(hash);
 
@@ -86,7 +92,12 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
-			String msgSerialized = MultipartMessageServiceImpl.serializeMessage(notificationContent);
+//			String msgSerialized = MultipartMessageProcessor.serializeMessage(notificationContent);
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
+	        mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+			
+	        String msgSerialized = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(notificationContent);
 			logger.info("msgSerialized to CH=" + msgSerialized);
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = (JSONObject) parser.parse(msgSerialized);
@@ -99,7 +110,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 
 			success = true;
 		} catch (Exception e) {
-			logger.error("Could not register the following message to clearing house:", e);
+			logger.error("Could not register the following message to clearing house", e);
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
 					correlatedMessage);
 		}
@@ -108,7 +119,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	}
 
 	private URI whoIAm() {
-		return URI.create("auto-generated");
+		return selfDescriptionConfiguration.getConnectorURI();
 	}
 
 }

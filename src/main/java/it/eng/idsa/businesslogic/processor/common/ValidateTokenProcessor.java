@@ -53,9 +53,7 @@ public class ValidateTokenProcessor implements Processor {
 		
 		if(isTokenValid==false) {			
 			logger.error("Token is invalid");
-			rejectionMessageService.sendRejectionMessage(
-					RejectionMessageType.REJECTION_TOKEN, 
-					message);
+			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN, message);
 		}
 		
 		logger.info("is token valid: "+isTokenValid);

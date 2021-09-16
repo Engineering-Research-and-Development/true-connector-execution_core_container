@@ -233,7 +233,7 @@ public class CamelRouteSender extends RouteBuilder {
             	.process(contractAgreementProcessor)
             	.process(registerTransactionToCHProcessor)
             	.process(mapMultipartToIDSCP2)
-            	.toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&sslContextParameters=#sslContext")
+            	.toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&transportSslContextParameters=#sslContext&dapsSslContextParameters=#sslContext")
         		.log("### CLIENT RECEIVER: Detected Message")
         		.process(mapIDSCP2toMultipart)
                 .process(registerTransactionToCHProcessor)

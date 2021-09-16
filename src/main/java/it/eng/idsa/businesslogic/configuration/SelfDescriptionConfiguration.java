@@ -22,12 +22,13 @@ public class SelfDescriptionConfiguration {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SelfDescriptionConfiguration.class);
 	
-	public static final String SELF_DECRIPTION_FILE_NAME = "self_description.json";
+	public static final String SELF_DESCRIPTION_FILE_NAME = "self_description.json";
 
 	@Value("${camel.component.http4.use-global-ssl-context-parameters}")
 	private boolean useHttps;
 	
-	@Value("${information.model.version}")
+//	@Value("${information.model.version}")
+//	TODO remove this property and it's usage
 	private String informationModelVersion;
 	
 	@Autowired

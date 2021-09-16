@@ -62,7 +62,7 @@ public class BrokerServiceImplTest {
 		ReflectionTestUtils.setField(brokerServiceImpl, "brokerURL", brokerURL);
 		when(dapsTokenProviderService.provideToken())
 				.thenReturn(TestUtilMessageService.getDynamicAttributeToken().getTokenValue());
-		messageWithToken = TestUtilMessageService.getArtifactRequestMessageWithToken();
+		messageWithToken = TestUtilMessageService.getArtifactRequestMessage();
 		messageWithoutToken = TestUtilMessageService.getArtifactRequestMessage();
 		headers = new HashMap<String, Object>();
 		headers.put("Payload-Content-Type", ContentType.APPLICATION_JSON);

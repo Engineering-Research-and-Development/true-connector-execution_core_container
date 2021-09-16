@@ -35,32 +35,25 @@ public class GetTokenFromDapsProcessor implements Processor {
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
 
-	@Autowired
+	@Autowired(required = false)
 	private DapsTokenProviderService dapsTokenProviderService;
 
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
 	
-	@Value("${application.isEnabledDapsInteraction}")
-    private boolean isEnabledDapsInteraction;
-
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		
-		if (!isEnabledDapsInteraction) {
-            logger.info("Daps interaction not configured - continued with flow");
-            return;
-        }
+		logger.info("Enriching message with DAT token");
 
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		Map<String, Object> headersParts = exchange.getMessage().getHeaders();
 		Message message = multipartMessage.getHeaderContent();
-		logger.info("message id=" + message.getId());
 
 		// Get the Token from the DAPS
 		String token = null;
 		try {
 			token = dapsTokenProviderService.provideToken();
+			logger.debug("DAT token: {}", token);
 		} catch (Exception e) {
 			logger.error("Can not get the token from the DAPS server ", e);
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN_LOCAL_ISSUES, message);
@@ -77,27 +70,17 @@ public class GetTokenFromDapsProcessor implements Processor {
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN_LOCAL_ISSUES, message);
 		}
 
-//		logger.info("token=" + token);
-//		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) {
-//			// TODO move this to SendDataToBussinessLogicServiceImpl
-//			multipartMessage = new MultipartMessageBuilder().withHttpHeader(multipartMessage.getHttpHeaders())
-//					.withHeaderHeader(multipartMessage.getHeaderHeader())
-//					.withHeaderContent(multipartMessage.getHeaderContent())
-//					.withPayloadHeader(multipartMessage.getPayloadHeader())
-//					.withPayloadContent(multipartMessage.getPayloadContent()).withToken(token).build();
-//		} else {
-			String messageStringWithToken = multipartMessageService.addToken(message, token);
-			logger.info("messageStringWithToken=\n" + messageStringWithToken);
+		String messageStringWithToken = multipartMessageService.addToken(message, token);
+		logger.debug("messageStringWithToken=\n" + messageStringWithToken);
 
-			multipartMessage = new MultipartMessageBuilder()
-					.withHttpHeader(multipartMessage.getHttpHeaders())
-					.withHeaderHeader(multipartMessage.getHeaderHeader())
-					.withHeaderContent(messageStringWithToken)
-					.withPayloadHeader(multipartMessage.getPayloadHeader())
-					.withPayloadContent(multipartMessage.getPayloadContent())
-					.withToken(token)
-					.build();
-//		}
+		multipartMessage = new MultipartMessageBuilder()
+				.withHttpHeader(multipartMessage.getHttpHeaders())
+				.withHeaderHeader(multipartMessage.getHeaderHeader())
+				.withHeaderContent(messageStringWithToken)
+				.withPayloadHeader(multipartMessage.getPayloadHeader())
+				.withPayloadContent(multipartMessage.getPayloadContent())
+				.withToken(token)
+				.build();
 		// Return exchange
 		exchange.getMessage().setBody(multipartMessage);
 		exchange.getMessage().setHeaders(headersParts);

@@ -91,8 +91,7 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 
 		if (isEnabledWebSocket) {
 			String responseMultipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);
-			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration
-					.responseMessageBufferWebSocket();
+			ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration.responseMessageBufferWebSocket();
 			responseMessageServerBean.add(responseMultipartMessageString.getBytes());
 		}
 	}

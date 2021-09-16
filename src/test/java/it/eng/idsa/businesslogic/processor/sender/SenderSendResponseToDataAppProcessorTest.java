@@ -1,7 +1,6 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -58,7 +57,7 @@ public class SenderSendResponseToDataAppProcessorTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		multipartMessage = new MultipartMessageBuilder()
-				.withHeaderContent(TestUtilMessageService.getArtifactRequestMessageWithToken())
+				.withHeaderContent(TestUtilMessageService.getArtifactRequestMessage())
 				.withPayloadContent(PAYLOAD).build();
 	}
 	

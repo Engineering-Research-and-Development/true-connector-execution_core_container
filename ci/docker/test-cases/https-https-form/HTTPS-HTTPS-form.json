@@ -37,7 +37,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"multipart\": \"form\",\n    \"Forward-To\": \"https://localhost:8889/data\",\n\t \"message\": {\n\t  \"@context\" : {\n\t\t\"ids\" : \"https://w3id.org/idsa/core/\"\n\t  },\n\t  \"@type\" : \"ids:ArtifactRequestMessage\",\n\t  \"@id\" : \"https://w3id.org/idsa/autogen/artifactRequestMessage/76481a41-8117-4c79-bdf4-9903ef8f825a\",\n\t  \"ids:issued\" : {\n\t\t\"@value\" : \"2020-11-25T16:43:27.051+01:00\",\n\t\t\"@type\" : \"http://www.w3.org/2001/XMLSchema#dateTimeStamp\"\n\t  },\n\t  \"ids:modelVersion\" : \"4.0.0\",\n\t  \"ids:issuerConnector\" : {\n\t\t\"@id\" : \"http://w3id.org/engrd/connector/\"\n\t  },\n\t  \"ids:requestedArtifact\" : {\n\t   \"@id\" : \"http://w3id.org/engrd/connector/artifact/1\"\n\t  }\n\t},\n\t\"payload\" : {\n\t\t\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"\n\t\t}\n}"
+					        "raw": "{\r\n    \"multipart\": \"form\",\r\n    \"Forward-To\": \"https://ecc-provider:8889/data\",\r\n    \"messageType\": \"ArtifactRequestMessage\" ,\r\n    \"requestedArtifact\": \"http://w3id.org/engrd/connector/artifact/1\" ,\r\n     \"payload\" : {\r\n\t\t\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"\r\n\t\t}\r\n}"
 						},
 						"url": {
 							"raw": "https://localhost:8085/proxy",

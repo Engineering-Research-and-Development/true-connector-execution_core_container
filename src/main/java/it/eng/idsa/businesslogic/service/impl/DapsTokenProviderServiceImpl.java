@@ -14,8 +14,12 @@ import org.springframework.stereotype.Service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 
+import de.fraunhofer.iais.eis.DynamicAttributeToken;
+import de.fraunhofer.iais.eis.DynamicAttributeTokenBuilder;
+import de.fraunhofer.iais.eis.TokenFormat;
 import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 @Service
 public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
@@ -36,11 +40,15 @@ public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 	private boolean fetchTokenOnStartup;
 	
 	@Value("${application.isEnabledDapsInteraction}")
-	private boolean isEnabledDapsInteraction;
-
+	private boolean useDaps;
+	
 	@Override
 	public String provideToken() {
 		logger.info("Requesting token");
+		if(!useDaps) {
+			logger.info("Daps not configured but must use some token - using value {}", UtilMessageService.TOKEN_VALUE);
+			return UtilMessageService.TOKEN_VALUE;
+		}
 		if (tokenCaching) {
 			//Checking if cached token is still valid
 			if (cachedToken == null || new Date().after(expirationTime)) {
@@ -67,10 +75,17 @@ public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 	
 	@EventListener(ApplicationReadyEvent.class)
 	public void fetchTokenOnStartup() {
-		if ((fetchTokenOnStartup && isEnabledDapsInteraction) && StringUtils.isBlank(cachedToken)) {
+		if ((fetchTokenOnStartup && useDaps) && StringUtils.isBlank(cachedToken)) {
 			logger.info("Fetching DAT token on startup");
 			provideToken();
 		}
 	}
 
+	@Override
+	public DynamicAttributeToken getDynamicAtributeToken() {
+		return new DynamicAttributeTokenBuilder()
+				._tokenFormat_(TokenFormat.JWT)
+				._tokenValue_(this.provideToken())
+				.build();	
+	}
 }

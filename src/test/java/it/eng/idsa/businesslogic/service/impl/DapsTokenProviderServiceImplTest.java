@@ -2,6 +2,7 @@ package it.eng.idsa.businesslogic.service.impl;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,6 +18,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.util.JwTokenUtil;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class DapsTokenProviderServiceImplTest {
 
@@ -32,16 +34,15 @@ public class DapsTokenProviderServiceImplTest {
 	public void setup() throws ParseException {
 		MockitoAnnotations.initMocks(this);
 		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "tokenCaching", true);
+		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "useDaps", true);
 		dapsToken = JwTokenUtil.generateToken(false);
 		when(dapsService.getJwtToken()).thenReturn(dapsToken);
-
 	}
 
 	@Test
 	public void fetchNewTokenIfCachedTokenIsNullTest() {
 		assertNotNull(dapsTokenProviderServiceImpl.provideToken());
 		verify(dapsService).getJwtToken();
-
 	}
 
 	@Test
@@ -50,7 +51,6 @@ public class DapsTokenProviderServiceImplTest {
 		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "expirationTime", JwTokenUtil.isExpired(true));
 		assertNotNull(dapsTokenProviderServiceImpl.provideToken());
 		verify(dapsService).getJwtToken();
-
 	}
 	
 	@Test
@@ -60,7 +60,6 @@ public class DapsTokenProviderServiceImplTest {
 		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "expirationTime", JwTokenUtil.isExpired(true));
 		assertNull(dapsTokenProviderServiceImpl.provideToken());
 		verify(dapsService).getJwtToken();
-
 	}
 
 	@Test
@@ -78,4 +77,10 @@ public class DapsTokenProviderServiceImplTest {
 		verify(dapsService).getJwtToken();
 	}
 
+	@Test
+	public void fetchTokenDapsDisabled() {
+		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "useDaps", false);
+		assertEquals(UtilMessageService.TOKEN_VALUE, dapsTokenProviderServiceImpl.provideToken());
+		verify(dapsService, times(0)).getJwtToken();
+	}
 }

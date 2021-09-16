@@ -21,7 +21,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.Message;
+import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
+import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
@@ -53,6 +55,9 @@ public class SenderParseReceivedResponseMessageTest {
 	@Mock
 	private MultipartMessage multipartMessage;
 	
+	@Mock
+	private DapsTokenProviderService dapsTokenProviderService;
+	
 	private Map<String, Object> headers = new HashMap<>();
 	private Message message;
 	
@@ -66,6 +71,7 @@ public class SenderParseReceivedResponseMessageTest {
 		message = TestUtilMessageService.getArtifactRequestMessage();
 		headers.put("IDS-SecurityToken-TokenValue", TestUtilMessageService.TOKEN_VALUE);
 		headerAsString = TestUtilMessageService.getMessageAsString(message);
+		when(dapsTokenProviderService.getDynamicAtributeToken()).thenReturn(TestUtilMessageService.getDynamicAttributeToken());
 	}
 	
 	@Test
@@ -74,7 +80,7 @@ public class SenderParseReceivedResponseMessageTest {
 		mockExchangeHeaderAndBody();
 
 		when(camelMessage.getBody(String.class)).thenReturn(PAYLOAD);
-		when(headerService.headersToMessage(headers)).thenReturn(TestUtilMessageService.getArtifactRequestMessageWithToken());
+		when(headerService.headersToMessage(headers)).thenReturn(TestUtilMessageService.getArtifactRequestMessage());
 		
 		processor.process(exchange);
 		
@@ -112,6 +118,11 @@ public class SenderParseReceivedResponseMessageTest {
 		rejectionMessageService = new RejectionMessageServiceImpl();
 		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
 				rejectionMessageService, RejectionMessageService.class);
+		SelfDescriptionConfiguration selfDescriptionConfiguration = new SelfDescriptionConfiguration();
+		ReflectionTestUtils.setField(rejectionMessageService, "selfDescriptionConfiguration", 
+				selfDescriptionConfiguration, SelfDescriptionConfiguration.class);
+		ReflectionTestUtils.setField(rejectionMessageService, "dapsProvider", 
+				dapsTokenProviderService, DapsTokenProviderService.class);
 		
 		assertThrows(ExceptionForProcessor.class,
 	            ()->{

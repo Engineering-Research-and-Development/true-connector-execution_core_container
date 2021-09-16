@@ -6,7 +6,7 @@ import java.net.URI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,13 +14,16 @@ import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionMessageBuilder;
 import de.fraunhofer.iais.eis.RejectionReason;
 import de.fraunhofer.iais.eis.ResultMessageBuilder;
+import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
+import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 import it.eng.idsa.multipart.util.DateUtil;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 /**
  *
@@ -33,12 +36,16 @@ import it.eng.idsa.multipart.util.DateUtil;
 public class RejectionMessageServiceImpl implements RejectionMessageService{
 	
 	private static final Logger logger = LoggerFactory.getLogger(RejectionMessageServiceImpl.class);
-
-	@Value("${information.model.version}")
-	private String informationModelVersion;
+	
+	@Autowired
+	private DapsTokenProviderService dapsProvider;
+	
+	@Autowired
+	private SelfDescriptionConfiguration selfDescriptionConfiguration;
 
 	@Override
 	public void sendRejectionMessage(RejectionMessageType rejectionMessageType, Message message) {
+		logger.info("Creating rejection message of type {}", rejectionMessageType);
 		Message rejectionMessage = createRejectionMessage(rejectionMessageType.toString(), message);
 
 		MultipartMessage multipartMessage = new MultipartMessageBuilder()
@@ -80,21 +87,15 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		return rejectionMessage;
 	}
 
-	/*private String getInformationModelVersion() {
-		return "2.1.0-SNAPSHOT";
-	}*/
-
-	public void setInformationModelVersion(String informationModelVersion) {
-		this.informationModelVersion = informationModelVersion;
-	}
-
 	private Message createResultMessage(Message header) {
 		return new ResultMessageBuilder()
 				._issuerConnector_(whoIAm())
 				._issued_(DateUtil.now())
-				._modelVersion_(informationModelVersion)
-				._recipientConnector_(asList(header.getIssuerConnector()))
-				._correlationMessage_(header.getId())
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
+				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
+				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._senderAgent_(whoIAm())
 				.build();
 	}
 
@@ -102,10 +103,12 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		return new RejectionMessageBuilder()
 				._issuerConnector_(whoIAm())
 				._issued_(DateUtil.now())
-				._modelVersion_(informationModelVersion)
-				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("auto-generated")))
-				._correlationMessage_(header!=null?header.getId():URI.create(""))
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
+				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
+				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
 				._rejectionReason_(RejectionReason.MALFORMED_MESSAGE)
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._senderAgent_(whoIAm())
 				.build();
 	}
 
@@ -113,59 +116,70 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 		return new RejectionMessageBuilder()
 				._issuerConnector_(whoIAm())
 				._issued_(DateUtil.now())
-				._modelVersion_(informationModelVersion)
-				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("auto-generated")))
-				._correlationMessage_(header != null?header.getId():null)
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
+				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
+				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
 				._rejectionReason_(RejectionReason.NOT_AUTHENTICATED)
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._senderAgent_(whoIAm())
 				.build();
 	}
 
 
 	private URI whoIAm() {
-		//TODO
-		return URI.create("auto-generated");
+		return selfDescriptionConfiguration.getConnectorURI();
+//		return URI.create("http://auto-generated");
 	}
 
 	private Message createRejectionMessageLocalIssues(Message header) {
 		return new RejectionMessageBuilder()
-				._issuerConnector_(URI.create("auto-generated"))
+				._issuerConnector_(URI.create("http://auto-generated.com"))
 				._issued_(DateUtil.now())
-				._modelVersion_(informationModelVersion)
-				//._recipientConnectors_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("auto-generated")))
-				._correlationMessage_(URI.create("auto-generated"))
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
+				//._recipientConnectors_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
+				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
 				._rejectionReason_(RejectionReason.MALFORMED_MESSAGE)
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._senderAgent_(whoIAm())
 				.build();
 	}
 
 	private Message createRejectionTokenLocalIssues(Message header) {
 		return new RejectionMessageBuilder()
-				._issuerConnector_(header.getIssuerConnector())
+				._issuerConnector_(header!=null?header.getIssuerConnector():URI.create("http://auto-generated.com"))
 				._issued_(DateUtil.now())
-				._modelVersion_(informationModelVersion)
-				._recipientConnector_(asList(header.getIssuerConnector()))
-				._correlationMessage_(header.getId())
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
+				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
+				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
 				._rejectionReason_(RejectionReason.NOT_AUTHENTICATED)
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._senderAgent_(whoIAm())
 				.build();
 	}
 
 	private Message createRejectionCommunicationLocalIssues(Message header) {
 		return new RejectionMessageBuilder()
-				._issuerConnector_(header.getIssuerConnector())
+				._issuerConnector_(header!=null?header.getIssuerConnector():URI.create("http://auto-generated.com"))
 				._issued_(DateUtil.now())
-				._modelVersion_(informationModelVersion)
-				._recipientConnector_(asList(header.getIssuerConnector()))
-				._correlationMessage_(header.getId())
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
+				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
+				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
 				._rejectionReason_(RejectionReason.NOT_FOUND)
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._senderAgent_(whoIAm())
 				.build();
 	}
+	
 	private Message createRejectionUsageControl(Message header) {
 		return new RejectionMessageBuilder()
-				._issuerConnector_(header.getIssuerConnector())
+				._issuerConnector_(header!=null?header.getIssuerConnector():URI.create("http://auto-generated.com"))
 				._issued_(DateUtil.now())
-				._modelVersion_(informationModelVersion)
-				._recipientConnector_(asList(header.getIssuerConnector()))
-				._correlationMessage_(header.getId())
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
+				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
+				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
 				._rejectionReason_(RejectionReason.NOT_AUTHORIZED)
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._senderAgent_(whoIAm())
 				.build();
 	}
 }

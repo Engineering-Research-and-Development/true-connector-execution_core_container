@@ -52,10 +52,10 @@ public class SelfDescriptionUtil {
 	private static final @NotNull URI ISSUER_CONNECTOR = URI.create("https://issuer.connector.com");
 	private static URI MAINTAINER = URI.create("https://maintainer.connector.com");
 	private static URI CURATOR = URI.create("https://curator.connector.com");
-	private static String INFO_MODEL_VERSION = "4.0.0";
+	private static String INFO_MODEL_VERSION = "4.1.1";
 	private static String SELF_DESCRIPTION_TITLE = "Self Description title";
 	private static String SELF_DESCRIPTION_DESCRIPTION = "Self Description - description with some more text";
-	private static String OUTBOUND_INFO_MODEL_VERSION = "4.0.0";
+	private static String OUTBOUND_INFO_MODEL_VERSION = "4.1.1";
 	private static @NotNull URI DEFAUT_ENDPOINT = URI.create("https://default.endpoint.com");;
 	private static URI ACCESS_URL = URI.create("https://access.url.com");;
 
@@ -141,7 +141,7 @@ public class SelfDescriptionUtil {
 		return new BaseConnectorBuilder(ISSUER_CONNECTOR)
 				._maintainer_(MAINTAINER)
 				._curator_(CURATOR)
-				._resourceCatalog_((ArrayList<? extends ResourceCatalog>) getCatalogs())
+				._resourceCatalog_(getCatalogs())
 				._securityProfile_(SecurityProfile.BASE_SECURITY_PROFILE)
 				._inboundModelVersion_(Util.asList(new String[] { INFO_MODEL_VERSION }))
 				._title_(Util.asList(new TypedLiteral(SELF_DESCRIPTION_TITLE)))
@@ -202,7 +202,7 @@ public class SelfDescriptionUtil {
 				._rightOperand_(new RdfResource("2021-31-12T23:59:00Z", URI.create("xsd:datetime")))
 				.build();
 		
-		Permission permission2 = new PermissionBuilder(URI.create("http://example.com/policy/catalog/" + catalogNumber + "restrict-access-interval"))
+		Permission permission2 = new PermissionBuilder(URI.create("http://example.com/policy/catalog/" + catalogNumber + "/resource/" + resourceOrder +"/restrict-access-interval"))
 				._target_(targetURI)
 				._assignee_(Util.asList(URI.create("https://assignee.com")))
 				._assigner_(Util.asList(URI.create("https://assigner.com")))

@@ -1,6 +1,5 @@
 package it.eng.idsa.businesslogic.service.impl;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,10 +21,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import de.fraunhofer.iais.eis.Message;
-import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import de.fraunhofer.iais.eis.ids.jsonld.custom.XMLGregorianCalendarDeserializer;
 import de.fraunhofer.iais.eis.ids.jsonld.custom.XMLGregorianCalendarSerializer;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 import okhttp3.Headers;
 
 @Service
@@ -39,13 +38,8 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, Object> messageToHeaders(Message message) {
-		//TODO use UtilMessageService from MultipartMessageProcessor in upcoming releases
 		if (logger.isDebugEnabled()) {
-			try {
-				logger.debug("Converting following message to http-headers: \r\n {}", new Serializer().serialize(message));
-			} catch (IOException e) {
-				logger.error("Could not serialize message: {}", e.getMessage());
-			}
+			logger.debug("Converting following message to http-headers: \r\n {}", UtilMessageService.getMessageAsString(message));
 		}
 		Map<String, Object> headers = new HashMap<>();
 		ObjectMapper mapper = new ObjectMapper();
@@ -138,8 +132,8 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		messageAsHeader.put("ids:securityToken", tokeAsMap);
 		messageAsHeader.put("ids:recipientConnector", recipientConnector);
 		messageAsHeader.put("ids:recipientAgent", recipientAgent);
-		messageAsHeader.remove("IDS-Messagetype");
-		messageAsHeader.remove("IDS-Id");
+		messageAsHeader.remove("ids:messagetype");
+		messageAsHeader.remove("ids:id");
 		messageAsHeader.put("@type", type);
 		messageAsHeader.put("@id", id);
 		
@@ -147,13 +141,8 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		
 		Message message = mapper.convertValue(messageAsHeader, Message.class);
 		
-		// TODO use UtilMessageService from MultipartMessageProcessor in upcoming releases
 		if (logger.isDebugEnabled()) {
-			try {
-				logger.debug("Headers converted, following message is the result: \\r\\n {}", new Serializer().serialize(message));
-			} catch (IOException e) {
-				logger.error("Could not serialize message: {}", e.getMessage());
-			}
+			logger.debug("Headers converted, following message is the result: \\r\\n {}", UtilMessageService.getMessageAsString(message));
 		}
 		
 		return message;

@@ -37,7 +37,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
-
+		logger.info("Received multipart/mixed request");
 		Message message = null;
 		Map<String, Object> headerParts = new HashMap<String, Object>();
 		String receivedDataBodyBinary = null;
@@ -45,11 +45,11 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 		// Get from the input "exchange"
 		headerParts = exchange.getMessage().getHeaders();
 		receivedDataBodyBinary = exchange.getMessage().getBody(String.class);
-		
 		if (receivedDataBodyBinary == null) {
 			logger.error("Body of the received multipart message is null");
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
 		}
+		logger.debug(receivedDataBodyBinary);
 
 		try {
 			MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
@@ -58,6 +58,8 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 			headerParts.put("Payload-Content-Type",
 					multipartMessage.getPayloadHeader().get(MultipartMessageKey.CONTENT_TYPE.label));
 			
+			logger.debug("Header part {}", multipartMessage.getHeaderContentString());
+			logger.debug("Payload part {}", multipartMessage.getPayloadContent());
 			String forwardTo = (String) headerParts.get("Forward-To");
 			forwardTo = protocolValidationService.validateProtocol(forwardTo, message);
 			headerParts.replace("Forward-To", forwardTo);

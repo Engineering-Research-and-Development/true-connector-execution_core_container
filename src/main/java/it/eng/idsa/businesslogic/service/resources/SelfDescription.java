@@ -1,11 +1,10 @@
 package it.eng.idsa.businesslogic.service.resources;
 
-import de.fraunhofer.iais.eis.BaseConnectorBuilder;
 import de.fraunhofer.iais.eis.Connector;
 
 public class SelfDescription {
 	
-	private Connector connector = new BaseConnectorBuilder().build();
+	private Connector connector = null;
 	
 	private SelfDescription() {        
     }

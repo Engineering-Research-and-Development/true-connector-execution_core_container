@@ -12,7 +12,7 @@
 	<groupId>it.eng.idsa</groupId>
 	<artifactId>market4.0-execution_core_container_business_logic
 	</artifactId>
-	<version>0.0.27-SNAPSHOT</version>
+	<version>0.1.0-SNAPSHOT</version>
 	<name>market4.0-execution_core_container_business_logic</name>
 	<description>Market4.0 execution core container Business Logic
 	</description>
@@ -22,10 +22,10 @@
 		<start-class>it.eng.idsa.businesslogic.Application</start-class>
 		<camel.version>3.7.0</camel.version>
 		<tomcat.version>9.0.24</tomcat.version>
-		<information.model.version>4.0.0</information.model.version>
+		<information.model.version>4.1.1</information.model.version>
 		<application.basedir>${basedir}</application.basedir>
-		<multipart.message.processor.version>1.0.9-SNAPSHOT</multipart.message.processor.version>
-		<idscp2.libraries.version>0.4.2</idscp2.libraries.version>
+		<multipart.message.processor.version>1.0.10-SNAPSHOT</multipart.message.processor.version>
+		<idscp2.libraries.version>0.5.2</idscp2.libraries.version>
 	</properties>
 
 	<repositories>
@@ -139,10 +139,11 @@
 		</dependency>
 
 		<!-- CLEARING HOUSE -->
+		<!-- Must use CH Model updated version in order to have successful CH call -->
 		<dependency>
 			<groupId>it.eng</groupId>
 			<artifactId>clearing-house-model</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
+			<version>1.0.1-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Camel -->
@@ -375,13 +376,13 @@
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20201115</version>
+			<version>20210307</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.bitbucket.b_c</groupId>
 			<artifactId>jose4j</artifactId>
-			<version>0.7.6</version>
+			<version>0.7.8</version>
 		</dependency>
 
 		<dependency>
@@ -389,6 +390,11 @@
 			<artifactId>protoc</artifactId>
 			<version>3.15.5</version>
 			<type>pom</type>
+		</dependency>
+		<dependency>
+			<groupId>de.fhg.aisec.ids</groupId>
+			<artifactId>idscp2-rat-tpm2d</artifactId>
+			<version>0.2.2</version>
 		</dependency>
 		<!-- IDSCP2 -->
 

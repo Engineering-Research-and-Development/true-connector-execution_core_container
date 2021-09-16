@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.0-SNAPSHOT] - 2021-09-16
+ 
+### Changed
+ - infomodel version has been changed to 4.1.1
+ 
+ ### Added
+ - mandatory fields/properties to RejectionMessages 
+ 
 ## [0.0.27-SNAPSHOT] - 2021-08-02
 
 ### Changed
@@ -12,7 +20,6 @@ All notable changes to this project will be documented in this file.
 ### Changed
  - updated logic for using objectMapper to convert from IDS Message to Map and creating Map from incoming headers to convert back to IDS Message
  
-
 ## [0.0.25-SNAPSHOT] - 2021-07-23
  
 ### Added

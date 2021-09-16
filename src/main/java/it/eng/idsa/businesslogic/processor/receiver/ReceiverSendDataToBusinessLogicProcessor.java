@@ -73,7 +73,7 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 		} else {
 			if(isEnabledDapsInteraction) {
 				responseString = MultipartMessageProcessor
-						.multipartMessagetoString(multipartMessageService.addTokenToMultipartMessage(multipartMessage), false, true);
+						.multipartMessagetoString(multipartMessageService.addTokenToMultipartMessage(multipartMessage), false, Boolean.TRUE);
 			} else {
 				responseString = MultipartMessageProcessor
 						.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);

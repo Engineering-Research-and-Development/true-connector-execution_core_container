@@ -20,7 +20,7 @@ import okhttp3.Response;
 @Service
 public class OkHttpSenderClientServiceImpl implements SenderClientService {
 
-	private static final String MEDIA_TYPE_HEADER_JSON_LD = "application/json+ld";
+	private static final String MEDIA_TYPE_HEADER_JSON_LD = "application/ld+json";
 	
 	@Autowired
 	private OkHttpClient client;

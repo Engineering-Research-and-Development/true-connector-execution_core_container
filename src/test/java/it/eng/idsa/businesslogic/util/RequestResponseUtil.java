@@ -10,7 +10,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public class RequestResponseUtil {
-	private final String MEDIA_TYPE_HEADER_JSON_LD = "application/json+ld";
+	private final String MEDIA_TYPE_HEADER_JSON_LD = "application/ld+json";
 	private final String MOCK_ADDRESS = "http://mock.adress";
 
 	public RequestBody getRequestBodyMultipart(MediaType type) {
