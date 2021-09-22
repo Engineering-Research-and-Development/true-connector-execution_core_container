@@ -23,6 +23,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import com.google.gson.internal.LinkedTreeMap;
 
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.model.IdsUseObject;
@@ -32,7 +33,7 @@ import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.MockUtil;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class SenderUsageControlProcessorTest {
 
@@ -60,7 +61,7 @@ public class SenderUsageControlProcessorTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		message = TestUtilMessageService.getArtifactResponseMessage();
+		message = UtilMessageService.getArtifactResponseMessage();
 		ucResult = new LinkedTreeMap<>();
 	}
 
@@ -140,7 +141,7 @@ public class SenderUsageControlProcessorTest {
 	@Test
 	public void usageControlEnabledMessageNotArtifactResponseMessage(){
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", true);
-		message = TestUtilMessageService.getRejectionMessage();
+		message = UtilMessageService.getRejectionMessage(RejectionReason.NOT_AUTHORIZED);
 		mockExchangeHeaderAndBody();
 		
 		processor.process(exchange);

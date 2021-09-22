@@ -24,7 +24,7 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 import it.eng.idsa.multipart.util.MultipartMessageKey;
 
 public class SenderParseReceivedDataProcessorBodyBinaryTest {
@@ -61,11 +61,11 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	@Test
 	public void processWithContentType() throws Exception {
 		multipartMessage = new MultipartMessageBuilder()
-				.withHeaderContent(TestUtilMessageService.getArtifactRequestMessage())
+				.withHeaderContent(UtilMessageService.getArtifactRequestMessage())
 				.withPayloadContent("foo bar")
 				.build();
 		receivedDataBodyBinary = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, false);
-		msg = TestUtilMessageService.getArtifactRequestMessage();
+		msg = UtilMessageService.getArtifactRequestMessage();
 		when(exchange.getMessage()).thenReturn(messageOut);
 		when(messageOut.getBody(String.class)).thenReturn(receivedDataBodyBinary);
 		mockExchangeGetHttpHeaders();
@@ -78,7 +78,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	
 	@Test
 	public void processWithoutContentType() throws Exception {
-		msg = TestUtilMessageService.getArtifactRequestMessage();
+		msg = UtilMessageService.getArtifactRequestMessage();
 		multipartMessage = new MultipartMessageBuilder()
 				.withHeaderContent(msg)
 				.withPayloadContent("foo bar")
@@ -102,7 +102,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 		headerHeader.put(MultipartMessageKey.CONTENT_DISPOSITION.label, "form-data; name=\"header\"");
 		headerHeader.put(MultipartMessageKey.CONTENT_TYPE.label, ContentType.APPLICATION_XML.toString());
 		headerHeader.put(MultipartMessageKey.CONTENT_LENGTH.label, "333");
-		msg = TestUtilMessageService.getArtifactRequestMessage();
+		msg = UtilMessageService.getArtifactRequestMessage();
 		multipartMessage = new MultipartMessageBuilder()
 				.withHeaderContent(msg)
 				.withHeaderHeader(headerHeader)
@@ -121,11 +121,11 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	public void processWithForwardTo_Null() throws Exception {
 		forwardTo = null;
 		multipartMessage = new MultipartMessageBuilder()
-				.withHeaderContent(TestUtilMessageService.getArtifactRequestMessage())
+				.withHeaderContent(UtilMessageService.getArtifactRequestMessage())
 				.withPayloadContent("foo bar")
 				.build();
 		receivedDataBodyBinary = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, false);
-		msg = TestUtilMessageService.getArtifactRequestMessage();
+		msg = UtilMessageService.getArtifactRequestMessage();
 		when(exchange.getMessage()).thenReturn(messageOut);
 		when(messageOut.getBody(String.class)).thenReturn(receivedDataBodyBinary);
 		mockExchangeGetHttpHeaders();

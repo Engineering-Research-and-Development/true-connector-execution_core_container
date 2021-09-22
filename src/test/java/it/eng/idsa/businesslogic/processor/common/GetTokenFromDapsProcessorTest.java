@@ -29,7 +29,7 @@ import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.MockUtil;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class GetTokenFromDapsProcessorTest {
 
@@ -64,21 +64,21 @@ public class GetTokenFromDapsProcessorTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		message = TestUtilMessageService.getArtifactRequestMessage();
-		messageWithToken = TestUtilMessageService.getArtifactRequestMessage();
+		message = UtilMessageService.getArtifactRequestMessage();
+		messageWithToken = UtilMessageService.getArtifactRequestMessage();
 	}
 
 	@Test
 	public void getJwTokenSuccess() throws Exception {
 		mockExchangeHeaderAndBody();
-		when(dapsTokenProviderService.provideToken()).thenReturn(TestUtilMessageService.TOKEN_VALUE);
-		messageAsString = TestUtilMessageService.getMessageAsString(messageWithToken);
-		when(multipartMessageService.addToken(message, TestUtilMessageService.TOKEN_VALUE)).thenReturn(messageAsString);
+		when(dapsTokenProviderService.provideToken()).thenReturn(UtilMessageService.TOKEN_VALUE);
+		messageAsString = UtilMessageService.getMessageAsString(messageWithToken);
+		when(multipartMessageService.addToken(message, UtilMessageService.TOKEN_VALUE)).thenReturn(messageAsString);
 		
 		processor.process(exchange);
 		
 		verify(dapsTokenProviderService).provideToken();
-		verify(multipartMessageService).addToken(message, TestUtilMessageService.TOKEN_VALUE);
+		verify(multipartMessageService).addToken(message, UtilMessageService.TOKEN_VALUE);
 	}
 	
 	@Test
@@ -86,17 +86,17 @@ public class GetTokenFromDapsProcessorTest {
 		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER, String.class);
 
 		mockExchangeHeaderAndBody();
-		when(dapsTokenProviderService.provideToken()).thenReturn(TestUtilMessageService.TOKEN_VALUE);
-		messageAsString = TestUtilMessageService.getMessageAsString(messageWithToken);
-		when(multipartMessageService.addToken(message, TestUtilMessageService.TOKEN_VALUE)).thenReturn(messageAsString);
+		when(dapsTokenProviderService.provideToken()).thenReturn(UtilMessageService.TOKEN_VALUE);
+		messageAsString = UtilMessageService.getMessageAsString(messageWithToken);
+		when(multipartMessageService.addToken(message, UtilMessageService.TOKEN_VALUE)).thenReturn(messageAsString);
 		
 		processor.process(exchange);
 		
 		verify(camelMessage).setBody(argCaptorMultipartMessage.capture());
-		assertEquals(TestUtilMessageService.TOKEN_VALUE, argCaptorMultipartMessage.getValue().getToken());
+		assertEquals(UtilMessageService.TOKEN_VALUE, argCaptorMultipartMessage.getValue().getToken());
 		
 		verify(dapsTokenProviderService).provideToken();
-//		verify(multipartMessageService, times(0)).addToken(message, TestUtilMessageService.TOKEN_VALUE);
+//		verify(multipartMessageService, times(0)).addToken(message, UtilMessageService.TOKEN_VALUE);
 	}
 	
 	@Test

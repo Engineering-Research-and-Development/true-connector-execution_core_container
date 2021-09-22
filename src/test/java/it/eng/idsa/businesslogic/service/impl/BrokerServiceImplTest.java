@@ -25,7 +25,7 @@ import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.util.RequestResponseUtil;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 import okhttp3.Request;
 import okhttp3.ResponseBody;
 
@@ -61,14 +61,14 @@ public class BrokerServiceImplTest {
 		brokerURL = "mockBrokerURL";
 		ReflectionTestUtils.setField(brokerServiceImpl, "brokerURL", brokerURL);
 		when(dapsTokenProviderService.provideToken())
-				.thenReturn(TestUtilMessageService.getDynamicAttributeToken().getTokenValue());
-		messageWithToken = TestUtilMessageService.getArtifactRequestMessage();
-		messageWithoutToken = TestUtilMessageService.getArtifactRequestMessage();
+				.thenReturn(UtilMessageService.getDynamicAttributeToken().getTokenValue());
+		messageWithToken = UtilMessageService.getArtifactRequestMessage();
+		messageWithoutToken = UtilMessageService.getArtifactRequestMessage();
 		headers = new HashMap<String, Object>();
 		headers.put("Payload-Content-Type", ContentType.APPLICATION_JSON);
 		when(multiPartMessageService.addToken(messageWithoutToken,
-				TestUtilMessageService.getDynamicAttributeToken().getTokenValue()))
-						.thenReturn(TestUtilMessageService.getMessageAsString(messageWithToken));
+				UtilMessageService.getDynamicAttributeToken().getTokenValue()))
+						.thenReturn(UtilMessageService.getMessageAsString(messageWithToken));
 	}
 
 	@Test

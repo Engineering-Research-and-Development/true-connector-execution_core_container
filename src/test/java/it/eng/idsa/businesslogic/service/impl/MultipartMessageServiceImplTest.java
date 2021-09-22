@@ -18,7 +18,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class MultipartMessageServiceImplTest {
 	
@@ -96,17 +96,17 @@ public class MultipartMessageServiceImplTest {
 	
 	@Test
 	public void addToken() {
-		Message message = TestUtilMessageService.getArtifactRequestMessage();
+		Message message = UtilMessageService.getArtifactRequestMessage();
 		String token = "DUMMY_TOKEN_VALUE_UPDATE";
 		String messageWithToken = service.addToken(message, token );
 		assertNotNull(messageWithToken);
 		assertTrue(messageWithToken.contains(token));
-		assertFalse(messageWithToken.contains(TestUtilMessageService.TOKEN_VALUE));
+		assertFalse(messageWithToken.contains(UtilMessageService.TOKEN_VALUE));
 	}
 	
 	@Test
 	public void getToken() throws JsonProcessingException {
-		String token = service.getToken(TestUtilMessageService.getArtifactRequestMessage());
+		String token = service.getToken(UtilMessageService.getArtifactRequestMessage());
 		assertNotNull(token);
 	}
 	
