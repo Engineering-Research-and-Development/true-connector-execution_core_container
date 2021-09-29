@@ -64,6 +64,11 @@ public class SenderParseReceivedResponseMessage implements Processor {
 		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) {
 			payload = exchange.getMessage().getBody(String.class);
 			message = headerService.headersToMessage(headersParts);
+			if (message == null) {
+				logger.error("Can't generate a IDS-Message from the received headers.");
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+				return;
+			}
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
 
 //			if (headersParts.get("IDS-SecurityToken-TokenValue") != null) {
