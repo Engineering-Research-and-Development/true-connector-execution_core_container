@@ -2,13 +2,10 @@ package it.eng.idsa.businesslogic.service.impl;
 
 import java.util.Date;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import com.auth0.jwt.JWT;
@@ -35,9 +32,6 @@ public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 
 	@Value("${application.tokenCaching}")
 	private boolean tokenCaching;
-	
-	@Value("${application.fetchTokenOnStartup}")
-	private boolean fetchTokenOnStartup;
 	
 	@Value("${application.isEnabledDapsInteraction}")
 	private boolean useDaps;
@@ -69,15 +63,6 @@ public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 		} else {
 			//Always new token
 			return dapsService.getJwtToken();
-		}
-	}
-	
-	
-	@EventListener(ApplicationReadyEvent.class)
-	public void fetchTokenOnStartup() {
-		if ((fetchTokenOnStartup && useDaps) && StringUtils.isBlank(cachedToken)) {
-			logger.info("Fetching DAT token on startup");
-			provideToken();
 		}
 	}
 
