@@ -1,9 +1,5 @@
 package it.eng.idsa.businesslogic.util;
 
-import java.net.URISyntaxException;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +10,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
 
-import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import it.eng.idsa.businesslogic.service.BrokerService;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
 import it.eng.idsa.businesslogic.service.impl.DapsTokenProviderServiceImpl;
@@ -51,7 +46,7 @@ public class OnStartup {
 	@Bean(name = "autoSelfRegistration")
 	@ConditionalOnProperty(name="application.selfdescription.registrateOnStartup", havingValue="true")
 	@EventListener(ApplicationReadyEvent.class)
-	public void selfRegistrate() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
+	public void selfRegistrate() {
 		logger.info("Starting AutoSelfRegistration");
 
 		brokerService.sendBrokerRequest(selfDescriptionService.getConnectorAvailbilityMessage(),

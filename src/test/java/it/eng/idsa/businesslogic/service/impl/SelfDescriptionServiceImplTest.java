@@ -7,9 +7,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-
-import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +16,6 @@ import org.mockito.MockitoAnnotations;
 import de.fraunhofer.iais.eis.Connector;
 import de.fraunhofer.iais.eis.DynamicAttributeToken;
 import de.fraunhofer.iais.eis.Message;
-import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.resources.SelfDescriptionManager;
@@ -48,7 +44,7 @@ public class SelfDescriptionServiceImplTest {
 	private URI senderAgent = URI.create("https://senderAgent.com");
 
 	@BeforeEach
-	public void setup() throws ConstraintViolationException, URISyntaxException {
+	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		when(dapsProvider.getDynamicAtributeToken()).thenReturn(dynamicAttributeToken);
 		when(configuration.getConnectorURI()).thenReturn(connectorURI);
@@ -84,8 +80,7 @@ public class SelfDescriptionServiceImplTest {
 	}
 
 	@Test
-	public void connectorAvailabilityMessage()
-			throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
+	public void connectorAvailabilityMessage() {
 		Message availabilityMessage = selfDefinitionService.getConnectorAvailbilityMessage();
 		assertNotNull(availabilityMessage);
 //		String ss = geObjectAsString(availabilityMessage);
@@ -93,22 +88,19 @@ public class SelfDescriptionServiceImplTest {
 	}
 
 	@Test
-	public void connectorInactiveMessage()
-			throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
+	public void connectorInactiveMessage() {
 		Message inactiveMessage = selfDefinitionService.getConnectorInactiveMessage();
 		assertNotNull(inactiveMessage);
 	}
 
 	@Test
-	public void connectorUpdateMessage()
-			throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
+	public void connectorUpdateMessage() {
 		Message updateMessage = selfDefinitionService.getConnectorUpdateMessage();
 		assertNotNull(updateMessage);
 	}
 
 	@Test
-	public void connectorUnavailableMessage()
-			throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
+	public void connectorUnavailableMessage() {
 		Message unavailableMessage = selfDefinitionService.getConnectorUnavailableMessage();
 		assertNotNull(unavailableMessage);
 	}
