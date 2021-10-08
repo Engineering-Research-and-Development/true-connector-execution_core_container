@@ -5,14 +5,12 @@ import javax.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.service.BrokerService;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
 
-
-@ConditionalOnProperty(name="application.selfdescription.registrateOnStartup", havingValue="true")
 @Component
 public class OnShutdown {
 	
@@ -24,13 +22,18 @@ public class OnShutdown {
 	@Autowired
 	private BrokerService brokerService;
 	
+	@Value("${application.selfdescription.registrateOnStartup}")
+	String shutdownParam;
+	
 	@PreDestroy
-	public void selfPassivate() {
-		logger.info("Starting sign out process from broker");
+	public void selfPassivate() {		
+		if (shutdownParam.equals("true")) {
+			logger.info("Starting sign out process from broker");
 
-		brokerService.sendBrokerRequest(selfDescriptionService.getConnectorInactiveMessage(),
+			brokerService.sendBrokerRequest(selfDescriptionService.getConnectorInactiveMessage(),
 				selfDescriptionService.getConnectorSelfDescription());
 
-		logger.info("Sign out process finished");
+			logger.info("Sign out process finished");
+		}		
 	}
 }
