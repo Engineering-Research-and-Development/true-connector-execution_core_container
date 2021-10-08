@@ -29,7 +29,7 @@ import it.eng.idsa.businesslogic.util.MockUtil;
 import it.eng.idsa.businesslogic.util.RequestResponseUtil;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 import okhttp3.Headers;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -71,7 +71,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		message = TestUtilMessageService.getArtifactRequestMessage();
+		message = UtilMessageService.getArtifactRequestMessage();
 		headers.put("Forward-To", FORWARD_TO);
 		when(httpHeaderService.okHttpHeadersToMap(okHeaders)).thenReturn(headers);
 	}

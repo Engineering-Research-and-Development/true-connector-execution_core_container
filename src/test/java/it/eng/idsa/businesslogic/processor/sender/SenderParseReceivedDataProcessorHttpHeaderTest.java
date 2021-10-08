@@ -23,7 +23,7 @@ import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class SenderParseReceivedDataProcessorHttpHeaderTest {
 
@@ -64,8 +64,8 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	@Test
 	public void processHttpHeader() throws Exception {
 		mockExchangeGetHttpHeaders(exchange);
-		msg = TestUtilMessageService.getArtifactRequestMessage();
-		header = TestUtilMessageService.getMessageAsString(msg);
+		msg = UtilMessageService.getArtifactRequestMessage();
+		header = UtilMessageService.getMessageAsString(msg);
 		when(httpHeaderService.headersToMessage(httpHeaders)).thenReturn(msg);
 		when(multipartMessageService.getMessage(header)).thenReturn(msg);
 //		when(exchange.getOut()).thenReturn(messageOut);
@@ -85,8 +85,8 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	public void processHttpHeadersForwardTo_Null() throws Exception {
 		forwardTo = null;
 		mockExchangeGetHttpHeaders(exchange);
-		msg = TestUtilMessageService.getArtifactRequestMessage();
-		header = TestUtilMessageService.getMessageAsString(msg);
+		msg = UtilMessageService.getArtifactRequestMessage();
+		header = UtilMessageService.getMessageAsString(msg);
 		when(httpHeaderService.headersToMessage(httpHeaders)).thenReturn(msg);
 		when(multipartMessageService.getMessage(header)).thenReturn(msg);
 //		when(exchange.getOut()).thenReturn(messageOut);
@@ -107,8 +107,8 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	public void processHttpHeaderRequiredHeadersNotPresent() throws Exception {
 		mockExchangeGetHttpHeaders(exchange);
 		httpHeaders.remove("IDS-Messagetype");
-		msg = TestUtilMessageService.getArtifactRequestMessage();
-		header = TestUtilMessageService.getMessageAsString(msg);
+		msg = UtilMessageService.getArtifactRequestMessage();
+		header = UtilMessageService.getMessageAsString(msg);
 		when(httpHeaderService.headersToMessage(httpHeaders)).thenReturn(null);
 		when(multipartMessageService.getMessage(header)).thenReturn(null);
 

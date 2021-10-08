@@ -1,7 +1,6 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,8 +20,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.Message;
-import de.fraunhofer.iais.eis.RejectionReason;
-import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
+import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
@@ -31,7 +29,7 @@ import it.eng.idsa.businesslogic.util.MockUtil;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class SenderParseReceivedResponseMessageTest {
 
@@ -55,6 +53,9 @@ public class SenderParseReceivedResponseMessageTest {
 	@Mock
 	private MultipartMessage multipartMessage;
 	
+	@Mock
+	private DapsTokenProviderService dapsTokenProviderService;
+	
 	private Map<String, Object> headers = new HashMap<>();
 	private Message message;
 	
@@ -66,9 +67,10 @@ public class SenderParseReceivedResponseMessageTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		message = TestUtilMessageService.getArtifactRequestMessage();
-		headers.put("IDS-SecurityToken-TokenValue", TestUtilMessageService.TOKEN_VALUE);
-		headerAsString = TestUtilMessageService.getMessageAsString(message);
+		message = UtilMessageService.getArtifactRequestMessage();
+		headers.put("IDS-SecurityToken-TokenValue", UtilMessageService.TOKEN_VALUE);
+		headerAsString = UtilMessageService.getMessageAsString(message);
+		when(dapsTokenProviderService.getDynamicAtributeToken()).thenReturn(UtilMessageService.getDynamicAttributeToken());
 	}
 	
 	@Test
@@ -77,12 +79,12 @@ public class SenderParseReceivedResponseMessageTest {
 		mockExchangeHeaderAndBody();
 
 		when(camelMessage.getBody(String.class)).thenReturn(PAYLOAD);
-		when(headerService.headersToMessage(headers)).thenReturn(TestUtilMessageService.getArtifactRequestMessage());
+		when(headerService.headersToMessage(headers)).thenReturn(UtilMessageService.getArtifactRequestMessage());
 		
 		processor.process(exchange);
 		
 		verify(camelMessage).setBody(argCaptorMultipartMessage.capture());
-		assertEquals(TestUtilMessageService.TOKEN_VALUE, argCaptorMultipartMessage.getValue().getToken());
+		assertEquals(UtilMessageService.TOKEN_VALUE, argCaptorMultipartMessage.getValue().getToken());
 		assertEquals(PAYLOAD, argCaptorMultipartMessage.getValue().getPayloadContent());
 		assertTrue(argCaptorMultipartMessage.getValue().getHeaderContent() instanceof ArtifactRequestMessage);
 	}
@@ -96,13 +98,13 @@ public class SenderParseReceivedResponseMessageTest {
 		headers.put(MessagePart.PAYLOAD, PAYLOAD);
 		
 		when(multipartMessageService.getMessage(headerAsString)).thenReturn(message);
-		when(multipartMessageService.getToken(message)).thenReturn(TestUtilMessageService.TOKEN_VALUE);
+		when(multipartMessageService.getToken(message)).thenReturn(UtilMessageService.TOKEN_VALUE);
 		
 		processor.process(exchange);
 		
 		verify(multipartMessageService).getToken(message);
 		verify(camelMessage).setBody(argCaptorMultipartMessage.capture());
-		assertEquals(TestUtilMessageService.TOKEN_VALUE, argCaptorMultipartMessage.getValue().getToken());
+		assertEquals(UtilMessageService.TOKEN_VALUE, argCaptorMultipartMessage.getValue().getToken());
 		assertEquals(PAYLOAD, argCaptorMultipartMessage.getValue().getPayloadContent());
 		assertTrue(argCaptorMultipartMessage.getValue().getHeaderContent() instanceof ArtifactRequestMessage);
 	}
