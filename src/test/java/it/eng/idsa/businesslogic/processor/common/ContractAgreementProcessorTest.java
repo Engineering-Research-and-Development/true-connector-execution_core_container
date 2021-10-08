@@ -20,7 +20,7 @@ import it.eng.idsa.businesslogic.service.CommunicationService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.MockUtil;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class ContractAgreementProcessorTest {
 	
@@ -53,7 +53,7 @@ public class ContractAgreementProcessorTest {
 		ReflectionTestUtils.setField(processor, "usageControlDataAppURL", usageControlDataAppURL, String.class);
 		ReflectionTestUtils.setField(processor, "addPolicyEndpoint", addPolicyEndpoint, String.class);
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", Boolean.TRUE, Boolean.class);
-		contractAggreAgreementMessage = TestUtilMessageService.createContractAgreementMessage();
+		contractAggreAgreementMessage = UtilMessageService.getContractAgreementMessage();
 	}
 	
 	@Test
@@ -91,7 +91,7 @@ public class ContractAgreementProcessorTest {
 	public void verifyContractAgreement_NotSent() throws Exception {
 		when(exchange.getMessage()).thenReturn(camelMessage);
 		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
-		when(multipartMessage.getHeaderContent()).thenReturn(TestUtilMessageService.getArtifactRequestMessage());
+		when(multipartMessage.getHeaderContent()).thenReturn(UtilMessageService.getArtifactRequestMessage());
 
 		processor.process(exchange);
 		

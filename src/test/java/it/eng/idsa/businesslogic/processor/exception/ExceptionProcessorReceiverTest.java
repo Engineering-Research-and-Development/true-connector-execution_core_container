@@ -12,9 +12,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class ExceptionProcessorReceiverTest {
 	
@@ -40,7 +41,7 @@ public class ExceptionProcessorReceiverTest {
 		when(exception.getMessage()).thenReturn(exceptionMessage);
 		when(exchange.getMessage()).thenReturn(message);
 		when(multipartMessageService.getHeaderContentString(exceptionMessage))
-				.thenReturn(TestUtilMessageService.getMessageAsString(TestUtilMessageService.getRejectionMessage()));
+				.thenReturn(UtilMessageService.getMessageAsString(UtilMessageService.getRejectionMessage(RejectionReason.NOT_AUTHENTICATED)));
 	}
 
 	@Test

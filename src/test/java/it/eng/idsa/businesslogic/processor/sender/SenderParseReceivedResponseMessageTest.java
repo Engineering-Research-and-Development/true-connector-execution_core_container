@@ -31,7 +31,7 @@ import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class SenderParseReceivedResponseMessageTest {
 
@@ -68,10 +68,10 @@ public class SenderParseReceivedResponseMessageTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		message = TestUtilMessageService.getArtifactRequestMessage();
-		headers.put("IDS-SecurityToken-TokenValue", TestUtilMessageService.TOKEN_VALUE);
-		headerAsString = TestUtilMessageService.getMessageAsString(message);
-		when(dapsTokenProviderService.getDynamicAtributeToken()).thenReturn(TestUtilMessageService.getDynamicAttributeToken());
+		message = UtilMessageService.getArtifactRequestMessage();
+		headers.put("IDS-SecurityToken-TokenValue", UtilMessageService.TOKEN_VALUE);
+		headerAsString = UtilMessageService.getMessageAsString(message);
+		when(dapsTokenProviderService.getDynamicAtributeToken()).thenReturn(UtilMessageService.getDynamicAttributeToken());
 	}
 	
 	@Test
@@ -80,12 +80,12 @@ public class SenderParseReceivedResponseMessageTest {
 		mockExchangeHeaderAndBody();
 
 		when(camelMessage.getBody(String.class)).thenReturn(PAYLOAD);
-		when(headerService.headersToMessage(headers)).thenReturn(TestUtilMessageService.getArtifactRequestMessage());
+		when(headerService.headersToMessage(headers)).thenReturn(UtilMessageService.getArtifactRequestMessage());
 		
 		processor.process(exchange);
 		
 		verify(camelMessage).setBody(argCaptorMultipartMessage.capture());
-		assertEquals(TestUtilMessageService.TOKEN_VALUE, argCaptorMultipartMessage.getValue().getToken());
+		assertEquals(UtilMessageService.TOKEN_VALUE, argCaptorMultipartMessage.getValue().getToken());
 		assertEquals(PAYLOAD, argCaptorMultipartMessage.getValue().getPayloadContent());
 		assertTrue(argCaptorMultipartMessage.getValue().getHeaderContent() instanceof ArtifactRequestMessage);
 	}
@@ -99,13 +99,13 @@ public class SenderParseReceivedResponseMessageTest {
 		headers.put(MessagePart.PAYLOAD, PAYLOAD);
 		
 		when(multipartMessageService.getMessage(headerAsString)).thenReturn(message);
-		when(multipartMessageService.getToken(message)).thenReturn(TestUtilMessageService.TOKEN_VALUE);
+		when(multipartMessageService.getToken(message)).thenReturn(UtilMessageService.TOKEN_VALUE);
 		
 		processor.process(exchange);
 		
 		verify(multipartMessageService).getToken(message);
 		verify(camelMessage).setBody(argCaptorMultipartMessage.capture());
-		assertEquals(TestUtilMessageService.TOKEN_VALUE, argCaptorMultipartMessage.getValue().getToken());
+		assertEquals(UtilMessageService.TOKEN_VALUE, argCaptorMultipartMessage.getValue().getToken());
 		assertEquals(PAYLOAD, argCaptorMultipartMessage.getValue().getPayloadContent());
 		assertTrue(argCaptorMultipartMessage.getValue().getHeaderContent() instanceof ArtifactRequestMessage);
 	}
