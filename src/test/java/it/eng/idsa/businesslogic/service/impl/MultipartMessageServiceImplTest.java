@@ -98,10 +98,10 @@ public class MultipartMessageServiceImplTest {
 	public void addToken() {
 		Message message = UtilMessageService.getArtifactRequestMessage();
 		String token = "DUMMY_TOKEN_VALUE_UPDATE";
-		String messageWithToken = service.addToken(message, token );
-		assertNotNull(messageWithToken);
-		assertTrue(messageWithToken.contains(token));
-		assertFalse(messageWithToken.contains(UtilMessageService.TOKEN_VALUE));
+		String messageWithNewToken = service.addToken(message, token );
+		assertNotNull(messageWithNewToken);
+		assertTrue(messageWithNewToken.contains(token));
+		assertFalse(messageWithNewToken.contains(UtilMessageService.TOKEN_VALUE));
 	}
 	
 	@Test
