@@ -45,9 +45,7 @@ public class BrokerServiceImplTest {
 
 	private String brokerURL;
 
-	private Message messageWithToken;
-
-	private Message messageWithoutToken;
+	private Message message;
 	
 	private String payload = "mockPayload";
 
@@ -62,13 +60,12 @@ public class BrokerServiceImplTest {
 		ReflectionTestUtils.setField(brokerServiceImpl, "brokerURL", brokerURL);
 		when(dapsTokenProviderService.provideToken())
 				.thenReturn(UtilMessageService.getDynamicAttributeToken().getTokenValue());
-		messageWithToken = UtilMessageService.getArtifactRequestMessage();
-		messageWithoutToken = UtilMessageService.getArtifactRequestMessage();
+		message = UtilMessageService.getConnectorUpdateMessage(UtilMessageService.SENDER_AGENT, UtilMessageService.ISSUER_CONNECTOR, UtilMessageService.AFFECTED_CONNECTOR);
 		headers = new HashMap<String, Object>();
 		headers.put("Payload-Content-Type", ContentType.APPLICATION_JSON);
-		when(multiPartMessageService.addToken(messageWithoutToken,
+		when(multiPartMessageService.addToken(message,
 				UtilMessageService.getDynamicAttributeToken().getTokenValue()))
-						.thenReturn(UtilMessageService.getMessageAsString(messageWithToken));
+						.thenReturn(UtilMessageService.getMessageAsString(message));
 	}
 
 	@Test
@@ -83,7 +80,7 @@ public class BrokerServiceImplTest {
 		when(sendDataToBusinessLogicService.sendMessageBinary(anyString(), any(MultipartMessage.class), anyMap()))
 				.thenReturn(RequestResponseUtil.createResponse(request, responseMessage, responseBody, 200));
 
-		brokerServiceImpl.sendBrokerRequest(messageWithoutToken, payload);
+		brokerServiceImpl.sendBrokerRequest(message, payload);
 		
 		verify(sendDataToBusinessLogicService).sendMessageBinary(anyString(), any(MultipartMessage.class), anyMap());
 	}
@@ -93,7 +90,7 @@ public class BrokerServiceImplTest {
 		when(sendDataToBusinessLogicService.sendMessageBinary(anyString(), any(MultipartMessage.class), anyMap()))
 				.thenThrow(new UnsupportedEncodingException("Something went wrong"));
 		
-		brokerServiceImpl.sendBrokerRequest(messageWithoutToken, payload);
+		brokerServiceImpl.sendBrokerRequest(message, payload);
 		
 		verify(sendDataToBusinessLogicService).sendMessageBinary(anyString(), any(MultipartMessage.class), anyMap());
 	}

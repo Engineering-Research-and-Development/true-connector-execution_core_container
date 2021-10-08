@@ -3,7 +3,6 @@ package it.eng.idsa.businesslogic.processor.common;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -57,7 +56,6 @@ public class GetTokenFromDapsProcessorTest {
 
 	private Map<String, Object> headers = new HashMap<>();
 	private Message message;
-	private Message messageWithToken;
 
 	private String messageAsString;
 
@@ -65,14 +63,13 @@ public class GetTokenFromDapsProcessorTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		message = UtilMessageService.getArtifactRequestMessage();
-		messageWithToken = UtilMessageService.getArtifactRequestMessage();
 	}
 
 	@Test
 	public void getJwTokenSuccess() throws Exception {
 		mockExchangeHeaderAndBody();
 		when(dapsTokenProviderService.provideToken()).thenReturn(UtilMessageService.TOKEN_VALUE);
-		messageAsString = UtilMessageService.getMessageAsString(messageWithToken);
+		messageAsString = UtilMessageService.getMessageAsString(message);
 		when(multipartMessageService.addToken(message, UtilMessageService.TOKEN_VALUE)).thenReturn(messageAsString);
 		
 		processor.process(exchange);
@@ -87,7 +84,7 @@ public class GetTokenFromDapsProcessorTest {
 
 		mockExchangeHeaderAndBody();
 		when(dapsTokenProviderService.provideToken()).thenReturn(UtilMessageService.TOKEN_VALUE);
-		messageAsString = UtilMessageService.getMessageAsString(messageWithToken);
+		messageAsString = UtilMessageService.getMessageAsString(message);
 		when(multipartMessageService.addToken(message, UtilMessageService.TOKEN_VALUE)).thenReturn(messageAsString);
 		
 		processor.process(exchange);
