@@ -1,6 +1,21 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.3-SNAPSHOT] - 2021-10-11
+ 
+### Changed
+ - removed info-model property from property file; it will be read from multipart processor message library
+
+## [0.1.2-SNAPSHOT] - 2021-10-11
+ 
+### Changed
+ - RejectionMessageService dependency injection now done through constructor
+
+## [0.1.1-SNAPSHOT] - 2021-10-08
+ 
+### Changed
+ - TestUtilMessageService now everywhere replaced with UtilMessageService
+
 ## [0.1.0-SNAPSHOT] - 2021-09-16
  
 ### Changed

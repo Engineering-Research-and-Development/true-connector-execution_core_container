@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -84,8 +82,7 @@ public class SelfDescriptionServiceImplTest {
 	}
 
 	@Test
-	public void connectorAvailabilityMessage()
-			throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
+	public void connectorAvailabilityMessage() {
 		Message availabilityMessage = selfDefinitionService.getConnectorAvailbilityMessage();
 		assertNotNull(availabilityMessage);
 //		String ss = geObjectAsString(availabilityMessage);
@@ -93,24 +90,20 @@ public class SelfDescriptionServiceImplTest {
 	}
 
 	@Test
-	public void connectorInactiveMessage()
-			throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
+	public void connectorInactiveMessage() {
 		Message inactiveMessage = selfDefinitionService.getConnectorInactiveMessage();
 		assertNotNull(inactiveMessage);
 	}
 
 	@Test
-	public void connectorUpdateMessage()
-			throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
+	public void connectorUpdateMessage() {
 		Message updateMessage = selfDefinitionService.getConnectorUpdateMessage();
 		assertNotNull(updateMessage);
 	}
 
 	@Test
-	public void connectorUnavailableMessage()
-			throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
+	public void connectorUnavailableMessage() {
 		Message unavailableMessage = selfDefinitionService.getConnectorUnavailableMessage();
 		assertNotNull(unavailableMessage);
 	}
-
 }

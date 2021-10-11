@@ -27,10 +27,6 @@ public class SelfDescriptionConfiguration {
 	@Value("${camel.component.http4.use-global-ssl-context-parameters}")
 	private boolean useHttps;
 	
-//	@Value("${information.model.version}")
-//	TODO remove this property and it's usage
-	private String informationModelVersion;
-	
 	@Autowired
 	private ProcessExecutor processExecutor;
 	
@@ -140,10 +136,6 @@ public class SelfDescriptionConfiguration {
 	
 	public boolean isUseHttps() {
 		return useHttps;
-	}
-
-	public String getInformationModelVersion() {
-		return informationModelVersion;
 	}
 
 	public URI getConnectorURI() {
