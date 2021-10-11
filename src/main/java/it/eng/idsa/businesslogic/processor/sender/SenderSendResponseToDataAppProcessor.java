@@ -42,7 +42,7 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 	private boolean isEnabledDapsInteraction;
 
 	@Autowired(required = false)
-	WebSocketServerConfigurationA webSocketServerConfiguration;
+	private WebSocketServerConfigurationA webSocketServerConfiguration;
 
 	@Autowired
 	private HttpHeaderService httpHeaderService;

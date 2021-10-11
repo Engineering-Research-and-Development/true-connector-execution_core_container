@@ -1,7 +1,6 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,14 +20,13 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
-import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.MessagePart;
+import it.eng.idsa.businesslogic.util.MockUtil;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.util.UtilMessageService;
@@ -61,6 +59,7 @@ public class SenderParseReceivedResponseMessageTest {
 	private Map<String, Object> headers = new HashMap<>();
 	private Message message;
 	
+	@Mock
 	private RejectionMessageService rejectionMessageService;
 
 	private String headerAsString;
@@ -113,21 +112,13 @@ public class SenderParseReceivedResponseMessageTest {
 	@Test
 	public void parseResponseNoHeaderPresent() throws Exception {
 		mockExchangeHeaderAndBody();
-//		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER.label, String.class);
+		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER, String.class);
+
+		MockUtil.mockRejectionService(rejectionMessageService);
 		
-		rejectionMessageService = new RejectionMessageServiceImpl();
-		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
-				rejectionMessageService, RejectionMessageService.class);
-		SelfDescriptionConfiguration selfDescriptionConfiguration = new SelfDescriptionConfiguration();
-		ReflectionTestUtils.setField(rejectionMessageService, "selfDescriptionConfiguration", 
-				selfDescriptionConfiguration, SelfDescriptionConfiguration.class);
-		ReflectionTestUtils.setField(rejectionMessageService, "dapsProvider", 
-				dapsTokenProviderService, DapsTokenProviderService.class);
+		processor.process(exchange);
 		
-		assertThrows(ExceptionForProcessor.class,
-	            ()->{
-	            	processor.process(exchange);
-	            });
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, null);
 	}
 	
 	private void mockExchangeHeaderAndBody() {
