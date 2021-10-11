@@ -20,12 +20,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class ReceiverSendDataToBusinessLogicProcessorTest {
 
@@ -78,7 +79,7 @@ public class ReceiverSendDataToBusinessLogicProcessorTest {
 	public void sendDataMultipartForm() throws Exception {
 		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.MULTIPART_BODY_FORM, String.class);
 		MultipartMessage mm = new MultipartMessageBuilder()
-				.withHeaderContent(TestUtilMessageService.getRejectionMessage()).build();
+				.withHeaderContent(UtilMessageService.getRejectionMessage(RejectionReason.NOT_AUTHENTICATED)).build();
 
 		when(message.getBody(MultipartMessage.class)).thenReturn(mm);
 
@@ -93,7 +94,7 @@ public class ReceiverSendDataToBusinessLogicProcessorTest {
 	public void sendDataMultipartMixed() throws Exception {
 		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.MULTIPART_MIX, String.class);
 		MultipartMessage mm = new MultipartMessageBuilder()
-				.withHeaderContent(TestUtilMessageService.getRejectionMessage()).build();
+				.withHeaderContent(UtilMessageService.getRejectionMessage(RejectionReason.NOT_AUTHENTICATED)).build();
 
 		when(message.getBody(MultipartMessage.class)).thenReturn(mm);
 

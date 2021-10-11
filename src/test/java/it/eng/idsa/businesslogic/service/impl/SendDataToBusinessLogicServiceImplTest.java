@@ -26,7 +26,7 @@ import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.RequestResponseUtil;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 import okhttp3.Headers;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -76,7 +76,7 @@ public class SendDataToBusinessLogicServiceImplTest {
 	
 	private MultipartMessage createMultipartMessage() {
 		return new MultipartMessageBuilder()
-				.withHeaderContent(TestUtilMessageService.getArtifactRequestMessage())
+				.withHeaderContent(UtilMessageService.getArtifactRequestMessage())
 				.withPayloadContent(payload)
 				.build();
 	}

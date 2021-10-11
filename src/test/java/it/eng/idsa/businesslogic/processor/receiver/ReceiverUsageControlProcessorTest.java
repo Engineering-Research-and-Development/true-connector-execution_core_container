@@ -25,7 +25,7 @@ import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class ReceiverUsageControlProcessorTest {
 
@@ -63,10 +63,10 @@ public class ReceiverUsageControlProcessorTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", true);
-		artifactRequestMessage = TestUtilMessageService.getArtifactRequestMessage();
-		artifactResponseMessage = TestUtilMessageService.getArtifactResponseMessage();
-		descriptionRequestMessage = TestUtilMessageService.getDescriptionRequestMessage(null);
-		originalMessageHeader = TestUtilMessageService.getMessageAsString(artifactRequestMessage);
+		artifactRequestMessage = UtilMessageService.getArtifactRequestMessage();
+		artifactResponseMessage = UtilMessageService.getArtifactResponseMessage();
+		descriptionRequestMessage = UtilMessageService.getDescriptionRequestMessage(null);
+		originalMessageHeader = UtilMessageService.getMessageAsString(artifactRequestMessage);
 		headers = new HashMap<>();
 		headers.put(ORIGINAL_MESSAGE_HEADER, originalMessageHeader);
 	}

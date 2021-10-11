@@ -30,7 +30,7 @@ import it.eng.idsa.businesslogic.service.HashFileService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.util.DateUtil;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class ClearingHouseServiceImplTest {
 	
@@ -64,13 +64,13 @@ public class ClearingHouseServiceImplTest {
 	@BeforeEach
 	public void init() {
 		MockitoAnnotations.initMocks(this);
-		message = TestUtilMessageService.getArtifactResponseMessage();
+		message = UtilMessageService.getArtifactResponseMessage();
 		payload = "{\"foo\":\"bar\"}";
 		mockEndpoint = "https://clearinghouse.com";
 		when(hashService.hash(payload)).thenReturn("ABC");
 		when(configuration.getClearingHouseUrl()).thenReturn(mockEndpoint);
 		when(restTemplate.postForObject(any(String.class), any(), any())).thenReturn(null);
-		when(dapsProvider.getDynamicAtributeToken()).thenReturn(TestUtilMessageService.getDynamicAttributeToken());
+		when(dapsProvider.getDynamicAtributeToken()).thenReturn(UtilMessageService.getDynamicAttributeToken());
 		when(selfDescriptionConfiguration.getConnectorURI()).thenReturn(URI.create("http://auto-generated"));
 	}
 	

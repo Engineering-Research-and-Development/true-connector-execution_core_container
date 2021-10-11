@@ -26,7 +26,7 @@ import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class SenderParseReceivedDataProcessorBodyFormDataTest {
 	
@@ -54,8 +54,8 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		msg = TestUtilMessageService.getArtifactRequestMessage();
-		headerAsString = TestUtilMessageService.getMessageAsString(msg);
+		msg = UtilMessageService.getArtifactRequestMessage();
+		headerAsString = UtilMessageService.getMessageAsString(msg);
 		forwardTo = "https://forward.to.example";
 		when(protocolValidationService.validateProtocol(forwardTo, msg)).thenReturn(forwardTo);
 	}

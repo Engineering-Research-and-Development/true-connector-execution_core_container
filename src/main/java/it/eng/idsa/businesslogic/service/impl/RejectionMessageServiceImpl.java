@@ -6,7 +6,6 @@ import java.net.URI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,11 +36,16 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 	
 	private static final Logger logger = LoggerFactory.getLogger(RejectionMessageServiceImpl.class);
 	
-	@Autowired
 	private DapsTokenProviderService dapsProvider;
 	
-	@Autowired
 	private SelfDescriptionConfiguration selfDescriptionConfiguration;
+	
+	public RejectionMessageServiceImpl(DapsTokenProviderService dapsProvider,
+			SelfDescriptionConfiguration selfDescriptionConfiguration) {
+		super();
+		this.dapsProvider = dapsProvider;
+		this.selfDescriptionConfiguration = selfDescriptionConfiguration;
+	}
 
 	@Override
 	public void sendRejectionMessage(RejectionMessageType rejectionMessageType, Message message) {

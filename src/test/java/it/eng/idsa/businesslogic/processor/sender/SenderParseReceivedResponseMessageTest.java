@@ -1,7 +1,6 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,17 +20,16 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
-import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.MessagePart;
+import it.eng.idsa.businesslogic.util.MockUtil;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class SenderParseReceivedResponseMessageTest {
 
@@ -61,6 +59,7 @@ public class SenderParseReceivedResponseMessageTest {
 	private Map<String, Object> headers = new HashMap<>();
 	private Message message;
 	
+	@Mock
 	private RejectionMessageService rejectionMessageService;
 
 	private String headerAsString;
@@ -68,10 +67,10 @@ public class SenderParseReceivedResponseMessageTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		message = TestUtilMessageService.getArtifactRequestMessage();
-		headers.put("IDS-SecurityToken-TokenValue", TestUtilMessageService.TOKEN_VALUE);
-		headerAsString = TestUtilMessageService.getMessageAsString(message);
-		when(dapsTokenProviderService.getDynamicAtributeToken()).thenReturn(TestUtilMessageService.getDynamicAttributeToken());
+		message = UtilMessageService.getArtifactRequestMessage();
+		headers.put("IDS-SecurityToken-TokenValue", UtilMessageService.TOKEN_VALUE);
+		headerAsString = UtilMessageService.getMessageAsString(message);
+		when(dapsTokenProviderService.getDynamicAtributeToken()).thenReturn(UtilMessageService.getDynamicAttributeToken());
 	}
 	
 	@Test
@@ -80,12 +79,12 @@ public class SenderParseReceivedResponseMessageTest {
 		mockExchangeHeaderAndBody();
 
 		when(camelMessage.getBody(String.class)).thenReturn(PAYLOAD);
-		when(headerService.headersToMessage(headers)).thenReturn(TestUtilMessageService.getArtifactRequestMessage());
+		when(headerService.headersToMessage(headers)).thenReturn(UtilMessageService.getArtifactRequestMessage());
 		
 		processor.process(exchange);
 		
 		verify(camelMessage).setBody(argCaptorMultipartMessage.capture());
-		assertEquals(TestUtilMessageService.TOKEN_VALUE, argCaptorMultipartMessage.getValue().getToken());
+		assertEquals(UtilMessageService.TOKEN_VALUE, argCaptorMultipartMessage.getValue().getToken());
 		assertEquals(PAYLOAD, argCaptorMultipartMessage.getValue().getPayloadContent());
 		assertTrue(argCaptorMultipartMessage.getValue().getHeaderContent() instanceof ArtifactRequestMessage);
 	}
@@ -99,13 +98,13 @@ public class SenderParseReceivedResponseMessageTest {
 		headers.put(MessagePart.PAYLOAD, PAYLOAD);
 		
 		when(multipartMessageService.getMessage(headerAsString)).thenReturn(message);
-		when(multipartMessageService.getToken(message)).thenReturn(TestUtilMessageService.TOKEN_VALUE);
+		when(multipartMessageService.getToken(message)).thenReturn(UtilMessageService.TOKEN_VALUE);
 		
 		processor.process(exchange);
 		
 		verify(multipartMessageService).getToken(message);
 		verify(camelMessage).setBody(argCaptorMultipartMessage.capture());
-		assertEquals(TestUtilMessageService.TOKEN_VALUE, argCaptorMultipartMessage.getValue().getToken());
+		assertEquals(UtilMessageService.TOKEN_VALUE, argCaptorMultipartMessage.getValue().getToken());
 		assertEquals(PAYLOAD, argCaptorMultipartMessage.getValue().getPayloadContent());
 		assertTrue(argCaptorMultipartMessage.getValue().getHeaderContent() instanceof ArtifactRequestMessage);
 	}
@@ -113,21 +112,13 @@ public class SenderParseReceivedResponseMessageTest {
 	@Test
 	public void parseResponseNoHeaderPresent() throws Exception {
 		mockExchangeHeaderAndBody();
-//		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER.label, String.class);
+		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER, String.class);
+
+		MockUtil.mockRejectionService(rejectionMessageService);
 		
-		rejectionMessageService = new RejectionMessageServiceImpl();
-		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
-				rejectionMessageService, RejectionMessageService.class);
-		SelfDescriptionConfiguration selfDescriptionConfiguration = new SelfDescriptionConfiguration();
-		ReflectionTestUtils.setField(rejectionMessageService, "selfDescriptionConfiguration", 
-				selfDescriptionConfiguration, SelfDescriptionConfiguration.class);
-		ReflectionTestUtils.setField(rejectionMessageService, "dapsProvider", 
-				dapsTokenProviderService, DapsTokenProviderService.class);
+		processor.process(exchange);
 		
-		assertThrows(ExceptionForProcessor.class,
-	            ()->{
-	            	processor.process(exchange);
-	            });
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, null);
 	}
 	
 	private void mockExchangeHeaderAndBody() {

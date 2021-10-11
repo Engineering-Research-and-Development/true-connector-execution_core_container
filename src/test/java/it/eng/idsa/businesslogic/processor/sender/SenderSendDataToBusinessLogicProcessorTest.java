@@ -24,12 +24,12 @@ import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
-import it.eng.idsa.businesslogic.service.impl.RejectionMessageServiceImpl;
 import it.eng.idsa.businesslogic.util.MessagePart;
+import it.eng.idsa.businesslogic.util.MockUtil;
 import it.eng.idsa.businesslogic.util.RequestResponseUtil;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 import okhttp3.Headers;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -61,7 +61,8 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	private static final String PAYLOAD = "payoad";
 
 	private static final String HEADER_MESSAGE_STRING = "headerMessage";
-
+	
+	@Mock
 	private RejectionMessageService rejectionMessageService;
 
 	@Mock
@@ -70,7 +71,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		message = TestUtilMessageService.getArtifactRequestMessage();
+		message = UtilMessageService.getArtifactRequestMessage();
 		headers.put("Forward-To", FORWARD_TO);
 		when(httpHeaderService.okHttpHeadersToMap(okHeaders)).thenReturn(headers);
 	}
@@ -103,9 +104,8 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	public void sendHttpHeaderNotFound() throws Exception {
 		String jsonString = "aaaa";
 		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER, String.class);
-		rejectionMessageService = new RejectionMessageServiceImpl();
-		ReflectionTestUtils.setField(processor, "rejectionMessageService", rejectionMessageService, RejectionMessageService.class);
-
+		MockUtil.mockRejectionService(rejectionMessageService);
+		
 		mockExchangeHeaderAndBody();
 		
 		Request requestDaps =  RequestResponseUtil.createRequest(FORWARD_TO, 
@@ -130,8 +130,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	@Test
 	public void sendHttpHeaderResponseNull() throws Exception {
 		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER, String.class);
-		rejectionMessageService = new RejectionMessageServiceImpl();
-		ReflectionTestUtils.setField(processor, "rejectionMessageService", rejectionMessageService, RejectionMessageService.class);
+		MockUtil.mockRejectionService(rejectionMessageService);
 
 		mockExchangeHeaderAndBody();
 		

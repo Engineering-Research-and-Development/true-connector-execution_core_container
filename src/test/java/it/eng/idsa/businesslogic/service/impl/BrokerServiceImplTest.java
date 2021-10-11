@@ -25,7 +25,7 @@ import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.util.RequestResponseUtil;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 import okhttp3.Request;
 import okhttp3.ResponseBody;
 
@@ -45,9 +45,7 @@ public class BrokerServiceImplTest {
 
 	private String brokerURL;
 
-	private Message messageWithToken;
-
-	private Message messageWithoutToken;
+	private Message message;
 	
 	private String payload = "mockPayload";
 
@@ -61,14 +59,13 @@ public class BrokerServiceImplTest {
 		brokerURL = "mockBrokerURL";
 		ReflectionTestUtils.setField(brokerServiceImpl, "brokerURL", brokerURL);
 		when(dapsTokenProviderService.provideToken())
-				.thenReturn(TestUtilMessageService.getDynamicAttributeToken().getTokenValue());
-		messageWithToken = TestUtilMessageService.getArtifactRequestMessage();
-		messageWithoutToken = TestUtilMessageService.getArtifactRequestMessage();
+				.thenReturn(UtilMessageService.getDynamicAttributeToken().getTokenValue());
+		message = UtilMessageService.getConnectorUpdateMessage(UtilMessageService.SENDER_AGENT, UtilMessageService.ISSUER_CONNECTOR, UtilMessageService.AFFECTED_CONNECTOR);
 		headers = new HashMap<String, Object>();
 		headers.put("Payload-Content-Type", ContentType.APPLICATION_JSON);
-		when(multiPartMessageService.addToken(messageWithoutToken,
-				TestUtilMessageService.getDynamicAttributeToken().getTokenValue()))
-						.thenReturn(TestUtilMessageService.getMessageAsString(messageWithToken));
+		when(multiPartMessageService.addToken(message,
+				UtilMessageService.getDynamicAttributeToken().getTokenValue()))
+						.thenReturn(UtilMessageService.getMessageAsString(message));
 	}
 
 	@Test
@@ -83,7 +80,7 @@ public class BrokerServiceImplTest {
 		when(sendDataToBusinessLogicService.sendMessageBinary(anyString(), any(MultipartMessage.class), anyMap()))
 				.thenReturn(RequestResponseUtil.createResponse(request, responseMessage, responseBody, 200));
 
-		brokerServiceImpl.sendBrokerRequest(messageWithoutToken, payload);
+		brokerServiceImpl.sendBrokerRequest(message, payload);
 		
 		verify(sendDataToBusinessLogicService).sendMessageBinary(anyString(), any(MultipartMessage.class), anyMap());
 	}
@@ -93,7 +90,7 @@ public class BrokerServiceImplTest {
 		when(sendDataToBusinessLogicService.sendMessageBinary(anyString(), any(MultipartMessage.class), anyMap()))
 				.thenThrow(new UnsupportedEncodingException("Something went wrong"));
 		
-		brokerServiceImpl.sendBrokerRequest(messageWithoutToken, payload);
+		brokerServiceImpl.sendBrokerRequest(message, payload);
 		
 		verify(sendDataToBusinessLogicService).sendMessageBinary(anyString(), any(MultipartMessage.class), anyMap());
 	}

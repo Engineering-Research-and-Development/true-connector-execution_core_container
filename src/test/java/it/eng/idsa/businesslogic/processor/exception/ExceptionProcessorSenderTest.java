@@ -25,12 +25,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.util.TestUtilMessageService;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class ExceptionProcessorSenderTest {
 
@@ -69,7 +70,7 @@ public class ExceptionProcessorSenderTest {
 		when(exchange.getProperty(Exchange.EXCEPTION_CAUGHT)).thenReturn(exception);
 		when(exception.getMessage()).thenReturn(exceptionMessage);
 		when(multipartMessageService.getHeaderContentString(exceptionMessage))
-				.thenReturn(TestUtilMessageService.getMessageAsString(TestUtilMessageService.getRejectionMessage()));
+				.thenReturn(UtilMessageService.getMessageAsString(UtilMessageService.getRejectionMessage(RejectionReason.NOT_AUTHENTICATED)));
 	}
 
 	@Test
