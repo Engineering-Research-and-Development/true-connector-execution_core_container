@@ -20,7 +20,7 @@
 		<project.java.version>11</project.java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<start-class>it.eng.idsa.businesslogic.Application</start-class>
-		<camel.version>3.7.0</camel.version>
+		<camel.version>3.11.2</camel.version>
 		<tomcat.version>9.0.24</tomcat.version>
 		<information.model.version>4.1.1</information.model.version>
 		<application.basedir>${basedir}</application.basedir>
@@ -225,11 +225,6 @@
 			<groupId>org.asynchttpclient</groupId>
 			<artifactId>async-http-client</artifactId>
 			<version>2.10.5</version>
-		</dependency>
-		<dependency>
-			<groupId>org.checkerframework</groupId>
-			<artifactId>checker-qual</artifactId>
-			<version>2.5.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty.websocket</groupId>
