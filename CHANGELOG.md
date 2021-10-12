@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.4-SNAPSHOT] - 2021-10-12
+ 
+### Changed
+ - updated camel framework to 3.11.2
+ 
+### Removed
+ - removed standalone com.google.protobuf dependencies
+ - removed org.checkerframework dependency
+
 ## [0.1.3-SNAPSHOT] - 2021-10-11
  
 ### Changed
