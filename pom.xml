@@ -20,7 +20,7 @@
 		<project.java.version>11</project.java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<start-class>it.eng.idsa.businesslogic.Application</start-class>
-		<camel.version>3.11.2</camel.version>
+		<camel.version>3.7.0</camel.version>
 		<tomcat.version>9.0.24</tomcat.version>
 		<information.model.version>4.1.1</information.model.version>
 		<application.basedir>${basedir}</application.basedir>
@@ -232,11 +232,6 @@
 			<version>2.5.2</version>
 		</dependency>
 		<dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-java</artifactId>
-			<version>3.18.0</version>
-		</dependency>
-		<dependency>
 			<groupId>org.eclipse.jetty.websocket</groupId>
 			<artifactId>websocket-server</artifactId>
 		</dependency>
@@ -385,12 +380,6 @@
 			<version>0.7.8</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protoc</artifactId>
-			<version>3.18.0</version>
-			<type>pom</type>
-		</dependency>
 		<dependency>
 			<groupId>de.fhg.aisec.ids</groupId>
 			<artifactId>idscp2-rat-tpm2d</artifactId>
