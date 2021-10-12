@@ -234,7 +234,7 @@
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>3.10.0</version>
+			<version>3.18.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty.websocket</groupId>
@@ -340,7 +340,7 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-stdlib</artifactId>
-			<version>1.5.30</version>
+			<version>1.4.30</version>
 		</dependency>
 
 		<dependency>
@@ -388,7 +388,7 @@
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protoc</artifactId>
-			<version>3.15.5</version>
+			<version>3.18.0</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
