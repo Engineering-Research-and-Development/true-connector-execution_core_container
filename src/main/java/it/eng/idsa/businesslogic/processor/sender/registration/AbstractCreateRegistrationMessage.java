@@ -1,11 +1,8 @@
 package it.eng.idsa.businesslogic.processor.sender.registration;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -16,7 +13,6 @@ import org.springframework.http.MediaType;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
-import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
 import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -68,7 +64,7 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 
 	}
 
-	abstract Message getConnectorMessage() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException;
+	abstract Message getConnectorMessage();
 
 	private String getObjectAsString(Object toSerialize) {
 		final Serializer serializer = new Serializer();

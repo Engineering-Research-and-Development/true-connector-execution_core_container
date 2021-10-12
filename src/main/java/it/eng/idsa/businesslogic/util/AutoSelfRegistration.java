@@ -1,9 +1,6 @@
 package it.eng.idsa.businesslogic.util;
 
-import java.net.URISyntaxException;
-
 import javax.annotation.PreDestroy;
-import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +10,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import it.eng.idsa.businesslogic.service.BrokerService;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
 
@@ -31,7 +27,7 @@ public class AutoSelfRegistration{
 	private BrokerService brokerService;
 	
 	@EventListener(ApplicationReadyEvent.class)
-	public void selfRegistrate() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
+	public void selfRegistrate() {
 		logger.info("Starting AutoSelfRegistration");
 
 		brokerService.sendBrokerRequest(selfDescriptionService.getConnectorAvailbilityMessage(),
@@ -41,7 +37,7 @@ public class AutoSelfRegistration{
 	}
 	
 	@PreDestroy
-	public void selfPassivate() throws ConstraintViolationException, URISyntaxException, DatatypeConfigurationException {
+	public void selfPassivate() {
 		logger.info("Starting sign out process from broker");
 
 		brokerService.sendBrokerRequest(selfDescriptionService.getConnectorInactiveMessage(),
