@@ -23,11 +23,11 @@ jobs:
       - name: Run env setup
         run: ./ci/setupEnv.sh
         
-      - name: Run multipart message lib
-        run: ./ci/mmLib.sh
+#      - name: Run multipart message lib
+#        run: ./ci/mmLib.sh
         
-      - name: Run websocket-message-streamer-lib
-        run: ./ci/wmsLib.sh
+#      - name: Run websocket-message-streamer-lib
+#        run: ./ci/wmsLib.sh
         
       - name: Run Cloning and Creating Docker Container from Data-App repo
         run: ./ci/dataApp.sh
