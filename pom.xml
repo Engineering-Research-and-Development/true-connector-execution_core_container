@@ -35,7 +35,7 @@
 			<url>https://maven.iais.fraunhofer.de/artifactory/eis-ids-public</url>
 		</repository>
 		<repository>
-    		<id>github_mmp</id>
+    		<id>github</id>
    		    <url>https://${GH_PACKAGE_REPO_PASSWORD}:x-oauth-basic@maven.pkg.github.com/Engineering-Research-and-Development/true-connector-multipart_message_library</url>
 			<releases>
 				<enabled>true</enabled>
