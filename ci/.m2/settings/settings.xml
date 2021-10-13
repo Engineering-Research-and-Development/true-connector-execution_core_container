@@ -10,12 +10,7 @@
 	</mirrors>
 	<servers>
 		<server>
-			<id>github_mmp</id> 
-			<username>Engineering-Research-and-Development</username>
-			<password>${env.GH_PACKAGE_REPO_PASSWORD}</password> 
-		</server>
-		<server>
-			<id>github_wss</id> 
+			<id>github</id> 
 			<username>Engineering-Research-and-Development</username>
 			<password>${env.GH_PACKAGE_REPO_PASSWORD}</password> 
 		</server>
