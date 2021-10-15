@@ -1,5 +1,5 @@
 echo "Cloning and Creating Docker Container from Data-App repo..."
-git clone https://github.com/Engineering-Research-and-Development/true-connector-basic_data_app.git
+git clone -b rejection_message_with_header_Content-Type https://github.com/Engineering-Research-and-Development/true-connector-basic_data_app.git
 cd true-connector-basic_data_app
 mvn -U clean install
 sudo docker build -f Dockerfile -t rdlabengpa/ids_be_data_app:latest .
