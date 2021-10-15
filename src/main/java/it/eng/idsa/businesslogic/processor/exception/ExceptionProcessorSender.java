@@ -39,7 +39,7 @@ public class ExceptionProcessorSender implements Processor {
 	private boolean isEnabledDataAppWebSocket;
 
 	@Autowired(required = false)
-	WebSocketServerConfigurationA webSocketServerConfiguration;
+	private WebSocketServerConfigurationA webSocketServerConfiguration;
 
 	@Value("${application.openDataAppReceiverRouter}")
 	private String openDataAppReceiverRouter;

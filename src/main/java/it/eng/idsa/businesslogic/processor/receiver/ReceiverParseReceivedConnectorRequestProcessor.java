@@ -71,7 +71,12 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 			// create Message object from IDS-* headers, needs for UsageControl flow
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
 //			header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
-			message = headerService.headersToMessage(headersParts);
+			try {
+				message = headerService.headersToMessage(headersParts);
+			} catch (Exception e) {
+				logger.error("Message could not be created - check if all required headers are present.");
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+			}
 			if(message == null) {
 				logger.error("Message could not be created - check if all required headers are present.");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
@@ -91,6 +96,10 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 		} 
 		else if(RouterType.MULTIPART_MIX.equals(eccHttpSendRouter)) {
 			String receivedDataBodyBinary = MessageHelper.extractBodyAsString(exchange.getMessage());
+			if (receivedDataBodyBinary == null) {
+				logger.error("Received body is empty.");
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+			}
 			multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
 			if (isEnabledDapsInteraction) {
 				token = multipartMessageService.getToken(multipartMessage.getHeaderContent());

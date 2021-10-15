@@ -121,7 +121,7 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 		multipartEntityBuilder = MultipartEntityBuilder.create().setMode(HttpMultipartMode.STRICT);
 		try {
 			FormBodyPart bodyHeaderPart;
-			ContentBody headerBody = new StringBody(header, ContentType.APPLICATION_JSON);
+			ContentBody headerBody = new StringBody(header, ContentType.create("application/ld+json"));
 			bodyHeaderPart = FormBodyPartBuilder.create(MessagePart.HEADER, headerBody).build();
 			bodyHeaderPart.addField(MultipartMessageKey.CONTENT_LENGTH.label, String.valueOf(header.length()));
 

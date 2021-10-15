@@ -19,7 +19,7 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
 public class ExceptionProcessorReceiver implements Processor {
 	
 	@Autowired
-	MultipartMessageService multipartMessageService;
+	private MultipartMessageService multipartMessageService;
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -29,7 +29,6 @@ public class ExceptionProcessorReceiver implements Processor {
 		
 		MultipartMessage multipartMessage = new MultipartMessageBuilder()
     			.withHeaderContent(message)
-    			.withPayloadContent("RejectionMessage")
     			.build();
 		
 		exchange.getMessage().setBody(multipartMessage);
