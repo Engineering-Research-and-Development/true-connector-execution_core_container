@@ -126,7 +126,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 
 			try {
 				if (headersParts.get(MessagePart.HEADER) instanceof String) {
-					header = headersParts.get(MessagePart.HEADER).toString();
+					header = (String) headersParts.get(MessagePart.HEADER);
 				} else {
 					DataHandler dtHeader = (DataHandler) headersParts.get(MessagePart.HEADER);
 					header = IOUtils.toString(dtHeader.getInputStream(), StandardCharsets.UTF_8);
@@ -134,17 +134,19 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 				
 				message = multipartMessageService.getMessage(header);
 				if(headersParts.get(MessagePart.PAYLOAD) != null) {
-					payload = headersParts.get(MessagePart.PAYLOAD).toString();
+					payload = (String) headersParts.get(MessagePart.PAYLOAD);
 				}
 				
 				if (isEnabledDapsInteraction) {
 					token = multipartMessageService.getToken(message);
 				}
-				multipartMessage = new MultipartMessageBuilder().withHeaderContent(header).withPayloadContent(payload).withToken(token)
+				multipartMessage = new MultipartMessageBuilder()
+						.withHeaderContent(header)
+						.withPayloadContent(payload)
+						.withToken(token)
 						.build();
 
-				headersParts.put("Payload-Content-Type",
-						headersParts.get("payload.org.eclipse.jetty.servlet.contentType"));
+				headersParts.put("Payload-Content-Type", headersParts.get("payload.org.eclipse.jetty.servlet.contentType"));
 			} catch (Exception e) {
 				logger.error("Error parsing multipart message:", e);
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
