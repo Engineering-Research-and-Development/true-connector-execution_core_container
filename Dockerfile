@@ -1,5 +1,5 @@
 # Start with a base image containing Java runtime
-FROM openjdk:11.0.7-jre
+FROM openjdk:11.0.9.1-jre
 #FROM openjdk:12-jdk-oraclelinux7
 # Add Maintainer Info
 LABEL maintainer="gabriele.deluca@eng.it"
