@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationB;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.ResponseMessageBufferBean;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -40,12 +39,6 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 	@Value("${application.openDataAppReceiverRouter}")
 	private String openDataAppReceiverRouter;
 	
-	@Value("${application.isEnabledDapsInteraction}")
-	private boolean isEnabledDapsInteraction;
-	
-	@Autowired
-	private MultipartMessageService multipartMessageService;
-
 	@Autowired(required = false)
 	private WebSocketServerConfigurationB webSocketServerConfiguration;
 	
@@ -71,13 +64,8 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 //				headersParts.putAll(headerService.transformJWTTokenToHeaders(multipartMessage.getToken()));
 //			}
 		} else {
-			if(isEnabledDapsInteraction) {
-				responseString = MultipartMessageProcessor
-						.multipartMessagetoString(multipartMessageService.addTokenToMultipartMessage(multipartMessage), false, Boolean.TRUE);
-			} else {
-				responseString = MultipartMessageProcessor
-						.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);
-			}
+			
+			responseString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);
 			
 			if (RouterType.MULTIPART_MIX.equals(eccHttpSendRouter)) {
 				Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(responseString);

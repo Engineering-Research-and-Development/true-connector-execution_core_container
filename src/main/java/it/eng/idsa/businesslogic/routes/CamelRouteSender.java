@@ -48,52 +48,49 @@ public class CamelRouteSender extends RouteBuilder {
 	private ApplicationConfiguration configuration;
 
 	@Autowired(required = false)
-	SenderFileRecreatorProcessor fileRecreatorProcessor;
+	private SenderFileRecreatorProcessor fileRecreatorProcessor;
 
 	@Autowired
-	SenderParseReceivedDataProcessorBodyBinary parseReceivedDataProcessorBodyBinary;
+	private SenderParseReceivedDataProcessorBodyBinary parseReceivedDataProcessorBodyBinary;
 
 	@Autowired
-	SenderParseReceivedDataProcessorBodyFormData parseReceivedDataProcessorBodyFormData;
+	private SenderParseReceivedDataProcessorBodyFormData parseReceivedDataProcessorBodyFormData;
 
 	@Autowired
-	SenderParseReceivedDataProcessorHttpHeader parseReceivedDataProcessorHttpHeader;
+	private SenderParseReceivedDataProcessorHttpHeader parseReceivedDataProcessorHttpHeader;
 
 	@Autowired
-	GetTokenFromDapsProcessor getTokenFromDapsProcessor;
+	private GetTokenFromDapsProcessor getTokenFromDapsProcessor;
 
 	@Autowired
-	RegisterTransactionToCHProcessor registerTransactionToCHProcessor;
+	private RegisterTransactionToCHProcessor registerTransactionToCHProcessor;
 	
 	@Autowired
-	ContractAgreementProcessor contractAgreementProcessor;
+	private ContractAgreementProcessor contractAgreementProcessor;
 
 	@Autowired
-	SenderSendDataToBusinessLogicProcessor sendDataToBusinessLogicProcessor;
+	private SenderSendDataToBusinessLogicProcessor sendDataToBusinessLogicProcessor;
 
 	@Autowired
-	SenderParseReceivedResponseMessage parseReceivedResponseMessage;
+	private SenderParseReceivedResponseMessage parseReceivedResponseMessage;
 
 	@Autowired
-	ValidateTokenProcessor validateTokenProcessor;
+	private ValidateTokenProcessor validateTokenProcessor;
 
 	@Autowired
-	SenderSendResponseToDataAppProcessor sendResponseToDataAppProcessor;
+	private SenderSendResponseToDataAppProcessor sendResponseToDataAppProcessor;
 
 	@Autowired
-	ExceptionProcessorSender processorException;
+	private ExceptionProcessorSender processorException;
 
 	@Autowired
-	SenderParseReceivedDataFromDAppProcessorBodyBinary parseReceivedDataFromDAppProcessorBodyBinary;
+	private SenderParseReceivedDataFromDAppProcessorBodyBinary parseReceivedDataFromDAppProcessorBodyBinary;
 
 	@Autowired
-	ExceptionProcessorReceiver exceptionProcessorReceiver;
+	private SenderUsageControlProcessor senderUsageControlProcessor;
 
 	@Autowired
-	SenderUsageControlProcessor senderUsageControlProcessor;
-
-	@Autowired
-	CamelContext camelContext;
+	private CamelContext camelContext;
 
 	@Autowired
 	private SenderCreateRegistrationMessageProcessor createRegistratioMessageSender;
