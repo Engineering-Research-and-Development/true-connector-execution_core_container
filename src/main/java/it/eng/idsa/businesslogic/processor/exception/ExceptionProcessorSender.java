@@ -51,7 +51,8 @@ public class ExceptionProcessorSender implements Processor {
 	public void process(Exchange exchange) throws Exception {
 
 		Exception exception = (Exception) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
-		String message = multipartMessageService.getHeaderContentString(exception.getMessage());
+//		String message = multipartMessageService.getHeaderContentString(exception.getMessage());
+		String message = MultipartMessageProcessor.parseMultipartMessage(exception.getMessage()).getHeaderContentString();
 
 		MultipartMessage multipartMessage = new MultipartMessageBuilder()
 				.withHeaderContent(message)

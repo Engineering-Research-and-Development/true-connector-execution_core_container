@@ -22,7 +22,7 @@ public class RequestResponseUtil {
 	}
 	
 	public static RequestBody createRequestBody(String payload) {
-		return RequestBody.create(MediaType.get("application/json; charset=utf-8"), payload);
+		return RequestBody.create(payload, MediaType.get("application/json; charset=utf-8"));
 	}
 	
 	public static Request createRequest(String URL, RequestBody requestBody) {
@@ -35,7 +35,7 @@ public class RequestResponseUtil {
 	}
 	
 	public static ResponseBody createResponseBodyJsonUTF8(String responsePayload) {
-		return ResponseBody.create(MediaType.get("application/json; charset=utf-8"), responsePayload);
+		return ResponseBody.create(responsePayload, MediaType.get("application/json; charset=utf-8"));
 	}
 	
 	public static Response createResponse(Request request, String message, ResponseBody responseBody, int statusCode ) {
@@ -50,7 +50,7 @@ public class RequestResponseUtil {
 	
 	
 	private  RequestBody getRequestBodyPart(String partContent) {
-		return RequestBody.create(MediaType.parse(MEDIA_TYPE_HEADER_JSON_LD), partContent);
+		return RequestBody.create(partContent, MediaType.parse(MEDIA_TYPE_HEADER_JSON_LD));
 	}
 
 	private  Headers getPartHeader(String partName) {

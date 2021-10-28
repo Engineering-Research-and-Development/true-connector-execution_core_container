@@ -2,8 +2,6 @@ package it.eng.idsa.businesslogic.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URISyntaxException;
@@ -18,10 +16,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
-import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.exception.MultipartMessageProcessorException;
-import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class MultipartMessageServiceImplTest {
@@ -35,28 +29,6 @@ public class MultipartMessageServiceImplTest {
 	public void setup() throws ConstraintViolationException, URISyntaxException {
 		MockitoAnnotations.initMocks(this);
 		service = new MultipartMessageServiceImpl();
-	}
-	
-	@Test
-	public void testParseJsonLdMessageOnlyHeader() {
-		MultipartMessage mm = new MultipartMessageBuilder()
-				.withHeaderContent(UtilMessageService.getArtifactRequestMessage())
-				.build();
-		String multipartMessageAsString = MultipartMessageProcessor.multipartMessagetoString(mm);
-		
-		String header = service.getHeaderContentString(multipartMessageAsString);
-		String payload = service.getPayloadContent(multipartMessageAsString);
-		
-		assertNotNull(header);
-		assertNull(payload);
-	}
-	
-	@Test
-	public void getHeaderContentStringFail() {
-		assertThrows(MultipartMessageProcessorException.class,
-	            ()->{
-	            	service.getHeaderContentString("INVALID MESSAGE");
-	            });
 	}
 	
 	@Test

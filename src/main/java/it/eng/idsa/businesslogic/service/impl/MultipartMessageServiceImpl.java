@@ -54,18 +54,6 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 	private RejectionMessageService rejectionMessageService;
 	
 	@Override
-	public String getHeaderContentString(String body) {
-		MultipartMessage deserializedMultipartMessage = MultipartMessageProcessor.parseMultipartMessage(body);
-		return deserializedMultipartMessage.getHeaderContentString();
-	}
-
-	@Override
-	public String getPayloadContent(String body) {
-		MultipartMessage deserializedMultipartMessage = MultipartMessageProcessor.parseMultipartMessage(body);
-		return deserializedMultipartMessage.getPayloadContent();
-	}
-
-	@Override
 	public String addToken(Message message, String token) {
 		String output = null;
 		try {
