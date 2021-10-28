@@ -50,6 +50,10 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 	@Override
 	public void sendRejectionMessage(RejectionMessageType rejectionMessageType, Message message) {
 		logger.info("Creating rejection message of type {}", rejectionMessageType);
+		if(message == null) {
+			logger.info("Could not get original message, creating default rejectionMessage");
+			message = UtilMessageService.getRejectionMessage(RejectionReason.MALFORMED_MESSAGE);
+		}
 		Message rejectionMessage = createRejectionMessage(rejectionMessageType.toString(), message);
 
 		MultipartMessage multipartMessage = new MultipartMessageBuilder()

@@ -27,7 +27,6 @@ import de.fraunhofer.iais.eis.DynamicAttributeTokenBuilder;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.Token;
 import de.fraunhofer.iais.eis.TokenFormat;
-import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.MessagePart;
@@ -67,46 +66,25 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 	}
 
 	@Override
-	public Message getMessage(String header) {
-		Message message = null;
-		try {
-			message = new Serializer().deserialize(header, Message.class);
-		} catch (IOException e) {
-			logger.error("Error while deserializing message", e);
-		}
-		return message;
-	}
-
-	@Override
 	public String addToken(Message message, String token) {
 		String output = null;
 		try {
-			String msgSerialized = serializeMessage(message);
+			String msgSerialized = MultipartMessageProcessor.serializeToJsonLD(message);
 			Token tokenJsonValue = new DynamicAttributeTokenBuilder()._tokenFormat_(TokenFormat.JWT)._tokenValue_(token).build();
-			String tokenValueSerialized = serializeMessage(tokenJsonValue);
+			String tokenValueSerialized = MultipartMessageProcessor.serializeToJsonLD(tokenJsonValue);
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = (JSONObject) parser.parse(msgSerialized);
 			JSONObject jsonObjectToken = (JSONObject) parser.parse(tokenValueSerialized);
 			jsonObject.put("ids:securityToken", jsonObjectToken);
-			output = serializeMessage(jsonObject);
+			output = MultipartMessageProcessor.serializeToJsonLD(jsonObject);
 		} catch (ParseException | IOException e) {
 			logger.error("Error while adding token to message", e);
 		}
 		return output;
 	}
 
-	@Override
-	public Message getMessage(Object header) {
-		Message message = null;
-		try {
-			message = new Serializer().deserialize(String.valueOf(header), Message.class);
-		} catch (IOException e) {
-			logger.error("Error while deserializiing  message", e);
-		}
-		return message;
-
-	}
-
+	// TODO remove? this method from this service, not related with multipartMessage
+	// or once MultipartMethods are removed from this, rename it so that it reflects HttpEntity
 	@Override
 	public HttpEntity createMultipartMessage(String header, String payload, String frowardTo, ContentType ctPayload) {
 		MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
@@ -157,7 +135,7 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 	public String getToken(Message message) throws JsonProcessingException {
 		String token = null;
 		try {
-			String msgSerialized = serializeMessage(message);
+			String msgSerialized = MultipartMessageProcessor.serializeToJsonLD(message);
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = (JSONObject) parser.parse(msgSerialized);
 			jsonObject = (JSONObject) jsonObject.get("ids:securityToken");
@@ -179,11 +157,6 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 		return token;
 	}
 
-	public static String serializeMessage(Object object) throws IOException {
-//		String serializeToPlain = MultipartMessageProcessor.multipartMessagetoString((MultipartMessage) object);
-		return MultipartMessageProcessor.serializeToJsonLD(object);//serializeToPlainJson(object);
-	}
-
 	@Override
 	public MultipartMessage addTokenToMultipartMessage(MultipartMessage messageWithoutToken) {
 		String messageWithToken = addToken(messageWithoutToken.getHeaderContent(), messageWithoutToken.getToken());
@@ -198,7 +171,7 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 	public Message getMessageFromHeaderMap(Map<String, Object> headers) throws JsonProcessingException {
 		String json = null;
 		json = new ObjectMapper().writeValueAsString(headers);
-		return getMessage(json);
+		return MultipartMessageProcessor.getMessage(json);
 	}
 
 }

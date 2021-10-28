@@ -19,6 +19,7 @@ import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 /**
  * 
@@ -68,7 +69,7 @@ public void process(Exchange exchange) throws Exception {
 			if(payload!=null) {
 				multipartMessageParts.put(MessagePart.PAYLOAD, payload);
 			}
-			Message msg = multipartMessageService.getMessage(header);
+			Message msg = MultipartMessageProcessor.getMessage(header);
 			multipartMessage = new MultipartMessage(
 					null, null, msg, null, payload, null, null,null);
 		} catch (Exception e) {
