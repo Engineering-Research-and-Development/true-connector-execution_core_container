@@ -16,7 +16,6 @@ import it.eng.idsa.businesslogic.processor.common.MapMultipartToIDSCP2;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
-import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorSender;
 import it.eng.idsa.businesslogic.processor.sender.SenderFileRecreatorProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataFromDAppProcessorBodyBinary;

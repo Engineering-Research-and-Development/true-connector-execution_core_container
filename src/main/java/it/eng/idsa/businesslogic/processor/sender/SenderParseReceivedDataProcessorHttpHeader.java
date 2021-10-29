@@ -17,7 +17,7 @@ import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.exception.MultipartMessageProcessorException;
+import it.eng.idsa.multipart.exception.MultipartMessageException;
 import it.eng.idsa.multipart.util.MultipartMessageKey;
 
 @Component
@@ -54,7 +54,7 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 			message = headerService.headersToMessage(headersParts);
 			if(message==null) {
 				logger.error("Message could not be created - check if all required headers are present.");
-				throw new MultipartMessageProcessorException("Message could not be created - check if all required headers are present");
+				throw new MultipartMessageException("Message could not be created - check if all required headers are present");
 			}
 			MultipartMessage multipartMessage = new MultipartMessageBuilder()
 					.withHttpHeader(headerService.convertMapToStringString(headerContentHeaders))

@@ -24,7 +24,7 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.exception.MultipartMessageProcessorException;
+import it.eng.idsa.multipart.exception.MultipartMessageException;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 import it.eng.idsa.multipart.util.MultipartMessageKey;
 
@@ -102,7 +102,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 			try {
 				multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
 			}
-			catch (MultipartMessageProcessorException e) {
+			catch (MultipartMessageException e) {
 				logger.error("Error parsing multipart message:", e);
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}			
@@ -140,7 +140,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 				// so that we have consistent logic 
 				message = MultipartMessageProcessor.getMessage(header);
 				if(message == null) {
-					throw new MultipartMessageProcessorException("Could not create message from request");				
+					throw new MultipartMessageException("Could not create message from request");				
 					}
 				if(headersParts.get(MessagePart.PAYLOAD) != null) {
 					payload = (String) headersParts.get(MessagePart.PAYLOAD);

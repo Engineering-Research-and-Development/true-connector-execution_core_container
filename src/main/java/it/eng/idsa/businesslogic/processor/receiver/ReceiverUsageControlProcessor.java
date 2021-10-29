@@ -30,7 +30,6 @@ import com.google.gson.stream.JsonWriter;
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.model.Meta;
 import it.eng.idsa.businesslogic.usagecontrol.model.TargetArtifact;
