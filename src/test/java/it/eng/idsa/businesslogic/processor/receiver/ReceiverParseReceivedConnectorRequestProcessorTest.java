@@ -1,15 +1,13 @@
 package it.eng.idsa.businesslogic.processor.receiver;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.any;
 
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -22,7 +20,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
@@ -37,8 +34,6 @@ public class ReceiverParseReceivedConnectorRequestProcessorTest {
 	@InjectMocks
 	private ReceiverParseReceivedConnectorRequestProcessor processor;
 	
-	@Mock
-	private MultipartMessageService multipartMessageService;
 	@Mock
 	private HttpHeaderService headerService;
 	@Mock
@@ -80,8 +75,9 @@ public class ReceiverParseReceivedConnectorRequestProcessorTest {
 		when(message.getHeaders()).thenReturn(headersAsMap);
 		
 		doThrow(NullPointerException.class).when(headerService).headersToMessage(headersAsMap);
-		doThrow(ExceptionForProcessor.class).when(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
-		
+		doThrow(ExceptionForProcessor.class)
+			.when(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+
 		assertThrows(ExceptionForProcessor.class,
 	            ()->{
 	            	processor.process(exchange);
@@ -124,14 +120,14 @@ public class ReceiverParseReceivedConnectorRequestProcessorTest {
 		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
 	}
 	
-	// TODO check if this logic is applicable or we should change logic to use rejection message
 	@Test
 	public void processMixedException_InvalidMessage() throws Exception {
 		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.MULTIPART_MIX, String.class);
 		when(exchange.getMessage()).thenReturn(message);
 		when(message.getBody()).thenReturn("MESSAGE BODY");
-		
-		assertThrows(NoSuchElementException.class,
+		doThrow(ExceptionForProcessor.class).when(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, null);
+
+		assertThrows(ExceptionForProcessor.class,
 	            ()->{
 	            	processor.process(exchange);
 	            });
@@ -163,7 +159,6 @@ public class ReceiverParseReceivedConnectorRequestProcessorTest {
 		
 		when(headersAsMap.get(MessagePart.HEADER)).thenReturn(UtilMessageService.getMessageAsString(UtilMessageService.getArtifactRequestMessage()));
 		when(headersAsMap.get(MessagePart.PAYLOAD)).thenReturn("PAYLOAD");
-		when(multipartMessageService.getMessage(anyString())).thenReturn(idsMessage);
 		processor.process(exchange);
 		
 		verify(message).setBody(any(MultipartMessage.class));

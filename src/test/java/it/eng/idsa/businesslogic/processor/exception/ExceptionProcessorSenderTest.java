@@ -30,7 +30,9 @@ import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.RouterType;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class ExceptionProcessorSenderTest {
@@ -57,7 +59,7 @@ public class ExceptionProcessorSenderTest {
 
 	private MultipartMessage multipartMessage;
 	private Map<String, Object> headers = new HashMap<>();
-	private String exceptionMessage = "EXCEPTION MESSAGE";
+	private String exceptionMessage;
 	
 	 @Captor 
 	 private ArgumentCaptor<String> key;
@@ -68,9 +70,14 @@ public class ExceptionProcessorSenderTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		when(exchange.getProperty(Exchange.EXCEPTION_CAUGHT)).thenReturn(exception);
+		
+		MultipartMessage multipartMessage = new MultipartMessageBuilder()
+				.withHeaderContent(UtilMessageService.getRejectionMessage(RejectionReason.NOT_AUTHENTICATED))
+				.build();
+		exceptionMessage = MultipartMessageProcessor.multipartMessagetoString(multipartMessage);
 		when(exception.getMessage()).thenReturn(exceptionMessage);
-		when(multipartMessageService.getHeaderContentString(exceptionMessage))
-				.thenReturn(UtilMessageService.getMessageAsString(UtilMessageService.getRejectionMessage(RejectionReason.NOT_AUTHENTICATED)));
+		
+		when(exception.getMessage()).thenReturn(exceptionMessage);
 	}
 
 	@Test

@@ -14,11 +14,11 @@ import org.springframework.stereotype.Component;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.sender.websocket.client.MessageWebSocketOverHttpSender;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 /**
  * @author Antonio Scatoloni
@@ -34,9 +34,6 @@ public class ReceiverWebSocketSendDataToDataAppProcessor implements Processor {
 
     @Autowired
     private ApplicationConfiguration configuration;
-
-    @Autowired
-    private MultipartMessageService multipartMessageService;
 
     @Autowired
     private RejectionMessageService rejectionMessageService;
@@ -76,15 +73,14 @@ public class ReceiverWebSocketSendDataToDataAppProcessor implements Processor {
           } else {
         	  logger.info("Received response from DataAPP");
         	  logger.debug("response received from the DataAPP=" + response);
-        	  String header = multipartMessageService.getHeaderContentString(response);
-              String payload = multipartMessageService.getPayloadContent(response);
-              exchange.getMessage().setHeader(MessagePart.HEADER, header);
+			  MultipartMessage mm = MultipartMessageProcessor.parseMultipartMessage(response);
+              exchange.getMessage().setHeader(MessagePart.HEADER, mm.getHeaderContentString());
               //Save original Header for Usage Control Enforcement
               if(isEnabledUsageControl) {
                   exchange.getMessage().setHeader("Original-Message-Header", originalHeader);
               }
-              if (payload != null) {
-                  exchange.getMessage().setHeader(MessagePart.PAYLOAD, payload);
+              if (mm.getPayloadContent() != null) {
+                  exchange.getMessage().setHeader(MessagePart.PAYLOAD, mm.getPayloadContent());
               }
           }
       }

@@ -97,7 +97,6 @@ public class SenderParseReceivedResponseMessageTest {
 		headers.put(MessagePart.HEADER, headerAsString);
 		headers.put(MessagePart.PAYLOAD, PAYLOAD);
 		
-		when(multipartMessageService.getMessage(headerAsString)).thenReturn(message);
 		when(multipartMessageService.getToken(message)).thenReturn(UtilMessageService.TOKEN_VALUE);
 		
 		processor.process(exchange);

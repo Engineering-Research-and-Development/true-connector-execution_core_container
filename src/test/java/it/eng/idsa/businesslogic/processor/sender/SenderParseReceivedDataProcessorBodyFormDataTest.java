@@ -20,7 +20,6 @@ import org.mockito.MockitoAnnotations;
 
 import com.sun.istack.ByteArrayDataSource;
 
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.MessagePart;
@@ -32,8 +31,6 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 	
 	private final static String PAYLOAD_STRING = "payload";
 	
-	@Mock
-	private MultipartMessageService multipartMessageService;
 	@Mock
 	private RejectionMessageService rejectionMessageService;
 	@Mock
@@ -63,7 +60,6 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 	@Test
 	public void processBodyFormTest() throws Exception {
 		mockExchangeGetHeaders(exchange);
-		when(multipartMessageService.getMessage(headerAsString)).thenReturn(msg);
 		
 		processor.process(exchange);
 		
@@ -79,7 +75,6 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 	public void processBodyFormTestForwardTo_Null() throws Exception {
 		forwardTo = null;
 		mockExchangeGetHeaders(exchange);
-		when(multipartMessageService.getMessage(headerAsString)).thenReturn(msg);
 		
 		processor.process(exchange);
 		

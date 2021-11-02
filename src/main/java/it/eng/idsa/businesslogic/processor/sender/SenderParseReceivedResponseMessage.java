@@ -23,6 +23,7 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 import it.eng.idsa.multipart.util.MultipartMessageKey;
 
 /**
@@ -100,7 +101,7 @@ public class SenderParseReceivedResponseMessage implements Processor {
 					DataHandler dtHeader = (DataHandler) headersParts.get(MessagePart.HEADER);
 					header = IOUtils.toString(dtHeader.getInputStream(), StandardCharsets.UTF_8);
 				}
-				message = multipartMessageService.getMessage(header);
+				message = MultipartMessageProcessor.getMessage(header);
 				if(headersParts.get(MessagePart.PAYLOAD) != null) {
 					payload = headersParts.get(MessagePart.PAYLOAD).toString();
 				}

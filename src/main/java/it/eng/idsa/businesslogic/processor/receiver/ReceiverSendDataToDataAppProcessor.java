@@ -15,13 +15,13 @@ import org.springframework.stereotype.Component;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.SendDataToBusinessLogicServiceImpl;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 import okhttp3.Response;
 
 /**
@@ -50,8 +50,8 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 	@Autowired
 	private ApplicationConfiguration configuration;
 
-	@Autowired
-	private MultipartMessageService multipartMessageService;
+//	@Autowired
+//	private MultipartMessageService multipartMessageService;
 
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
@@ -134,8 +134,9 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		if (RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
 			exchange.getMessage().setBody(responseString);
 		} else {
-			exchange.getMessage().setHeader(MessagePart.HEADER, multipartMessageService.getHeaderContentString(responseString));
-			exchange.getMessage().setHeader(MessagePart.PAYLOAD, multipartMessageService.getPayloadContent(responseString));
+			MultipartMessage mm = MultipartMessageProcessor.parseMultipartMessage(responseString);
+			exchange.getMessage().setHeader(MessagePart.HEADER, mm.getHeaderContentString());
+			exchange.getMessage().setHeader(MessagePart.PAYLOAD, mm.getPayloadContent());
 		}
 	}
 	

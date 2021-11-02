@@ -12,11 +12,11 @@ import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.HttpWebSocketMessagingLogicA;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 /**
  * 
@@ -29,9 +29,6 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 
 	private static final Logger logger = LoggerFactory.getLogger(SenderParseReceivedDataFromDAppProcessorBodyBinary.class);
 
-	@Autowired
-	private MultipartMessageService multipartMessageService;
-	
 	@Autowired
 	private ProtocolValidationService protocolValidationService;
 	
@@ -61,7 +58,7 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 			if(receivedDataHeader.get(MessagePart.PAYLOAD) != null) {
 				multipartMessageParts.put(MessagePart.PAYLOAD, receivedDataHeader.get(MessagePart.PAYLOAD).toString());
 			}
-			message = multipartMessageService.getMessage(multipartMessageParts.get(MessagePart.HEADER));
+			message = MultipartMessageProcessor.getMessage(multipartMessageParts.get(MessagePart.HEADER));
 			
 			//String wsURI = "wss://0.0.0.0:8086"+ HttpWebSocketServerBean.WS_URL;
 			String url = HttpWebSocketMessagingLogicA.getInstance().getForwardTo();
@@ -79,7 +76,6 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 					RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES,
 					message);
 		}
-
 	}
 
 }

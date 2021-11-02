@@ -14,13 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 /**
  * 
@@ -35,9 +35,6 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 	
 	@Autowired
 	private ProtocolValidationService protocolValidationService;
-
-	@Autowired
-	private MultipartMessageService multipartMessageService;
 
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
@@ -64,7 +61,7 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 				}
 			} 
 			logger.debug("Header part {}", header);
-			message = multipartMessageService.getMessage(header);
+			message = MultipartMessageProcessor.getMessage(header);
 			if (receivedDataHeader.containsKey(MessagePart.PAYLOAD)) {
 				if(receivedDataHeader.get(MessagePart.PAYLOAD) instanceof DataHandler) {
 					DataHandler dtPayload = (DataHandler) receivedDataHeader.get(MessagePart.PAYLOAD);
