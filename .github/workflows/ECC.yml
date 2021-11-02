@@ -26,8 +26,8 @@ jobs:
 # and make modifications in 2 .sh scripts to checkout specific branch
 # Once MMP and WSS are merged to master, make sure to comment 2 sections
 
-      - name: Run multipart message lib
-        run: ./ci/mmLib.sh
+#      - name: Run multipart message lib
+#        run: ./ci/mmLib.sh
         
 #      - name: Run websocket-message-streamer-lib
 #        run: ./ci/wmsLib.sh
