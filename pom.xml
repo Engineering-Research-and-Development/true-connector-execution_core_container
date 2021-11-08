@@ -12,11 +12,7 @@
 	<groupId>it.eng.idsa</groupId>
 	<artifactId>market4.0-execution_core_container_business_logic
 	</artifactId>
-<<<<<<< HEAD
 	<version>0.1.6-SNAPSHOT</version>
-=======
-	<version>0.1.5-SNAPSHOT</version>
->>>>>>> refs/remotes/origin/master
 	<name>market4.0-execution_core_container_business_logic</name>
 	<description>Market4.0 execution core container Business Logic
 	</description>
