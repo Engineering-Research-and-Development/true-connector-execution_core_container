@@ -2,12 +2,11 @@ package it.eng.idsa.businesslogic.processor.exception;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 /**
  * 
@@ -18,18 +17,14 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
 @Component
 public class ExceptionProcessorReceiver implements Processor {
 	
-	@Autowired
-	MultipartMessageService multipartMessageService;
-	
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		
 		Exception exception = (Exception) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
-		String message = multipartMessageService.getHeaderContentString(exception.getMessage());
+		String message = MultipartMessageProcessor.parseMultipartMessage(exception.getMessage()).getHeaderContentString();
 		
 		MultipartMessage multipartMessage = new MultipartMessageBuilder()
     			.withHeaderContent(message)
-    			.withPayloadContent("RejectionMessage")
     			.build();
 		
 		exchange.getMessage().setBody(multipartMessage);

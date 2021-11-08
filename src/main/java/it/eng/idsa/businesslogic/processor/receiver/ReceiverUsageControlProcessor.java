@@ -30,7 +30,6 @@ import com.google.gson.stream.JsonWriter;
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.model.Meta;
 import it.eng.idsa.businesslogic.usagecontrol.model.TargetArtifact;
@@ -38,6 +37,7 @@ import it.eng.idsa.businesslogic.usagecontrol.model.UsageControlObject;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 
 /**
@@ -57,9 +57,6 @@ public class ReceiverUsageControlProcessor implements Processor {
     private boolean isEnabledUsageControl;
 
     @Autowired
-    private MultipartMessageService multipartMessageService;
-
-    @Autowired
     private RejectionMessageService rejectionMessageService;
 
     public ReceiverUsageControlProcessor() {
@@ -76,7 +73,7 @@ public class ReceiverUsageControlProcessor implements Processor {
 		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		String originalHeader = headerParts.get("Original-Message-Header").toString();
-		requestMessage = multipartMessageService.getMessage(originalHeader);
+		requestMessage = MultipartMessageProcessor.getMessage(originalHeader);
 		responseMessage = multipartMessage.getHeaderContent();
 		
 		if (!(requestMessage instanceof ArtifactRequestMessage) || !(responseMessage instanceof ArtifactResponseMessage)) {

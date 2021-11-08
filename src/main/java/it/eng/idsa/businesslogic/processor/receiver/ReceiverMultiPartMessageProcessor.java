@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
@@ -45,9 +44,6 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 	
 	@Value("${application.openDataAppReceiverRouter}")
 	private String dataAppSendRouter;
-
-//	@Autowired
-//	private MultipartMessageService multipartMessageService;
 
 	@Autowired
 	private HttpHeaderService headerService;

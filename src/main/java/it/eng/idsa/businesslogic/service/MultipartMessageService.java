@@ -1,6 +1,5 @@
 package it.eng.idsa.businesslogic.service;
 
-import java.io.IOException;
 import java.util.Map;
 
 import org.apache.http.HttpEntity;
@@ -19,15 +18,10 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
 
 public interface MultipartMessageService {
 
-	String getHeaderContentString(String body);
-	String getPayloadContent(String body);
-	Message getMessage(String header);
 	String addToken(Message message, String token);
-	Message getMessage(Object header) throws IOException;
 	HttpEntity createMultipartMessage(String header, String payload, String frowardTo,ContentType ctPayload);
 	String getToken(Message message) throws JsonProcessingException;
 	Message getMessageFromHeaderMap(Map<String, Object> headers) throws JsonProcessingException;
 	
 	MultipartMessage addTokenToMultipartMessage(MultipartMessage messageWithoutToken);
-	
 }

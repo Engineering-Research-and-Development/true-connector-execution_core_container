@@ -40,49 +40,49 @@ public class CamelRouteReceiver extends RouteBuilder {
 	private ApplicationConfiguration configuration;
 
 	@Autowired(required = false)
-	ReceiverFileRecreatorProcessor fileRecreatorProcessor;
+	private ReceiverFileRecreatorProcessor fileRecreatorProcessor;
 
 	@Autowired
-	ReceiverParseReceivedConnectorRequestProcessor connectorRequestProcessor;
+	private ReceiverParseReceivedConnectorRequestProcessor connectorRequestProcessor;
 
 	@Autowired
-	ValidateTokenProcessor validateTokenProcessor;
+	private ValidateTokenProcessor validateTokenProcessor;
 
 	@Autowired
-	ContractAgreementProcessor contractAgreementProcessor;
+	private ContractAgreementProcessor contractAgreementProcessor;
 	
 	@Autowired
-	ReceiverMultiPartMessageProcessor multiPartMessageProcessor;
+	private ReceiverMultiPartMessageProcessor multiPartMessageProcessor;
 
 	@Autowired
-	ReceiverSendDataToDataAppProcessor sendDataToDataAppProcessor;
+	private ReceiverSendDataToDataAppProcessor sendDataToDataAppProcessor;
 
 	@Autowired
-	RegisterTransactionToCHProcessor registerTransactionToCHProcessor;
+	private RegisterTransactionToCHProcessor registerTransactionToCHProcessor;
 
 	@Autowired
-	ExceptionProcessorReceiver exceptionProcessorReceiver;
+	private ExceptionProcessorReceiver exceptionProcessorReceiver;
 
 	@Autowired
-	GetTokenFromDapsProcessor getTokenFromDapsProcessor;
+	private GetTokenFromDapsProcessor getTokenFromDapsProcessor;
 
 	@Autowired
-	ReceiverSendDataToBusinessLogicProcessor sendDataToBusinessLogicProcessor;
+	private ReceiverSendDataToBusinessLogicProcessor sendDataToBusinessLogicProcessor;
 
 	@Autowired
-	ReceiverWebSocketSendDataToDataAppProcessor sendDataToDataAppProcessorOverWS;
+	private ReceiverWebSocketSendDataToDataAppProcessor sendDataToDataAppProcessorOverWS;
 
 	@Autowired
-	ReceiverUsageControlProcessor receiverUsageControlProcessor;
+	private ReceiverUsageControlProcessor receiverUsageControlProcessor;
 	
 	@Autowired
-	MapIDSCP2toMultipart mapIDSCP2toMultipart;
+	private MapIDSCP2toMultipart mapIDSCP2toMultipart;
 
 	@Autowired
-	MapMultipartToIDSCP2 mapMultipartToIDSCP2;
+	private MapMultipartToIDSCP2 mapMultipartToIDSCP2;
 
 	@Autowired
-	CamelContext camelContext;
+	private CamelContext camelContext;
 
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;

@@ -13,13 +13,14 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import de.fraunhofer.iais.eis.RejectionReason;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class ExceptionProcessorReceiverTest {
 	
-	private String exceptionMessage = "EXCEPTION MESSAGE";
+	private String exceptionMessage;
 
 	@InjectMocks
 	private ExceptionProcessorReceiver processor;
@@ -31,17 +32,17 @@ public class ExceptionProcessorReceiverTest {
 	@Mock
 	private Message message;
 	
-	@Mock
-	private MultipartMessageService multipartMessageService;
-	
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		when(exchange.getProperty(Exchange.EXCEPTION_CAUGHT)).thenReturn(exception);
+
+		MultipartMessage multipartMessage = new MultipartMessageBuilder()
+				.withHeaderContent(UtilMessageService.getRejectionMessage(RejectionReason.NOT_AUTHENTICATED))
+				.build();
+		exceptionMessage = MultipartMessageProcessor.multipartMessagetoString(multipartMessage);
 		when(exception.getMessage()).thenReturn(exceptionMessage);
 		when(exchange.getMessage()).thenReturn(message);
-		when(multipartMessageService.getHeaderContentString(exceptionMessage))
-				.thenReturn(UtilMessageService.getMessageAsString(UtilMessageService.getRejectionMessage(RejectionReason.NOT_AUTHENTICATED)));
 	}
 
 	@Test

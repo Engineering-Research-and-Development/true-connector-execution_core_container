@@ -1,5 +1,7 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,8 +18,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
@@ -27,8 +29,6 @@ import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class SenderParseReceivedDataProcessorHttpHeaderTest {
 
-	@Mock
-	private MultipartMessageService multipartMessageService;
 	@Mock
 	private HttpHeaderService httpHeaderService;
 	@Mock
@@ -67,8 +67,6 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 		msg = UtilMessageService.getArtifactRequestMessage();
 		header = UtilMessageService.getMessageAsString(msg);
 		when(httpHeaderService.headersToMessage(httpHeaders)).thenReturn(msg);
-		when(multipartMessageService.getMessage(header)).thenReturn(msg);
-//		when(exchange.getOut()).thenReturn(messageOut);
 
 		processor.process(exchange);
 
@@ -88,8 +86,6 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 		msg = UtilMessageService.getArtifactRequestMessage();
 		header = UtilMessageService.getMessageAsString(msg);
 		when(httpHeaderService.headersToMessage(httpHeaders)).thenReturn(msg);
-		when(multipartMessageService.getMessage(header)).thenReturn(msg);
-//		when(exchange.getOut()).thenReturn(messageOut);
 
 		processor.process(exchange);
 
@@ -103,16 +99,19 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	}
 	
 	@Test
-	// TODO fix this test
 	public void processHttpHeaderRequiredHeadersNotPresent() throws Exception {
 		mockExchangeGetHttpHeaders(exchange);
 		httpHeaders.remove("IDS-Messagetype");
 		msg = UtilMessageService.getArtifactRequestMessage();
 		header = UtilMessageService.getMessageAsString(msg);
 		when(httpHeaderService.headersToMessage(httpHeaders)).thenReturn(null);
-		when(multipartMessageService.getMessage(header)).thenReturn(null);
+		doThrow(ExceptionForProcessor.class)
+			.when(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
 
-		processor.process(exchange);
+		assertThrows(ExceptionForProcessor.class,
+	            ()->{
+	            	processor.process(exchange);
+	            });
 
 		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
 	}

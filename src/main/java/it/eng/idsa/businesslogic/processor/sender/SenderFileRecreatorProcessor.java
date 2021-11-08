@@ -14,11 +14,11 @@ import org.springframework.stereotype.Component;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationA;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.FileRecreatorBeanServer;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 /**
  * 
@@ -39,17 +39,12 @@ public class SenderFileRecreatorProcessor implements Processor {
 	private WebSocketServerConfigurationA webSocketServerConfiguration;
 	
 	@Autowired
-	private MultipartMessageService multipartMessageService;
-	
-	@Autowired
 	private RejectionMessageService rejectionMessageService;
 
 	@Override
-public void process(Exchange exchange) throws Exception {
+	public void process(Exchange exchange) throws Exception {
 		
-		String header;
-		String payload;
-		Message message=null;
+		Message message = null;
 		Map<String, Object> multipartMessageParts = new HashMap<String, Object>();
 		MultipartMessage multipartMessage = null;
 
@@ -62,19 +57,16 @@ public void process(Exchange exchange) throws Exception {
 		
 		// Extract header and payload from the multipart message
 		try {
-			header = multipartMessageService.getHeaderContentString(recreatedMultipartMessage);
-			multipartMessageParts.put(MessagePart.HEADER, header);
-			payload = multipartMessageService.getPayloadContent(recreatedMultipartMessage);
-			if(payload!=null) {
-				multipartMessageParts.put(MessagePart.PAYLOAD, payload);
+			MultipartMessage mm = MultipartMessageProcessor.parseMultipartMessage(recreatedMultipartMessage);
+			multipartMessageParts.put(MessagePart.HEADER, mm.getHeaderContentString());
+			if(mm.getPayloadContent() != null) {
+				multipartMessageParts.put(MessagePart.PAYLOAD, mm.getPayloadContent());
 			}
-			Message msg = multipartMessageService.getMessage(header);
 			multipartMessage = new MultipartMessage(
-					null, null, msg, null, payload, null, null,null);
+					null, null, mm.getHeaderContent(), null, mm.getPayloadContent(), null, null,null);
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);
 			// TODO: Send WebSocket rejection message
-			
 		}
 		// Return exchange
 		exchange.getMessage().setHeaders(multipartMessageParts);

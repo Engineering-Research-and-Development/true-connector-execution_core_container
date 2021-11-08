@@ -21,14 +21,15 @@ import org.springframework.test.util.ReflectionTestUtils;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
-import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.MockUtil;
 import it.eng.idsa.businesslogic.util.RequestResponseUtil;
 import it.eng.idsa.businesslogic.util.RouterType;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 import it.eng.idsa.multipart.util.UtilMessageService;
 import okhttp3.Headers;
 import okhttp3.Request;
@@ -41,8 +42,6 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	
 	@Mock
 	private SendDataToBusinessLogicService sendDataToBusinessLogicService;
-	@Mock
-	private MultipartMessageService multipartMessageService;
 	@Mock
 	private HttpHeaderService httpHeaderService;
 	
@@ -58,9 +57,6 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	private Message message;
 	private static final String FORWARD_TO = "http://forward.to";
 	private static final String PAYLOAD_RESPONSE = "payload response data";
-	private static final String PAYLOAD = "payoad";
-
-	private static final String HEADER_MESSAGE_STRING = "headerMessage";
 	
 	@Mock
 	private RejectionMessageService rejectionMessageService;
@@ -68,12 +64,21 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	@Mock
 	private HttpEntity httpEntity;
 
+	private String multipartResponse;
+	private Message artifactResponse;
+	
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		message = UtilMessageService.getArtifactRequestMessage();
 		headers.put("Forward-To", FORWARD_TO);
 		when(httpHeaderService.okHttpHeadersToMap(okHeaders)).thenReturn(headers);
+		artifactResponse = UtilMessageService.getArtifactResponseMessage();
+		MultipartMessage multipartMessage = new MultipartMessageBuilder()
+				.withHeaderContent(artifactResponse)
+				.withPayloadContent(PAYLOAD_RESPONSE)
+				.build();
+		multipartResponse = MultipartMessageProcessor.multipartMessagetoString(multipartMessage);
 	}
 
 	@Test
@@ -156,20 +161,17 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 				RequestResponseUtil.createRequestBody(jsonString)) ;
 		Response response = RequestResponseUtil.createResponse(requestDaps, 
 				"ABC", 
-				RequestResponseUtil.createResponseBodyJsonUTF8(PAYLOAD_RESPONSE), 
+				RequestResponseUtil.createResponseBodyJsonUTF8(multipartResponse), 
 				200);
 		
 		when(sendDataToBusinessLogicService.sendMessageBinary(FORWARD_TO, multipartMessage, headers))
 			.thenReturn(response);
 		
-		when(multipartMessageService.getHeaderContentString(PAYLOAD_RESPONSE)).thenReturn(HEADER_MESSAGE_STRING);
-		when(multipartMessageService.getPayloadContent(PAYLOAD_RESPONSE)).thenReturn(PAYLOAD);
-		
 		processor.process(exchange);
 		
 		verify(sendDataToBusinessLogicService).sendMessageBinary(FORWARD_TO, multipartMessage, headers);
-		verify(camelMessage).setHeader(MessagePart.HEADER, HEADER_MESSAGE_STRING);
-		verify(camelMessage).setHeader(MessagePart.PAYLOAD, PAYLOAD);
+//		verify(camelMessage).setHeader(MessagePart.HEADER, HEADER_MESSAGE_STRING);
+		verify(camelMessage).setHeader(MessagePart.PAYLOAD, PAYLOAD_RESPONSE);
 	}
 	
 	@Test
@@ -182,19 +184,16 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 				RequestResponseUtil.createRequestBody(jsonString)) ;
 		Response response = RequestResponseUtil.createResponse(requestDaps, 
 				"ABC", 
-				RequestResponseUtil.createResponseBodyJsonUTF8(PAYLOAD_RESPONSE), 
+				RequestResponseUtil.createResponseBodyJsonUTF8(multipartResponse), 
 				200);
 		when(sendDataToBusinessLogicService.sendMessageFormData(FORWARD_TO, multipartMessage, headers))
 			.thenReturn(response);
 		
-		when(multipartMessageService.getHeaderContentString(PAYLOAD_RESPONSE)).thenReturn(HEADER_MESSAGE_STRING);
-		when(multipartMessageService.getPayloadContent(PAYLOAD_RESPONSE)).thenReturn(PAYLOAD);
-		
 		processor.process(exchange);
 		
 		verify(sendDataToBusinessLogicService).sendMessageFormData(FORWARD_TO, multipartMessage, headers);
-		verify(camelMessage).setHeader(MessagePart.HEADER, HEADER_MESSAGE_STRING);
-		verify(camelMessage).setHeader(MessagePart.PAYLOAD, PAYLOAD);
+//		verify(camelMessage).setHeader(MessagePart.HEADER, UtilMessageService.getMessageAsString(artifactResponse));
+		verify(camelMessage).setHeader(MessagePart.PAYLOAD, PAYLOAD_RESPONSE);
 	}
 	
 	private void mockExchangeHeaderAndBody() {

@@ -24,6 +24,7 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.exception.MultipartMessageException;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 import it.eng.idsa.multipart.util.MultipartMessageKey;
 
@@ -70,15 +71,18 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) { 
 			// create Message object from IDS-* headers, needs for UsageControl flow
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
-//			header = headerService.getHeaderMessagePartFromHttpHeadersWithoutToken(headersParts);
-			message = headerService.headersToMessage(headersParts);
+			try {
+				message = headerService.headersToMessage(headersParts);
+			} catch (Exception e) {
+				logger.error("Message could not be created - check if all required headers are present.");
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+			}
+			// TODO check if we need catch and null check
 			if(message == null) {
 				logger.error("Message could not be created - check if all required headers are present.");
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
 			}
-//			if (null != headersParts.get("IDS-SecurityToken-TokenValue")) {
-//				token = headersParts.get("IDS-SecurityToken-TokenValue").toString();
-//			}
+
 			token = message.getSecurityToken() != null ? message.getSecurityToken().getTokenValue() : null;
 			payload = exchange.getMessage().getBody(String.class);
 			 
@@ -91,7 +95,17 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 		} 
 		else if(RouterType.MULTIPART_MIX.equals(eccHttpSendRouter)) {
 			String receivedDataBodyBinary = MessageHelper.extractBodyAsString(exchange.getMessage());
-			multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
+			if (receivedDataBodyBinary == null) {
+				logger.error("Received body is empty.");
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+			}
+			try {
+				multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
+			}
+			catch (MultipartMessageException e) {
+				logger.error("Error parsing multipart message:", e);
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+			}			
 			if (isEnabledDapsInteraction) {
 				token = multipartMessageService.getToken(multipartMessage.getHeaderContent());
 			}
@@ -117,25 +131,31 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 
 			try {
 				if (headersParts.get(MessagePart.HEADER) instanceof String) {
-					header = headersParts.get(MessagePart.HEADER).toString();
+					header = (String) headersParts.get(MessagePart.HEADER);
 				} else {
 					DataHandler dtHeader = (DataHandler) headersParts.get(MessagePart.HEADER);
 					header = IOUtils.toString(dtHeader.getInputStream(), StandardCharsets.UTF_8);
 				}
-				
-				message = multipartMessageService.getMessage(header);
+				//TODO Consider to refactor multipartMessageService.getMessage(header) to throw exception instead returnin null
+				// so that we have consistent logic 
+				message = MultipartMessageProcessor.getMessage(header);
+				if(message == null) {
+					throw new MultipartMessageException("Could not create message from request");				
+					}
 				if(headersParts.get(MessagePart.PAYLOAD) != null) {
-					payload = headersParts.get(MessagePart.PAYLOAD).toString();
+					payload = (String) headersParts.get(MessagePart.PAYLOAD);
 				}
 				
 				if (isEnabledDapsInteraction) {
 					token = multipartMessageService.getToken(message);
 				}
-				multipartMessage = new MultipartMessageBuilder().withHeaderContent(header).withPayloadContent(payload).withToken(token)
+				multipartMessage = new MultipartMessageBuilder()
+						.withHeaderContent(header)
+						.withPayloadContent(payload)
+						.withToken(token)
 						.build();
 
-				headersParts.put("Payload-Content-Type",
-						headersParts.get("payload.org.eclipse.jetty.servlet.contentType"));
+				headersParts.put("Payload-Content-Type", headersParts.get("payload.org.eclipse.jetty.servlet.contentType"));
 			} catch (Exception e) {
 				logger.error("Error parsing multipart message:", e);
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
