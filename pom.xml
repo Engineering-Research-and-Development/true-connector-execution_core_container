@@ -12,7 +12,7 @@
 	<groupId>it.eng.idsa</groupId>
 	<artifactId>market4.0-execution_core_container_business_logic
 	</artifactId>
-	<version>0.1.5-SNAPSHOT</version>
+	<version>0.1.6-SNAPSHOT</version>
 	<name>market4.0-execution_core_container_business_logic</name>
 	<description>Market4.0 execution core container Business Logic
 	</description>
@@ -126,16 +126,16 @@
 			<groupId>it.eng.idsa</groupId>
 			<artifactId>multipart-message-processor</artifactId>
 			<version>${multipart.message.processor.version}</version>
-				<exclusions>
-					<exclusion>
-						<artifactId>logback-classic</artifactId>
-						<groupId>ch.qos.logback</groupId>
-					</exclusion>
-					<exclusion>
-						<artifactId>slf4j-simple</artifactId>
-						<groupId>org.slf4j</groupId>
-					</exclusion>
-				</exclusions>
+			<exclusions>
+				<exclusion>
+					<artifactId>logback-classic</artifactId>
+					<groupId>ch.qos.logback</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>slf4j-simple</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- CLEARING HOUSE -->
@@ -393,15 +393,15 @@
 			<artifactId>okio</artifactId>
 			<version>2.8.0</version>
 		</dependency>
-		
+
 		<dependency>
-      		<groupId>it.eng.idsa</groupId>
-      		<artifactId>multipart-message-processor</artifactId>
-      		<classifier>tests</classifier>
-      		<type>test-jar</type>
-      		<version>${multipart.message.processor.version}</version>
-      		<scope>test</scope>
-    	</dependency>
+			<groupId>it.eng.idsa</groupId>
+			<artifactId>multipart-message-processor</artifactId>
+			<classifier>tests</classifier>
+			<type>test-jar</type>
+			<version>${multipart.message.processor.version}</version>
+			<scope>test</scope>
+		</dependency>
 
 	</dependencies>
 
@@ -440,6 +440,40 @@
 						<goals>
 							<goal>build-info</goal>
 						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<finalName>application</finalName>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<mainClass>it.eng.idsa.businesslogic.Application</mainClass>
+							<classpathPrefix>dependency-jars/</classpathPrefix>
+							<useUniqueVersions>false</useUniqueVersions>
+						</manifest>
+						<manifestEntries>
+							<Class-Path>. /config/ /cert/</Class-Path>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/dependency-jars/</outputDirectory>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
