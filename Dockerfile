@@ -27,6 +27,6 @@ ENTRYPOINT java -jar run/application.jar
 
 #Healthy Status
 HEALTHCHECK --interval=5s --retries=3 --timeout=10s \
-  
+
 #CMD curl http://localhost:8081/about/version || exit 1
 CMD wget -O /dev/null http://localhost:8081/about/version || exit 1
