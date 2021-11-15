@@ -1,12 +1,17 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.activation.DataHandler;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.camel.attachment.Attachment;
+import org.apache.camel.attachment.AttachmentMessage;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +50,7 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 		String header = null;
 		String payload = null;
 		Message message = null;
+		Map<String, String> payloadHeaders = new HashMap<>();
 
 		// Get from the input "exchange"
 		Map<String, Object> receivedDataHeader = exchange.getMessage().getHeaders();
@@ -63,17 +69,22 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 			logger.debug("Header part {}", header);
 			message = MultipartMessageProcessor.getMessage(header);
 			if (receivedDataHeader.containsKey(MessagePart.PAYLOAD)) {
-				if(receivedDataHeader.get(MessagePart.PAYLOAD) instanceof DataHandler) {
-					DataHandler dtPayload = (DataHandler) receivedDataHeader.get(MessagePart.PAYLOAD);
-					payload = IOUtils.toString(dtPayload.getInputStream(), StandardCharsets.UTF_8);
-				} else {
+				if(receivedDataHeader.get(MessagePart.PAYLOAD) instanceof String) {
 					payload = (String) receivedDataHeader.get(MessagePart.PAYLOAD);
 				}
+			}else if (exchange.getMessage(AttachmentMessage.class) != null 
+					&& exchange.getMessage(AttachmentMessage.class).getAttachmentObject(MessagePart.PAYLOAD) != null) {
+				Attachment att1 = exchange.getMessage(AttachmentMessage.class).getAttachmentObject(MessagePart.PAYLOAD);
+				DataHandler dh1 = att1.getDataHandler();
+				payload = Base64.getEncoder().encodeToString(IOUtils.toByteArray(dh1.getInputStream()));
+				payloadHeaders = getPayloadHeadersFromAttachment(att1);
 			}
+				
 			logger.debug("Payload part {}", payload);
 
 			MultipartMessage multipartMessage = new MultipartMessageBuilder()
 					.withHeaderContent(header)
+					.withPayloadHeader(payloadHeaders)
 					.withPayloadContent(payload)
 					.build();
 			
@@ -89,5 +100,9 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 			logger.error("Error parsing multipart message:", e);
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 		}
+	}
+
+	private Map<String, String> getPayloadHeadersFromAttachment(Attachment att1) {
+		return att1.getHeaderNames().stream().collect(Collectors.toMap(i -> i, i -> att1.getHeader(i)));
 	}
 }

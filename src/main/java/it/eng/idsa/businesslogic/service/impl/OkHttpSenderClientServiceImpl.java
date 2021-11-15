@@ -21,6 +21,7 @@ import okhttp3.Response;
 public class OkHttpSenderClientServiceImpl implements SenderClientService {
 
 	private static final String MEDIA_TYPE_HEADER_JSON_LD = "application/ld+json";
+	private static final String CONTENT_DISPOSITION = "Content-Disposition";
 	
 	@Autowired
 	private OkHttpClient client;
@@ -68,12 +69,12 @@ public class OkHttpSenderClientServiceImpl implements SenderClientService {
 	@Override
 	public RequestBody createMultipartMixRequest(MultipartMessage message, String payloadContentType) {
 		Part headerPart = Part.create(
-				Headers.of("Content-Disposition", "form-data; name=\"header\""),
+				Headers.of(CONTENT_DISPOSITION, "form-data; name=\"header\""),
 				RequestBody.create(message.getHeaderContentString(), MediaType.parse(MEDIA_TYPE_HEADER_JSON_LD)));
 		
 		Part payloadPart = null;
 		if(message.getPayloadContent() != null) {
-			payloadPart = Part.create(Headers.of("Content-Disposition", "form-data; name=\"payload\""),
+			payloadPart = Part.create(Headers.of(CONTENT_DISPOSITION, "form-data; name=\"payload\""),
 			          RequestBody.create(message.getPayloadContent(), MediaType.parse(payloadContentType)));
 		}
 		
@@ -89,12 +90,15 @@ public class OkHttpSenderClientServiceImpl implements SenderClientService {
 	@Override
 	public RequestBody createMultipartFormRequest(MultipartMessage message, String payloadContentType) {
 		Part headerPart = Part.create(
-				Headers.of("Content-Disposition", "form-data; name=\"header\""),
+				Headers.of(CONTENT_DISPOSITION, "form-data; name=\"header\""),
 				RequestBody.create(message.getHeaderContentString(), MediaType.parse(MEDIA_TYPE_HEADER_JSON_LD)));
 		
 		Part payloadPart = null;
-		if(message.getPayloadContent() != null) {
-			payloadPart = Part.create(Headers.of("Content-Disposition", "form-data; name=\"payload\""),
+		if(message.getPayloadContent() != null && message.getPayloadHeader().get(CONTENT_DISPOSITION.toLowerCase()) != null) {
+			payloadPart = Part.create(Headers.of(CONTENT_DISPOSITION, message.getPayloadHeader().get(CONTENT_DISPOSITION.toLowerCase())),
+			          RequestBody.create(message.getPayloadContent(), MediaType.parse(payloadContentType)));
+		} else {
+			payloadPart = Part.create(Headers.of(CONTENT_DISPOSITION, "form-data; name=\"payload\""),
 			          RequestBody.create(message.getPayloadContent(), MediaType.parse(payloadContentType)));
 		}
 		
