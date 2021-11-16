@@ -89,7 +89,7 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 				.withHeaderContent(msg)
 				.withPayloadContent(Base64.getEncoder().encodeToString(PAYLOAD_STRING.getBytes()))
 				.withPayloadHeader(Map.of(
-						"Content-Type", "application/json"))
+						Exchange.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType()))
 				.build();
 		
 		verify(message).setBody(multipartMessage);
@@ -113,9 +113,9 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 	private void mockExchangeGetHeaders(Exchange exchange) throws UnsupportedEncodingException {
 		when(exchange.getMessage()).thenReturn(message);
 		Map<String, Object> headers = new HashMap<>();
-		headers.put("Content-Type", ContentType.APPLICATION_JSON);
+		headers.put(Exchange.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());
 		headers.put("Forward-To", forwardTo);
-		ByteArrayDataSource headerBarrds = new ByteArrayDataSource(headerAsString.getBytes("UTF-8"), "application/json");
+		ByteArrayDataSource headerBarrds = new ByteArrayDataSource(headerAsString.getBytes(ContentType.APPLICATION_JSON.getCharset()), ContentType.APPLICATION_JSON.getMimeType());
 		headers.put(MessagePart.HEADER, new DataHandler(headerBarrds));
 		headers.put(MessagePart.PAYLOAD, PAYLOAD_STRING);
 		when(message.getHeaders()).thenReturn(headers);
@@ -124,17 +124,17 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 	private void mockExchangeForFile(Exchange exchange) throws UnsupportedEncodingException {
 		when(exchange.getMessage()).thenReturn(message);
 		Map<String, Object> headers = new HashMap<>();
-		headers.put("Content-Type", ContentType.APPLICATION_JSON);
+		headers.put(Exchange.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());
 		headers.put("Forward-To", forwardTo);
-		ByteArrayDataSource headerBarrds = new ByteArrayDataSource(headerAsString.getBytes("UTF-8"), "application/json");
+		ByteArrayDataSource headerBarrds = new ByteArrayDataSource(headerAsString.getBytes(ContentType.APPLICATION_JSON.getCharset()), ContentType.APPLICATION_JSON.getMimeType());
 		headers.put(MessagePart.HEADER, new DataHandler(headerBarrds));
-		ByteArrayDataSource payloadBarrds = new ByteArrayDataSource(PAYLOAD_STRING.getBytes("UTF-8"), "application/json");
-		attachment.setHeader("Content-Type", "application/json");
+		ByteArrayDataSource payloadBarrds = new ByteArrayDataSource(PAYLOAD_STRING.getBytes(ContentType.APPLICATION_JSON.getCharset()), ContentType.APPLICATION_JSON.getMimeType());
+		attachment.setHeader(Exchange.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());
 		when(message.getHeaders()).thenReturn(headers);
 		when(exchange.getMessage(AttachmentMessage.class)).thenReturn(attachmentMessage);
 		when(exchange.getMessage(AttachmentMessage.class).getAttachmentObject(MessagePart.PAYLOAD)).thenReturn(attachment);
-		when(attachment.getHeaderNames()).thenReturn(Util.asList("Content-Type"));
-		when(attachment.getHeader("Content-Type")).thenReturn("application/json");
+		when(attachment.getHeaderNames()).thenReturn(Util.asList(Exchange.CONTENT_TYPE));
+		when(attachment.getHeader(Exchange.CONTENT_TYPE)).thenReturn(ContentType.APPLICATION_JSON.getMimeType());
 		when(attachment.getDataHandler()).thenReturn(new DataHandler(payloadBarrds));
 	}
 }
