@@ -1,12 +1,16 @@
 package it.eng.idsa.businesslogic.processor.receiver;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.activation.DataHandler;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.camel.attachment.Attachment;
+import org.apache.camel.attachment.AttachmentMessage;
 import org.apache.camel.support.MessageHelper;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -129,6 +133,8 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 
+			Map<String, String> payloadHeaders = new HashMap<>();
+
 			try {
 				if (headersParts.get(MessagePart.HEADER) instanceof String) {
 					header = (String) headersParts.get(MessagePart.HEADER);
@@ -142,9 +148,17 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 				if(message == null) {
 					throw new MultipartMessageException("Could not create message from request");				
 					}
-				if(headersParts.get(MessagePart.PAYLOAD) != null) {
-					payload = (String) headersParts.get(MessagePart.PAYLOAD);
-				}
+				if (headersParts.containsKey(MessagePart.PAYLOAD)) {
+					if(headersParts.get(MessagePart.PAYLOAD) instanceof String) {
+						payload = (String) headersParts.get(MessagePart.PAYLOAD);
+					}
+				}else if (exchange.getMessage(AttachmentMessage.class) != null && 
+						exchange.getMessage(AttachmentMessage.class).getAttachmentObject(MessagePart.PAYLOAD) != null) {
+					Attachment att1 = exchange.getMessage(AttachmentMessage.class).getAttachmentObject(MessagePart.PAYLOAD);
+					DataHandler dh1 = att1.getDataHandler();
+					payload = IOUtils.toString(dh1.getInputStream(), StandardCharsets.UTF_8);
+					payloadHeaders = getPayloadHeadersFromAttachment(att1);
+				} 
 				
 				if (isEnabledDapsInteraction) {
 					token = multipartMessageService.getToken(message);
@@ -152,6 +166,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 				multipartMessage = new MultipartMessageBuilder()
 						.withHeaderContent(header)
 						.withPayloadContent(payload)
+						.withPayloadHeader(payloadHeaders)
 						.withToken(token)
 						.build();
 
@@ -164,5 +179,9 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 		
 		exchange.getMessage().setHeaders(headersParts);
 		exchange.getMessage().setBody(multipartMessage);
+	}
+	
+	private Map<String, String> getPayloadHeadersFromAttachment(Attachment att1) {
+		return att1.getHeaderNames().stream().collect(Collectors.toMap(i -> i, i -> att1.getHeader(i)));
 	}
 }

@@ -5,6 +5,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.ws.rs.core.MediaType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,12 +69,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 			headers = fillHeaders(headerParts);
 		}
 
-		String payloadContentType;
-		if (headerParts.get("Payload-Content-Type") != null) {
-			payloadContentType = headerParts.get("Payload-Content-Type").toString();
-		} else {
-			payloadContentType = javax.ws.rs.core.MediaType.TEXT_PLAIN.toString();
-		}
+		String payloadContentType = getPayloadContentType(headerParts);
 		RequestBody requestBody = okHttpClient.createMultipartMixRequest(multipartMessage, payloadContentType);
 //		String requestBody = MultipartMessageProcessor.multipartMessagetoString(multiMessage);
 		try {
@@ -114,7 +111,8 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 
 		Message messageForException = multipartMessage.getHeaderContent();
 
-		String ctPayload = getPayloadContentType(headerParts);
+		String ctPayload = multipartMessage.getPayloadHeader().get("content-type") == null ? 
+				MediaType.TEXT_PLAIN.toString() : multipartMessage.getPayloadHeader().get("content-type");
 		Headers headers = fillHeaders(headerParts);
 		RequestBody body = okHttpClient.createMultipartFormRequest(multipartMessage, ctPayload);
 
@@ -150,7 +148,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		if (null != headerParts.get("Payload-Content-Type")) {
 			ctPayload = (String) headerParts.get("Payload-Content-Type");
 		} else {
-			ctPayload = javax.ws.rs.core.MediaType.TEXT_PLAIN.toString();
+			ctPayload = MediaType.TEXT_PLAIN.toString();
 		}
 		return ctPayload;
 	}
