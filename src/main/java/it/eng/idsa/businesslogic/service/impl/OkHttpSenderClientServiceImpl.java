@@ -97,7 +97,7 @@ public class OkHttpSenderClientServiceImpl implements SenderClientService {
 		if(message.getPayloadContent() != null && message.getPayloadHeader().get(CONTENT_DISPOSITION.toLowerCase()) != null) {
 			payloadPart = Part.create(Headers.of(CONTENT_DISPOSITION, message.getPayloadHeader().get(CONTENT_DISPOSITION.toLowerCase())),
 			          RequestBody.create(message.getPayloadContent(), MediaType.parse(payloadContentType)));
-		} else {
+		} else if(message.getPayloadContent() != null){
 			payloadPart = Part.create(Headers.of(CONTENT_DISPOSITION, "form-data; name=\"payload\""),
 			          RequestBody.create(message.getPayloadContent(), MediaType.parse(payloadContentType)));
 		}
