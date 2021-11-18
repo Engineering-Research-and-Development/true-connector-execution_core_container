@@ -37,9 +37,6 @@ public class DapsUtilityProvider {
 	@Value("${application.dapsJWKSUrl}")
 	private String dapsJWKSUrl;
 	
-	@Value("${application.connectorUUID}")
-	private String DapsV1connectorUUID;
-	
 	@Value("${application.targetDirectory}")
 	private Path targetDirectory;
 	@Value("${application.dapsUrl}")
