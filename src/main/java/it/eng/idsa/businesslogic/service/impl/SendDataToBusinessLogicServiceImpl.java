@@ -168,7 +168,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 					rejectionMessageService
 							.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, message);
 				}
-				logger.info("data sent unuccessfully to destination " + forwardTo);
+				logger.info("data sent unsuccessfully to destination " + forwardTo);
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 		}
