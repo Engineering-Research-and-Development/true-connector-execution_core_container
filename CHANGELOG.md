@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.8-SNAPSHOT] - 2021-11-23
+ 
+### Removed
+ - removed support for DAPS v1 token
+
 ## [0.1.7-SNAPSHOT] - 2021-11-05
  
 ### Added
