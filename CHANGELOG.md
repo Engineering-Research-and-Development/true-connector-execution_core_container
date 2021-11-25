@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.1.8-SNAPSHOT] - 2021-11-23
+
+### Added
+ - default contract offer,artifact and resource for self description
  
 ### Removed
  - removed support for DAPS v1 token

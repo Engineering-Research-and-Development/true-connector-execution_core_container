@@ -3,6 +3,9 @@ package it.eng.idsa.businesslogic.service.impl;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,19 +16,36 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import de.fraunhofer.iais.eis.Action;
+import de.fraunhofer.iais.eis.Artifact;
+import de.fraunhofer.iais.eis.ArtifactBuilder;
 import de.fraunhofer.iais.eis.BaseConnectorBuilder;
+import de.fraunhofer.iais.eis.BinaryOperator;
 import de.fraunhofer.iais.eis.Connector;
 import de.fraunhofer.iais.eis.ConnectorEndpointBuilder;
 import de.fraunhofer.iais.eis.ConnectorUnavailableMessageBuilder;
 import de.fraunhofer.iais.eis.ConnectorUpdateMessageBuilder;
+import de.fraunhofer.iais.eis.Constraint;
+import de.fraunhofer.iais.eis.ConstraintBuilder;
+import de.fraunhofer.iais.eis.ContentType;
+import de.fraunhofer.iais.eis.ContractOffer;
+import de.fraunhofer.iais.eis.ContractOfferBuilder;
+import de.fraunhofer.iais.eis.Language;
+import de.fraunhofer.iais.eis.LeftOperand;
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.Permission;
+import de.fraunhofer.iais.eis.PermissionBuilder;
 import de.fraunhofer.iais.eis.QueryLanguage;
 import de.fraunhofer.iais.eis.QueryMessageBuilder;
 import de.fraunhofer.iais.eis.QueryScope;
+import de.fraunhofer.iais.eis.Representation;
 import de.fraunhofer.iais.eis.Resource;
 import de.fraunhofer.iais.eis.ResourceCatalog;
 import de.fraunhofer.iais.eis.ResourceCatalogBuilder;
 import de.fraunhofer.iais.eis.SecurityProfile;
+import de.fraunhofer.iais.eis.TextRepresentationBuilder;
+import de.fraunhofer.iais.eis.TextResourceBuilder;
+import de.fraunhofer.iais.eis.util.RdfResource;
 import de.fraunhofer.iais.eis.util.TypedLiteral;
 import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
@@ -112,10 +132,68 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 
 
 	private java.util.List<ResourceCatalog> getCatalog() {
+		Artifact defaultArtifact = new ArtifactBuilder(URI.create("http://w3id.org/engrd/connector/artifact/1"))
+			._creationDate_(DateUtil.now())
+			.build();
+		
+		Resource offeredResource = (new TextResourceBuilder())
+				._title_(Util.asList(new TypedLiteral("Default resource")))
+				._description_(Util.asList(new TypedLiteral("Default resource description")))
+				._contentType_(ContentType.SCHEMA_DEFINITION)
+				._keyword_(Util.asList(new TypedLiteral("Engineering Ingegneria Informatica SpA"),
+						new TypedLiteral("TRUEConnector")))
+				._version_("1.0.0")._language_(Util.asList(Language.EN, Language.IT))
+				._modified_(DateUtil.now())
+				._created_(DateUtil.now())
+				._contractOffer_(Util.asList(createContractOffer()))
+				._representation_(Util.asList(getTextRepresentation(defaultArtifact)))
+				.build();
+		
 		List<ResourceCatalog> catalogList = new ArrayList<>();
 		ArrayList<Resource> offeredResources = new ArrayList<>();
+		offeredResources.add(offeredResource);
 		catalogList.add(new ResourceCatalogBuilder()._offeredResource_(offeredResources).build());
 		return catalogList;
+	}
+	
+	private Representation getTextRepresentation(Artifact artifact) {
+		return new TextRepresentationBuilder()
+				._created_(DateUtil.now())
+				._instance_(Util.asList(artifact))
+				._language_(Language.EN)
+				.build();
+	}
+	
+	private ContractOffer createContractOffer() {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		OffsetDateTime dateTime = OffsetDateTime.now(ZoneOffset.UTC);
+		
+		Constraint before = new ConstraintBuilder()
+				._leftOperand_(LeftOperand.POLICY_EVALUATION_TIME)
+				._operator_(BinaryOperator.AFTER)
+				._rightOperand_(new RdfResource(dateTime.minusDays(7).format(formatter), URI.create("xsd:datetime")))
+				.build();
+		
+		Constraint after = new ConstraintBuilder()
+				._leftOperand_(LeftOperand.POLICY_EVALUATION_TIME)
+				._operator_(BinaryOperator.BEFORE)
+				._rightOperand_(new RdfResource(dateTime.plusMonths(1).format(formatter), URI.create("xsd:datetime")))
+				.build();
+		
+		Permission permission2 = new PermissionBuilder()
+				._target_(URI.create("http://w3id.org/engrd/connector/artifact/1"))
+				._assignee_(Util.asList(URI.create("https://assignee.com")))
+				._assigner_(Util.asList(URI.create("https://assigner.com")))
+				._action_(Util.asList(Action.USE))
+				._constraint_(Util.asList(before, after))
+				.build();
+		
+		return new ContractOfferBuilder()
+				._consumer_(URI.create("https://consumer.com"))
+				._provider_(URI.create("https://provider.com"))
+				._permission_(Util.asList(permission2))
+				._contractDate_(DateUtil.now())
+				.build();
 	}
 
 	@Override
