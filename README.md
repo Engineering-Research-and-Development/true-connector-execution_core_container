@@ -62,48 +62,52 @@ The sender DataApp should send a request using the following schema, specifing i
 ## How to Exchange Data
 ### REST endpoints
 #### Multipart/mixed - Example 
-```
-curl -k -request POST 'https://{IPADDRESS}:{A_ENDPOINT_PUBLIC_PORT}/incoming-data-app/multipartMessageBodyBinary' 
-   --header 'Content-Type: multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6' 
-   --header 'Forward-To: {RECEIVER_IP_ADDRESS}:{B_ENDPOINT_PUBLIC_PORT}/data' 
-   --data-binary '@/home/eng/MultipartMessageDataExample1.txt'
-```
 
-
-Keeping the provided docker-compose will be:
-```
-curl -k -request POST 'https://{IPADDRESS}:8887/incoming-data-app/multipartMessageBodyBinary' 
-   --header 'Content-Type: multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6' 
-   --header 'Forward-To: {RECEIVER_IP_ADDRESS}:8889/data' 
-   --data-binary '@/home/eng/MultipartMessageDataExample1.txt'
-```
-
-Or you can also use the following:
 ```
 curl --location --request POST 'https://{IPADDRESS}:{A_ENDPOINT_PUBLIC_PORT}/incoming-data-app/multipartMessageBodyBinary' \
 --header 'Content-Type: multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6' \
 --header 'Forward-To: {RECEIVER_IP_ADDRESS}:{B_ENDPOINT_PUBLIC_PORT}/data' 
---data-raw '--CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6
+--data-raw ' --CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6
 Content-Disposition: form-data; name="header"
 Content-Type: application/json; charset=UTF-8
-Content-Length: 333
+Content-Length: 1293
    {
   "@context" : {
-    "ids" : "https://w3id.org/idsa/core/"
+    "ids" : "https://w3id.org/idsa/core/",
+    "idsc" : "https://w3id.org/idsa/code/"
   },
   "@type" : "ids:ArtifactRequestMessage",
-  "@id" : "https://w3id.org/idsa/autogen/artifactRequestMessage/76481a41-8117-4c79-bdf4-9903ef8f825a",
-  "ids:issued" : {
-    "@value" : "2020-11-25T16:43:27.051+01:00",
-    "@type" : "http://www.w3.org/2001/XMLSchema#dateTimeStamp"
+  "@id" : "https://w3id.org/idsa/autogen/artifactRequestMessage/36cdbc3c-993d-4efe-a9bd-a88f400ff3f6",
+  "ids:transferContract" : {
+    "@id" : "http://w3id.org/engrd/connector/examplecontract"
+  },
+  "ids:correlationMessage" : {
+    "@id" : "http://w3id.org/artifactRequestMessage/1a421b8c-3407-44a8-aeb9-253f145c869a"
+  },
+  "ids:securityToken" : {
+    "@type" : "ids:DynamicAttributeToken",
+    "@id" : "https://w3id.org/idsa/autogen/dynamicAttributeToken/4f81873e-ca33-47ea-b777-b5485fc53253",
+    "ids:tokenValue" : "DummyTokenValue",
+    "ids:tokenFormat" : {
+      "@id" : "https://w3id.org/idsa/code/JWT"
+    }
   },
   "ids:modelVersion" : "4.1.0",
-  "ids:issuerConnector" : {
-    "@id" : "http://w3id.org/engrd/connector/"
+  "ids:issued" : {
+    "@value" : "2021-11-24T15:09:01.276+01:00",
+    "@type" : "http://www.w3.org/2001/XMLSchema#dateTimeStamp"
   },
+  "ids:issuerConnector" : {
+    "@id" : "http://w3id.org/engrd/connector"
+  },
+  "ids:senderAgent" : {
+    "@id" : "http://sender.agent/sender"
+  },
+  "ids:recipientAgent" : [ ],
   "ids:requestedArtifact" : {
-   "@id" : "http://w3id.org/engrd/connector/artifact/1"
-  }
+    "@id" : "http://w3id.org/engrd/connector/artifact/test1.csv"
+  },
+  "ids:recipientConnector" : [ ]
 }
 
 --CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6
@@ -112,36 +116,59 @@ Content-Type: application/json
 Content-Length: 50
 {"catalog.offers.0.resourceEndpoints.path":"/pet2"}
 
-
 --CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6--'
 ```
 
-Keeping the provided docker-compose will be:
+Keeping the provided configuration:
+
+<details>
+  <summary>Multipart mixed request</summary>
+
 ```
-curl --location --request POST 'https://{IPADDRESS}:8887/incoming-data-app/multipartMessageBodyBinary' \
+curl --location --request POST 'https://localhost:8887/incoming-data-app/multipartMessageBodyBinary' \
 --header 'Content-Type: multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6' \
---header 'Forward-To: {RECEIVER_IP_ADDRESS}:8889/data' 
---data-raw '--CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6
+--header 'Forward-To: https://localhost:8889/data' 
+--data-raw ' --CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6
 Content-Disposition: form-data; name="header"
 Content-Type: application/json; charset=UTF-8
-Content-Length: 333
+Content-Length: 1293
    {
   "@context" : {
-    "ids" : "https://w3id.org/idsa/core/"
+    "ids" : "https://w3id.org/idsa/core/",
+    "idsc" : "https://w3id.org/idsa/code/"
   },
   "@type" : "ids:ArtifactRequestMessage",
-  "@id" : "https://w3id.org/idsa/autogen/artifactRequestMessage/76481a41-8117-4c79-bdf4-9903ef8f825a",
-  "ids:issued" : {
-    "@value" : "2020-11-25T16:43:27.051+01:00",
-    "@type" : "http://www.w3.org/2001/XMLSchema#dateTimeStamp"
+  "@id" : "https://w3id.org/idsa/autogen/artifactRequestMessage/36cdbc3c-993d-4efe-a9bd-a88f400ff3f6",
+  "ids:transferContract" : {
+    "@id" : "http://w3id.org/engrd/connector/examplecontract"
+  },
+  "ids:correlationMessage" : {
+    "@id" : "http://w3id.org/artifactRequestMessage/1a421b8c-3407-44a8-aeb9-253f145c869a"
+  },
+  "ids:securityToken" : {
+    "@type" : "ids:DynamicAttributeToken",
+    "@id" : "https://w3id.org/idsa/autogen/dynamicAttributeToken/4f81873e-ca33-47ea-b777-b5485fc53253",
+    "ids:tokenValue" : "DummyTokenValue",
+    "ids:tokenFormat" : {
+      "@id" : "https://w3id.org/idsa/code/JWT"
+    }
   },
   "ids:modelVersion" : "4.1.0",
-  "ids:issuerConnector" : {
-    "@id" : "http://w3id.org/engrd/connector/"
+  "ids:issued" : {
+    "@value" : "2021-11-24T15:09:01.276+01:00",
+    "@type" : "http://www.w3.org/2001/XMLSchema#dateTimeStamp"
   },
+  "ids:issuerConnector" : {
+    "@id" : "http://w3id.org/engrd/connector"
+  },
+  "ids:senderAgent" : {
+    "@id" : "http://sender.agent/sender"
+  },
+  "ids:recipientAgent" : [ ],
   "ids:requestedArtifact" : {
-   "@id" : "http://w3id.org/engrd/connector/artifact/1"
-  }
+    "@id" : "http://w3id.org/engrd/connector/artifact/test1.csv"
+  },
+  "ids:recipientConnector" : [ ]
 }
 
 --CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6
@@ -150,94 +177,155 @@ Content-Type: application/json
 Content-Length: 50
 {"catalog.offers.0.resourceEndpoints.path":"/pet2"}
 
-
 --CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6--'
 ```
+
+</details>
 
 #### Multipart/form-data - Example
+
 ```
 curl --location --request POST 'https://{IPADDRESS}:{A_ENDPOINT_PUBLIC_PORT}/incoming-data-app/multipartMessageBodyFormData' \
 --header 'Content-Type: multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6' \
 --header 'Forward-To: {RECEIVER_IP_ADDRESS}:{B_ENDPOINT_PUBLIC_PORT}/data' \
 --form 'header="{
   \"@context\" : {
-    \"ids\" : \"https://w3id.org/idsa/core/\"
+    \"ids\" : \"https://w3id.org/idsa/core/\",
+    \"idsc\" : \"https://w3id.org/idsa/code/\"
   },
   \"@type\" : \"ids:ArtifactRequestMessage\",
-  \"@id\" : \"https://w3id.org/idsa/autogen/artifactRequestMessage/a44d95c4-b4e7-47aa-b3d0-214f41150de8\",
-  \"ids:issuerConnector\" : {
-    \"@id\" : \"http://w3id.org/engrd/connector/\"
+  \"@id\" : \"https://w3id.org/idsa/autogen/artifactRequestMessage/36cdbc3c-993d-4efe-a9bd-a88f400ff3f6\",
+  \"ids:transferContract\" : {
+    \"@id\" : \"http://w3id.org/engrd/connector/examplecontract\"
   },
-  \"ids:issued\" : {
-    \"@value\" : \"2020-11-25T16:33:13.502+01:00\",
-    \"@type\" : \"http://www.w3.org/2001/XMLSchema#dateTimeStamp\"
+  \"ids:correlationMessage\" : {
+    \"@id\" : \"http://w3id.org/artifactRequestMessage/1a421b8c-3407-44a8-aeb9-253f145c869a\"
+  },
+  \"ids:securityToken\" : {
+    \"@type\" : \"ids:DynamicAttributeToken\",
+    \"@id\" : \"https://w3id.org/idsa/autogen/dynamicAttributeToken/4f81873e-ca33-47ea-b777-b5485fc53253\",
+    \"ids:tokenValue\" : \"DummyTokenValue\",
+    \"ids:tokenFormat\" : {
+      \"@id\" : \"https://w3id.org/idsa/code/JWT\"
+    }
   },
   \"ids:modelVersion\" : \"4.1.0\",
+  \"ids:issued\" : {
+    \"@value\" : \"2021-11-24T15:09:01.276+01:00\",
+    \"@type\" : \"http://www.w3.org/2001/XMLSchema#dateTimeStamp\"
+  },
+  \"ids:issuerConnector\" : {
+    \"@id\" : \"http://w3id.org/engrd/connector\"
+  },
+  \"ids:senderAgent\" : {
+    \"@id\" : \"http://sender.agent/sender\"
+  },
+  \"ids:recipientAgent\" : [ ],
   \"ids:requestedArtifact\" : {
-    \"@id\" : \"http://w3id.org/engrd/connector/artifact/1\"
-  }
-}
-";type=application/json; charset=UTF-8' \
+    \"@id\" : \"http://w3id.org/engrd/connector/artifact/test1.csv\"
+  },
+  \"ids:recipientConnector\" : [ ]
+}"' \
 --form 'payload="{\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"}";type=application/json; charset=UTF-8'
 ```
 
 
-Keeping the provided docker-compose will be:
+Keeping the provided configuration:
+
+<details>
+  <summary>Multipart form request</summary>
+
 ```
-curl --location --request POST 'https://{IPADDRESS}:8887/incoming-data-app/multipartMessageBodyFormData' \
+curl --location --request POST 'https://localhost:8887/incoming-data-app/multipartMessageBodyFormData' \
 --header 'Content-Type: multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6' \
---header 'Forward-To: {RECEIVER_IP_ADDRESS}:8889/data' \
+--header 'Forward-To: https://localhost:8889/data' \
 --form 'header="{
   \"@context\" : {
-    \"ids\" : \"https://w3id.org/idsa/core/\"
+    \"ids\" : \"https://w3id.org/idsa/core/\",
+    \"idsc\" : \"https://w3id.org/idsa/code/\"
   },
   \"@type\" : \"ids:ArtifactRequestMessage\",
-  \"@id\" : \"https://w3id.org/idsa/autogen/artifactRequestMessage/a44d95c4-b4e7-47aa-b3d0-214f41150de8\",
-  \"ids:issuerConnector\" : {
-    \"@id\" : \"http://w3id.org/engrd/connector/\"
+  \"@id\" : \"https://w3id.org/idsa/autogen/artifactRequestMessage/36cdbc3c-993d-4efe-a9bd-a88f400ff3f6\",
+  \"ids:transferContract\" : {
+    \"@id\" : \"http://w3id.org/engrd/connector/examplecontract\"
   },
-  \"ids:issued\" : {
-    \"@value\" : \"2020-11-25T16:33:13.502+01:00\",
-    \"@type\" : \"http://www.w3.org/2001/XMLSchema#dateTimeStamp\"
+  \"ids:correlationMessage\" : {
+    \"@id\" : \"http://w3id.org/artifactRequestMessage/1a421b8c-3407-44a8-aeb9-253f145c869a\"
+  },
+  \"ids:securityToken\" : {
+    \"@type\" : \"ids:DynamicAttributeToken\",
+    \"@id\" : \"https://w3id.org/idsa/autogen/dynamicAttributeToken/4f81873e-ca33-47ea-b777-b5485fc53253\",
+    \"ids:tokenValue\" : \"DummyTokenValue\",
+    \"ids:tokenFormat\" : {
+      \"@id\" : \"https://w3id.org/idsa/code/JWT\"
+    }
   },
   \"ids:modelVersion\" : \"4.1.0\",
+  \"ids:issued\" : {
+    \"@value\" : \"2021-11-24T15:09:01.276+01:00\",
+    \"@type\" : \"http://www.w3.org/2001/XMLSchema#dateTimeStamp\"
+  },
+  \"ids:issuerConnector\" : {
+    \"@id\" : \"http://w3id.org/engrd/connector\"
+  },
+  \"ids:senderAgent\" : {
+    \"@id\" : \"http://sender.agent/sender\"
+  },
+  \"ids:recipientAgent\" : [ ],
   \"ids:requestedArtifact\" : {
-    \"@id\" : \"http://w3id.org/engrd/connector/artifact/1\"
-  }
-}
-";type=application/json; charset=UTF-8' \
+    \"@id\" : \"http://w3id.org/engrd/connector/artifact/test1.csv\"
+  },
+  \"ids:recipientConnector\" : [ ]
+}"' \
 --form 'payload="{\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"}";type=application/json; charset=UTF-8'
 ```
+</details>
 
 #### HTTP-Header - Example
+
 ```
 curl --location --request POST 'https://{IPADDRESS}:{A_ENDPOINT_PUBLIC_PORT}/incoming-data-app/multipartMessageHttpHeader' \
 --header 'Content-Type: text/plain' \
---header 'Forward-To: {RECEIVER_IP_ADDRESS}:{B_ENDPOINT_PUBLIC_PORT}/data' \
---header 'IDS-Messagetype: ids:ArtifactRequestMessage' \
---header 'IDS-Id: https://w3id.org/idsa/autogen/artifactResponseMessage/eb3ab487-dfb0-4d18-b39a-585514dd044f' \
---header 'IDS-Issued: 2019-05-27T13:09:42.306Z' \
---header 'IDS-IssuerConnector: http://w3id.org/engrd/connector/' \
---header 'IDS-ModelVersion: 4.1.0' \
---header 'IDS-RequestedArtifact: http://w3id.org/engrd/connector/artifact/1' \
---data-raw '{"catalog.offers.0.resourceEndpoints.path":"/pet2"}'
-```
-
-
-Keeping the provided docker-compose will be:
-```
-curl --location --request POST 'https://{IPADDRESS}:8887/incoming-data-app/multipartMessageHttpHeader' \
---header 'Content-Type: text/plain' \
 --header 'Forward-To: {RECEIVER_IP_ADDRESS}:8889/data' \
 --header 'IDS-Messagetype: ids:ArtifactRequestMessage' \
 --header 'IDS-Id: https://w3id.org/idsa/autogen/artifactResponseMessage/eb3ab487-dfb0-4d18-b39a-585514dd044f' \
---header 'IDS-Issued: 2019-05-27T13:09:42.306Z' \
+--header 'IDS-Issued: 2021-11-24T13:09:42.306Z' \
 --header 'IDS-IssuerConnector: http://w3id.org/engrd/connector/' \
 --header 'IDS-ModelVersion: 4.1.0' \
 --header 'IDS-RequestedArtifact: http://w3id.org/engrd/connector/artifact/1' \
+--header 'IDS-SecurityToken-Id: https://w3id.org/idsa/autogen/958a6a2a-5a94-4cf9-ad72-b39c59ee8955' \
+--header 'IDS-SecurityToken-TokenFormat: https://w3id.org/idsa/code/JWT' \
+--header 'IDS-SecurityToken-TokenValue: DummyTokenValue' \
+--header 'IDS-SecurityToken-Type: ids:DynamicAttributeToken' \
+--header 'IDS-SenderAgent: http://sender.agent.com/' \
 --data-raw '{"catalog.offers.0.resourceEndpoints.path":"/pet2"}'
 ```
-An example of Multipart Message data (aligned to the IDS Information Model) can be found in the examples folder.
+
+
+Keeping the provided configuration:
+
+<details>
+  <summary>Http header request</summary>
+
+```
+curl --location --request POST 'https://localhost:8887/incoming-data-app/multipartMessageHttpHeader' \
+--header 'Content-Type: text/plain' \
+--header 'Forward-To: https//localhost:8889/data' \
+--header 'IDS-Messagetype: ids:ArtifactRequestMessage' \
+--header 'IDS-Id: https://w3id.org/idsa/autogen/artifactResponseMessage/eb3ab487-dfb0-4d18-b39a-585514dd044f' \
+--header 'IDS-Issued: 2021-11-24T13:09:42.306Z' \
+--header 'IDS-IssuerConnector: http://w3id.org/engrd/connector/' \
+--header 'IDS-ModelVersion: 4.1.0' \
+--header 'IDS-RequestedArtifact: http://w3id.org/engrd/connector/artifact/1' \
+--header 'IDS-SecurityToken-Id: https://w3id.org/idsa/autogen/958a6a2a-5a94-4cf9-ad72-b39c59ee8955' \
+--header 'IDS-SecurityToken-TokenFormat: https://w3id.org/idsa/code/JWT' \
+--header 'IDS-SecurityToken-TokenValue: DummyTokenValue' \
+--header 'IDS-SecurityToken-Type: ids:DynamicAttributeToken' \
+--header 'IDS-SenderAgent: http://sender.agent.com/' \
+--data-raw '{"catalog.offers.0.resourceEndpoints.path":"/pet2"}'
+```
+
+</details>
 
 The receiver connector will receive the request to the specified "*Forward-To*" URL, process data and finally send data to the *DATA_APP_ENDPOINT* as specified in its docker-compose. 
 The data will be sent to the Data App using a body request as specified by the MULTIPART environment variable in the docker-compose.
