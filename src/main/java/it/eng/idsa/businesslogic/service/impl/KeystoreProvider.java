@@ -46,7 +46,7 @@ public class KeystoreProvider {
 			@Value("${application.keystoreAliasName}") String keystoreAliasName,
 			@Value("${application.trustStoreName:}") String trustStoreName,
 			@Value("${application.trustStorePassword}") String trustStorePwd,
-			@Value("${application.disableSslVerification:false}") boolean disableSslVerification,
+			@Value("#{new Boolean('${application.disableSslVerification:false}')}") boolean disableSslVerification,
 			@Value("${application.isEnabledDapsInteraction}") boolean isEnabledDapsInteraction) {
 
 		keyStorePwd = keyStorePassword;

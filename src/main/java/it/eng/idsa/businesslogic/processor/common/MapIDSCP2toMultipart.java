@@ -17,7 +17,7 @@ public class MapIDSCP2toMultipart implements Processor {
 
 	private static final Logger logger = LoggerFactory.getLogger(MapIDSCP2toMultipart.class);
 	
-	@Value("${application.isEnabledUsageControl:false}")
+	@Value("#{new Boolean('${application.isEnabledUsageControl:false}')}")
     private boolean isEnabledUsageControl;
 	
 	@Value("${application.isReceiver}")

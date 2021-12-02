@@ -20,8 +20,8 @@ import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
+import it.eng.idsa.businesslogic.service.impl.resources.SelfDescriptionUtil;
 import it.eng.idsa.businesslogic.service.resources.SelfDescriptionManager;
-import it.eng.idsa.multipart.processor.util.SelfDescriptionUtil;
 
 public class SelfDescriptionServiceImplTest {
 	@Mock
