@@ -21,8 +21,8 @@ public class ModifyPayloadProcessor implements Processor {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ModifyPayloadProcessor.class);
 
-	@Value("${application.encodeDecodePayload:false}")
-	private boolean encodeDecodePayload;
+	@Value("#{new Boolean('${application.isEnabledUsageControl:false}')}")
+	private Boolean encodeDecodePayload;
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {

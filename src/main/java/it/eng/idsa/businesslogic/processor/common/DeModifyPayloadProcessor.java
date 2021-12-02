@@ -21,8 +21,8 @@ public class DeModifyPayloadProcessor implements Processor {
 	
 	private static final Logger logger = LoggerFactory.getLogger(DeModifyPayloadProcessor.class);
 
-	@Value("${application.encodeDecodePayload:false}")
-	private boolean encodeDecodePayload;
+	@Value("#{new Boolean('${application.isEnabledUsageControl:false}')}")
+	private Boolean encodeDecodePayload;
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {
