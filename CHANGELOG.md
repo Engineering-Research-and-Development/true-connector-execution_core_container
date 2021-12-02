@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.9-SNAPSHOT] - 2021-12-02
+
+### Added
+ - encode-decode payload on ECC boundaries - default is set to false - will not enforce encoding-decoding
+ - added new property
+	**application.encodeDecodePayload=false**
+	to manage newly added logic
+ 
 ## [0.1.8-SNAPSHOT] - 2021-11-23
 
 ### Added
