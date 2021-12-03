@@ -10,9 +10,11 @@ import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.common.ContractAgreementProcessor;
+import it.eng.idsa.businesslogic.processor.common.DeModifyPayloadProcessor;
 import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.common.MapIDSCP2toMultipart;
 import it.eng.idsa.businesslogic.processor.common.MapMultipartToIDSCP2;
+import it.eng.idsa.businesslogic.processor.common.ModifyPayloadProcessor;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
@@ -105,6 +107,11 @@ public class CamelRouteSender extends RouteBuilder {
 	private MapMultipartToIDSCP2 mapMultipartToIDSCP2;
 	@Autowired
 	private MapIDSCP2toMultipart mapIDSCP2toMultipart;
+	
+	@Autowired
+	private ModifyPayloadProcessor modifyPayloadProcessor;
+	@Autowired
+	private DeModifyPayloadProcessor deModifyPayloadProcessor;
 
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledDataAppWebSocket;
@@ -183,15 +190,18 @@ public class CamelRouteSender extends RouteBuilder {
 
 			from("direct:HTTP")
 				.routeId("HTTP")
+				.process(modifyPayloadProcessor)
 		        .process(contractAgreementProcessor)
 		        .process(getTokenFromDapsProcessor)
 		        .process(registerTransactionToCHProcessor)
 		        // Send data to Endpoint B
 		        .process(sendDataToBusinessLogicProcessor)
 		        .process(parseReceivedResponseMessage)
+		        .process(deModifyPayloadProcessor)
 		        .process(validateTokenProcessor)
 		        .process(registerTransactionToCHProcessor)
 		        .process(senderUsageControlProcessor)
+		        .process(modifyPayloadProcessor)
 		        .process(sendResponseToDataAppProcessor)
 				.removeHeaders("Camel*");
             } 
