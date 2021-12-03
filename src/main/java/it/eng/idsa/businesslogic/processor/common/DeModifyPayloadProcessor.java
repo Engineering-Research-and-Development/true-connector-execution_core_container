@@ -28,17 +28,21 @@ public class DeModifyPayloadProcessor implements Processor {
 	public void process(Exchange exchange) throws Exception {
 		if(encodeDecodePayload) {
 			logger.info("Base64 Decoding payload");
-			MultipartMessage mm = exchange.getMessage().getBody(MultipartMessage.class);
-			
-			MultipartMessage mmEncoded =  new MultipartMessageBuilder()
-					.withHttpHeader(mm.getHttpHeaders())
-					.withHeaderHeader(mm.getHeaderHeader())
-					.withHeaderContent(mm.getHeaderContent())
-					.withPayloadHeader(mm.getPayloadHeader())
-					.withPayloadContent(new String(Base64.getDecoder().decode(mm.getPayloadContent())))
-					.withToken(mm.getToken())
-					.build();
-			exchange.getMessage().setBody(mmEncoded);
+			try {
+				MultipartMessage mm = exchange.getMessage().getBody(MultipartMessage.class);
+				
+				MultipartMessage mmEncoded =  new MultipartMessageBuilder()
+						.withHttpHeader(mm.getHttpHeaders())
+						.withHeaderHeader(mm.getHeaderHeader())
+						.withHeaderContent(mm.getHeaderContent())
+						.withPayloadHeader(mm.getPayloadHeader())
+						.withPayloadContent(new String(Base64.getDecoder().decode(mm.getPayloadContent())))
+						.withToken(mm.getToken())
+						.build();
+				exchange.getMessage().setBody(mmEncoded);
+			} catch (IllegalArgumentException ex) {
+				logger.warn("---------- Payload is not valid Base64 encoded string - will not perform encoding. Continue with original payload ---------");
+			}
 		}
 	}
 
