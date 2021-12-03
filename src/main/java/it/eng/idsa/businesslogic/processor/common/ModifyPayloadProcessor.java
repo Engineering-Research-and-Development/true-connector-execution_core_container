@@ -21,7 +21,7 @@ public class ModifyPayloadProcessor implements Processor {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ModifyPayloadProcessor.class);
 
-	@Value("#{new Boolean('${application.encodePayload:false}')}")
+	@Value("#{new Boolean('${application.encodeDecodePayload:false}')}")
 	private Boolean encodeDecodePayload;
 	
 	@Override

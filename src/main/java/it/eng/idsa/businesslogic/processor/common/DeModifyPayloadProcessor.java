@@ -21,7 +21,7 @@ public class DeModifyPayloadProcessor implements Processor {
 	
 	private static final Logger logger = LoggerFactory.getLogger(DeModifyPayloadProcessor.class);
 
-	@Value("#{new Boolean('${application.encodePayload:false}')}")
+	@Value("#{new Boolean('${application.encodeDecodePayload:false}')}")
 	private Boolean encodeDecodePayload;
 	
 	@Override
