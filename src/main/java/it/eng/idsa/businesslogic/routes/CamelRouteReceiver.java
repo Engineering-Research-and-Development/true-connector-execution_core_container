@@ -10,9 +10,11 @@ import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.common.ContractAgreementProcessor;
+import it.eng.idsa.businesslogic.processor.common.DeModifyPayloadProcessor;
 import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.common.MapIDSCP2toMultipart;
 import it.eng.idsa.businesslogic.processor.common.MapMultipartToIDSCP2;
+import it.eng.idsa.businesslogic.processor.common.ModifyPayloadProcessor;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
@@ -83,6 +85,11 @@ public class CamelRouteReceiver extends RouteBuilder {
 
 	@Autowired
 	private CamelContext camelContext;
+	
+	@Autowired
+	private ModifyPayloadProcessor modifyPayloadProcessor;
+	@Autowired
+	private DeModifyPayloadProcessor deModifyPayloadProcessor;
 
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
@@ -117,9 +124,11 @@ public class CamelRouteReceiver extends RouteBuilder {
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/data")
 				.routeId("data")
 				.process(connectorRequestProcessor)
+				.process(deModifyPayloadProcessor)
 				.process(validateTokenProcessor)
 				.process(contractAgreementProcessor)
                 .process(registerTransactionToCHProcessor)
+                .process(modifyPayloadProcessor)
 				// Send to the Endpoint: F
                 .choice()
 					.when(header("Is-Enabled-DataApp-WebSocket").isEqualTo(true))
@@ -129,9 +138,11 @@ public class CamelRouteReceiver extends RouteBuilder {
 						.process(sendDataToDataAppProcessor)
 				.end()
 				.process(multiPartMessageProcessor)
+				.process(deModifyPayloadProcessor)
 				.process(getTokenFromDapsProcessor)
 				.process(receiverUsageControlProcessor)
                 .process(registerTransactionToCHProcessor)
+                .process(modifyPayloadProcessor)
 				.process(sendDataToBusinessLogicProcessor)
 				.removeHeaders("Camel*");
 		} 

@@ -22,7 +22,6 @@ public class RegisterTransactionToCHProcessor implements Processor {
 	
 	private static final Logger logger = LoggerFactory.getLogger(RegisterTransactionToCHProcessor.class);
 
-
 	@Autowired
 	private ClearingHouseService clearingHouseService;
 	
