@@ -1,6 +1,7 @@
 package it.eng.idsa.businesslogic.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,6 +14,10 @@ public class UsageControlConfiguration {
 	
 	
 	@Bean
+	@ConditionalOnProperty(
+			value = "${application.isEnabledUsageControl}",
+			havingValue = "true",
+			matchIfMissing = false)
 	public UcRestCallService ucRestCallService(@Value("${spring.ids.ucapp.baseUrl}") String usageControlBaseUrl) {
 		return new Retrofit.Builder()
 				.baseUrl(usageControlBaseUrl)

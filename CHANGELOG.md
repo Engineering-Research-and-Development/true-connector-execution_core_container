@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.10-SNAPSHOT] - 2021-12-03
+ 
+### Changed
+ - UC properties not required when disabled (can remain blank)
+
 ## [0.1.9-SNAPSHOT] - 2021-12-02
 
 ### Added

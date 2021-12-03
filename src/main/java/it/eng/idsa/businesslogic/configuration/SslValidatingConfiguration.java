@@ -27,7 +27,7 @@ public class SslValidatingConfiguration {
 
 	@Autowired
 	private KeystoreProvider keystoreProvider;
-	@Value("${application.disableSslVerification:false}") 
+	@Value("#{new Boolean('${application.disableSslVerification:false}')}")
 	private boolean disableSslVerification;
 	
 	@PostConstruct

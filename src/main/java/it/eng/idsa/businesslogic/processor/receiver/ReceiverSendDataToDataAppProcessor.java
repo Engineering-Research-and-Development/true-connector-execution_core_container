@@ -44,7 +44,7 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
 
-	@Value("${application.isEnabledUsageControl:false}")
+	@Value("#{new Boolean('${application.isEnabledUsageControl:false}')}")
 	private boolean isEnabledUsageControl;
 
 	@Autowired

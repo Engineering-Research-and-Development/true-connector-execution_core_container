@@ -28,8 +28,8 @@ public class OkHttpClientConfiguration {
 	
 	private static final Logger logger = LoggerFactory.getLogger(OkHttpClientConfiguration.class);
 	
-	@Value("${application.disableSslVerification:false}") 
-	boolean disableSslVerification;
+	@Value("#{new Boolean('${application.disableSslVerification:false}')}")
+	private boolean disableSslVerification;
 	
 	@Autowired
 	private KeystoreProvider keystoreProvider;
