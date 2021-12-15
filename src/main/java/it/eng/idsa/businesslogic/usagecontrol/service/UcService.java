@@ -14,7 +14,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 @Service
-@ConditionalOnExpression("'${application.isEnabledUsageControl:true}' == 'true'")
+@ConditionalOnExpression("'${application.isEnabledUsageControl}' == 'true'")
 public class UcService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(UcService.class);

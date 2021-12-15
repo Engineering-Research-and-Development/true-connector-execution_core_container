@@ -13,7 +13,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class UsageControlConfiguration {
 	
 	@Bean
-	@ConditionalOnExpression("'${application.isEnabledUsageControl:true}' == 'true'")
+	@ConditionalOnExpression("'${application.isEnabledUsageControl}' == 'true'")
 	public UcRestCallService ucRestCallService(@Value("${spring.ids.ucapp.baseUrl}") String usageControlBaseUrl) {
 		return new Retrofit.Builder()
 				.baseUrl(usageControlBaseUrl)
