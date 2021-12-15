@@ -53,7 +53,7 @@ public class ReceiverUsageControlProcessor implements Processor {
     private Message requestMessage;
     private Message responseMessage;
 
-    @Value("#{new Boolean('${application.isEnabledUsageControl:false}')}")
+    @Value("#{new Boolean('${application.isEnabledUsageControl}')}")
     private boolean isEnabledUsageControl;
 
     @Autowired

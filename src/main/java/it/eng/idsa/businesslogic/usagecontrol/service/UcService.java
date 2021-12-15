@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 
 import it.eng.idsa.businesslogic.usagecontrol.exception.PolicyDeniedException;
@@ -14,7 +14,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 @Service
-@ConditionalOnProperty(name = "application.isEnabledUsageControl", havingValue = "true", matchIfMissing = false)
+@ConditionalOnExpression("'${application.isEnabledUsageControl:true}' == 'true'")
 public class UcService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(UcService.class);
