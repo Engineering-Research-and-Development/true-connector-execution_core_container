@@ -33,7 +33,7 @@ public class ContractAgreementProcessor implements Processor {
 	public ContractAgreementProcessor(CommunicationService communicationService, 
 			@Value("${spring.ids.ucapp.baseUrl}") String usageControlDataAppURL,
 			@Value("${spring.ids.ucapp.addPolicyEndpoint}") String addPolicyEndpoint,
-			@Value("#{new Boolean('${application.isEnabledUsageControl:false}')}") Boolean isEnabledUsageControl,
+			@Value("#{new Boolean('${application.isEnabledUsageControl}')}") Boolean isEnabledUsageControl,
 			RejectionMessageService rejectionMessageService) {
 		this.communicationService = communicationService;
 		this.usageControlDataAppURL = usageControlDataAppURL;

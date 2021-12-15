@@ -49,7 +49,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
 	
-	@Value("#{new Boolean('${application.isEnabledUsageControl:false}')}")
+	@Value("#{new Boolean('${application.isEnabledUsageControl}')}")
     private boolean isEnabledUsageControl;
 
 	@Autowired

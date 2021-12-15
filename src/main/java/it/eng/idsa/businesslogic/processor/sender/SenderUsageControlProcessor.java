@@ -40,7 +40,7 @@ public class SenderUsageControlProcessor implements Processor {
 	private Gson gson;
 	private static final Logger logger = LoggerFactory.getLogger(SenderUsageControlProcessor.class);
 
-	@Value("#{new Boolean('${application.isEnabledUsageControl:false}')}")
+	@Value("#{new Boolean('${application.isEnabledUsageControl}')}")
 	private boolean isEnabledUsageControl;
 
 	@Autowired(required = false)

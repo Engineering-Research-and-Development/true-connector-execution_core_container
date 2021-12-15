@@ -41,7 +41,7 @@ public class ReceiverWebSocketSendDataToDataAppProcessor implements Processor {
     @Autowired
     private MessageWebSocketOverHttpSender messageWebSocketOverHttpSender;
 
-    @Value("#{new Boolean('${application.isEnabledUsageControl:false}')}")
+    @Value("#{new Boolean('${application.isEnabledUsageControl}')}")
     private boolean isEnabledUsageControl;
 
     private String originalHeader;
