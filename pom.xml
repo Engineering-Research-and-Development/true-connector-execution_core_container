@@ -7,7 +7,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.2.6.RELEASE</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>it.eng.idsa</groupId>
 	<artifactId>market4.0-execution_core_container_business_logic
@@ -378,7 +378,7 @@
 		<dependency>
 			<groupId>de.fhg.aisec.ids</groupId>
 			<artifactId>idscp2-rat-tpm2d</artifactId>
-			<version>0.2.2</version>
+			<version>0.6.0</version>
 		</dependency>
 		<!-- IDSCP2 -->
 
