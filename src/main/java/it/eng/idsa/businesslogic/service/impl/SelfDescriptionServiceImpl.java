@@ -186,6 +186,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._assigner_(Util.asList(URI.create("https://assigner.com")))
 				._action_(Util.asList(Action.USE))
 				._constraint_(Util.asList(before, after))
+				._description_(Util.asList(new TypedLiteral("provide-access")))
 				.build();
 		
 		return new ContractOfferBuilder()

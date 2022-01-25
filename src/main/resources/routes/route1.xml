@@ -1,0 +1,22 @@
+<routes xmlns="http://camel.apache.org/schema/spring">
+	<route id="test">
+		<from uri="timer://tempPerSecond?fixedRate=true&amp;period=10000" />
+		<setBody>
+			<simple>Hello-World!</simple>
+		</setBody>
+		<log message="Sending message body &quot;${body}&quot;..." />
+	</route>
+	
+	<route id="igor">
+		<from uri="jetty://https4://0.0.0.0:8887/test"/>
+		<log message="Igor Endpoint message body &quot;${body}&quot;..." />
+		<process ref="senderParseReceivedDataProcessorBodyFormData"/>
+		<process ref="modifyPayloadProcessor"/>
+<!--         <process ref="contractAgreementProcessor"/> -->
+        <process ref="getTokenFromDapsProcessor"/>
+<!--         <process ref="registerTransactionToCHProcessor"/> -->
+        <process ref="multipartFormProcessor"/>
+        <log message="Exhcange dataApp URL da proverim ${exchangeProperty.dataAppURL}"/>
+        <toD uri="${exchangeProperty.dataAppURL}"/>
+	</route>
+</routes>
