@@ -25,7 +25,7 @@ public class MultipartFormProcessor implements Processor {
 				null, 
 				ContentType.MULTIPART_FORM_DATA);
 		
-		exchange.setProperty("dataAppURL", "http://localhost:8083/data?bridgeEndpoint=true");
+		exchange.setProperty("dataAppURL", "https://localhost:8083/data?bridgeEndpoint=true&sslContextParameters=#camelXMLSSLContext");
 		exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, resultEntity.getContentType().getValue());
 		exchange.getMessage().setBody(resultEntity.getContent());
 

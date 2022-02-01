@@ -8,7 +8,7 @@
 	</route>
 	
 	<route id="igor">
-		<from uri="jetty://https4://0.0.0.0:8887/test"/>
+		<from uri="jetty://https4://0.0.0.0:9002/test"/>
 		<log message="Igor Endpoint message body &quot;${body}&quot;..." />
 		<process ref="senderParseReceivedDataProcessorBodyFormData"/>
 		<process ref="modifyPayloadProcessor"/>

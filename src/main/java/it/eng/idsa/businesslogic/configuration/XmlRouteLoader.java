@@ -16,6 +16,7 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.RoutesDefinition;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,11 +61,15 @@ public class XmlRouteLoader {
     /**
      * Directory where the XML routes are located.
      */
-    @Value("${camel.xml-routes.directory:#null}")
     private String directory;
 
     @PostConstruct
     public void loadRoutes() {
+    	//Skips loading if no directory specified
+    	if (StringUtils.isBlank(directory)) {
+    		logger.info("No XML routes found"); 
+    		return; 
+    	}
         try {
             Objects.requireNonNull(directory);
             if (logger.isDebugEnabled()) {
