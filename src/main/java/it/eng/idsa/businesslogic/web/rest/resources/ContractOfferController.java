@@ -17,13 +17,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import de.fraunhofer.iais.eis.BaseConnectorImpl;
 import de.fraunhofer.iais.eis.Connector;
 import de.fraunhofer.iais.eis.ContractOffer;
+import de.fraunhofer.iais.eis.ContractOfferImpl;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.eng.idsa.businesslogic.service.resources.ContractOfferService;
 import it.eng.idsa.businesslogic.service.resources.JsonException;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
+@Tag(name = "Contract offer controller")
 @RestController
 @RequestMapping("/api/contractOffer/")
 public class ContractOfferController {
@@ -36,6 +45,10 @@ public class ContractOfferController {
 		this.service = service;
 	}
 	
+	@Operation(tags = "Contract offer controller", summary = "Get requested contract offer")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Returns requested contract offer", 
+					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ContractOfferImpl.class)) }) })
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> getContractOffer(@RequestHeader("contractOffer") URI contractOffer) 
@@ -44,9 +57,16 @@ public class ContractOfferController {
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(service.getContractOffer(contractOffer)));
 	}
 	
+	
+	
+	@Operation(tags = "Contract offer controller", summary = "Add new or update existing contract offer")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
+					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> addOrUpdateContractOffer(@RequestHeader("resource") URI resource,
+			@io.swagger.v3.oas.annotations.parameters.RequestBody(content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ContractOfferImpl.class)) })
 			@RequestBody String contractOffer) throws IOException {
 		Connector modifiedConnector = null;
 		try {
@@ -60,9 +80,14 @@ public class ContractOfferController {
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
 	}
 	
+	@Operation(tags = "Contract offer controller", summary = "Update existing contract offer")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
+					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> updateContractOffer(@RequestHeader("resource") URI resource,
+			@io.swagger.v3.oas.annotations.parameters.RequestBody(content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ContractOfferImpl.class)) })
 			@RequestBody String contractOffer) throws IOException {
 		Connector modifiedConnector = null;
 		try {
@@ -77,6 +102,10 @@ public class ContractOfferController {
 	}
 	
 
+	@Operation(tags = "Contract offer controller", summary = "Delete existing contract offer")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
+					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> deleteContractOffer(@RequestHeader("contractOffer") URI contractOffer)

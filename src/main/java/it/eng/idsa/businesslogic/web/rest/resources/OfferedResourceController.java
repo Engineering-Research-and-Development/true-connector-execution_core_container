@@ -17,13 +17,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import de.fraunhofer.iais.eis.BaseConnectorImpl;
 import de.fraunhofer.iais.eis.Connector;
 import de.fraunhofer.iais.eis.Resource;
+import de.fraunhofer.iais.eis.ResourceImpl;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.eng.idsa.businesslogic.service.resources.JsonException;
 import it.eng.idsa.businesslogic.service.resources.OfferedResourceService;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
+@Tag(name = "Offered resource controller")
 @RestController
 @RequestMapping("/api/offeredResource/")
 public class OfferedResourceController {
@@ -36,6 +45,10 @@ public class OfferedResourceController {
 		this.service = service;
 	}
 
+	@Operation(tags = "Offered resource controller", summary = "Get requested resource")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Returns requested resource", 
+					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ResourceImpl.class)) }) })
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> getResource(@RequestHeader("resource") URI resource) throws IOException {
@@ -44,9 +57,15 @@ public class OfferedResourceController {
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(resourceGet));
 	}
 	
+	
+	@Operation(tags = "Offered resource controller", summary = "Add new or update existing resource")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
+					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> addOrUpdateResource(@RequestHeader("catalog") URI catalog,
+			@io.swagger.v3.oas.annotations.parameters.RequestBody(content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ResourceImpl.class)) })
 			@RequestBody String resource) throws IOException {
 		Connector modifiedConnector = null;
 		try {
@@ -60,9 +79,15 @@ public class OfferedResourceController {
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
 	}
 	
+	
+	@Operation(tags = "Offered resource controller", summary = "Update existing resource")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
+					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> updateResource(@RequestHeader("catalog") URI catalog,
+			@io.swagger.v3.oas.annotations.parameters.RequestBody(content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ResourceImpl.class)) })
 			@RequestBody String resource) throws IOException {
 		Connector modifiedConnector = null;
 		try {
@@ -76,6 +101,11 @@ public class OfferedResourceController {
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
 	}
 	
+	
+	@Operation(tags = "Offered resource controller", summary = "Delete existing resource")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
+					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> deleteResource(@RequestHeader("resource") URI resource) throws IOException {
