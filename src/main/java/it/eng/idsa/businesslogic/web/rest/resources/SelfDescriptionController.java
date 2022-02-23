@@ -1,6 +1,5 @@
 package it.eng.idsa.businesslogic.web.rest.resources;
 
-import java.awt.print.Book;
 import java.io.IOException;
 
 import org.slf4j.Logger;
@@ -22,16 +21,16 @@ import it.eng.idsa.businesslogic.service.resources.JsonException;
 import it.eng.idsa.businesslogic.service.resources.SelfDescription;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
-@Tag(name = "Self description controller - only valid documents", description = "Returns only offered resources that have: at least one representation with at least one artifact and at least one contract offer")
+@Tag(name = "Self description controller", description = "Returns document as is, regardless if it's valid or not")
 @RestController
 @RequestMapping("/api/selfDescripton/")
 public class SelfDescriptionController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SelfDescriptionController.class);
 	
-	@Operation(summary = "Valid self description document", tags = "Self description controller - only valid documents")
+	@Operation(summary = "Self description document", tags = "Self description controller")
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "Valid self description document", 
+			@ApiResponse(responseCode = "200", description = "Self description document without validation", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> getSelfDescription()  {

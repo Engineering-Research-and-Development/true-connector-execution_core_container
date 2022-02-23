@@ -45,6 +45,7 @@ import de.fraunhofer.iais.eis.ResourceCatalogBuilder;
 import de.fraunhofer.iais.eis.SecurityProfile;
 import de.fraunhofer.iais.eis.TextRepresentationBuilder;
 import de.fraunhofer.iais.eis.TextResourceBuilder;
+import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import de.fraunhofer.iais.eis.util.RdfResource;
 import de.fraunhofer.iais.eis.util.TypedLiteral;
 import de.fraunhofer.iais.eis.util.Util;
@@ -116,7 +117,13 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 
 	public Connector getConnector() {
 		logger.debug("Parsing whole self description document to remove non valid resources");
-		return selfDescriptionManager.getValidConnector(SelfDescription.getInstance().getConnector());
+		String stringConnector = UtilMessageService.getMessageAsString(SelfDescription.getInstance().getConnector());
+		try {
+			return selfDescriptionManager.getValidConnector(new Serializer().deserialize(stringConnector, Connector.class));
+		} catch (IOException e) {
+			logger.error("Error while deserializing connector", e);
+			return null;
+		}
 	}
 
 	@Override

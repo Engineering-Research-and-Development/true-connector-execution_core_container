@@ -21,7 +21,7 @@ import it.eng.idsa.businesslogic.service.SelfDescriptionService;
  **/
 
 
-@Tag(name = "Self description controller", description = "Returns document as is, regardless if it's valid or not")
+@Tag(name = "Self description controller - only valid documents", description = "Returns only offered resources that have: at least one representation with at least one artifact and at least one contract offer")
 @RestController
 @EnableAutoConfiguration
 public class SelfDescription {
@@ -29,9 +29,9 @@ public class SelfDescription {
     private SelfDescriptionService selfDescriptionService;
 
     
-    @Operation(summary = "Self description document", tags = "Self description controller")
+    @Operation(summary = "Valid self description document", tags = "Self description controller - only valid documents")
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "Self description document without validation", 
+			@ApiResponse(responseCode = "200", description = "Valid self description document", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
     @GetMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
