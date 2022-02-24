@@ -337,6 +337,9 @@ Follow the REST endpoint or WS examples, put the server hostname/ip address in t
 ### Web Socket over HTTPS
 Follow the REST endpoint examples, taking care to use *wss://{RECEIVER_IP_ADDRESS}:{WS_PUBLIC_PORT}* in the Forward-To header.
 
+### Self Description API 
+To manage your Self Description Document please check following [link](https://github.com/Engineering-Research-and-Development/true-connector/blob/main/doc/SELF_DESCRIPTION.md)
+
 ## Developer guide section
 
 ### How to build Execution Core Container
