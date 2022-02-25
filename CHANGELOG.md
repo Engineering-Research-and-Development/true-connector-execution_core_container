@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.11-SNAPSHOT] - 2022-02-21
+ 
+### Changed
+ - Replaced swagger with springdoc and updated documentation 
+
 ## [0.1.10-SNAPSHOT] - 2021-12-03
  
 ### Changed

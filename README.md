@@ -10,7 +10,7 @@ The ENG Execution Core Container, based on the IDS Base Connector, is the core c
 * interaction with the AISEC Fraunhofer DAPS Service for requiring and validating a token
 * communication with the ENG Clearing House for registering transactions
 
-![Execution Core Container Architecture](connector_schema_v1.1.PNG?raw=true "ENG Execution Core Container Architecture")
+![Execution Core Container Architecture](doc/connector_schema_v1.1.PNG?raw=true "ENG Execution Core Container Architecture")
 
 ## How to Configurate and Run
 
@@ -336,6 +336,13 @@ Follow the REST endpoint or WS examples, put the server hostname/ip address in t
 
 ### Web Socket over HTTPS
 Follow the REST endpoint examples, taking care to use *wss://{RECEIVER_IP_ADDRESS}:{WS_PUBLIC_PORT}* in the Forward-To header.
+
+### Broker
+
+Information on how to interact with a Broker, can be found on following [link](doc/BROKER.md)
+
+### Self Description API 
+To manage your Self Description Document please check following [link](doc/SELF_DESCRIPTION.md)
 
 ## Developer guide section
 
