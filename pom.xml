@@ -7,7 +7,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.2.6.RELEASE</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>it.eng.idsa</groupId>
 	<artifactId>market4.0-execution_core_container_business_logic
@@ -101,7 +101,7 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-ui</artifactId>
-			<version>1.6.6</version>
+			<version>1.6.7</version>
 		</dependency>
 
 		<!-- Fraunhofer -->
