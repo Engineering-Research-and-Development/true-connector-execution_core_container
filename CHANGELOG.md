@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.12-SNAPSHOT] - 2022-05-19
+ 
+### Changed
+ - New version of Multipart Message Library
+ - Modified self description document to use dateTimeStamp instead dateTime, compatibility with standard 
+
 ## [0.1.11-SNAPSHOT] - 2022-02-21
  
 ### Changed
