@@ -1,6 +1,7 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
@@ -114,6 +116,19 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	            });
 
 		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+	}
+	
+	@Test
+	public void skipProtocolValidation_Enabled() throws Exception {
+		ReflectionTestUtils.setField(processor, "skipProtocolValidation", true);
+		mockExchangeGetHttpHeaders(exchange);
+		msg = UtilMessageService.getArtifactRequestMessage();
+		header = UtilMessageService.getMessageAsString(msg);
+		when(httpHeaderService.headersToMessage(httpHeaders)).thenReturn(msg);
+
+		processor.process(exchange);
+		
+		verify(protocolValidationService, times(0)).validateProtocol(any(), any());
 	}
 	
 	private void mockExchangeGetHttpHeaders(Exchange exchange) {

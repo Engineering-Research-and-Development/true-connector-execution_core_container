@@ -1,5 +1,7 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -20,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.sun.istack.ByteArrayDataSource;
 
@@ -108,6 +111,17 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 				.build();
 		
 		verify(message).setBody(multipartMessage);
+	}
+	
+	@Test
+	public void skipProtocolValidation_Enabled() throws Exception {
+		ReflectionTestUtils.setField(processor, "skipProtocolValidation", true);
+		mockExchangeGetHeaders(exchange);
+
+		processor.process(exchange);
+
+		verify(protocolValidationService, times(0)).validateProtocol(any(), any());
+
 	}
 
 	private void mockExchangeGetHeaders(Exchange exchange) throws UnsupportedEncodingException {

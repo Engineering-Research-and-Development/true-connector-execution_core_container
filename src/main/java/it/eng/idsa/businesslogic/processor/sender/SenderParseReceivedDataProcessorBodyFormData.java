@@ -16,6 +16,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
@@ -38,7 +39,10 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 
 	private static final Logger logger = LoggerFactory.getLogger(SenderParseReceivedDataProcessorBodyFormData.class);
 	
-	@Autowired
+	@Value("${application.skipProtocolValidation}")
+	private boolean skipProtocolValidation;
+	
+	@Autowired(required = false)
 	private ProtocolValidationService protocolValidationService;
 
 	@Autowired
@@ -88,10 +92,11 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 					.withPayloadContent(payload)
 					.build();
 			
-			String forwardTo =(String) receivedDataHeader.get("Forward-To");
-			forwardTo = protocolValidationService.validateProtocol(forwardTo, message);
-			receivedDataHeader.replace("Forward-To", forwardTo);
-
+			if (!skipProtocolValidation) {
+				String forwardTo = (String) receivedDataHeader.get("Forward-To");
+				forwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+				receivedDataHeader.replace("Forward-To", forwardTo);
+			}
 			// Return exchange
 			exchange.getMessage().setHeaders(receivedDataHeader);
 			exchange.getMessage().setBody(multipartMessage);

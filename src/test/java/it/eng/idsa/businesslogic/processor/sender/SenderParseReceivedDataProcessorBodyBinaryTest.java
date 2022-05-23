@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
@@ -24,8 +25,8 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
-import it.eng.idsa.multipart.util.UtilMessageService;
 import it.eng.idsa.multipart.util.MultipartMessageKey;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class SenderParseReceivedDataProcessorBodyBinaryTest {
 
@@ -134,6 +135,23 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 
 		verify(messageOut).setBody(multipartMessage);
 
+	}
+	
+	@Test
+	public void skipProtocolValidation_Enabled() throws Exception{
+		ReflectionTestUtils.setField(processor, "skipProtocolValidation", true);
+		multipartMessage = new MultipartMessageBuilder()
+				.withHeaderContent(UtilMessageService.getArtifactRequestMessage())
+				.withPayloadContent("foo bar")
+				.build();
+		receivedDataBodyBinary = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, false);
+		msg = UtilMessageService.getArtifactRequestMessage();
+		when(exchange.getMessage()).thenReturn(messageOut);
+		when(messageOut.getBody(String.class)).thenReturn(receivedDataBodyBinary);
+		mockExchangeGetHttpHeaders();
+		processor.process(exchange);
+		verify(protocolValidationService, times(0)).validateProtocol(any(), any());
+		
 	}
 
 	private void mockExchangeGetHttpHeaders() {

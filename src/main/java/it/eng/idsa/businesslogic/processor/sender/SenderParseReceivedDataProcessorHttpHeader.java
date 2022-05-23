@@ -7,6 +7,7 @@ import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
@@ -25,7 +26,10 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 	
 	private static final Logger logger = LoggerFactory.getLogger(SenderParseReceivedDataProcessorHttpHeader.class);
 	
-	@Autowired
+	@Value("${application.skipProtocolValidation}")
+	private boolean skipProtocolValidation;
+	
+	@Autowired(required = false)
 	private ProtocolValidationService protocolValidationService;
 
 	@Autowired
@@ -64,10 +68,11 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 					.build();
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
 			
-			String forwardTo = (String) headersParts.get("Forward-To");
-			forwardTo = protocolValidationService.validateProtocol(forwardTo, message);
-			headersParts.replace("Forward-To", forwardTo);
-			
+			if (!skipProtocolValidation) {
+				String forwardTo = (String) headersParts.get("Forward-To");
+				forwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+				headersParts.replace("Forward-To", forwardTo);
+			}
 			// Return exchange
 			exchange.getMessage().setHeaders(headersParts);
 			exchange.getMessage().setBody(multipartMessage);

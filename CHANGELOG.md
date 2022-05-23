@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.12-SNAPSHOT] - 2022-05-23
+
+### Added
+ - added property and functionality to skip protocol validation
+
 ## [0.1.11-SNAPSHOT] - 2022-02-21
  
 ### Changed

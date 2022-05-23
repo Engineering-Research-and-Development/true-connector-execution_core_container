@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import de.fraunhofer.iais.eis.Message;
@@ -13,6 +14,10 @@ import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 @Service
+//@ConditionalOnExpression(
+//		"${application.skipProtocolValidation:false}"
+//)
+@ConditionalOnProperty(name = "application.skipProtocolValidation", havingValue = "false")
 public class ProtocolValidationServiceImpl implements ProtocolValidationService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProtocolValidationServiceImpl.class);
