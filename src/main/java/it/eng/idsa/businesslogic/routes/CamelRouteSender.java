@@ -15,6 +15,7 @@ import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.common.MapIDSCP2toMultipart;
 import it.eng.idsa.businesslogic.processor.common.MapMultipartToIDSCP2;
 import it.eng.idsa.businesslogic.processor.common.ModifyPayloadProcessor;
+import it.eng.idsa.businesslogic.processor.common.ProtocolValidationProcessor;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
@@ -124,6 +125,8 @@ public class CamelRouteSender extends RouteBuilder {
 
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
+	
+	private ProtocolValidationProcessor protocolValidationProcessor;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -162,6 +165,7 @@ public class CamelRouteSender extends RouteBuilder {
 			
 			from("direct:registrationProcess")
 				.routeId("registrationProcess")
+				.process(protocolValidationProcessor)
 				.process(getTokenFromDapsProcessor)
 				.process(sendDataToBusinessLogicProcessor)
 				.process(parseReceivedResponseMessage)
@@ -190,6 +194,7 @@ public class CamelRouteSender extends RouteBuilder {
 
 			from("direct:HTTP")
 				.routeId("HTTP")
+				.process(protocolValidationProcessor)
 				.process(modifyPayloadProcessor)
 		        .process(contractAgreementProcessor)
 		        .process(getTokenFromDapsProcessor)
@@ -236,6 +241,7 @@ public class CamelRouteSender extends RouteBuilder {
             from("direct:IDSCP2")
             	.routeId("IDSCP2 - sender - HTTP internal")
             	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
+            	.process(protocolValidationProcessor)
             	.process(contractAgreementProcessor)
             	.process(registerTransactionToCHProcessor)
             	.process(mapMultipartToIDSCP2)
@@ -260,6 +266,7 @@ public class CamelRouteSender extends RouteBuilder {
 	        	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
 	            .process(fileRecreatorProcessor)
 				.process(parseReceivedDataFromDAppProcessorBodyBinary)
+				.process(protocolValidationProcessor)
 				.process(contractAgreementProcessor)
 	            .process(registerTransactionToCHProcessor)		                
 	            .process(mapMultipartToIDSCP2)
@@ -278,6 +285,7 @@ public class CamelRouteSender extends RouteBuilder {
 				.routeId("WSS EndPoint A")
 				.process(fileRecreatorProcessor)
 				.process(parseReceivedDataFromDAppProcessorBodyBinary)
+				.process(protocolValidationProcessor)
 				.process(contractAgreementProcessor)
 				.process(getTokenFromDapsProcessor)
                 .process(registerTransactionToCHProcessor)

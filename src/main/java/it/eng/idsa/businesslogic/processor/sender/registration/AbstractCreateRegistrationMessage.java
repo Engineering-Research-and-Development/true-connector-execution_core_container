@@ -9,13 +9,11 @@ import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
-import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
@@ -23,12 +21,6 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AbstractCreateRegistrationMessage.class);
 	
-	@Value("${application.skipProtocolValidation}")
-	private boolean skipProtocolValidation;
-	
-	@Autowired(required = false)
-	private ProtocolValidationService protocolValidationService;
-
 	@Autowired
 	private SelfDescriptionService selfDescriptionService;
 
@@ -58,9 +50,6 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 		}
 		
 		String forwardTo = (String) receivedDataHeader.get("Forward-To");
-		if (!skipProtocolValidation) {
-			forwardTo = protocolValidationService.validateProtocol(forwardTo, multipartMessage.getHeaderContent());
-		}
 		headersParts.put("Forward-To", forwardTo);
 		headersParts.put("Payload-Content-Type", MediaType.APPLICATION_JSON.toString());
 		

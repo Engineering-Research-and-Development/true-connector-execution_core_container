@@ -16,11 +16,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -40,8 +38,6 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	private RejectionMessageService rejectionMessageService;
 	@Mock
 	private DapsTokenProviderService dapsProvider;
-	@Mock
-	private ProtocolValidationService protocolValidationService;
 
 	private MultipartMessage multipartMessage;
 	private String receivedDataBodyBinary;
@@ -56,7 +52,6 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		forwardTo = "https://forward.to.example";
-		when(protocolValidationService.validateProtocol(forwardTo, msg)).thenReturn(forwardTo);
 	}
 
 	@Test
@@ -137,23 +132,6 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 
 	}
 	
-	@Test
-	public void skipProtocolValidation_Enabled() throws Exception{
-		ReflectionTestUtils.setField(processor, "skipProtocolValidation", true);
-		multipartMessage = new MultipartMessageBuilder()
-				.withHeaderContent(UtilMessageService.getArtifactRequestMessage())
-				.withPayloadContent("foo bar")
-				.build();
-		receivedDataBodyBinary = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, false);
-		msg = UtilMessageService.getArtifactRequestMessage();
-		when(exchange.getMessage()).thenReturn(messageOut);
-		when(messageOut.getBody(String.class)).thenReturn(receivedDataBodyBinary);
-		mockExchangeGetHttpHeaders();
-		processor.process(exchange);
-		verify(protocolValidationService, times(0)).validateProtocol(any(), any());
-		
-	}
-
 	private void mockExchangeGetHttpHeaders() {
 		httpHeaders = new HashMap<>();
 		httpHeaders.put("Content-Type", "multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6");

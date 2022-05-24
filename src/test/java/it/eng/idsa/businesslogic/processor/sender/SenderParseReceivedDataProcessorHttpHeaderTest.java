@@ -1,7 +1,6 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -18,12 +17,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -45,9 +42,6 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	@Mock
 	private RejectionMessageService rejectionMessageService;
 	
-	@Mock
-	private ProtocolValidationService protocolValidationService;
-
 	private String header;
 	private Map<String, Object> httpHeaders;
 	Map<String, Object> headerContentHeaders = new HashMap<>();
@@ -60,7 +54,6 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		forwardTo = "https://forward.to.example";
-		when(protocolValidationService.validateProtocol(forwardTo, msg)).thenReturn(forwardTo);
 	}
 
 	@Test
@@ -116,19 +109,6 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	            });
 
 		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
-	}
-	
-	@Test
-	public void skipProtocolValidation_Enabled() throws Exception {
-		ReflectionTestUtils.setField(processor, "skipProtocolValidation", true);
-		mockExchangeGetHttpHeaders(exchange);
-		msg = UtilMessageService.getArtifactRequestMessage();
-		header = UtilMessageService.getMessageAsString(msg);
-		when(httpHeaderService.headersToMessage(httpHeaders)).thenReturn(msg);
-
-		processor.process(exchange);
-		
-		verify(protocolValidationService, times(0)).validateProtocol(any(), any());
 	}
 	
 	private void mockExchangeGetHttpHeaders(Exchange exchange) {

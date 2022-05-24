@@ -14,9 +14,6 @@ import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 @Service
-//@ConditionalOnExpression(
-//		"${application.skipProtocolValidation:false}"
-//)
 @ConditionalOnProperty(name = "application.skipProtocolValidation", havingValue = "false")
 public class ProtocolValidationServiceImpl implements ProtocolValidationService {
 

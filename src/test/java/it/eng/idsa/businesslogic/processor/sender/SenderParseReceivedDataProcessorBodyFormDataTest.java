@@ -1,7 +1,5 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -22,13 +20,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import com.sun.istack.ByteArrayDataSource;
 
 import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -40,8 +36,6 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 	
 	@Mock
 	private RejectionMessageService rejectionMessageService;
-	@Mock
-	private ProtocolValidationService protocolValidationService;
 
 	@Mock
 	private Exchange exchange;
@@ -65,7 +59,6 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 		msg = UtilMessageService.getArtifactRequestMessage();
 		headerAsString = UtilMessageService.getMessageAsString(msg);
 		forwardTo = "https://forward.to.example";
-		when(protocolValidationService.validateProtocol(forwardTo, msg)).thenReturn(forwardTo);
 	}
 
 	@Test
@@ -113,17 +106,6 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 		verify(message).setBody(multipartMessage);
 	}
 	
-	@Test
-	public void skipProtocolValidation_Enabled() throws Exception {
-		ReflectionTestUtils.setField(processor, "skipProtocolValidation", true);
-		mockExchangeGetHeaders(exchange);
-
-		processor.process(exchange);
-
-		verify(protocolValidationService, times(0)).validateProtocol(any(), any());
-
-	}
-
 	private void mockExchangeGetHeaders(Exchange exchange) throws UnsupportedEncodingException {
 		when(exchange.getMessage()).thenReturn(message);
 		Map<String, Object> headers = new HashMap<>();

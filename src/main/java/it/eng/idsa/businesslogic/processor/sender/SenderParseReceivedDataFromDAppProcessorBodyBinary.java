@@ -30,12 +30,6 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 
 	private static final Logger logger = LoggerFactory.getLogger(SenderParseReceivedDataFromDAppProcessorBodyBinary.class);
 	
-	@Value("${application.skipProtocolValidation}")
-	private boolean skipProtocolValidation;
-
-	@Autowired(required = false)
-	private ProtocolValidationService protocolValidationService;
-	
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
 
@@ -68,9 +62,6 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 			String url = HttpWebSocketMessagingLogicA.getInstance().getForwardTo();
 				forwardTo = null != receivedDataHeader.get("Forward-To") ?
 						(String) receivedDataHeader.get("Forward-To") : url;
-			if (!skipProtocolValidation) {
-				forwardTo = protocolValidationService.validateProtocol(forwardTo, message);
-			}
 			headesParts.put("Forward-To", forwardTo);
 			
 			// Return exchange

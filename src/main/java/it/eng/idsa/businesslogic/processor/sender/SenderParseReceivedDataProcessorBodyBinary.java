@@ -8,12 +8,10 @@ import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -29,12 +27,6 @@ import it.eng.idsa.multipart.util.MultipartMessageKey;
 public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 
 	private static final Logger logger = LoggerFactory.getLogger(SenderParseReceivedDataProcessorBodyBinary.class);
-	
-	@Value("${application.skipProtocolValidation}")
-	private boolean skipProtocolValidation;
-	
-	@Autowired(required = false)
-	private ProtocolValidationService protocolValidationService;
 
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
@@ -64,11 +56,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 			
 			logger.debug("Header part {}", multipartMessage.getHeaderContentString());
 			logger.debug("Payload part {}", multipartMessage.getPayloadContent());
-			if (!skipProtocolValidation) {
-				String forwardTo = (String) headerParts.get("Forward-To");
-				forwardTo = protocolValidationService.validateProtocol(forwardTo, message);
-				headerParts.replace("Forward-To", forwardTo);
-			}
+			
 			// Return exchange
 			exchange.getMessage().setBody(multipartMessage);
 			exchange.getMessage().setHeaders(headerParts);
