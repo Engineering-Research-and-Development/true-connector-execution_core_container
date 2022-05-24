@@ -126,6 +126,7 @@ public class CamelRouteSender extends RouteBuilder {
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
 	
+	@Autowired
 	private ProtocolValidationProcessor protocolValidationProcessor;
 
 	@SuppressWarnings("unchecked")
