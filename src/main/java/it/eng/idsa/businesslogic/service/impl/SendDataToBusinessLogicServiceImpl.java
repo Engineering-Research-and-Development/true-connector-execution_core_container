@@ -23,6 +23,7 @@ import it.eng.idsa.businesslogic.service.SenderClientService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.util.MultipartMessageKey;
 import okhttp3.Headers;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -120,7 +121,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		try {
 			response = okHttpClient.sendMultipartFormRequest(address, headers, body);
 		} catch (IOException e) {
-			logger.error("Error while sending form dat request", e);
+			logger.error("Error while sending form data request", e);
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
 					messageForException);
 		}
@@ -133,7 +134,8 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		Map<String, String> mapAsString = new HashMap<>();
 		// TODO consider removing idscp2-header from exchange once when it is consumed, if applicable - MapIDSCP2toMultipart
 		headerParts.forEach((name, value) -> {
-			if (!"Content-Length".equals(name) && !"Content-Type".equals(name) && !"idscp2-header".equals(name)) {
+			if (!MultipartMessageKey.CONTENT_LENGTH.label.equals(name) && 
+					!MultipartMessageKey.CONTENT_TYPE.label.equals(name) && !"idscp2-header".equals(name)) {
 				if (value != null) {
 					mapAsString.put(name, value.toString());
 				}
@@ -161,6 +163,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 					message);
 		} else {
 			int statusCode = response.code();
+			logger.debug("Response {}", response);
 			logger.info("status code of the response message is: " + statusCode);
 			if (statusCode >= 300) {
 				if (statusCode == 404) {
