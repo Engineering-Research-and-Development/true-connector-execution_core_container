@@ -16,15 +16,15 @@ public class ProtocolValidationProcessor implements Processor {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ProtocolValidationProcessor.class);
 	
-	@Value("${application.skipProtocolValidation}")
-	private boolean skipProtocolValidation;
+	@Value("${application.enableProtocolValidation}")
+	private boolean enableProtocolValidation;
 	
 	@Autowired(required = false)
 	private ProtocolValidationService protocolValidationService;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		if (skipProtocolValidation) {
+		if (!enableProtocolValidation) {
 			logger.info("Skipping protocol validation");
 			return;
 		}

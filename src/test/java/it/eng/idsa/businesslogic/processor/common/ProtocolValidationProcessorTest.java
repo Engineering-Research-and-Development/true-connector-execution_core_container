@@ -39,7 +39,7 @@ public class ProtocolValidationProcessorTest {
 	
 	@Test
 	public void protocolValidation_Enabled() throws Exception {
-		ReflectionTestUtils.setField(processor, "skipProtocolValidation", false);
+		ReflectionTestUtils.setField(processor, "enableProtocolValidation", true);
 		mockExchange();
 		
 		processor.process(exchange);
@@ -49,7 +49,7 @@ public class ProtocolValidationProcessorTest {
 	
 	@Test
 	public void protocolValidation_Disabled() throws Exception {
-		ReflectionTestUtils.setField(processor, "skipProtocolValidation", true);
+		ReflectionTestUtils.setField(processor, "enableProtocolValidation", false);
 		
 		verify(protocolValidationService, times(0)).validateProtocol(any(), any());
 	}

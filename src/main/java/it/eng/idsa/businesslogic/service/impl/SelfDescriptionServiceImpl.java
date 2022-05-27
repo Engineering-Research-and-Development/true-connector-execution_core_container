@@ -178,13 +178,15 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		Constraint before = new ConstraintBuilder()
 				._leftOperand_(LeftOperand.POLICY_EVALUATION_TIME)
 				._operator_(BinaryOperator.AFTER)
-				._rightOperand_(new RdfResource(dateTime.minusDays(7).format(formatter), URI.create("xsd:datetime")))
+				._rightOperand_(new RdfResource(dateTime.minusDays(7).format(formatter), 
+						URI.create("http://www.w3.org/2001/XMLSchema#dateTimeStamp")))
 				.build();
 		
 		Constraint after = new ConstraintBuilder()
 				._leftOperand_(LeftOperand.POLICY_EVALUATION_TIME)
 				._operator_(BinaryOperator.BEFORE)
-				._rightOperand_(new RdfResource(dateTime.plusMonths(1).format(formatter), URI.create("xsd:datetime")))
+				._rightOperand_(new RdfResource(dateTime.plusMonths(1).format(formatter), 
+						URI.create("http://www.w3.org/2001/XMLSchema#dateTimeStamp")))
 				.build();
 		
 		Permission permission2 = new PermissionBuilder()
@@ -200,6 +202,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._provider_(URI.create("https://provider.com"))
 				._permission_(Util.asList(permission2))
 				._contractDate_(DateUtil.now())
+				._contractStart_(UtilMessageService.START_DATE)
 				.build();
 	}
 

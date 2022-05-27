@@ -18,6 +18,7 @@ The configuration should be performed customizing the following variables in the
 * **DATA_APP_ENDPOINT=192.168.56.1:8083/incoming-data-app/dataAppIncomingMessageReceiver** DataAPP endpoint for receiveing data (F endpoint in the above picture)
 * **MULTIPART=mixed** DataAPP endpoint Content Type (choose mixed for Multipart/mixed or form for Multipart/form-data) 
 * Edit external port if need (default values: **8086** for **web sockets over HTTPS**, **8090** for **http**, **8887** for **A endpoint** and  **8889** for **B endpoint**)
+* Forward-To protocol validation can be enabled by setting the property **application.enableProtocolValidation** to *true*. If you have this enabled please refer to the following step.
 * Forward-To protocol validation can be changed by editing **application.validateProtocol**. Default value is *true* and Forward-To URL must be set like http(https,wss)://example.com, if you choose *false* Forward-To URL can be set like http(https,wss)://example.com or just example.com and the protocol chosen (from application.properties)will be automatically set (it will be overwritten! example: http://example.com will be wss://example if you chose wss in the properties). 
 
 If you want to use your own certificate for the AISEC Fraunhofer DAPS server: 
@@ -353,7 +354,7 @@ Clone projects from the following links and run mvn clean install
 
 [WebSocket Message Streamer library](https://github.com/Engineering-Research-and-Development/market4.0-websocket_message_streamer)
 
-[Clearing house model](https://github.com/Engineering-Research-and-Development/market4.0-clearing_house/tree/master/clearing-house-model)
+[Clearing house model](https://github.com/Engineering-Research-and-Development/market4.0-clearing_house/tree/infomodel_4.0.6)
 
 [Execution Core Container](https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container)
 
