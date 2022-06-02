@@ -19,13 +19,12 @@ import org.mockito.MockitoAnnotations;
 
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
-import it.eng.idsa.multipart.util.UtilMessageService;
 import it.eng.idsa.multipart.util.MultipartMessageKey;
+import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class SenderParseReceivedDataProcessorBodyBinaryTest {
 
@@ -39,8 +38,6 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	private RejectionMessageService rejectionMessageService;
 	@Mock
 	private DapsTokenProviderService dapsProvider;
-	@Mock
-	private ProtocolValidationService protocolValidationService;
 
 	private MultipartMessage multipartMessage;
 	private String receivedDataBodyBinary;
@@ -55,7 +52,6 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		forwardTo = "https://forward.to.example";
-		when(protocolValidationService.validateProtocol(forwardTo, msg)).thenReturn(forwardTo);
 	}
 
 	@Test
@@ -135,7 +131,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 		verify(messageOut).setBody(multipartMessage);
 
 	}
-
+	
 	private void mockExchangeGetHttpHeaders() {
 		httpHeaders = new HashMap<>();
 		httpHeaders.put("Content-Type", "multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6");

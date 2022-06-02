@@ -21,7 +21,6 @@ import org.mockito.MockitoAnnotations;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -43,9 +42,6 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	@Mock
 	private RejectionMessageService rejectionMessageService;
 	
-	@Mock
-	private ProtocolValidationService protocolValidationService;
-
 	private String header;
 	private Map<String, Object> httpHeaders;
 	Map<String, Object> headerContentHeaders = new HashMap<>();
@@ -58,7 +54,6 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		forwardTo = "https://forward.to.example";
-		when(protocolValidationService.validateProtocol(forwardTo, msg)).thenReturn(forwardTo);
 	}
 
 	@Test

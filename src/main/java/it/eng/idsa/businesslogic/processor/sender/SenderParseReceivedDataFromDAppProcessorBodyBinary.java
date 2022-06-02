@@ -8,6 +8,7 @@ import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
@@ -28,9 +29,6 @@ import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Processor {
 
 	private static final Logger logger = LoggerFactory.getLogger(SenderParseReceivedDataFromDAppProcessorBodyBinary.class);
-
-	@Autowired
-	private ProtocolValidationService protocolValidationService;
 	
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
@@ -62,8 +60,8 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 			
 			//String wsURI = "wss://0.0.0.0:8086"+ HttpWebSocketServerBean.WS_URL;
 			String url = HttpWebSocketMessagingLogicA.getInstance().getForwardTo();
-			forwardTo = null != receivedDataHeader.get("Forward-To")? (String) receivedDataHeader.get("Forward-To") : url;
-			forwardTo = protocolValidationService.validateProtocol(forwardTo, message);
+				forwardTo = null != receivedDataHeader.get("Forward-To") ?
+						(String) receivedDataHeader.get("Forward-To") : url;
 			headesParts.put("Forward-To", forwardTo);
 			
 			// Return exchange

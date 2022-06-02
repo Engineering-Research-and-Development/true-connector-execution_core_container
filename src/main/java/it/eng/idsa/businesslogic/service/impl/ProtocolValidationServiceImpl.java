@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import de.fraunhofer.iais.eis.Message;
@@ -13,6 +14,7 @@ import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 @Service
+@ConditionalOnProperty(name = "application.enableProtocolValidation", havingValue = "true")
 public class ProtocolValidationServiceImpl implements ProtocolValidationService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProtocolValidationServiceImpl.class);
@@ -70,25 +72,29 @@ public class ProtocolValidationServiceImpl implements ProtocolValidationService 
 		requiredProtocol = requiredECCProtocol;
 
 		if (validateProtocol) {
-			logger.info("Validating Forward-To protocol");
+			logger.info("Validating Forward-To protocol - must be {}", requiredProtocol);
 			if (forwardTo.contains(PROTOCOL_DELIMITER)) {
 				String forwardToProtocol = forwardTo.split(PROTOCOL_DELIMITER)[0];
 				if (!forwardToProtocol.equals(requiredProtocol)) {
 					logger.error("Forward-To protocol not correct. Required: {}", requiredProtocol);
 					rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
+				} else {
+					logger.info("Protocol successfully validated.");
 				}
 			} else {
-				logger.error("Forward-To protocol delimiter missing.");
+				logger.error("Forward-To protocol delimiter missing. Protocol delimiter -> {}", PROTOCOL_DELIMITER);
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
 			}
 		} else {
 			logger.info("Applying selected protocol to Forward-To: {}", requiredProtocol);
+			logger.info("Initial Forward-To {}", forwardTo);
 			if (forwardTo.contains(PROTOCOL_DELIMITER)) {
 				String forwardToWithoutProtocol = forwardTo.split(PROTOCOL_DELIMITER)[1];
 				forwardTo = requiredProtocol + PROTOCOL_DELIMITER + forwardToWithoutProtocol;
 			} else {
 				forwardTo = requiredProtocol + PROTOCOL_DELIMITER + forwardTo;
 			}
+			logger.info("Forward-To after rewriting {}", forwardTo);
 		}
 		return forwardTo;
 	}
