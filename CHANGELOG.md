@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 
 ## [0.1.13-SNAPSHOT] - 2022-05-27
 
+### Changed
+ - Self Description typo fix 
+ 
 ### Added
  - added property and functionality to skip protocol validation
 

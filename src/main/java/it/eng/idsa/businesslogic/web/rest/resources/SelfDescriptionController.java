@@ -23,7 +23,7 @@ import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 @Tag(name = "Self description controller", description = "Returns document as is, regardless if it's valid or not")
 @RestController
-@RequestMapping("/api/selfDescripton/")
+@RequestMapping("/api/selfDescription/")
 public class SelfDescriptionController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SelfDescriptionController.class);
