@@ -34,6 +34,7 @@ import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.model.Meta;
 import it.eng.idsa.businesslogic.usagecontrol.model.TargetArtifact;
 import it.eng.idsa.businesslogic.usagecontrol.model.UsageControlObject;
+import it.eng.idsa.businesslogic.usagecontrol.model.UsageControlObjectToEnforce;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -84,21 +85,7 @@ public class ReceiverUsageControlProcessor implements Processor {
 
 		try {
 			ArtifactRequestMessage artifactRequestMessage = (ArtifactRequestMessage) requestMessage;
-
-			logger.info("Proceeding with Usage control enforcement");
-			String payloadToEnforce = createUsageControlObject(artifactRequestMessage.getRequestedArtifact(),
-					multipartMessage.getPayloadContent());
-			logger.info("from: " + exchange.getFromEndpoint());
-			logger.debug("Message Body: " + payloadToEnforce);
-
-			MultipartMessage reponseMultipartMessage = new MultipartMessageBuilder()
-					.withHttpHeader(multipartMessage.getHttpHeaders())
-					.withHeaderHeader(multipartMessage.getHeaderHeader())
-					.withHeaderContent(responseMessage)
-					.withPayloadHeader(multipartMessage.getPayloadHeader())
-					.withPayloadContent(payloadToEnforce)
-					.withToken(multipartMessage.getToken())
-					.build();
+			MultipartMessage reponseMultipartMessage = platoonUC(exchange, multipartMessage, artifactRequestMessage);
 			
 			exchange.getMessage().setBody(reponseMultipartMessage);
 			headerParts.remove("Original-Message-Header");
@@ -107,6 +94,46 @@ public class ReceiverUsageControlProcessor implements Processor {
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, requestMessage);
 		}
     }
+
+	private MultipartMessage platoonUC(Exchange exchange, MultipartMessage multipartMessage,
+			ArtifactRequestMessage artifactRequestMessage) throws URISyntaxException {
+		logger.info("Proceeding with Usage control enforcement");
+		String payloadToEnforce = createUsageControlObjectPlatoon(artifactRequestMessage.getRequestedArtifact(),
+		        multipartMessage.getPayloadContent());
+		logger.info("from: " + exchange.getFromEndpoint());
+		logger.debug("Message Body: " + payloadToEnforce);
+
+		MultipartMessage reponseMultipartMessage = new MultipartMessageBuilder()
+				.withHttpHeader(multipartMessage.getHttpHeaders())
+				.withHeaderHeader(multipartMessage.getHeaderHeader())
+				.withHeaderContent(responseMessage)
+				.withPayloadHeader(multipartMessage.getPayloadHeader())
+				.withPayloadContent(payloadToEnforce)
+				.withToken(multipartMessage.getToken())
+				.build();
+		return reponseMultipartMessage;
+	}
+
+	private MultipartMessage frauenhoferUC(Exchange exchange, MultipartMessage multipartMessage)
+			throws URISyntaxException {
+		ArtifactRequestMessage artifactRequestMessage = (ArtifactRequestMessage) requestMessage;
+
+		logger.info("Proceeding with Usage control enforcement");
+		String payloadToEnforce = createUsageControlObject(artifactRequestMessage.getRequestedArtifact(),
+				multipartMessage.getPayloadContent());
+		logger.info("from: " + exchange.getFromEndpoint());
+		logger.debug("Message Body: " + payloadToEnforce);
+
+		MultipartMessage reponseMultipartMessage = new MultipartMessageBuilder()
+				.withHttpHeader(multipartMessage.getHttpHeaders())
+				.withHeaderHeader(multipartMessage.getHeaderHeader())
+				.withHeaderContent(responseMessage)
+				.withPayloadHeader(multipartMessage.getPayloadHeader())
+				.withPayloadContent(payloadToEnforce)
+				.withToken(multipartMessage.getToken())
+				.build();
+		return reponseMultipartMessage;
+	}
 
     public static Gson createGson() {
         Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new TypeAdapter<ZonedDateTime>() {
@@ -141,6 +168,19 @@ public class ReceiverUsageControlProcessor implements Processor {
         usageControlObject.setMeta(meta);
         String usageControlObjectPayload = gson.toJson(usageControlObject, UsageControlObject.class);
         return usageControlObjectPayload;
+    }
+    
+    private String createUsageControlObjectPlatoon(URI targetId, String payload) throws URISyntaxException {
+        UsageControlObjectToEnforce usageControlObject = new UsageControlObjectToEnforce();
+        usageControlObject.setPayload(payload);
+        usageControlObject.setAssignee(requestMessage.getIssuerConnector());
+        usageControlObject.setAssigner(responseMessage.getIssuerConnector());
+        usageControlObject.setTargetArtifactId(targetId);
+                    
+        String usageControlObjectPayload = gson.toJson(usageControlObject, UsageControlObjectToEnforce.class);
+                
+        return usageControlObjectPayload;
+       
     }
 
     private String createJsonPayload(String payload) {
