@@ -2,34 +2,22 @@ package it.eng.idsa.businesslogic.processor.sender;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.internal.LinkedTreeMap;
 
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationA;
-import it.eng.idsa.businesslogic.processor.receiver.ReceiverUsageControlProcessor;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.usagecontrol.model.IdsMsgTarget;
-import it.eng.idsa.businesslogic.usagecontrol.model.IdsUseObject;
-import it.eng.idsa.businesslogic.usagecontrol.model.UsageControlObject;
-import it.eng.idsa.businesslogic.usagecontrol.model.UsageControlObjectToEnforce;
-import it.eng.idsa.businesslogic.usagecontrol.service.UcService;
+import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
-import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -37,17 +25,15 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
 /**
  * @author Antonio Scatoloni and Gabriele De Luca
  */
-@ComponentScan("de.fraunhofer.dataspaces.iese")
 @Component
 public class SenderUsageControlProcessor implements Processor {
-	private Gson gson;
 	private static final Logger logger = LoggerFactory.getLogger(SenderUsageControlProcessor.class);
 
 	@Value("#{new Boolean('${application.isEnabledUsageControl}')}")
 	private boolean isEnabledUsageControl;
-
+	
 	@Autowired(required = false)
-	private UcService ucService;
+	private UsageControlService usageControlService;
 
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
@@ -55,26 +41,17 @@ public class SenderUsageControlProcessor implements Processor {
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
 
-	@Autowired(required = false)
-	WebSocketServerConfigurationA webSocketServerConfiguration;
-
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
 
 	@Value("${application.openDataAppReceiverRouter}")
 	private String openDataAppReceiverRouter;
+	
+	@Autowired(required = false)
+	private Gson gson;
 
 	@Autowired
 	private HeaderCleaner headerCleaner;
-
-	public SenderUsageControlProcessor() {
-		gson = ReceiverUsageControlProcessor.createGson();
-	}
-	
-	@Autowired
-	private WebClient webClient;
-	
-	private String platoonURL = "https://localhost/platoontec/PlatoonDataUsage/1.0/enforce/usage/use";
 
 	@Override
 	public void process(Exchange exchange) {
@@ -102,10 +79,13 @@ public class SenderUsageControlProcessor implements Processor {
 		try {
 
 			JsonElement transferedDataObject = getDataObject(payload);
-//			multipartMessageResponse = fraunhoferUC(message, transferedDataObject);
 			
-			multipartMessageResponse = platoonUC(message, transferedDataObject);
+			String objectToEnforce = usageControlService.enforceUsageControl(message, transferedDataObject);
 			
+			multipartMessageResponse = new MultipartMessageBuilder()
+					.withHeaderContent(message)
+					.withPayloadContent(objectToEnforce)
+					.build();
 			
 			headerCleaner.removeTechnicalHeaders(exchange.getMessage().getHeaders());
 			exchange.getMessage().setBody(multipartMessageResponse);
@@ -116,97 +96,6 @@ public class SenderUsageControlProcessor implements Processor {
 			logger.error("Usage Control Enforcement has failed with MESSAGE: {}", e.getMessage());
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, message);
 		}
-	}
-
-	private MultipartMessage platoonUC(Message message, JsonElement transferedDataObject) {
-		MultipartMessage multipartMessageResponse;
-		UsageControlObjectToEnforce ucObj = gson.fromJson(transferedDataObject, UsageControlObjectToEnforce.class);
-
-		logger.info("Proceeding with Usage control enforcement");
-		String provider = ucObj.getAssigner().toString();
-		String consumer = ucObj.getAssignee().toString();
-		logger.info("Provider:" + provider);
-		logger.info("Consumer:" + consumer);
-		logger.info("payload:" + ucObj.getPayload());
-		logger.info("artifactID:" + ucObj.getTargetArtifactId());
-		
-//		String provider = "http://w3id.org/engrd/connector/provider";
-		
-//		String consumer = "http://w3id.org/engrd/connector";
-		
-		String targetArtifact = "http://w3id.org/engrd/connector/artifact/1";
-		
-		StringBuffer ucUrl = new StringBuffer()
-				.append(platoonURL)
-				.append("?targetDataUri=")
-				.append(targetArtifact)
-				.append("&providerUri=")
-				.append(provider)
-				.append("&consumerUri=")
-				.append(consumer)
-				.append("&consuming=true");
-
-		
-		String objectToEnforceAsJsonStr = webClient.post()
-				.uri(ucUrl.toString())
-				.contentType(MediaType.APPLICATION_JSON)
-				.bodyValue(ucObj.getPayload())
-				.retrieve()
-				.bodyToMono(String.class)
-				.block();
-		
-		multipartMessageResponse = new MultipartMessageBuilder()
-				.withHeaderContent(message)
-				.withPayloadContent(objectToEnforceAsJsonStr)
-				.build();
-		return multipartMessageResponse;
-	}
-
-	private MultipartMessage fraunhoferUC(Message message, JsonElement transferedDataObject) throws Exception {
-		MultipartMessage multipartMessageResponse;
-		UsageControlObject ucObj = gson.fromJson(transferedDataObject, UsageControlObject.class);
-
-		String targetArtifactId = ucObj.getMeta().getTargetArtifact().getId().toString();
-		IdsMsgTarget idsMsgTarget = getIdsMsgTarget();
-		logger.debug("Message Body In: " + ucObj.getPayload().toString());
-
-		IdsUseObject idsUseObject = new IdsUseObject();
-		idsUseObject.setTargetDataUri(targetArtifactId);
-		idsUseObject.setMsgTarget(idsMsgTarget);
-		idsUseObject.setDataObject(ucObj.getPayload());
-
-		Object result = ucService.enforceUsageControl(idsUseObject);
-		if (result instanceof LinkedTreeMap<?, ?>) {
-			final LinkedTreeMap<?, ?> treeMap = (LinkedTreeMap<?, ?>) result;
-			final JsonElement jsonElement = gson.toJsonTree(treeMap);
-			ucObj.setPayload(jsonElement);
-			logger.debug("Result from Usage Control: " + jsonElement.toString());
-		} else if (null == result || StringUtils.isEmpty(result.toString())) {
-			throw new Exception("Usage Control Enforcement with EMPTY RESULT encountered.");
-		}
-		// Prepare Response
-		multipartMessageResponse = new MultipartMessageBuilder()
-				.withHeaderContent(message)
-				.withPayloadContent(extractPayloadFromJson(ucObj.getPayload()))
-				.build();
-		return multipartMessageResponse;
-	}
-
-	/**
-	 * Used for purpose PIP
-	 * 
-	 * @ActionDescription(methodName = "purpose") public String purpose(
-	 * @ActionParameterDescription(name = "MsgTargetAppUri", mandatory = true)
-	 *                                  String msgTargetAppUri) IdsMsgTarget.appUri
-	 *                                  is translated to msgTargetAppUri
-	 * @return
-	 */
-	public static IdsMsgTarget getIdsMsgTarget() {
-		IdsMsgTarget idsMsgTarget = new IdsMsgTarget();
-		idsMsgTarget.setName("Anwendung A");
-		// idsMsgTarget.setAppUri(target.toString());
-		idsMsgTarget.setAppUri("http://ziel-app");
-		return idsMsgTarget;
 	}
 
 	private JsonElement getDataObject(String s) {
@@ -222,11 +111,4 @@ public class SenderUsageControlProcessor implements Processor {
 		return obj;
 	}
 
-	private String extractPayloadFromJson(JsonElement payload) {
-		final JsonObject asJsonObject = payload.getAsJsonObject();
-		JsonElement payloadInner = asJsonObject.get(MessagePart.PAYLOAD);
-		if (null != payloadInner)
-			return payloadInner.getAsString();
-		return payload.toString();
-	}
 }

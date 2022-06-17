@@ -1,12 +1,10 @@
 package it.eng.idsa.businesslogic.processor.receiver;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
@@ -19,13 +17,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
@@ -48,7 +42,6 @@ import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 @Component
 public class ReceiverUsageControlProcessor implements Processor {
 
-    private Gson gson;
     private static final Logger logger = LoggerFactory.getLogger(ReceiverUsageControlProcessor.class);
 
     private Message requestMessage;
@@ -60,9 +53,8 @@ public class ReceiverUsageControlProcessor implements Processor {
     @Autowired
     private RejectionMessageService rejectionMessageService;
 
-    public ReceiverUsageControlProcessor() {
-        gson = createGson();
-    }
+    @Autowired(required = false)
+    private Gson gson;
 
     @Override
     public void process(Exchange exchange) {
@@ -134,23 +126,6 @@ public class ReceiverUsageControlProcessor implements Processor {
 				.build();
 		return reponseMultipartMessage;
 	}
-
-    public static Gson createGson() {
-        Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new TypeAdapter<ZonedDateTime>() {
-            @Override
-            public void write(JsonWriter writer, ZonedDateTime zdt) throws IOException {
-                writer.value(zdt.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
-            }
-
-            @Override
-            public ZonedDateTime read(JsonReader in) throws IOException {
-                return ZonedDateTime.parse(in.nextString(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-            }
-        }).enableComplexMapKeySerialization().create();
-
-        return gson;
-    }
-
 
     private String createUsageControlObject(URI targetId, String payload) throws URISyntaxException {
         UsageControlObject usageControlObject = new UsageControlObject();
