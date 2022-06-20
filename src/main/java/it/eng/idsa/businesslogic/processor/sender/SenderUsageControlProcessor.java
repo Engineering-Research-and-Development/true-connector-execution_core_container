@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
@@ -59,15 +58,15 @@ public class SenderUsageControlProcessor implements Processor {
 			logger.info("Usage control not configured - continued with flow");
 			return;
 		}
-		Message message = null;
+		Message responseMessage = null;
 		String payload = null;
 		MultipartMessage multipartMessageResponse = null;
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		payload = multipartMessage.getPayloadContent();
-		message = multipartMessage.getHeaderContent();
+		responseMessage = multipartMessage.getHeaderContent();
 
 		//TODO should we check if request instanceof ArtifactRequestMessage?
-		if (!(message instanceof ArtifactResponseMessage)) {
+		if (!(responseMessage instanceof ArtifactResponseMessage)) {
 			logger.info("Usage Control not applied - not ArtifactResponseMessage");
 			return;
 		}
@@ -80,10 +79,10 @@ public class SenderUsageControlProcessor implements Processor {
 
 			JsonElement transferedDataObject = getDataObject(payload);
 			
-			String objectToEnforce = usageControlService.enforceUsageControl(message, transferedDataObject);
+			String objectToEnforce = usageControlService.enforceUsageControl(transferedDataObject);
 			
 			multipartMessageResponse = new MultipartMessageBuilder()
-					.withHeaderContent(message)
+					.withHeaderContent(responseMessage)
 					.withPayloadContent(objectToEnforce)
 					.build();
 			
@@ -94,7 +93,7 @@ public class SenderUsageControlProcessor implements Processor {
 
 		} catch (Exception e) {
 			logger.error("Usage Control Enforcement has failed with MESSAGE: {}", e.getMessage());
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, message);
+			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, responseMessage);
 		}
 	}
 

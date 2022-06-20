@@ -11,7 +11,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
-import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.usagecontrol.model.UsageControlObjectToEnforce;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
 
@@ -30,7 +29,7 @@ public class PlatoonUsageControlServiceImpl implements UsageControlService {
 	private Gson gson;
 
 	@Override
-	public String enforceUsageControl(Message message, JsonElement ucObject) {
+	public String enforceUsageControl(JsonElement ucObject) {
 		UsageControlObjectToEnforce ucObj = gson.fromJson(ucObject, UsageControlObjectToEnforce.class);
 
 		logger.info("Proceeding with Usage control enforcement");
@@ -42,8 +41,13 @@ public class PlatoonUsageControlServiceImpl implements UsageControlService {
 		logger.info("payload:" + ucObj.getPayload());
 		logger.info("artifactID:" + targetArtifact);
 
-		StringBuffer ucUrl = new StringBuffer().append(platoonURL).append("?targetDataUri=").append(targetArtifact)
-				.append("&providerUri=").append(provider).append("&consumerUri=").append(consumer)
+		StringBuffer ucUrl = new StringBuffer().append(platoonURL)
+				.append("?targetDataUri=")
+				.append(targetArtifact)
+				.append("&providerUri=")
+				.append(provider)
+				.append("&consumerUri=")
+				.append(consumer)
 				.append("&consuming=true");
 
 		String objectToEnforceAsJsonStr = webClient.post().uri(ucUrl.toString()).contentType(MediaType.APPLICATION_JSON)

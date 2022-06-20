@@ -29,6 +29,7 @@ import it.eng.idsa.businesslogic.usagecontrol.model.Meta;
 import it.eng.idsa.businesslogic.usagecontrol.model.TargetArtifact;
 import it.eng.idsa.businesslogic.usagecontrol.model.UsageControlObject;
 import it.eng.idsa.businesslogic.usagecontrol.model.UsageControlObjectToEnforce;
+import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -55,6 +56,9 @@ public class ReceiverUsageControlProcessor implements Processor {
 
     @Autowired(required = false)
     private Gson gson;
+    
+    @Autowired(required = false)
+	private UsageControlService usageControlService;
 
     @Override
     public void process(Exchange exchange) {
@@ -77,7 +81,22 @@ public class ReceiverUsageControlProcessor implements Processor {
 
 		try {
 			ArtifactRequestMessage artifactRequestMessage = (ArtifactRequestMessage) requestMessage;
-			MultipartMessage reponseMultipartMessage = platoonUC(exchange, multipartMessage, artifactRequestMessage);
+			logger.info("Proceeding with Usage control enforcement");
+			
+			String payloadToEnforce = usageControlService.createUsageControlObject(artifactRequestMessage.getRequestedArtifact(),
+			        multipartMessage.getPayloadContent());
+			
+			logger.info("from: " + exchange.getFromEndpoint());
+			logger.debug("Message Body: " + payloadToEnforce);
+			
+			MultipartMessage reponseMultipartMessage = new MultipartMessageBuilder()
+					.withHttpHeader(multipartMessage.getHttpHeaders())
+					.withHeaderHeader(multipartMessage.getHeaderHeader())
+					.withHeaderContent(responseMessage)
+					.withPayloadHeader(multipartMessage.getPayloadHeader())
+					.withPayloadContent(payloadToEnforce)
+					.withToken(multipartMessage.getToken())
+					.build();
 			
 			exchange.getMessage().setBody(reponseMultipartMessage);
 			headerParts.remove("Original-Message-Header");

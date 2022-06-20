@@ -15,7 +15,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 
-import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.usagecontrol.exception.PolicyDeniedException;
 import it.eng.idsa.businesslogic.usagecontrol.model.IdsMsgTarget;
 import it.eng.idsa.businesslogic.usagecontrol.model.IdsUseObject;
@@ -44,7 +43,7 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
 	}
 
 	@Override
-	public String enforceUsageControl(Message message, JsonElement ucObject) throws Exception {
+	public String enforceUsageControl(JsonElement ucObject) throws Exception {
 		UsageControlObject ucObj = gson.fromJson(ucObject, UsageControlObject.class);
 
 		String targetArtifactId = ucObj.getMeta().getTargetArtifact().getId().toString();
