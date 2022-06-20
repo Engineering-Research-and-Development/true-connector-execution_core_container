@@ -1,10 +1,5 @@
 package it.eng.idsa.businesslogic.processor.receiver;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
@@ -17,18 +12,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.usagecontrol.model.Meta;
-import it.eng.idsa.businesslogic.usagecontrol.model.TargetArtifact;
-import it.eng.idsa.businesslogic.usagecontrol.model.UsageControlObject;
-import it.eng.idsa.businesslogic.usagecontrol.model.UsageControlObjectToEnforce;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -81,9 +69,10 @@ public class ReceiverUsageControlProcessor implements Processor {
 
 		try {
 			ArtifactRequestMessage artifactRequestMessage = (ArtifactRequestMessage) requestMessage;
+			ArtifactResponseMessage artifactResponseMessage = (ArtifactResponseMessage) responseMessage;
 			logger.info("Proceeding with Usage control enforcement");
 			
-			String payloadToEnforce = usageControlService.createUsageControlObject(artifactRequestMessage.getRequestedArtifact(),
+			String payloadToEnforce = usageControlService.createUsageControlObject(artifactRequestMessage, artifactResponseMessage,
 			        multipartMessage.getPayloadContent());
 			
 			logger.info("from: " + exchange.getFromEndpoint());
@@ -105,93 +94,4 @@ public class ReceiverUsageControlProcessor implements Processor {
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, requestMessage);
 		}
     }
-
-	private MultipartMessage platoonUC(Exchange exchange, MultipartMessage multipartMessage,
-			ArtifactRequestMessage artifactRequestMessage) throws URISyntaxException {
-		logger.info("Proceeding with Usage control enforcement");
-		String payloadToEnforce = createUsageControlObjectPlatoon(artifactRequestMessage.getRequestedArtifact(),
-		        multipartMessage.getPayloadContent());
-		logger.info("from: " + exchange.getFromEndpoint());
-		logger.debug("Message Body: " + payloadToEnforce);
-
-		MultipartMessage reponseMultipartMessage = new MultipartMessageBuilder()
-				.withHttpHeader(multipartMessage.getHttpHeaders())
-				.withHeaderHeader(multipartMessage.getHeaderHeader())
-				.withHeaderContent(responseMessage)
-				.withPayloadHeader(multipartMessage.getPayloadHeader())
-				.withPayloadContent(payloadToEnforce)
-				.withToken(multipartMessage.getToken())
-				.build();
-		return reponseMultipartMessage;
-	}
-
-	private MultipartMessage frauenhoferUC(Exchange exchange, MultipartMessage multipartMessage)
-			throws URISyntaxException {
-		ArtifactRequestMessage artifactRequestMessage = (ArtifactRequestMessage) requestMessage;
-
-		logger.info("Proceeding with Usage control enforcement");
-		String payloadToEnforce = createUsageControlObject(artifactRequestMessage.getRequestedArtifact(),
-				multipartMessage.getPayloadContent());
-		logger.info("from: " + exchange.getFromEndpoint());
-		logger.debug("Message Body: " + payloadToEnforce);
-
-		MultipartMessage reponseMultipartMessage = new MultipartMessageBuilder()
-				.withHttpHeader(multipartMessage.getHttpHeaders())
-				.withHeaderHeader(multipartMessage.getHeaderHeader())
-				.withHeaderContent(responseMessage)
-				.withPayloadHeader(multipartMessage.getPayloadHeader())
-				.withPayloadContent(payloadToEnforce)
-				.withToken(multipartMessage.getToken())
-				.build();
-		return reponseMultipartMessage;
-	}
-
-    private String createUsageControlObject(URI targetId, String payload) throws URISyntaxException {
-        UsageControlObject usageControlObject = new UsageControlObject();
-        JsonElement jsonElement = gson.fromJson(createJsonPayload(payload), JsonElement.class);
-        usageControlObject.setPayload(jsonElement);
-        Meta meta = new Meta();
-        meta.setAssignee(requestMessage.getIssuerConnector());
-        meta.setAssigner(responseMessage.getIssuerConnector());
-        TargetArtifact targetArtifact = new TargetArtifact();
-        LocalDateTime localDateTime = LocalDateTime.now();
-        ZonedDateTime zonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.of("CET"));
-        targetArtifact.setCreationDate(zonedDateTime);
-        targetArtifact.setId(targetId);
-        meta.setTargetArtifact(targetArtifact);
-        usageControlObject.setMeta(meta);
-        String usageControlObjectPayload = gson.toJson(usageControlObject, UsageControlObject.class);
-        return usageControlObjectPayload;
-    }
-    
-    private String createUsageControlObjectPlatoon(URI targetId, String payload) throws URISyntaxException {
-        UsageControlObjectToEnforce usageControlObject = new UsageControlObjectToEnforce();
-        usageControlObject.setPayload(payload);
-        usageControlObject.setAssignee(requestMessage.getIssuerConnector());
-        usageControlObject.setAssigner(responseMessage.getIssuerConnector());
-        usageControlObject.setTargetArtifactId(targetId);
-                    
-        String usageControlObjectPayload = gson.toJson(usageControlObject, UsageControlObjectToEnforce.class);
-                
-        return usageControlObjectPayload;
-       
-    }
-
-    private String createJsonPayload(String payload) {
-        boolean isJson = true;
-        try {
-            JsonParser.parseString(payload);
-        } catch (JsonSyntaxException e) {
-            isJson = false;
-        }
-        if (!isJson) {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("{");
-            stringBuilder.append("\"payload\":" + "\"" + payload + "\"");
-            stringBuilder.append("}");
-            return stringBuilder.toString();
-        }
-        return payload;
-    }
-
 }

@@ -11,6 +11,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
+import de.fraunhofer.iais.eis.ArtifactRequestMessage;
+import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import it.eng.idsa.businesslogic.usagecontrol.model.UsageControlObjectToEnforce;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
 
@@ -54,6 +56,20 @@ public class PlatoonUsageControlServiceImpl implements UsageControlService {
 				.bodyValue(ucObj.getPayload()).retrieve().bodyToMono(String.class).block();
 
 		return objectToEnforceAsJsonStr;
+	}
+
+	@Override
+	public String createUsageControlObject(ArtifactRequestMessage artifactRequestMessage,
+			ArtifactResponseMessage artifactResponseMessage, String payloadContent) {
+		UsageControlObjectToEnforce usageControlObject = new UsageControlObjectToEnforce();
+        usageControlObject.setPayload(payloadContent);
+        usageControlObject.setAssignee(artifactRequestMessage.getIssuerConnector());
+        usageControlObject.setAssigner(artifactResponseMessage.getIssuerConnector());
+        usageControlObject.setTargetArtifactId(artifactRequestMessage.getRequestedArtifact());
+                    
+        String usageControlObjectPayload = gson.toJson(usageControlObject, UsageControlObjectToEnforce.class);
+                
+        return usageControlObjectPayload;
 	}
 
 }

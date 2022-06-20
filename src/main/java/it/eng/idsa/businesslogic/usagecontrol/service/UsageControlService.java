@@ -1,8 +1,9 @@
 package it.eng.idsa.businesslogic.usagecontrol.service;
 
-import java.net.URI;
-
 import com.google.gson.JsonElement;
+
+import de.fraunhofer.iais.eis.ArtifactRequestMessage;
+import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 
 public interface UsageControlService {
 
@@ -20,5 +21,6 @@ public interface UsageControlService {
 	 * @param payloadContent
 	 * @return
 	 */
-	public String createUsageControlObject(URI requestedArtifact, String payloadContent);
+	public String createUsageControlObject(ArtifactRequestMessage artifactRequestMessage,
+			ArtifactResponseMessage artifactResponseMessage, String payloadContent);
 }

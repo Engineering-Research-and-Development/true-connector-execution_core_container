@@ -1,6 +1,9 @@
 package it.eng.idsa.businesslogic.usagecontrol.service.impl;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -13,12 +16,19 @@ import org.springframework.stereotype.Service;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.internal.LinkedTreeMap;
 
+import de.fraunhofer.iais.eis.ArtifactRequestMessage;
+import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import it.eng.idsa.businesslogic.usagecontrol.exception.PolicyDeniedException;
 import it.eng.idsa.businesslogic.usagecontrol.model.IdsMsgTarget;
 import it.eng.idsa.businesslogic.usagecontrol.model.IdsUseObject;
+import it.eng.idsa.businesslogic.usagecontrol.model.Meta;
+import it.eng.idsa.businesslogic.usagecontrol.model.TargetArtifact;
 import it.eng.idsa.businesslogic.usagecontrol.model.UsageControlObject;
+import it.eng.idsa.businesslogic.usagecontrol.model.UsageControlObjectToEnforce;
 import it.eng.idsa.businesslogic.usagecontrol.service.UcRestCallService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
 import it.eng.idsa.businesslogic.util.MessagePart;
@@ -44,15 +54,21 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
 
 	@Override
 	public String enforceUsageControl(JsonElement ucObject) throws Exception {
-		UsageControlObject ucObj = gson.fromJson(ucObject, UsageControlObject.class);
+		UsageControlObjectToEnforce ucObj = gson.fromJson(ucObject, UsageControlObjectToEnforce.class);
 
-		String targetArtifactId = ucObj.getMeta().getTargetArtifact().getId().toString();
-		IdsMsgTarget idsMsgTarget = getIdsMsgTarget();
-		logger.debug("Message Body In: " + ucObj.getPayload().toString());
-
+		logger.info("Proceeding with Usage control enforcement");
+		String provider = ucObj.getAssigner().toString();
+		String consumer = ucObj.getAssignee().toString();
+		String targetArtifact = ucObj.getTargetArtifactId().toString();
+		logger.info("Provider:" + provider);
+		logger.info("Consumer:" + consumer);
+		logger.info("payload:" + ucObj.getPayload());
+		logger.info("artifactID:" + targetArtifact);
+		
 		IdsUseObject idsUseObject = new IdsUseObject();
-		idsUseObject.setTargetDataUri(targetArtifactId);
-		idsUseObject.setMsgTarget(idsMsgTarget);
+		idsUseObject.setTargetDataUri(targetArtifact);
+		// Is it needed?? IdsMsgTarget
+		idsUseObject.setMsgTarget(getIdsMsgTarget());
 		idsUseObject.setDataObject(ucObj.getPayload());
 
 		Object result = null;
@@ -68,16 +84,17 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
 			result = "";
 		}
 
+		JsonElement jsonElement = null;
 		if (result instanceof LinkedTreeMap<?, ?>) {
 			final LinkedTreeMap<?, ?> treeMap = (LinkedTreeMap<?, ?>) result;
-			final JsonElement jsonElement = gson.toJsonTree(treeMap);
-			ucObj.setPayload(jsonElement);
+			jsonElement = gson.toJsonTree(treeMap);
+//			ucObj.setPayload(jsonElement);
 			logger.debug("Result from Usage Control: " + jsonElement.toString());
 		} else if (null == result || StringUtils.isEmpty(result.toString())) {
 			throw new Exception("Usage Control Enforcement with EMPTY RESULT encountered.");
 		}
 
-		return extractPayloadFromJson(ucObj.getPayload());
+		return extractPayloadFromJson(jsonElement);
 	}
 
 	/**
@@ -104,5 +121,42 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
 			return payloadInner.getAsString();
 		return payload.toString();
 	}
+
+	@Override
+	public String createUsageControlObject(ArtifactRequestMessage artifactRequestMessage,
+			ArtifactResponseMessage artifactResponseMessage, String payloadContent) {
+		UsageControlObject usageControlObject = new UsageControlObject();
+        JsonElement jsonElement = gson.fromJson(createJsonPayload(payloadContent), JsonElement.class);
+        usageControlObject.setPayload(jsonElement);
+        Meta meta = new Meta();
+        meta.setAssignee(artifactRequestMessage.getIssuerConnector());
+        meta.setAssigner(artifactResponseMessage.getIssuerConnector());
+        TargetArtifact targetArtifact = new TargetArtifact();
+        LocalDateTime localDateTime = LocalDateTime.now();
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.of("CET"));
+        targetArtifact.setCreationDate(zonedDateTime);
+        targetArtifact.setId(artifactRequestMessage.getRequestedArtifact());
+        meta.setTargetArtifact(targetArtifact);
+        usageControlObject.setMeta(meta);
+        String usageControlObjectPayload = gson.toJson(usageControlObject, UsageControlObject.class);
+        return usageControlObjectPayload;
+	}
+	
+	private String createJsonPayload(String payload) {
+        boolean isJson = true;
+        try {
+            JsonParser.parseString(payload);
+        } catch (JsonSyntaxException e) {
+            isJson = false;
+        }
+        if (!isJson) {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("{");
+            stringBuilder.append("\"payload\":" + "\"" + payload + "\"");
+            stringBuilder.append("}");
+            return stringBuilder.toString();
+        }
+        return payload;
+    }
 
 }
