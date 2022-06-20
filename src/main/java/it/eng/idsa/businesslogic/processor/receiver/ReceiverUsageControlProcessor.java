@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
-import com.google.gson.Gson;
-
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.Message;
@@ -42,9 +40,6 @@ public class ReceiverUsageControlProcessor implements Processor {
     @Autowired
     private RejectionMessageService rejectionMessageService;
 
-    @Autowired(required = false)
-    private Gson gson;
-    
     @Autowired(required = false)
 	private UsageControlService usageControlService;
 

@@ -2,6 +2,7 @@ package it.eng.idsa.businesslogic.processor.receiver;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,6 +23,8 @@ import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.DescriptionRequestMessage;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.usagecontrol.model.UsageControlObjectToEnforce;
+import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.util.UtilMessageService;
@@ -35,6 +38,8 @@ public class ReceiverUsageControlProcessorTest {
 
 	@Mock
 	private RejectionMessageService rejectionMessageService;
+	@Mock
+	private UsageControlService usageControlService;
 	
 	@Mock
 	private Exchange exchange;
@@ -43,6 +48,8 @@ public class ReceiverUsageControlProcessorTest {
 	@Mock
 	private  org.apache.camel.Message out;
 	
+	@Mock 
+	private UsageControlObjectToEnforce usageControlObject;
 	@Mock
 	private Message message;
 	@Mock
@@ -59,6 +66,8 @@ public class ReceiverUsageControlProcessorTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", true);
+		ReflectionTestUtils.setField(processor, "usageControlService", usageControlService);
+
 		artifactRequestMessage = UtilMessageService.getArtifactRequestMessage();
 		artifactResponseMessage = UtilMessageService.getArtifactResponseMessage();
 		descriptionRequestMessage = UtilMessageService.getDescriptionRequestMessage(null);
@@ -68,13 +77,15 @@ public class ReceiverUsageControlProcessorTest {
 	}
 
 	@Test
+	//TODO check if this one is still valid with Platoon UC
 	public void payloadNullTest() {
 		when(exchange.getMessage()).thenReturn(camelMessage);
 		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
 		when(camelMessage.getHeaders()).thenReturn(headers);
 		when(multipartMessage.getHeaderContent()).thenReturn(artifactResponseMessage);
 		when(multipartMessage.getPayloadContent()).thenReturn(null);
-		
+		doThrow(NullPointerException.class)
+			.when(usageControlService).createUsageControlObject(artifactRequestMessage, artifactResponseMessage, null);
 		processor.process(exchange);
 
 		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, artifactRequestMessage);
@@ -118,6 +129,8 @@ public class ReceiverUsageControlProcessorTest {
 	@Test
 	public void usageControlSuccessfull() {
 		when(exchange.getMessage()).thenReturn(camelMessage);
+		when(usageControlService.createUsageControlObject(artifactRequestMessage, artifactResponseMessage, "mockPayload"))
+			.thenReturn("meta data for usage control");
 		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
 		when(camelMessage.getHeaders()).thenReturn(headers);
 		when(multipartMessage.getHeaderContent()).thenReturn(artifactResponseMessage);
