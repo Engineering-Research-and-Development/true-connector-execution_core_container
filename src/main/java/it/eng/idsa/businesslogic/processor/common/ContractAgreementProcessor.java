@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.ContractAgreementMessage;
@@ -29,7 +30,7 @@ public class ContractAgreementProcessor implements Processor {
 	private RejectionMessageService rejectionMessageService;
 	private Boolean isEnabledUsageControl;
 	
-	public ContractAgreementProcessor(UsageControlService usageControlService, CommunicationService communicationService, 
+	public ContractAgreementProcessor(@Nullable UsageControlService usageControlService, CommunicationService communicationService, 
 			@Value("#{new Boolean('${application.isEnabledUsageControl}')}") Boolean isEnabledUsageControl,
 			RejectionMessageService rejectionMessageService) {
 		this.usageControlService = usageControlService;

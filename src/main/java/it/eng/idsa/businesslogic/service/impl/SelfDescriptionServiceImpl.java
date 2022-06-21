@@ -193,15 +193,12 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		
 		Permission permission2 = new PermissionBuilder()
 				._target_(URI.create("http://w3id.org/engrd/connector/artifact/1"))
-//				._assignee_(Util.asList(URI.create("https://assignee.com")))
-//				._assigner_(Util.asList(URI.create("https://assigner.com")))
 				._action_(Util.asList(Action.USE))
 				._constraint_(Util.asList(before, after))
 				.build();
 		
 		return new ContractOfferBuilder()
-//				._consumer_(URI.create("https://consumer.com"))
-				._provider_(URI.create("https://provider.com"))
+				._provider_(issuerConnectorURI)
 				._permission_(Util.asList(permission2))
 				._contractDate_(DateUtil.now())
 				._contractStart_(UtilMessageService.START_DATE)
