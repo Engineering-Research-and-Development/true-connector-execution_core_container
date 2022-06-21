@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import com.google.gson.internal.LinkedTreeMap;
 
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
+import it.eng.idsa.businesslogic.service.CommunicationService;
 import it.eng.idsa.businesslogic.usagecontrol.exception.PolicyDeniedException;
 import it.eng.idsa.businesslogic.usagecontrol.model.IdsMsgTarget;
 import it.eng.idsa.businesslogic.usagecontrol.model.IdsUseObject;
@@ -43,14 +45,25 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
 	private static final Logger logger = LoggerFactory.getLogger(MyDataUsageControlServiceImpl.class);
 
 	private UcRestCallService ucRestCallService;
+	
+	private CommunicationService communicationService;
+	
+	private String usageControlDataAppURL;
+	
+	private String policyEndpoint = "policy/usage/odrl";
 
 	@Autowired(required = false)
 	private Gson gson;
 
-	@Autowired
-	public MyDataUsageControlServiceImpl(UcRestCallService ucRestCallService) {
+	public MyDataUsageControlServiceImpl(UcRestCallService ucRestCallService, 
+			CommunicationService communicationService,
+			@Value("${spring.ids.ucapp.baseUrl}") String usageControlDataAppURL) {
+		super();
 		this.ucRestCallService = ucRestCallService;
+		this.communicationService = communicationService;
+		this.usageControlDataAppURL = usageControlDataAppURL;
 	}
+
 
 	@Override
 	public String enforceUsageControl(JsonElement ucObject) throws Exception {
@@ -158,5 +171,12 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
         }
         return payload;
     }
+
+	@Override
+	public String uploadPolicy(String payloadContent) {
+		String ucDataAppAddPolicyEndpoint = usageControlDataAppURL + policyEndpoint;
+		logger.info("ContractAgreementMessage detected, sending payload to Usage Contol DataApp at '{}'", ucDataAppAddPolicyEndpoint);
+		return communicationService.sendDataAsJson(ucDataAppAddPolicyEndpoint, payloadContent);
+	}
 
 }

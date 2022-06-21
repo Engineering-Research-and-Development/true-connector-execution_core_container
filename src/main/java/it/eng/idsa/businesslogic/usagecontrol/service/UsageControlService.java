@@ -23,4 +23,11 @@ public interface UsageControlService {
 	 */
 	public String createUsageControlObject(ArtifactRequestMessage artifactRequestMessage,
 			ArtifactResponseMessage artifactResponseMessage, String payloadContent);
+
+	/**
+	 * Used to upload policy to Usage Control
+	 * @param payloadContent
+	 * @return
+	 */
+	public String uploadPolicy(String payloadContent);
 }

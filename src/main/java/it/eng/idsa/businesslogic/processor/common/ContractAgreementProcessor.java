@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import de.fraunhofer.iais.eis.ContractAgreementMessage;
 import it.eng.idsa.businesslogic.service.CommunicationService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
@@ -24,21 +25,15 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
 public class ContractAgreementProcessor implements Processor {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ContractAgreementProcessor.class);
-	private CommunicationService communicationService;
-	private String usageControlDataAppURL;
-	private String addPolicyEndpoint;
+	private UsageControlService usageControlService;
 	private RejectionMessageService rejectionMessageService;
 	private Boolean isEnabledUsageControl;
 	
-	public ContractAgreementProcessor(CommunicationService communicationService, 
-			@Value("${spring.ids.ucapp.baseUrl}") String usageControlDataAppURL,
-			@Value("${spring.ids.ucapp.addPolicyEndpoint}") String addPolicyEndpoint,
+	public ContractAgreementProcessor(UsageControlService usageControlService, CommunicationService communicationService, 
 			@Value("#{new Boolean('${application.isEnabledUsageControl}')}") Boolean isEnabledUsageControl,
 			RejectionMessageService rejectionMessageService) {
-		this.communicationService = communicationService;
-		this.usageControlDataAppURL = usageControlDataAppURL;
+		this.usageControlService = usageControlService;
 		this.isEnabledUsageControl = isEnabledUsageControl;
-		this.addPolicyEndpoint = addPolicyEndpoint;
 		this.rejectionMessageService = rejectionMessageService;
 	}
 
@@ -48,9 +43,11 @@ public class ContractAgreementProcessor implements Processor {
 		
 		if(isEnabledUsageControl && multipartMessage.getHeaderContent() instanceof ContractAgreementMessage) {
 			if(StringUtils.isNotBlank(multipartMessage.getPayloadContent())) {
-				String ucDataAppAddPolicyEndpoint = usageControlDataAppURL + addPolicyEndpoint;
-				logger.info("ContractAgreementMessage detected, sending payload to Usage Contol DataApp at '{}'", ucDataAppAddPolicyEndpoint);
-				String response = communicationService.sendDataAsJson(ucDataAppAddPolicyEndpoint, multipartMessage.getPayloadContent());
+				String response = usageControlService.uploadPolicy(multipartMessage.getPayloadContent());
+				if (StringUtils.isEmpty(response)) {
+					logger.warn("Policy not uploaded - Contract agreement not valid");
+					rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, multipartMessage.getHeaderContent());
+				}
 				logger.info("UsageControl DataApp response {}", response);
 			} else {
 				logger.warn("Payload not present but mandatory for this logic");

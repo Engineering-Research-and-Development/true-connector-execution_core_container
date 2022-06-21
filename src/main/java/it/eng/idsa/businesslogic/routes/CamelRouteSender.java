@@ -15,7 +15,6 @@ import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.common.MapIDSCP2toMultipart;
 import it.eng.idsa.businesslogic.processor.common.MapMultipartToIDSCP2;
 import it.eng.idsa.businesslogic.processor.common.ModifyPayloadProcessor;
-import it.eng.idsa.businesslogic.processor.common.PlatoonUsageControlProcessor;
 import it.eng.idsa.businesslogic.processor.common.ProtocolValidationProcessor;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
@@ -130,9 +129,6 @@ public class CamelRouteSender extends RouteBuilder {
 	@Autowired
 	private ProtocolValidationProcessor protocolValidationProcessor;
 	
-	@Autowired
-	private PlatoonUsageControlProcessor platoonUsageControlProcessor;
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public void configure() throws Exception {
@@ -180,9 +176,6 @@ public class CamelRouteSender extends RouteBuilder {
 		
 		if(!isEnabledDataAppWebSocket && !isEnabledIdscp2) {
 			
-			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/david")
-				.routeId("OAuth2 ROUTE	")
-				.process(platoonUsageControlProcessor);
 			// Camel SSL - Endpoint: A - Body binary
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyBinary")
 				.routeId("multipartMessageBodyBinary")
