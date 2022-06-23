@@ -75,16 +75,18 @@ public class CommunicationServiceImpl implements CommunicationService {
 		RestTemplate restTemplate = new RestTemplate();
 
 		HttpHeaders headers = new HttpHeaders();
-		headers.set("Content-Type", "application/ld+json;charset=UTF-8");
+//		application/ld+json is used when using mydata usage control
+//		headers.set("Content-Type", "application/ld+json;charset=UTF-8");
+		headers.set("Content-Type", "application/json;charset=UTF-8");
 
 		HttpEntity<String> entity = new HttpEntity<>(data, headers);
 		
 		ResponseEntity<String> result;
 		try {
 			result = restTemplate.exchange(endpoint, HttpMethod.POST, entity, String.class);
-		} catch (RestClientException e) {
-			logger.error("Error while making a request", e);
-			return null;
+		} catch (Exception e) {
+			logger.error("Error while making a request", e.getMessage());
+			throw e;
 		}
 		return result.getBody();
 	}
