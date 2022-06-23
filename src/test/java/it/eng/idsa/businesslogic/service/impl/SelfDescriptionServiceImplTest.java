@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.cert.X509Certificate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,10 @@ public class SelfDescriptionServiceImplTest {
 	private DynamicAttributeToken dynamicAttributeToken;
 	@Mock
 	private Connector connectorMock;
+	@Mock
+	private ServerKeystoreProvider keystoreProvider;
+	@Mock 
+	private X509Certificate cert;
 	private SelfDescriptionServiceImpl selfDefinitionService;
 
 	private URI connectorURI = URI.create("http://connectorURI");
@@ -56,8 +61,9 @@ public class SelfDescriptionServiceImplTest {
 		when(configuration.getDefaultEndpoint()).thenReturn(endpointUri);
 		when(configuration.getMaintainer()).thenReturn(maintainerURI);
 		when(configuration.getSenderAgent()).thenReturn(senderAgent);
+		when(keystoreProvider.getServerCertificate()).thenReturn(cert);
 		when(selfDescriptionManager.getValidConnector(any(Connector.class))).thenReturn(SelfDescriptionUtil.getBaseConnector());
-		selfDefinitionService = new SelfDescriptionServiceImpl(configuration, dapsProvider, selfDescriptionManager);
+		selfDefinitionService = new SelfDescriptionServiceImpl(configuration, dapsProvider, selfDescriptionManager, keystoreProvider);
 		selfDefinitionService.initConnector();
 	}
 

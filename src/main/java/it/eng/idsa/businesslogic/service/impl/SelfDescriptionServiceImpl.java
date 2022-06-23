@@ -3,6 +3,7 @@ package it.eng.idsa.businesslogic.service.impl;
 
 import java.io.IOException;
 import java.net.URI;
+import java.security.cert.CertificateEncodingException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -30,11 +31,14 @@ import de.fraunhofer.iais.eis.ConstraintBuilder;
 import de.fraunhofer.iais.eis.ContentType;
 import de.fraunhofer.iais.eis.ContractOffer;
 import de.fraunhofer.iais.eis.ContractOfferBuilder;
+import de.fraunhofer.iais.eis.KeyType;
 import de.fraunhofer.iais.eis.Language;
 import de.fraunhofer.iais.eis.LeftOperand;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.Permission;
 import de.fraunhofer.iais.eis.PermissionBuilder;
+import de.fraunhofer.iais.eis.PublicKey;
+import de.fraunhofer.iais.eis.PublicKeyBuilder;
 import de.fraunhofer.iais.eis.QueryLanguage;
 import de.fraunhofer.iais.eis.QueryMessageBuilder;
 import de.fraunhofer.iais.eis.QueryScope;
@@ -72,15 +76,18 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	private Connector connector;
 	private SelfDescriptionManager selfDescriptionManager;
 	private URI issuerConnectorURI;
+    private ServerKeystoreProvider serverKeystoreProvider;
 
 	@Autowired
 	public SelfDescriptionServiceImpl(
 			SelfDescriptionConfiguration selfDescriptionConfiguration,
 			DapsTokenProviderService dapsProvider,
-			SelfDescriptionManager selfDescriptionManager) {
+			SelfDescriptionManager selfDescriptionManager,
+			ServerKeystoreProvider serverKeystoreProvider) {
 		this.selfDescriptionConfiguration = selfDescriptionConfiguration;
 		this.dapsProvider = dapsProvider;
 		this.selfDescriptionManager = selfDescriptionManager;
+		this.serverKeystoreProvider = serverKeystoreProvider;
 	}
 
 	@PostConstruct
@@ -99,11 +106,22 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	private Connector createDefaultSelfDescription() {
 		logger.info("Creating default selfDescription from properties");
 		issuerConnectorURI = selfDescriptionConfiguration.getConnectorURI();
+		
+		PublicKey publicKey = null;
+        byte[] rawAuthorityKeyIdentifier = null;
+		try {
+			rawAuthorityKeyIdentifier = serverKeystoreProvider.getServerCertificate().getEncoded();
+			publicKey = new PublicKeyBuilder()._keyType_(KeyType.RSA)._keyValue_(rawAuthorityKeyIdentifier).build();
+		} catch (CertificateEncodingException e) {
+			logger.error("Error while creating PublicKey", e);
+		}
+        
 		return new BaseConnectorBuilder(issuerConnectorURI)
 				._maintainer_(selfDescriptionConfiguration.getMaintainer())
 				._curator_(selfDescriptionConfiguration.getCurator())
 				._resourceCatalog_(this.getCatalog())
 				._securityProfile_(SecurityProfile.BASE_SECURITY_PROFILE)
+				._publicKey_(publicKey)
 				._inboundModelVersion_(Util.asList(new String[] { UtilMessageService.MODEL_VERSION }))
 				._title_(Util.asList(new TypedLiteral(selfDescriptionConfiguration.getTitle())))
 				._description_(Util.asList(new TypedLiteral(selfDescriptionConfiguration.getDescription())))
