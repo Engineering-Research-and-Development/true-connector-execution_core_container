@@ -26,6 +26,7 @@ import javax.net.ssl.TrustManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -55,7 +56,13 @@ public class KeystoreProvider {
 		InputStream jksTrustStoreInputStream = null;
 
 		try {
-			InputStream jksKeyStoreInputStream = Files.newInputStream(targetDirectory.resolve(keyStoreName));
+			Path path = targetDirectory.resolve(keyStoreName);
+			InputStream jksKeyStoreInputStream;
+			if(path.isAbsolute()) {
+				jksKeyStoreInputStream = Files.newInputStream(path);
+			} else {
+				jksKeyStoreInputStream = new ClassPathResource(path.toString()).getInputStream();
+			}
 			keystore = KeyStore.getInstance("JKS");
 			logger.info("Loading key store: " + keyStoreName);
 			keystore.load(jksKeyStoreInputStream, keyStorePassword.toCharArray());

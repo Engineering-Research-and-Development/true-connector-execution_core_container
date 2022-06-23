@@ -36,7 +36,7 @@ public class SelfDescriptionServiceImplTest {
 	@Mock
 	private Connector connectorMock;
 	@Mock
-	private ServerKeystoreProvider keystoreProvider;
+	private KeystoreProvider keystoreProvider;
 	@Mock 
 	private X509Certificate cert;
 	private SelfDescriptionServiceImpl selfDefinitionService;
@@ -61,7 +61,7 @@ public class SelfDescriptionServiceImplTest {
 		when(configuration.getDefaultEndpoint()).thenReturn(endpointUri);
 		when(configuration.getMaintainer()).thenReturn(maintainerURI);
 		when(configuration.getSenderAgent()).thenReturn(senderAgent);
-		when(keystoreProvider.getServerCertificate()).thenReturn(cert);
+		when(keystoreProvider.getCertificate()).thenReturn(cert);
 		when(selfDescriptionManager.getValidConnector(any(Connector.class))).thenReturn(SelfDescriptionUtil.getBaseConnector());
 		selfDefinitionService = new SelfDescriptionServiceImpl(configuration, dapsProvider, selfDescriptionManager, keystoreProvider);
 		selfDefinitionService.initConnector();

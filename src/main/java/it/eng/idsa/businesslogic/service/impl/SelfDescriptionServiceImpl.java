@@ -1,4 +1,3 @@
-
 package it.eng.idsa.businesslogic.service.impl;
 
 import java.io.IOException;
@@ -76,18 +75,18 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	private Connector connector;
 	private SelfDescriptionManager selfDescriptionManager;
 	private URI issuerConnectorURI;
-    private ServerKeystoreProvider serverKeystoreProvider;
+    private KeystoreProvider keystoreProvider;
 
 	@Autowired
 	public SelfDescriptionServiceImpl(
 			SelfDescriptionConfiguration selfDescriptionConfiguration,
 			DapsTokenProviderService dapsProvider,
 			SelfDescriptionManager selfDescriptionManager,
-			ServerKeystoreProvider serverKeystoreProvider) {
+			KeystoreProvider keystoreProvider) {
 		this.selfDescriptionConfiguration = selfDescriptionConfiguration;
 		this.dapsProvider = dapsProvider;
 		this.selfDescriptionManager = selfDescriptionManager;
-		this.serverKeystoreProvider = serverKeystoreProvider;
+		this.keystoreProvider = keystoreProvider;
 	}
 
 	@PostConstruct
@@ -108,10 +107,10 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		issuerConnectorURI = selfDescriptionConfiguration.getConnectorURI();
 		
 		PublicKey publicKey = null;
-        byte[] rawAuthorityKeyIdentifier = null;
+        byte[] serverCertificate = null;
 		try {
-			rawAuthorityKeyIdentifier = serverKeystoreProvider.getServerCertificate().getEncoded();
-			publicKey = new PublicKeyBuilder()._keyType_(KeyType.RSA)._keyValue_(rawAuthorityKeyIdentifier).build();
+			serverCertificate = keystoreProvider.getCertificate().getEncoded();
+			publicKey = new PublicKeyBuilder()._keyType_(KeyType.RSA)._keyValue_(serverCertificate).build();
 		} catch (CertificateEncodingException e) {
 			logger.error("Error while creating PublicKey", e);
 		}
