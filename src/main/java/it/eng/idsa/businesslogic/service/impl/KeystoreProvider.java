@@ -129,6 +129,10 @@ public class KeystoreProvider {
 	}
 
 	public X509Certificate getCertificate() {
+		if(keystore == null) {
+			logger.info("Keystore not initialized");
+			return null;
+		}
 		try {
 			return (X509Certificate) keystore.getCertificate(keystoreAlias);
 		} catch (KeyStoreException e) {

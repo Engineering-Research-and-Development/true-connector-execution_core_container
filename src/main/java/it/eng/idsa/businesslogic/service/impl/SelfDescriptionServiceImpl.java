@@ -111,7 +111,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		try {
 			serverCertificate = keystoreProvider.getCertificate().getEncoded();
 			publicKey = new PublicKeyBuilder()._keyType_(KeyType.RSA)._keyValue_(serverCertificate).build();
-		} catch (CertificateEncodingException e) {
+		} catch (CertificateEncodingException | NullPointerException e) {
 			logger.error("Error while creating PublicKey", e);
 		}
         
