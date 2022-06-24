@@ -11,40 +11,12 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import de.fraunhofer.iais.eis.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.fraunhofer.iais.eis.Action;
-import de.fraunhofer.iais.eis.Artifact;
-import de.fraunhofer.iais.eis.ArtifactBuilder;
-import de.fraunhofer.iais.eis.BaseConnectorBuilder;
-import de.fraunhofer.iais.eis.BinaryOperator;
-import de.fraunhofer.iais.eis.Connector;
-import de.fraunhofer.iais.eis.ConnectorEndpointBuilder;
-import de.fraunhofer.iais.eis.ConnectorUnavailableMessageBuilder;
-import de.fraunhofer.iais.eis.ConnectorUpdateMessageBuilder;
-import de.fraunhofer.iais.eis.Constraint;
-import de.fraunhofer.iais.eis.ConstraintBuilder;
-import de.fraunhofer.iais.eis.ContentType;
-import de.fraunhofer.iais.eis.ContractOffer;
-import de.fraunhofer.iais.eis.ContractOfferBuilder;
-import de.fraunhofer.iais.eis.Language;
-import de.fraunhofer.iais.eis.LeftOperand;
-import de.fraunhofer.iais.eis.Message;
-import de.fraunhofer.iais.eis.Permission;
-import de.fraunhofer.iais.eis.PermissionBuilder;
-import de.fraunhofer.iais.eis.QueryLanguage;
-import de.fraunhofer.iais.eis.QueryMessageBuilder;
-import de.fraunhofer.iais.eis.QueryScope;
-import de.fraunhofer.iais.eis.Representation;
-import de.fraunhofer.iais.eis.Resource;
-import de.fraunhofer.iais.eis.ResourceCatalog;
-import de.fraunhofer.iais.eis.ResourceCatalogBuilder;
-import de.fraunhofer.iais.eis.SecurityProfile;
-import de.fraunhofer.iais.eis.TextRepresentationBuilder;
-import de.fraunhofer.iais.eis.TextResourceBuilder;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import de.fraunhofer.iais.eis.util.RdfResource;
 import de.fraunhofer.iais.eis.util.TypedLiteral;
@@ -100,8 +72,8 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		logger.info("Creating default selfDescription from properties");
 		issuerConnectorURI = selfDescriptionConfiguration.getConnectorURI();
 		return new BaseConnectorBuilder(issuerConnectorURI)
-				._maintainer_(selfDescriptionConfiguration.getMaintainer())
-				._curator_(selfDescriptionConfiguration.getCurator())
+				._maintainerAsUri_(selfDescriptionConfiguration.getMaintainer())
+				._curatorAsUri_(selfDescriptionConfiguration.getCurator())
 				._resourceCatalog_(this.getCatalog())
 				._securityProfile_(SecurityProfile.BASE_SECURITY_PROFILE)
 				._inboundModelVersion_(Util.asList(new String[] { UtilMessageService.MODEL_VERSION }))
@@ -159,7 +131,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		List<ResourceCatalog> catalogList = new ArrayList<>();
 		ArrayList<Resource> offeredResources = new ArrayList<>();
 		offeredResources.add(offeredResource);
-		catalogList.add(new ResourceCatalogBuilder()._offeredResource_(offeredResources).build());
+		catalogList.add(new ResourceCatalogBuilder()._offeredResourceAsObject_(offeredResources).build());
 		return catalogList;
 	}
 	
@@ -180,6 +152,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._operator_(BinaryOperator.AFTER)
 				._rightOperand_(new RdfResource(dateTime.minusDays(7).format(formatter), 
 						URI.create("http://www.w3.org/2001/XMLSchema#dateTimeStamp")))
+				._pipEndpoint_(new PIPBuilder()._endpointURI_(URI.create("https://pip.com/policy_evaluation_time"))._interfaceDescription_(URI.create("https://pip.com/policy_inteface_description")).build())
 				.build();
 		
 		Constraint after = new ConstraintBuilder()
@@ -187,6 +160,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._operator_(BinaryOperator.BEFORE)
 				._rightOperand_(new RdfResource(dateTime.plusMonths(1).format(formatter), 
 						URI.create("http://www.w3.org/2001/XMLSchema#dateTimeStamp")))
+				._pipEndpoint_(new PIPBuilder()._endpointURI_(URI.create("https://pip.com/policy_evaluation_time"))._interfaceDescription_(URI.create("https://pip.com/policy_inteface_description")).build())
 				.build();
 		
 		Permission permission2 = new PermissionBuilder()

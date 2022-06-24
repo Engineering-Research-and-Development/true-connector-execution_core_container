@@ -59,7 +59,7 @@ public class SelfDescriptionManager {
 	public Connector addOfferedResource(Connector connector, URI resourceCatalogId, Resource resource) {
 		ResourceCatalog resourceCatalog = checkIfResourceCatalogExists(connector, resourceCatalogId);
 
-		boolean existingOfferedResource = resourceCatalog.getOfferedResource().stream()
+		boolean existingOfferedResource = resourceCatalog.getOfferedResourceAsObject().stream()
 				.anyMatch(r -> r.getId().equals(resource.getId()));
 				
 		if(!existingOfferedResource) {
@@ -85,14 +85,14 @@ public class SelfDescriptionManager {
 		ResourceCatalog resourceCatalog = checkIfResourceCatalogExists(connector, resourceCatalogId);
 
 		Predicate<Resource> equalResource = r -> r.getId().equals(resource.getId());
-		boolean existingOfferedResource = resourceCatalog.getOfferedResource().stream()
+		boolean existingOfferedResource = resourceCatalog.getOfferedResourceAsObject().stream()
 				.anyMatch(equalResource);
 		
 		if(existingOfferedResource) {
 			logger.debug("Found resource with id '{}' for update/replace", resource.getId());
-			resourceCatalog.getOfferedResource().removeIf(equalResource);
+			resourceCatalog.getOfferedResourceAsObject().removeIf(equalResource);
 			logger.info("Updating resource");
-			((ArrayList<Resource>) resourceCatalog.getOfferedResource()).add(resource);
+			((ArrayList<Resource>) resourceCatalog.getOfferedResourceAsObject()).add(resource);
 		} else {
 			logger.info("Resource with id '{}' does not exist, cannot update", resource.getId());
 			throw new ResourceNotFoundException(String.format("Resource with id '%s' does not exist", resource.getId()));
@@ -110,7 +110,7 @@ public class SelfDescriptionManager {
 		BaseConnectorImpl connImpl = (BaseConnectorImpl) connector;
 		boolean removed = false;
 		for(ResourceCatalog resourceCatalog : connImpl.getResourceCatalog()) {
-			removed = resourceCatalog.getOfferedResource().removeIf(or -> or.getId().equals(resourceId));
+			removed = resourceCatalog.getOfferedResourceAsObject().removeIf(or -> or.getId().equals(resourceId));
 		}
 		if(removed) {
 			logger.info("Succesfuly removed resource with id '{}'", resourceId);
@@ -129,7 +129,7 @@ public class SelfDescriptionManager {
 	public Resource getOfferedResource(Connector connector, URI resourceId) {
 		
 		Optional<Resource> resource = Optional.ofNullable(connector.getResourceCatalog().stream()
-			.flatMap(rc -> rc.getOfferedResource().stream())
+			.flatMap(rc -> rc.getOfferedResourceAsObject().stream())
 			.filter(or -> or.getId().equals(resourceId))
 			.findFirst()
 			.orElse(null));
@@ -164,7 +164,7 @@ public class SelfDescriptionManager {
 	 */
 	public Representation getRepresentation(Connector connector, URI representationId) {
 		Optional<Representation> representation = Optional.ofNullable(connector.getResourceCatalog().stream()
-				.flatMap(rc -> rc.getOfferedResource().stream())
+				.flatMap(rc -> rc.getOfferedResourceAsObject().stream())
 				.flatMap(or -> or.getRepresentation().stream())
 				.filter(r -> r.getId().equals(representationId))
 				.findFirst()
@@ -233,7 +233,7 @@ public class SelfDescriptionManager {
 	 */
 	public Connector removeRepresentationFromResource(Connector connector, URI representationId) {
 		for(ResourceCatalog resourceCatalog : connector.getResourceCatalog()) {
-			for(Resource resource : resourceCatalog.getOfferedResource()) {
+			for(Resource resource : resourceCatalog.getOfferedResourceAsObject()) {
 				resource.getRepresentation().removeIf(rep -> rep.getId().equals(representationId));
 			}
 		}
@@ -254,7 +254,7 @@ public class SelfDescriptionManager {
 		BaseConnectorImpl connector = (BaseConnectorImpl) SelfDescription.getInstance().getConnector();
 		
 		for(ResourceCatalog resourceCatalog : connector.getResourceCatalog()) {
-			for(Resource resource : resourceCatalog.getOfferedResource()) {
+			for(Resource resource : resourceCatalog.getOfferedResourceAsObject()) {
 				for(ContractOffer co : resource.getContractOffer()) {
 					if(co.getId().equals(contractOfferId)) {
 						logger.debug("Found contract offer with id '{}'", contractOfferId);
@@ -327,7 +327,7 @@ public class SelfDescriptionManager {
 	 */
 	public Connector removeContractOfferFromResource(Connector connector, URI contractOfferId)  {
 		for(ResourceCatalog resourceCatalog : connector.getResourceCatalog()) {
-			for(Resource resource : resourceCatalog.getOfferedResource()) {
+			for(Resource resource : resourceCatalog.getOfferedResourceAsObject()) {
 				resource.getContractOffer().removeIf(co -> co.getId().equals(contractOfferId));
 			}
 		}
@@ -346,7 +346,7 @@ public class SelfDescriptionManager {
 		while(litr.hasNext()) {
 			ResourceCatalog rc = litr.next();
 			if(rc.getOfferedResource() != null) {
-				ListIterator<? extends Resource> resourceIter = rc.getOfferedResource().listIterator();
+				ListIterator<? extends Resource> resourceIter = rc.getOfferedResourceAsObject().listIterator();
 				while(resourceIter.hasNext()) {
 					Resource r = resourceIter.next();
 					boolean emptyContractOffer = r.getContractOffer() !=null ? r.getContractOffer().size() == 0 : true;

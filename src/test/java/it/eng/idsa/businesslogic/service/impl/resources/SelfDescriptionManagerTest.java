@@ -53,26 +53,26 @@ public class SelfDescriptionManagerTest {
 	
 	@Test
 	public void addOfferedResource() {
-		assertEquals(2, conn.getResourceCatalog().get(0).getOfferedResource().size());
-		assertEquals(2, conn.getResourceCatalog().get(1).getOfferedResource().size());
+		assertEquals(2, conn.getResourceCatalog().get(0).getOfferedResourceAsUri().size());
+		assertEquals(2, conn.getResourceCatalog().get(1).getOfferedResourceAsUri().size());
 		Connector modifiedConnector = manager.addOfferedResource(conn, 
 				URI.create("http://catalog.com/1"), 
 				new ImageResourceBuilder()._title_(Util.asList(new TypedLiteral("Image resource title"))).build());
 		
-		assertEquals(3, modifiedConnector.getResourceCatalog().get(0).getOfferedResource().size());
-		assertEquals(2, modifiedConnector.getResourceCatalog().get(1).getOfferedResource().size());
+		assertEquals(3, modifiedConnector.getResourceCatalog().get(0).getOfferedResourceAsUri().size());
+		assertEquals(2, modifiedConnector.getResourceCatalog().get(1).getOfferedResourceAsUri().size());
 	}
 	
 	@Test
 	public void addOfferedResource_SecondResourceCatalog() {
-		assertEquals(2, conn.getResourceCatalog().get(0).getOfferedResource().size());
-		assertEquals(2, conn.getResourceCatalog().get(1).getOfferedResource().size());
+		assertEquals(2, conn.getResourceCatalog().get(0).getOfferedResourceAsUri().size());
+		assertEquals(2, conn.getResourceCatalog().get(1).getOfferedResourceAsUri().size());
 		Connector modifiedConnector = manager.addOfferedResource(conn, 
 				URI.create("http://catalog.com/2"), 
 				new ImageResourceBuilder()._title_(Util.asList(new TypedLiteral("Image resource title"))).build());
 		
-		assertEquals(2, modifiedConnector.getResourceCatalog().get(0).getOfferedResource().size());
-		assertEquals(3, modifiedConnector.getResourceCatalog().get(1).getOfferedResource().size());
+		assertEquals(2, modifiedConnector.getResourceCatalog().get(0).getOfferedResourceAsUri().size());
+		assertEquals(3, modifiedConnector.getResourceCatalog().get(1).getOfferedResourceAsUri().size());
 	}
 	
 	@Test
@@ -99,7 +99,7 @@ public class SelfDescriptionManagerTest {
 	public void updateOfferedResource() {
 		URI artifact1URI = URI.create("http://w3id.org/engrd/connector/artifact/catalog/1/resource/1");
 
-		assertTrue(conn.getResourceCatalog().get(0).getOfferedResource().get(0) instanceof DataResource);
+		assertTrue(conn.getResourceCatalog().get(0).getOfferedResourceAsObject().get(0) instanceof DataResource);
 		String TITLE_UPDATE = "Image resource title UPDATED";
 		Connector modifiedConnector = manager.updateOfferedResource(conn,
 				URI.create("http://catalog.com/1"), 
@@ -108,9 +108,9 @@ public class SelfDescriptionManagerTest {
 					._version_("1.0.1")
 					.build());
 		
-		assertEquals(2, modifiedConnector.getResourceCatalog().get(0).getOfferedResource().size());
+		assertEquals(2, modifiedConnector.getResourceCatalog().get(0).getOfferedResourceAsUri().size());
 		
-		Optional<? extends Resource> res = modifiedConnector.getResourceCatalog().get(0).getOfferedResource()
+		Optional<? extends Resource> res = modifiedConnector.getResourceCatalog().get(0).getOfferedResourceAsObject()
 				.stream()
 				.filter(resource -> resource.getId().equals(artifact1URI))
 				.findFirst();
@@ -148,10 +148,10 @@ public class SelfDescriptionManagerTest {
 	public void removeOfferedResource() {
 		URI artifact1URI = URI.create("http://w3id.org/engrd/connector/artifact/catalog/1/resource/1");
 
-		assertEquals(2, conn.getResourceCatalog().get(0).getOfferedResource().size());
+		assertEquals(2, conn.getResourceCatalog().get(0).getOfferedResourceAsUri().size());
 		Connector modifiedConnector = manager.deleteOfferedResource(conn, 
 				artifact1URI);
-		assertEquals(1, modifiedConnector.getResourceCatalog().get(0).getOfferedResource().size());
+		assertEquals(1, modifiedConnector.getResourceCatalog().get(0).getOfferedResourceAsUri().size());
 	}
 	
 	@Test
@@ -178,7 +178,7 @@ public class SelfDescriptionManagerTest {
 				SelfDescriptionUtil.getTextRepresentation(representationURI, artifact), 
 				resourceId);
 
-		Optional<? extends Resource> res = modifiedConnector.getResourceCatalog().get(1).getOfferedResource()
+		Optional<? extends Resource> res = modifiedConnector.getResourceCatalog().get(1).getOfferedResourceAsObject()
 				.stream()
 				.filter(resource -> resource.getId().equals(resourceId))
 				.findFirst();
@@ -210,7 +210,7 @@ public class SelfDescriptionManagerTest {
 				SelfDescriptionUtil.getTextRepresentation(representationURI, artifact), 
 				resourceId);
 
-		Optional<? extends Resource> res = modifiedConnector.getResourceCatalog().get(1).getOfferedResource()
+		Optional<? extends Resource> res = modifiedConnector.getResourceCatalog().get(1).getOfferedResourceAsObject()
 				.stream()
 				.filter(resource -> resource.getId().equals(resourceId))
 				.findFirst();
@@ -249,7 +249,7 @@ public class SelfDescriptionManagerTest {
 
 		Connector modifiedConnector = manager.removeRepresentationFromResource(conn, representationURI);
 
-		Optional<? extends Resource> res = modifiedConnector.getResourceCatalog().get(1).getOfferedResource()
+		Optional<? extends Resource> res = modifiedConnector.getResourceCatalog().get(1).getOfferedResourceAsObject()
 				.stream()
 				.filter(resource -> resource.getId().equals(resourceId))
 				.findFirst();
@@ -266,7 +266,7 @@ public class SelfDescriptionManagerTest {
 		ContractOffer updatedOffer = SelfDescriptionUtil.createContractOffer(targetUri, "2", "2", "2");
 		Connector modifiedConnector = manager.addContractOfferToResource(conn, updatedOffer, resourceId);
 		
-		Optional<? extends Resource> res = modifiedConnector.getResourceCatalog().get(1).getOfferedResource()
+		Optional<? extends Resource> res = modifiedConnector.getResourceCatalog().get(1).getOfferedResourceAsObject()
 				.stream()
 				.filter(resource -> resource.getId().equals(resourceId))
 				.findFirst();
@@ -294,7 +294,7 @@ public class SelfDescriptionManagerTest {
 		ContractOffer updatedOffer = SelfDescriptionUtil.createContractOffer(targetUri, "2", "2", "1");
 		Connector modifiedConnector = manager.updateContractOfferToResource(conn, updatedOffer, resourceId);
 		
-		Optional<? extends Resource> res = modifiedConnector.getResourceCatalog().get(1).getOfferedResource()
+		Optional<? extends Resource> res = modifiedConnector.getResourceCatalog().get(1).getOfferedResourceAsObject()
 				.stream()
 				.filter(resource -> resource.getId().equals(resourceId))
 				.findFirst();
@@ -344,7 +344,7 @@ public class SelfDescriptionManagerTest {
 		ContractOffer updatedOffer = SelfDescriptionUtil.createContractOffer(targetUri, "2", "2", "1");
 		Connector modifiedConnector = manager.removeContractOfferFromResource(conn, updatedOffer.getId());
 		
-		Optional<? extends Resource> res = modifiedConnector.getResourceCatalog().get(1).getOfferedResource()
+		Optional<? extends Resource> res = modifiedConnector.getResourceCatalog().get(1).getOfferedResourceAsObject()
 				.stream()
 				.filter(resource -> resource.getId().equals(resourceId))
 				.findFirst();
@@ -357,8 +357,8 @@ public class SelfDescriptionManagerTest {
 		Connector modifiedConnector = manager.getValidConnector(conn);
 		
 		assertEquals(2, modifiedConnector.getResourceCatalog().size());
-		assertEquals(2, modifiedConnector.getResourceCatalog().get(0).getOfferedResource().size());
-		assertEquals(2, modifiedConnector.getResourceCatalog().get(1).getOfferedResource().size());
+		assertEquals(2, modifiedConnector.getResourceCatalog().get(0).getOfferedResourceAsUri().size());
+		assertEquals(2, modifiedConnector.getResourceCatalog().get(1).getOfferedResourceAsUri().size());
 	}
 	
 	@Test
@@ -369,13 +369,13 @@ public class SelfDescriptionManagerTest {
 		
 		Connector modified1 = manager.removeContractOfferFromResource(conn, updatedOffer.getId());
 		assertEquals(2, modified1.getResourceCatalog().size());
-		assertEquals(2, modified1.getResourceCatalog().get(0).getOfferedResource().size());
-		assertEquals(2, modified1.getResourceCatalog().get(1).getOfferedResource().size());
+		assertEquals(2, modified1.getResourceCatalog().get(0).getOfferedResourceAsUri().size());
+		assertEquals(2, modified1.getResourceCatalog().get(1).getOfferedResourceAsUri().size());
 
 		Connector modifiedConnector = manager.getValidConnector(modified1);
 		assertEquals(2, modifiedConnector.getResourceCatalog().size());
-		assertEquals(2, modifiedConnector.getResourceCatalog().get(0).getOfferedResource().size());
-		assertEquals(1, modifiedConnector.getResourceCatalog().get(1).getOfferedResource().size());
+		assertEquals(2, modifiedConnector.getResourceCatalog().get(0).getOfferedResourceAsUri().size());
+		assertEquals(1, modifiedConnector.getResourceCatalog().get(1).getOfferedResourceAsUri().size());
 		
 		
 //		System.out.println(new Serializer().serialize(modifiedConnector));

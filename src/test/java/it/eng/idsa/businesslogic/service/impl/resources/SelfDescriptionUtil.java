@@ -83,7 +83,7 @@ public class SelfDescriptionUtil {
 				._version_("1.0.0")._language_(Util.asList(Language.EN, Language.IT))
 				._modified_(DateUtil.now())
 				._created_(DateUtil.now())
-				._sovereign_(URI.create("https://sovereign.com"))
+				._sovereignAsUri_(URI.create("https://sovereign.com"))
 				._contractOffer_(Util.asList(offer1))
 				._representation_(Util.asList(defaultRepresentation1))
 				.build();
@@ -107,7 +107,7 @@ public class SelfDescriptionUtil {
 				._version_("1.0.0")._language_(Util.asList(Language.EN, Language.IT))
 				._modified_(DateUtil.now())
 				._created_(DateUtil.now())
-				._sovereign_(URI.create("https://sovereign.com"))
+				._sovereignAsUri_(URI.create("https://sovereign.com"))
 				._contractOffer_(Util.asList(offer2))
 				._representation_(Util.asList(defaultRepresentation2))
 				.build();
@@ -122,13 +122,13 @@ public class SelfDescriptionUtil {
 			Resource[] resource1 = getResources("1");
 			ResourceCatalog catalog1 = null;
 			catalog1 = new ResourceCatalogBuilder(URI.create("http://catalog.com/1"))
-					._offeredResource_(Util.asList(resource1))
+					._offeredResourceAsObject_(Util.asList(resource1))
 					.build();
 			catalogList.add(catalog1);
 			Resource[] resource2 = getResources("2");
 			ResourceCatalog catalog2 = null;
 			catalog2 = new ResourceCatalogBuilder(URI.create("http://catalog.com/2"))
-					._offeredResource_(Util.asList(resource2))
+					._offeredResourceAsObject_(Util.asList(resource2))
 					.build();
 			catalogList.add(catalog2);
 		} catch (ConstraintViolationException e) {
@@ -139,8 +139,8 @@ public class SelfDescriptionUtil {
 	
 	public static Connector getBaseConnector() {
 		return new BaseConnectorBuilder(ISSUER_CONNECTOR)
-				._maintainer_(MAINTAINER)
-				._curator_(CURATOR)
+				._maintainerAsUri_(MAINTAINER)
+				._curatorAsUri_(CURATOR)
 				._resourceCatalog_(getCatalogs())
 				._securityProfile_(SecurityProfile.BASE_SECURITY_PROFILE)
 				._inboundModelVersion_(Util.asList(new String[] { INFO_MODEL_VERSION }))
