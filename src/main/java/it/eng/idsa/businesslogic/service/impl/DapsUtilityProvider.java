@@ -1,5 +1,6 @@
 package it.eng.idsa.businesslogic.service.impl;
 
+import java.net.URL;
 import java.nio.file.Path;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -35,7 +36,7 @@ public class DapsUtilityProvider {
     private KeystoreProvider keystoreProvider;
     
 	@Value("${application.dapsJWKSUrl}")
-	private String dapsJWKSUrl;
+	private URL dapsJWKSUrl;
 	
 	@Value("${application.targetDirectory}")
 	private Path targetDirectory;

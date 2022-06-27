@@ -1,6 +1,7 @@
 package it.eng.idsa.businesslogic.usagecontrol.service.impl;
 
 import java.io.IOException;
+import java.net.URI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,7 @@ public class PlatoonUsageControlServiceImpl implements UsageControlService {
 	@Value("${spring.ids.ucapp.baseUrl}")
 	private String platoonURL;
 	
-	private String policyEnforcementEndpoint = "enforce/usage/use";
+	private String policyEnforcementEndpoint = "enforce/usage/agreement";
 	
 	private String policyUploadEndpoint = "contractAgreement";
 	
@@ -38,29 +39,18 @@ public class PlatoonUsageControlServiceImpl implements UsageControlService {
 	private Gson gson;
 
 	@Override
-	public String enforceUsageControl(JsonElement ucObject) throws IOException {
-		UsageControlObjectToEnforce ucObj = gson.fromJson(ucObject, UsageControlObjectToEnforce.class);
-
-		logger.info("Proceeding with Usage control enforcement");
-		String provider = ucObj.getAssigner().toString();
-		String consumer = ucObj.getAssignee().toString();
-		String targetArtifact = ucObj.getTargetArtifactId().toString();
-		logger.info("Provider:" + provider);
-		logger.info("Consumer:" + consumer);
-		logger.info("payload:" + ucObj.getPayload());
-		logger.info("artifactID:" + targetArtifact);
-
+	public String enforceUsageControl(URI uri, String ucObject) throws IOException {
+		
+		logger.info("enforcing contract agreement:" + uri.toString());
+		
 		StringBuffer ucUrl = new StringBuffer().append(platoonURL)
 				.append(policyEnforcementEndpoint)
-				.append("?targetDataUri=")
-				.append(targetArtifact)
-				.append("&providerUri=")
-				.append(provider)
-				.append("&consumerUri=")
-				.append(consumer)
+				.append("?contractAgreementUri=")
+				.append(uri)
 				.append("&consuming=true");
-
-		return communicationService.sendDataAsJson(ucUrl.toString(), ucObj.getPayload());
+		
+		
+		return communicationService.sendDataAsJson(ucUrl.toString(), ucObject);
 	}
 
 	@Override
