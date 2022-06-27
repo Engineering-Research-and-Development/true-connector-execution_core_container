@@ -11,7 +11,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
