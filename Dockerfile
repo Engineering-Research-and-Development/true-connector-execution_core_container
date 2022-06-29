@@ -8,7 +8,7 @@ FROM openjdk:11.0.12-jre
 LABEL maintainer="gabriele.deluca@eng.it"
 
 # Add a volume pointing to /tmp
-VOLUME /tmp
+#VOLUME /tmp
 
 # Make port 8443 available to the world outside this container
 EXPOSE 8449
