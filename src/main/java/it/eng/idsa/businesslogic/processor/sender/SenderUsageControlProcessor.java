@@ -77,9 +77,9 @@ public class SenderUsageControlProcessor implements Processor {
 
 		try {
 
-			JsonElement transferedDataObject = getDataObject(payload);
+//			JsonElement transferedDataObject = getDataObject(decodedPyload);
 			
-			String objectToEnforce = usageControlService.enforceUsageControl(transferedDataObject);
+			String objectToEnforce = usageControlService.enforceUsageControl(responseMessage.getTransferContract(), payload);
 			
 			multipartMessageResponse = new MultipartMessageBuilder()
 					.withHeaderContent(responseMessage)
@@ -105,6 +105,7 @@ public class SenderUsageControlProcessor implements Processor {
 				obj = jsonElement;
 			}
 		} catch (JsonSyntaxException jse) {
+			logger.error("Usage control object is not JSON");
 			obj = null;
 		}
 		return obj;

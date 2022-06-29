@@ -1,6 +1,6 @@
 package it.eng.idsa.businesslogic.usagecontrol.service;
 
-import com.google.gson.JsonElement;
+import java.net.URI;
 
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
@@ -9,11 +9,12 @@ public interface UsageControlService {
 
 	/**
 	 * Used on the Usage Control consumer side for policy enforcement
-	 * @param ucObject
+	 * @param contractAgreementUri
+	 * @param payload
 	 * @return
 	 * @throws Exception
 	 */
-	public String enforceUsageControl(JsonElement ucObject) throws Exception;
+	public String enforceUsageControl(URI contractAgreementUri, String payload) throws Exception;
 
 	/**
 	 * Used on the Usage Control provider side for creating Usage Control Object
