@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
@@ -27,10 +28,13 @@ public class DeModifyPayloadProcessor implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		if(encodeDecodePayload) {
+			MultipartMessage mm = exchange.getMessage().getBody(MultipartMessage.class);
+			if (!(mm.getHeaderContent() instanceof ArtifactResponseMessage)) {
+				logger.info("Not and ArtifactResponseMessage - skipping Base64 Decoding of the payload");
+				return;
+			}
 			logger.info("Base64 Decoding payload");
 			try {
-				MultipartMessage mm = exchange.getMessage().getBody(MultipartMessage.class);
-				
 				MultipartMessage mmEncoded =  new MultipartMessageBuilder()
 						.withHttpHeader(mm.getHttpHeaders())
 						.withHeaderHeader(mm.getHeaderHeader())
@@ -41,7 +45,7 @@ public class DeModifyPayloadProcessor implements Processor {
 						.build();
 				exchange.getMessage().setBody(mmEncoded);
 			} catch (IllegalArgumentException ex) {
-				logger.warn("---------- Payload is not valid Base64 encoded string - will not perform encoding. Continue with original payload ---------");
+				logger.warn("---------- Payload is not valid Base64 encoded string - will not perform decoding. Continue with original payload ---------");
 			}
 		}
 	}
