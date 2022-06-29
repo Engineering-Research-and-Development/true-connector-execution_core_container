@@ -197,7 +197,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._operator_(BinaryOperator.AFTER)
 				._rightOperand_(new RdfResource(dateTime.minusDays(7).format(formatter), 
 						URI.create("http://www.w3.org/2001/XMLSchema#dateTimeStamp")))
-				._pipEndpoint_(URI.create("http://pip.endpoint.after"))
+//				._pipEndpoint_(URI.create("http://pip.endpoint.after"))
 				.build();
 		
 		Constraint after = new ConstraintBuilder()
@@ -205,13 +205,15 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._operator_(BinaryOperator.BEFORE)
 				._rightOperand_(new RdfResource(dateTime.plusMonths(1).format(formatter), 
 						URI.create("http://www.w3.org/2001/XMLSchema#dateTimeStamp")))
-				._pipEndpoint_(URI.create("http://pip.endpoint.before"))
+//				._pipEndpoint_(URI.create("http://pip.endpoint.before"))
 				.build();
 		
 		Permission permission2 = new PermissionBuilder()
 				._target_(URI.create("http://w3id.org/engrd/connector/artifact/1"))
 				._action_(Util.asList(Action.USE))
 				._constraint_(Util.asList(before, after))
+				._title_(new TypedLiteral("Example Usage Policy"))
+				._description_(new TypedLiteral("provide-access"))
 				.build();
 		
 		return new ContractOfferBuilder()
