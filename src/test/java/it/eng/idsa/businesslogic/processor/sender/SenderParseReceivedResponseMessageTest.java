@@ -125,6 +125,8 @@ public class SenderParseReceivedResponseMessageTest {
 		when(camelMessage.getHeaders()).thenReturn(headers);
 		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
 		when(multipartMessage.getHeaderContent()).thenReturn(message);
+		when(multipartMessage.getPayloadContent()).thenReturn(PAYLOAD);
+
 	}
 	
 }

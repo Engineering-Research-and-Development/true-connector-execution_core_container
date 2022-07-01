@@ -152,10 +152,10 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) {
 			exchange.getMessage().setBody(responseString);
 		} else {
-			MultipartMessage mm = MultipartMessageProcessor.parseMultipartMessage(responseString);
-			exchange.getMessage().setHeader(MessagePart.HEADER, mm.getHeaderContentString());
-			exchange.getMessage().setHeader(MessagePart.PAYLOAD, mm.getPayloadContent());
-
+			MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(responseString);
+			exchange.getMessage().setHeader(MessagePart.HEADER, multipartMessage.getHeaderContentString());
+			exchange.getMessage().setHeader(MessagePart.PAYLOAD, multipartMessage.getPayloadContent());
+			exchange.getMessage().setBody(multipartMessage);
 		}
 	}
 

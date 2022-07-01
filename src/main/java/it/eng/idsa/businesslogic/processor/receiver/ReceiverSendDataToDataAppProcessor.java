@@ -2,6 +2,7 @@ package it.eng.idsa.businesslogic.processor.receiver;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
@@ -20,8 +21,10 @@ import it.eng.idsa.businesslogic.service.impl.SendDataToBusinessLogicServiceImpl
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
+import it.eng.idsa.multipart.util.MultipartMessageKey;
 import okhttp3.Response;
 
 /**
@@ -127,16 +130,32 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		logger.info("data sent to destination: " + openApiDataAppAddress);
 		logger.info("response received from the DataAPP=" + responseString);
 
-		exchange.getMessage().setHeaders(httpHeaderService.okHttpHeadersToMap(response.headers()));
+		Map<String, Object> headers = httpHeaderService.okHttpHeadersToMap(response.headers());
+		exchange.getMessage().setHeaders(headers);
 		if (isEnabledUsageControl) {
 			exchange.getMessage().setHeader("Original-Message-Header", originalHeader);
 		}
 		if (RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
 			exchange.getMessage().setBody(responseString);
+			message = httpHeaderService.headersToMessage(headers);
+			
+			Map<String, String> headerHeaderContentType = new HashMap<>();
+			headerHeaderContentType.put("Content-Type", "application/ld+json");
+			Map<String, String> payloadHeaderContentType = new HashMap<>();
+			payloadHeaderContentType.put("Content-Type", response.headers().get(MultipartMessageKey.CONTENT_TYPE.label));
+			MultipartMessage multipartMessage = new MultipartMessageBuilder()
+					.withHeaderContent(message)
+					.withHeaderHeader(headerHeaderContentType)
+					.withPayloadContent(responseString)
+					.withPayloadHeader(payloadHeaderContentType)
+					.build();
+			exchange.getMessage().setBody(multipartMessage);
+			
 		} else {
-			MultipartMessage mm = MultipartMessageProcessor.parseMultipartMessage(responseString);
-			exchange.getMessage().setHeader(MessagePart.HEADER, mm.getHeaderContentString());
-			exchange.getMessage().setHeader(MessagePart.PAYLOAD, mm.getPayloadContent());
+			MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(responseString);
+			exchange.getMessage().setHeader(MessagePart.HEADER, multipartMessage.getHeaderContentString());
+			exchange.getMessage().setHeader(MessagePart.PAYLOAD, multipartMessage.getPayloadContent());
+			exchange.getMessage().setBody(multipartMessage);
 		}
 	}
 	

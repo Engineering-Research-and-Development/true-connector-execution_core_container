@@ -137,7 +137,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 						.removeHeaders("Camel*")
 						.process(sendDataToDataAppProcessor)
 				.end()
-				.process(multiPartMessageProcessor)
+//				.process(multiPartMessageProcessor)
 				.process(deModifyPayloadProcessor)
 				.process(getTokenFromDapsProcessor)
 				.process(receiverUsageControlProcessor)
