@@ -43,8 +43,7 @@ public class ValidateTokenProcessor implements Processor {
         }
 		
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
-		
-		String token = multipartMessage.getToken();
+		String token = multipartMessage.getHeaderContent().getSecurityToken().getTokenValue();
 		Message message = multipartMessage.getHeaderContent();
 		logger.info("token: {}", token);
 		

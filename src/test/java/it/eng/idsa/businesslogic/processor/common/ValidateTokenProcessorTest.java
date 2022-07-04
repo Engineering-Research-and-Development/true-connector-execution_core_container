@@ -25,7 +25,7 @@ import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class ValidateTokenProcessorTest {
 
-	private static final String TOKEN = "DUMMY_TOKEN_VALUE";
+	private static final String TOKEN = UtilMessageService.TOKEN_VALUE;
 
 	@InjectMocks
 	private ValidateTokenProcessor processor;
@@ -65,7 +65,7 @@ public class ValidateTokenProcessorTest {
 
 		mockExchangeHeaderAndBody();
 
-		when(multipartMessage.getToken()).thenReturn(TOKEN);
+		when(multipartMessage.getHeaderContent()).thenReturn(message);
 		when(dapsService.validateToken(TOKEN)).thenReturn(true);
 
 		processor.process(exchange);
