@@ -18,7 +18,6 @@ import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.SendDataToBusinessLogicServiceImpl;
-import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -153,8 +152,6 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 			
 		} else {
 			MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(responseString);
-			exchange.getMessage().setHeader(MessagePart.HEADER, multipartMessage.getHeaderContentString());
-			exchange.getMessage().setHeader(MessagePart.PAYLOAD, multipartMessage.getPayloadContent());
 			exchange.getMessage().setBody(multipartMessage);
 		}
 	}

@@ -168,8 +168,6 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 			exchange.getMessage().setBody(multipartMessage);
 		} else {
 			MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(responseString);
-			exchange.getMessage().setHeader(MessagePart.HEADER, multipartMessage.getHeaderContentString());
-			exchange.getMessage().setHeader(MessagePart.PAYLOAD, multipartMessage.getPayloadContent());
 			exchange.getMessage().setBody(multipartMessage);
 		}
 	}
@@ -186,8 +184,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 			// TODO:
 			// Set original body which is created using the original payload and header
 			MultipartMessage mm = MultipartMessageProcessor.parseMultipartMessage(responseString);
-			exchange.getMessage().setHeader(MessagePart.HEADER, mm.getHeaderContentString());
-			exchange.getMessage().setHeader(MessagePart.PAYLOAD, mm.getPayloadContent());
+			exchange.getMessage().setBody(mm);
 		}
 	}
 
