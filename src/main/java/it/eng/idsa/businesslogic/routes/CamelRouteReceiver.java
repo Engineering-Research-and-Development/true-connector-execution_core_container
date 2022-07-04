@@ -120,7 +120,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 			.process(sendDataToBusinessLogicProcessor);
 		
 		// Camel SSL - Endpoint: B communication http
-		if(!isEnabledWebSocket) {
+		if(!isEnabledWebSocket && !isEnabledIdscp2) {
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/data")
 				.routeId("data")
 				.process(connectorRequestProcessor)
@@ -183,7 +183,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 					.process(registerTransactionToCHProcessor)
 					// Send to the Endpoint: F
 					.process(sendDataToDataAppProcessor)
-					.process(multiPartMessageProcessor)
+//					.process(multiPartMessageProcessor)
 					.process(registerTransactionToCHProcessor)
 					.process(receiverUsageControlProcessor)
 					.process(mapMultipartToIDSCP2);
