@@ -5,6 +5,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -97,12 +99,14 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 		
 		when(sendDataToBusinessLogicService.sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers))
 			.thenReturn(response);
+		
+		when(httpHeaderService.headersToMessage(any(Map.class))).thenReturn(artifactResponse);
 		doNothing().when(sendDataToBusinessLogicService).checkResponse(message, response, FORWARD_TO);
 		
 		processor.process(exchange);
 		
 		verify(sendDataToBusinessLogicService).sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers);
-		verify(camelMessage).setBody(PAYLOAD_RESPONSE);
+		verify(camelMessage).setBody(any(MultipartMessage.class));
 	}
 	
 	@Test
