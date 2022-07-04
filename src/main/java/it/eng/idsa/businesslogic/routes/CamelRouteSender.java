@@ -25,7 +25,6 @@ import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataFromDAp
 import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataProcessorBodyBinary;
 import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataProcessorBodyFormData;
 import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataProcessorHttpHeader;
-import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedResponseMessage;
 import it.eng.idsa.businesslogic.processor.sender.SenderSendDataToBusinessLogicProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderSendResponseToDataAppProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderUsageControlProcessor;
@@ -72,9 +71,6 @@ public class CamelRouteSender extends RouteBuilder {
 
 	@Autowired
 	private SenderSendDataToBusinessLogicProcessor sendDataToBusinessLogicProcessor;
-
-	@Autowired
-	private SenderParseReceivedResponseMessage parseReceivedResponseMessage;
 
 	@Autowired
 	private ValidateTokenProcessor validateTokenProcessor;
@@ -169,7 +165,6 @@ public class CamelRouteSender extends RouteBuilder {
 				.process(protocolValidationProcessor)
 				.process(getTokenFromDapsProcessor)
 				.process(sendDataToBusinessLogicProcessor)
-				.process(parseReceivedResponseMessage)
 				.process(validateTokenProcessor)
 				.process(sendResponseToDataAppProcessor);
 		}
@@ -203,7 +198,6 @@ public class CamelRouteSender extends RouteBuilder {
 		        .process(registerTransactionToCHProcessor)
 		        // Send data to Endpoint B
 		        .process(sendDataToBusinessLogicProcessor)
-		        .process(parseReceivedResponseMessage)
 		        .process(deModifyPayloadProcessor)
 		        .process(validateTokenProcessor)
 		        .process(registerTransactionToCHProcessor)
@@ -293,7 +287,6 @@ public class CamelRouteSender extends RouteBuilder {
                 .process(registerTransactionToCHProcessor)
 				// Send data to Endpoint B
 				.process(sendDataToBusinessLogicProcessor)
-				.process(parseReceivedResponseMessage)
 				.process(validateTokenProcessor)
                 .process(registerTransactionToCHProcessor)
                 .process(senderUsageControlProcessor)

@@ -20,7 +20,6 @@ import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverFileRecreatorProcessor;
-import it.eng.idsa.businesslogic.processor.receiver.ReceiverMultiPartMessageProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverParseReceivedConnectorRequestProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverSendDataToBusinessLogicProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverSendDataToDataAppProcessor;
@@ -53,9 +52,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 	@Autowired
 	private ContractAgreementProcessor contractAgreementProcessor;
 	
-	@Autowired
-	private ReceiverMultiPartMessageProcessor multiPartMessageProcessor;
-
 	@Autowired
 	private ReceiverSendDataToDataAppProcessor sendDataToDataAppProcessor;
 
@@ -137,7 +133,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 						.removeHeaders("Camel*")
 						.process(sendDataToDataAppProcessor)
 				.end()
-//				.process(multiPartMessageProcessor)
 				.process(deModifyPayloadProcessor)
 				.process(getTokenFromDapsProcessor)
 				.process(receiverUsageControlProcessor)
@@ -164,7 +159,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 						.removeHeaders("Camel*")
 						.process(sendDataToDataAppProcessor)
 				.end()
-				.process(multiPartMessageProcessor)
 				.process(getTokenFromDapsProcessor)
 				.process(receiverUsageControlProcessor)
                 .process(registerTransactionToCHProcessor)
@@ -183,7 +177,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 					.process(registerTransactionToCHProcessor)
 					// Send to the Endpoint: F
 					.process(sendDataToDataAppProcessor)
-//					.process(multiPartMessageProcessor)
 					.process(registerTransactionToCHProcessor)
 					.process(receiverUsageControlProcessor)
 					.process(mapMultipartToIDSCP2);
@@ -201,7 +194,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 					.process(registerTransactionToCHProcessor)
 					// Send to the Endpoint: F
 					.process(sendDataToDataAppProcessorOverWS)
-					.process(multiPartMessageProcessor)
 					.process(receiverUsageControlProcessor)
 					.process(registerTransactionToCHProcessor)
 					.process(mapMultipartToIDSCP2);
