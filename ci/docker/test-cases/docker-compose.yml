@@ -50,6 +50,7 @@ services:
        - KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
        - ALIAS=${ALIAS}
        - TZ=Europe/Rome 
+       - ISSUER_CONNECTOR_URI=${CONSUMER_ISSUER_CONNECTOR_URI}    
     ports:
       - "8083:8083"
       - "9000:9000"
@@ -107,7 +108,9 @@ services:
        - KEY_PASSWORD=${KEY_PASSWORD}
        - KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
        - ALIAS=${ALIAS}
-       - TZ=Europe/Rome                
+       - TZ=Europe/Rome
+       - ISSUER_CONNECTOR_URI=${CONSUMER_ISSUER_CONNECTOR_URI}    
+       
     ports:
       - "8085:8083"
       - "9001:9000"
