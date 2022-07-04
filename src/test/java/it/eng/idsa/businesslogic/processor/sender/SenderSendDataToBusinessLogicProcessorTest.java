@@ -174,8 +174,6 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 		processor.process(exchange);
 		
 		verify(sendDataToBusinessLogicService).sendMessageBinary(FORWARD_TO, multipartMessage, headers);
-//		verify(camelMessage).setHeader(MessagePart.HEADER, HEADER_MESSAGE_STRING);
-		verify(camelMessage).setHeader(MessagePart.PAYLOAD, PAYLOAD_RESPONSE);
 	}
 	
 	@Test
@@ -196,8 +194,6 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 		processor.process(exchange);
 		
 		verify(sendDataToBusinessLogicService).sendMessageFormData(FORWARD_TO, multipartMessage, headers);
-//		verify(camelMessage).setHeader(MessagePart.HEADER, UtilMessageService.getMessageAsString(artifactResponse));
-		verify(camelMessage).setHeader(MessagePart.PAYLOAD, PAYLOAD_RESPONSE);
 	}
 	
 	private void mockExchangeHeaderAndBody() {
