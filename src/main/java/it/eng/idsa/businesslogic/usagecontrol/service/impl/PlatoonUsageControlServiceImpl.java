@@ -10,12 +10,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.Gson;
-
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import it.eng.idsa.businesslogic.service.CommunicationService;
-import it.eng.idsa.businesslogic.usagecontrol.model.UsageControlObjectToEnforce;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
 
 @Service
@@ -34,9 +31,6 @@ public class PlatoonUsageControlServiceImpl implements UsageControlService {
 	@Autowired
 	private CommunicationService communicationService;
 	
-	@Autowired(required = false)
-	private Gson gson;
-
 	@Override
 	public String enforceUsageControl(URI uri, String ucObject) throws IOException {
 		
@@ -55,15 +49,8 @@ public class PlatoonUsageControlServiceImpl implements UsageControlService {
 	@Override
 	public String createUsageControlObject(ArtifactRequestMessage artifactRequestMessage,
 			ArtifactResponseMessage artifactResponseMessage, String payloadContent) {
-		UsageControlObjectToEnforce usageControlObject = new UsageControlObjectToEnforce();
-        usageControlObject.setPayload(payloadContent);
-        usageControlObject.setAssignee(artifactRequestMessage.getIssuerConnector());
-        usageControlObject.setAssigner(artifactResponseMessage.getIssuerConnector());
-        usageControlObject.setTargetArtifactId(artifactRequestMessage.getRequestedArtifact());
-                    
-        String usageControlObjectPayload = gson.toJson(usageControlObject, UsageControlObjectToEnforce.class);
-                
-        return usageControlObjectPayload;
+		// Nothing to do, just return payload, no need for meta-data wrapping
+		return payloadContent;
 	}
 
 	@Override
