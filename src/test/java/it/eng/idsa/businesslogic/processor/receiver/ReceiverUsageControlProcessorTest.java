@@ -23,7 +23,6 @@ import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.DescriptionRequestMessage;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.usagecontrol.model.UsageControlObjectToEnforce;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -48,8 +47,6 @@ public class ReceiverUsageControlProcessorTest {
 	@Mock
 	private  org.apache.camel.Message out;
 	
-	@Mock 
-	private UsageControlObjectToEnforce usageControlObject;
 	@Mock
 	private Message message;
 	@Mock
@@ -90,7 +87,6 @@ public class ReceiverUsageControlProcessorTest {
 
 		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, artifactRequestMessage);
 	}
-	
 	
 	@Test
 	public void usageControlDisabled() {

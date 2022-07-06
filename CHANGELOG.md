@@ -1,6 +1,21 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.14-SNAPSHOT] - 2022-07-06
+
+### Added
+ - added new service for interacting with Platoon Usage Control dataApp
+ - new property, *application.usageControlVersion*, which is used to configure which UC dataApp to use, platoon or mydata
+
+### Changed
+ - refined logic for modify/de-modify payload, now only for ArifactResponseMessage
+ - updated logic for Receiver, send response, HttpEntity instead String representation of multipart/form-data
+ - reverted change for DAPS jwks URL, compatibility with Omejdn (not using default jwks URL)
+ - added public key in Self Description document
+
+### Removed
+ - parseReceivedResponseMessage processor is removed, parsing of the response is done on handleResponse, not as separate step
+
 ## [0.1.13-SNAPSHOT] - 2022-05-27
 
 ### Changed
