@@ -28,6 +28,8 @@ public class PlatoonUsageControlServiceImpl implements UsageControlService {
 	
 	private String policyUploadEndpoint = "contractAgreement";
 	
+	private final String CONTENT_TYPE = "application/json;charset=UTF-8";
+	
 	@Autowired
 	private CommunicationService communicationService;
 	
@@ -43,7 +45,7 @@ public class PlatoonUsageControlServiceImpl implements UsageControlService {
 				.append("&consuming=true");
 		
 		
-		return communicationService.sendDataAsJson(ucUrl.toString(), ucObject);
+		return communicationService.sendDataAsJson(ucUrl.toString(), ucObject, CONTENT_TYPE);
 	}
 
 	@Override
@@ -57,7 +59,7 @@ public class PlatoonUsageControlServiceImpl implements UsageControlService {
 	public String uploadPolicy(String payloadContent) {
 		String ucUrl = platoonURL + policyUploadEndpoint;
 
-		return communicationService.sendDataAsJson(ucUrl, payloadContent);
+		return communicationService.sendDataAsJson(ucUrl, payloadContent, CONTENT_TYPE);
 	}
 
 }

@@ -124,7 +124,7 @@ public class CamelRouteSender extends RouteBuilder {
 	
 	@Autowired
 	private ProtocolValidationProcessor protocolValidationProcessor;
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void configure() throws Exception {
@@ -193,7 +193,6 @@ public class CamelRouteSender extends RouteBuilder {
 				.routeId("HTTP")
 				.process(protocolValidationProcessor)
 				.process(modifyPayloadProcessor)
-		        .process(contractAgreementProcessor)
 		        .process(getTokenFromDapsProcessor)
 		        .process(registerTransactionToCHProcessor)
 		        // Send data to Endpoint B
@@ -201,6 +200,7 @@ public class CamelRouteSender extends RouteBuilder {
 		        .process(deModifyPayloadProcessor)
 		        .process(validateTokenProcessor)
 		        .process(registerTransactionToCHProcessor)
+		        .process(contractAgreementProcessor)
 		        .process(senderUsageControlProcessor)
 		        .process(modifyPayloadProcessor)
 		        .process(sendResponseToDataAppProcessor)

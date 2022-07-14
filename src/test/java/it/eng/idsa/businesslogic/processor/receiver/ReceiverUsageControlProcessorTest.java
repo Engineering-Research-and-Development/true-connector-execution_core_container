@@ -1,6 +1,5 @@
 package it.eng.idsa.businesslogic.processor.receiver;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -17,6 +16,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import com.google.gson.JsonSyntaxException;
 
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
@@ -55,7 +56,7 @@ public class ReceiverUsageControlProcessorTest {
 	private ArtifactRequestMessage artifactRequestMessage;
 	private ArtifactResponseMessage artifactResponseMessage;
 	private DescriptionRequestMessage descriptionRequestMessage;
-	private String originalMessageHeader;
+	private Message originalMessageHeader;
 	
 	Map<String, Object> headers;
 
@@ -68,20 +69,20 @@ public class ReceiverUsageControlProcessorTest {
 		artifactRequestMessage = UtilMessageService.getArtifactRequestMessage();
 		artifactResponseMessage = UtilMessageService.getArtifactResponseMessage();
 		descriptionRequestMessage = UtilMessageService.getDescriptionRequestMessage(null);
-		originalMessageHeader = UtilMessageService.getMessageAsString(artifactRequestMessage);
+		originalMessageHeader = artifactRequestMessage;
 		headers = new HashMap<>();
 		headers.put(ORIGINAL_MESSAGE_HEADER, originalMessageHeader);
 	}
 
 	@Test
-	//TODO check if this one is still valid with Platoon UC
+	//Aplies only to MyData
 	public void payloadNullTest() {
 		when(exchange.getMessage()).thenReturn(camelMessage);
 		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
 		when(camelMessage.getHeaders()).thenReturn(headers);
 		when(multipartMessage.getHeaderContent()).thenReturn(artifactResponseMessage);
 		when(multipartMessage.getPayloadContent()).thenReturn(null);
-		doThrow(NullPointerException.class)
+		doThrow(JsonSyntaxException.class)
 			.when(usageControlService).createUsageControlObject(artifactRequestMessage, artifactResponseMessage, null);
 		processor.process(exchange);
 
@@ -113,7 +114,7 @@ public class ReceiverUsageControlProcessorTest {
 	public void usageControlEnabledMessageNotArtifactRequesteMessage() {
 		when(exchange.getMessage()).thenReturn(camelMessage);
 		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
-		headers.put(ORIGINAL_MESSAGE_HEADER,UtilMessageService.getMessageAsString(descriptionRequestMessage));
+		headers.put(ORIGINAL_MESSAGE_HEADER, descriptionRequestMessage);
 		when(camelMessage.getHeaders()).thenReturn(headers);
 		when(multipartMessage.getHeaderContent()).thenReturn(artifactResponseMessage);
 		
@@ -134,7 +135,6 @@ public class ReceiverUsageControlProcessorTest {
 		
 		processor.process(exchange);
 		
-		assertNull(exchange.getMessage().getHeader(ORIGINAL_MESSAGE_HEADER));
 		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, artifactRequestMessage);
 	}
 }

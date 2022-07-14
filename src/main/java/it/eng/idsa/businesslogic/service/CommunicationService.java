@@ -18,6 +18,6 @@ public interface CommunicationService {
 	@Deprecated
 	public String sendData(String endpoint, HttpEntity<?> entity);
 	public String sendData(String endpoint, String data);
-	public String sendDataAsJson(String endpoint, String data);
+	public String sendDataAsJson(String endpoint, String data, String contentType);
 	
 }

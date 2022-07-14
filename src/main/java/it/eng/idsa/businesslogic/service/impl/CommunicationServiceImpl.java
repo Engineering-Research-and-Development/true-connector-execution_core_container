@@ -71,13 +71,11 @@ public class CommunicationServiceImpl implements CommunicationService {
 	}
 
 	@Override
-	public String sendDataAsJson(String endpoint, String data) {
+	public String sendDataAsJson(String endpoint, String data, String contentType) {
 		RestTemplate restTemplate = new RestTemplate();
 
 		HttpHeaders headers = new HttpHeaders();
-//		application/ld+json is used when using mydata usage control
-//		headers.set("Content-Type", "application/ld+json;charset=UTF-8");
-		headers.set("Content-Type", "application/json;charset=UTF-8");
+		headers.set("Content-Type", contentType);
 
 		HttpEntity<String> entity = new HttpEntity<>(data, headers);
 		

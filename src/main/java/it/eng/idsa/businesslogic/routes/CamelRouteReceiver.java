@@ -122,7 +122,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 				.process(connectorRequestProcessor)
 				.process(deModifyPayloadProcessor)
 				.process(validateTokenProcessor)
-				.process(contractAgreementProcessor)
                 .process(registerTransactionToCHProcessor)
                 .process(modifyPayloadProcessor)
 				// Send to the Endpoint: F
@@ -135,6 +134,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 				.end()
 				.process(deModifyPayloadProcessor)
 				.process(getTokenFromDapsProcessor)
+				.process(contractAgreementProcessor)
 				.process(receiverUsageControlProcessor)
                 .process(registerTransactionToCHProcessor)
                 .process(modifyPayloadProcessor)

@@ -52,16 +52,14 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 	@Autowired
 	private ApplicationConfiguration configuration;
 
-//	@Autowired
-//	private MultipartMessageService multipartMessageService;
-
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
 	
 	@Autowired
 	private HttpHeaderService httpHeaderService;
 
-	private String originalHeader;
+	private Message originalMessage;
+	private String originalPayload;
 
 	@Autowired
 	private SendDataToBusinessLogicServiceImpl sendDataToBusinessLogicService;
@@ -69,23 +67,17 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
 	
-//	@Autowired
-//	private HttpHeaderService httpHeaderService;
-
 	@Override
 	public void process(Exchange exchange) throws Exception {
 
 		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		
-//		if (!RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
-//        	httpHeaderService.removeMessageHeadersWithoutToken(exchange.getMessage().getHeaders());
-//		}
-
 		// Get header, payload and message
 		Message message = multipartMessage.getHeaderContent();
 
-		this.originalHeader = multipartMessage.getHeaderContentString();
+		this.originalMessage = multipartMessage.getHeaderContent();
+		this.originalPayload = multipartMessage.getPayloadContent();
 		// Send data to the endpoint F for the Open API Data App
 		Response response = null;
 		try {
@@ -132,7 +124,8 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		Map<String, Object> headers = httpHeaderService.okHttpHeadersToMap(response.headers());
 		exchange.getMessage().setHeaders(headers);
 		if (isEnabledUsageControl) {
-			exchange.getMessage().setHeader("Original-Message-Header", originalHeader);
+			exchange.getMessage().setHeader("Original-Message-Header", originalMessage);
+			exchange.getMessage().setHeader("Original-Message-Payload", originalPayload);
 		}
 		if (RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
 			exchange.getMessage().setBody(responseString);

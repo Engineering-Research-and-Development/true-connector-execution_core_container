@@ -2,7 +2,6 @@ package it.eng.idsa.businesslogic.processor.common;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +9,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.ContractAgreementMessage;
+import de.fraunhofer.iais.eis.MessageProcessedNotificationMessage;
 import it.eng.idsa.businesslogic.service.CommunicationService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
@@ -46,21 +46,23 @@ public class ContractAgreementProcessor implements Processor {
 	public void process(Exchange exchange) throws Exception {
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 
-		if (!(isEnabledUsageControl && multipartMessage.getHeaderContent() instanceof ContractAgreementMessage)) {
-			logger.info("IsEnabledUsegeControl is {} or Not ContractAgreementMessage - skipping logic and continuing with the flow", isEnabledUsageControl);
+		if (!isEnabledUsageControl 
+				|| !(multipartMessage.getHeaderContent() instanceof MessageProcessedNotificationMessage)
+				|| null == exchange.getMessage().getHeader("Original-Message-Header")
+				|| !(exchange.getMessage().getHeader("Original-Message-Header") instanceof ContractAgreementMessage)
+				|| null == exchange.getMessage().getHeader("Original-Message-Payload")) {
+			logger.info("Policy upload interupted - IsEnabledUsegeControl is {} or requirements not met", isEnabledUsageControl);
 			return;
 		}
-		if (StringUtils.isBlank(multipartMessage.getPayloadContent())) {
-			logger.warn("Payload not present but mandatory for this logic");
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, multipartMessage.getHeaderContent());
-			return;
-		}
+		logger.info("Uploading policy...");
+		String contractAgreement = (String) exchange.getMessage().getHeader("Original-Message-Payload");
+		
 		String response = null;
 		try {
-			response = usageControlService.uploadPolicy(multipartMessage.getPayloadContent());
+			response = usageControlService.uploadPolicy(contractAgreement);
 		} catch (Exception e) {
 			logger.warn("Policy not uploaded - {}", e.getMessage());
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, multipartMessage.getHeaderContent());
+			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, multipartMessage.getHeaderContent());
 		}
 		logger.info("UsageControl DataApp response {}", response);
 	}

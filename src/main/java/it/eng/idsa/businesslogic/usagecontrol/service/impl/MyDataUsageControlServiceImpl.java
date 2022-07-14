@@ -1,10 +1,12 @@
 package it.eng.idsa.businesslogic.usagecontrol.service.impl;
 
+import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,17 +20,22 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.internal.LinkedTreeMap;
 
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import it.eng.idsa.businesslogic.service.CommunicationService;
+import it.eng.idsa.businesslogic.usagecontrol.exception.PolicyDeniedException;
 import it.eng.idsa.businesslogic.usagecontrol.model.IdsMsgTarget;
+import it.eng.idsa.businesslogic.usagecontrol.model.IdsUseObject;
 import it.eng.idsa.businesslogic.usagecontrol.model.Meta;
 import it.eng.idsa.businesslogic.usagecontrol.model.TargetArtifact;
 import it.eng.idsa.businesslogic.usagecontrol.model.UsageControlObject;
 import it.eng.idsa.businesslogic.usagecontrol.service.UcRestCallService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
 import it.eng.idsa.businesslogic.util.MessagePart;
+import retrofit2.Call;
+import retrofit2.Response;
 
 @ComponentScan("de.fraunhofer.dataspaces.iese")
 @Service
@@ -59,49 +66,48 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
 
 
 	@Override
-	public String enforceUsageControl(URI contractAgreementUri, String jsonElement) throws Exception {
-//		UsageControlObjectToEnforce ucObj = gson.fromJson(ucObject, UsageControlObjectToEnforce.class);
-//
-//		logger.info("Proceeding with Usage control enforcement");
-//		String provider = ucObj.getAssigner().toString();
-//		String consumer = ucObj.getAssignee().toString();
-//		String targetArtifact = ucObj.getTargetArtifactId().toString();
-//		logger.info("Provider:" + provider);
-//		logger.info("Consumer:" + consumer);
-//		logger.info("payload:" + ucObj.getPayload());
-//		logger.info("artifactID:" + targetArtifact);
-//		
-//		IdsUseObject idsUseObject = new IdsUseObject();
-//		idsUseObject.setTargetDataUri(targetArtifact);
-//		// Is it needed?? IdsMsgTarget
-//		idsUseObject.setMsgTarget(getIdsMsgTarget());
-//		idsUseObject.setDataObject(ucObj.getPayload());
-//
-//		Object result = null;
-//		try {
-//			Call<Object> callSync = ucRestCallService.enforceUsageControl(idsUseObject);
-//			Response<Object> response = callSync.execute();
-//			if (!response.isSuccessful()) {
-//				throw new PolicyDeniedException(response);
-//			}
-//			result = response.body();
-//		} catch (IOException ioe) {
-//			logger.error("Uc Service has failed: {}", ioe);
-//			result = "";
-//		}
-//
-//		JsonElement jsonElement = null;
-//		if (result instanceof LinkedTreeMap<?, ?>) {
-//			final LinkedTreeMap<?, ?> treeMap = (LinkedTreeMap<?, ?>) result;
-//			jsonElement = gson.toJsonTree(treeMap);
-////			ucObj.setPayload(jsonElement);
-//			logger.debug("Result from Usage Control: " + jsonElement.toString());
-//		} else if (null == result || StringUtils.isEmpty(result.toString())) {
-//			throw new Exception("Usage Control Enforcement with EMPTY RESULT encountered.");
-//		}
-//
-//		return extractPayloadFromJson(jsonElement);
-		return null;
+	public String enforceUsageControl(URI contractAgreementUri, String payload) throws Exception {
+		JsonElement transferedDataObject = getDataObject(payload);
+		UsageControlObject ucObj = gson.fromJson(transferedDataObject, UsageControlObject.class);
+
+		logger.info("Proceeding with Usage control enforcement");
+		String provider = ucObj.getMeta().getAssigner().toString();
+		String consumer = ucObj.getMeta().getAssignee().toString();
+		String targetArtifact = ucObj.getMeta().getTargetArtifact().getId().toString();
+		logger.info("Provider:" + provider);
+		logger.info("Consumer:" + consumer);
+		logger.info("payload:" + ucObj.getPayload());
+		logger.info("artifactID:" + targetArtifact);
+		
+		IdsUseObject idsUseObject = new IdsUseObject();
+		idsUseObject.setTargetDataUri(targetArtifact);
+		// Is it needed?? IdsMsgTarget
+		idsUseObject.setMsgTarget(getIdsMsgTarget());
+		idsUseObject.setDataObject(ucObj.getPayload());
+
+		Object result = null;
+		try {
+			Call<Object> callSync = ucRestCallService.enforceUsageControl(idsUseObject);
+			Response<Object> response = callSync.execute();
+			if (!response.isSuccessful()) {
+				throw new PolicyDeniedException(response);
+			}
+			result = response.body();
+		} catch (IOException ioe) {
+			logger.error("Uc Service has failed: {}", ioe);
+			result = "";
+		}
+
+		JsonElement jsonElement = null;
+		if (result instanceof LinkedTreeMap<?, ?>) {
+			final LinkedTreeMap<?, ?> treeMap = (LinkedTreeMap<?, ?>) result;
+			jsonElement = gson.toJsonTree(treeMap);
+			logger.debug("Result from Usage Control: " + jsonElement.toString());
+		} else if (null == result || StringUtils.isEmpty(result.toString())) {
+			throw new Exception("Usage Control Enforcement with EMPTY RESULT encountered.");
+		}
+
+		return extractPayloadFromJson(jsonElement);
 	}
 
 	/**
@@ -170,7 +176,21 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
 	public String uploadPolicy(String payloadContent) {
 		String ucDataAppAddPolicyEndpoint = usageControlDataAppURL + policyEndpoint;
 		logger.info("ContractAgreementMessage detected, sending payload to Usage Contol DataApp at '{}'", ucDataAppAddPolicyEndpoint);
-		return communicationService.sendDataAsJson(ucDataAppAddPolicyEndpoint, payloadContent);
+		return communicationService.sendDataAsJson(ucDataAppAddPolicyEndpoint, payloadContent, "application/ld+json;charset=UTF-8");
+	}
+	
+	private JsonElement getDataObject(String s) {
+		JsonElement obj = null;
+		try {
+			JsonElement jsonElement = gson.fromJson(s, JsonElement.class);
+			if (null != jsonElement && !(jsonElement.isJsonArray() && jsonElement.getAsJsonArray().size() == 0)) {
+				obj = jsonElement;
+			}
+		} catch (JsonSyntaxException jse) {
+			logger.error("Usage control object is not JSON");
+			obj = null;
+		}
+		return obj;
 	}
 
 }

@@ -8,10 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonSyntaxException;
-
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
@@ -46,9 +42,6 @@ public class SenderUsageControlProcessor implements Processor {
 	@Value("${application.openDataAppReceiverRouter}")
 	private String openDataAppReceiverRouter;
 	
-	@Autowired(required = false)
-	private Gson gson;
-
 	@Autowired
 	private HeaderCleaner headerCleaner;
 
@@ -77,8 +70,6 @@ public class SenderUsageControlProcessor implements Processor {
 
 		try {
 
-//			JsonElement transferedDataObject = getDataObject(decodedPyload);
-			
 			String objectToEnforce = usageControlService.enforceUsageControl(responseMessage.getTransferContract(), payload);
 			
 			multipartMessageResponse = new MultipartMessageBuilder()
@@ -96,19 +87,4 @@ public class SenderUsageControlProcessor implements Processor {
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, responseMessage);
 		}
 	}
-
-	private JsonElement getDataObject(String s) {
-		JsonElement obj = null;
-		try {
-			JsonElement jsonElement = gson.fromJson(s, JsonElement.class);
-			if (null != jsonElement && !(jsonElement.isJsonArray() && jsonElement.getAsJsonArray().size() == 0)) {
-				obj = jsonElement;
-			}
-		} catch (JsonSyntaxException jse) {
-			logger.error("Usage control object is not JSON");
-			obj = null;
-		}
-		return obj;
-	}
-
 }

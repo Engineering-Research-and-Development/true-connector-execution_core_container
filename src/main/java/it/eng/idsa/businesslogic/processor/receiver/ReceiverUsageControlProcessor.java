@@ -19,7 +19,6 @@ import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 
 /**
@@ -52,13 +51,11 @@ public class ReceiverUsageControlProcessor implements Processor {
         
 		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
-		String originalHeader = headerParts.get("Original-Message-Header").toString();
-		requestMessage = MultipartMessageProcessor.getMessage(originalHeader);
+		requestMessage = (Message) headerParts.get("Original-Message-Header");
 		responseMessage = multipartMessage.getHeaderContent();
 		
 		if (!(requestMessage instanceof ArtifactRequestMessage) || !(responseMessage instanceof ArtifactResponseMessage)) {
 			logger.info("Usage Control not applied - not ArtifactRequestMessage/ArtifactResponseMessage");
-			headerParts.remove("Original-Message-Header");
 			return;
 		}
 
@@ -83,7 +80,6 @@ public class ReceiverUsageControlProcessor implements Processor {
 					.build();
 			
 			exchange.getMessage().setBody(reponseMultipartMessage);
-			headerParts.remove("Original-Message-Header");
 		} catch (Exception e) {
 			logger.error("Usage Control Enforcement has failed with MESSAGE: {}", e.getMessage());
 			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, requestMessage);
