@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
@@ -18,16 +19,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import de.fraunhofer.iais.eis.ContractAgreementMessage;
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.processor.sender.websocket.client.MessageWebSocketOverHttpSender;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
-import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
+import it.eng.idsa.multipart.util.MultipartMessageKey;
 import okhttp3.Response;
 
 /**
@@ -43,6 +46,9 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
+	
+	@Value("#{new Boolean('${application.isEnabledUsageControl}')}")
+	private boolean isEnabledUsageControl;
 
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
@@ -67,6 +73,9 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 
 	private String webSocketHost;
 	private Integer webSocketPort;
+	
+	private Message originalMessage;
+	private String originalPayload;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -81,6 +90,11 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		header= multipartMessage.getHeaderContentString();
 		message = multipartMessage.getHeaderContent();
 
+		if (message instanceof ContractAgreementMessage) {
+			originalMessage = message;
+			originalPayload = payload;
+		}
+		
 		String forwardTo = (String) headerParts.get("Forward-To");
 		logger.info("Sending data to business logic ...");
 			if (isEnabledWebSocket) {
@@ -149,13 +163,28 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		logger.info("response received from the DataAPP=" + responseString);
 
 		exchange.getMessage().setHeaders(httpHeaderService.okHttpHeadersToMap(response.headers()));
+		if (isEnabledUsageControl) {
+			exchange.getMessage().setHeader("Original-Message-Header", originalMessage);
+			exchange.getMessage().setHeader("Original-Message-Payload", originalPayload);
+		}
+		
 		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) {
-			exchange.getMessage().setBody(responseString);
+//			exchange.getMessage().setBody(responseString);
+			message = httpHeaderService.headersToMessage(httpHeaderService.okHttpHeadersToMap(response.headers()));
+			Map<String, String> headerHeaderContentType = new HashMap<>();
+			headerHeaderContentType.put("Content-Type", "application/ld+json");
+			Map<String, String> payloadHeaderContentType = new HashMap<>();
+			payloadHeaderContentType.put("Content-Type", response.headers().get(MultipartMessageKey.CONTENT_TYPE.label));
+			MultipartMessage multipartMessage = new MultipartMessageBuilder()
+					.withHeaderContent(message)
+					.withHeaderHeader(headerHeaderContentType)
+					.withPayloadContent(responseString)
+					.withPayloadHeader(payloadHeaderContentType)
+					.build();
+			exchange.getMessage().setBody(multipartMessage);
 		} else {
-			MultipartMessage mm = MultipartMessageProcessor.parseMultipartMessage(responseString);
-			exchange.getMessage().setHeader(MessagePart.HEADER, mm.getHeaderContentString());
-			exchange.getMessage().setHeader(MessagePart.PAYLOAD, mm.getPayloadContent());
-
+			MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(responseString);
+			exchange.getMessage().setBody(multipartMessage);
 		}
 	}
 
@@ -171,8 +200,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 			// TODO:
 			// Set original body which is created using the original payload and header
 			MultipartMessage mm = MultipartMessageProcessor.parseMultipartMessage(responseString);
-			exchange.getMessage().setHeader(MessagePart.HEADER, mm.getHeaderContentString());
-			exchange.getMessage().setHeader(MessagePart.PAYLOAD, mm.getPayloadContent());
+			exchange.getMessage().setBody(mm);
 		}
 	}
 

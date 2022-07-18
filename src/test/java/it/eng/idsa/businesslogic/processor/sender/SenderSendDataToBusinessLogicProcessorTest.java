@@ -5,6 +5,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +25,6 @@ import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
-import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.MockUtil;
 import it.eng.idsa.businesslogic.util.RequestResponseUtil;
 import it.eng.idsa.businesslogic.util.RouterType;
@@ -97,12 +98,14 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 		
 		when(sendDataToBusinessLogicService.sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers))
 			.thenReturn(response);
+		
+		when(httpHeaderService.headersToMessage(any(Map.class))).thenReturn(artifactResponse);
 		doNothing().when(sendDataToBusinessLogicService).checkResponse(message, response, FORWARD_TO);
 		
 		processor.process(exchange);
 		
 		verify(sendDataToBusinessLogicService).sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers);
-		verify(camelMessage).setBody(PAYLOAD_RESPONSE);
+		verify(camelMessage).setBody(any(MultipartMessage.class));
 	}
 	
 	@Test
@@ -170,8 +173,6 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 		processor.process(exchange);
 		
 		verify(sendDataToBusinessLogicService).sendMessageBinary(FORWARD_TO, multipartMessage, headers);
-//		verify(camelMessage).setHeader(MessagePart.HEADER, HEADER_MESSAGE_STRING);
-		verify(camelMessage).setHeader(MessagePart.PAYLOAD, PAYLOAD_RESPONSE);
 	}
 	
 	@Test
@@ -192,8 +193,6 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 		processor.process(exchange);
 		
 		verify(sendDataToBusinessLogicService).sendMessageFormData(FORWARD_TO, multipartMessage, headers);
-//		verify(camelMessage).setHeader(MessagePart.HEADER, UtilMessageService.getMessageAsString(artifactResponse));
-		verify(camelMessage).setHeader(MessagePart.PAYLOAD, PAYLOAD_RESPONSE);
 	}
 	
 	private void mockExchangeHeaderAndBody() {

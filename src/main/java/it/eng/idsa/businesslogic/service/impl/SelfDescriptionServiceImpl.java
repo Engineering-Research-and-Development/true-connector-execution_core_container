@@ -1,8 +1,8 @@
-
 package it.eng.idsa.businesslogic.service.impl;
 
 import java.io.IOException;
 import java.net.URI;
+import java.security.cert.CertificateEncodingException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -30,11 +30,14 @@ import de.fraunhofer.iais.eis.ConstraintBuilder;
 import de.fraunhofer.iais.eis.ContentType;
 import de.fraunhofer.iais.eis.ContractOffer;
 import de.fraunhofer.iais.eis.ContractOfferBuilder;
+import de.fraunhofer.iais.eis.KeyType;
 import de.fraunhofer.iais.eis.Language;
 import de.fraunhofer.iais.eis.LeftOperand;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.Permission;
 import de.fraunhofer.iais.eis.PermissionBuilder;
+import de.fraunhofer.iais.eis.PublicKey;
+import de.fraunhofer.iais.eis.PublicKeyBuilder;
 import de.fraunhofer.iais.eis.QueryLanguage;
 import de.fraunhofer.iais.eis.QueryMessageBuilder;
 import de.fraunhofer.iais.eis.QueryScope;
@@ -72,15 +75,18 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	private Connector connector;
 	private SelfDescriptionManager selfDescriptionManager;
 	private URI issuerConnectorURI;
+    private KeystoreProvider keystoreProvider;
 
 	@Autowired
 	public SelfDescriptionServiceImpl(
 			SelfDescriptionConfiguration selfDescriptionConfiguration,
 			DapsTokenProviderService dapsProvider,
-			SelfDescriptionManager selfDescriptionManager) {
+			SelfDescriptionManager selfDescriptionManager,
+			KeystoreProvider keystoreProvider) {
 		this.selfDescriptionConfiguration = selfDescriptionConfiguration;
 		this.dapsProvider = dapsProvider;
 		this.selfDescriptionManager = selfDescriptionManager;
+		this.keystoreProvider = keystoreProvider;
 	}
 
 	@PostConstruct
@@ -99,11 +105,22 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	private Connector createDefaultSelfDescription() {
 		logger.info("Creating default selfDescription from properties");
 		issuerConnectorURI = selfDescriptionConfiguration.getConnectorURI();
+		
+		PublicKey publicKey = null;
+        byte[] serverCertificate = null;
+		try {
+			serverCertificate = keystoreProvider.getCertificate().getEncoded();
+			publicKey = new PublicKeyBuilder()._keyType_(KeyType.RSA)._keyValue_(serverCertificate).build();
+		} catch (CertificateEncodingException | NullPointerException e) {
+			logger.error("Error while creating PublicKey", e);
+		}
+        
 		return new BaseConnectorBuilder(issuerConnectorURI)
 				._maintainer_(selfDescriptionConfiguration.getMaintainer())
 				._curator_(selfDescriptionConfiguration.getCurator())
 				._resourceCatalog_(this.getCatalog())
 				._securityProfile_(SecurityProfile.BASE_SECURITY_PROFILE)
+				._publicKey_(publicKey)
 				._inboundModelVersion_(Util.asList(new String[] { UtilMessageService.MODEL_VERSION }))
 				._title_(Util.asList(new TypedLiteral(selfDescriptionConfiguration.getTitle())))
 				._description_(Util.asList(new TypedLiteral(selfDescriptionConfiguration.getDescription())))
@@ -180,6 +197,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._operator_(BinaryOperator.AFTER)
 				._rightOperand_(new RdfResource(dateTime.minusDays(7).format(formatter), 
 						URI.create("http://www.w3.org/2001/XMLSchema#dateTimeStamp")))
+//				._pipEndpoint_(URI.create("http://pip.endpoint.after"))
 				.build();
 		
 		Constraint after = new ConstraintBuilder()
@@ -187,19 +205,19 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._operator_(BinaryOperator.BEFORE)
 				._rightOperand_(new RdfResource(dateTime.plusMonths(1).format(formatter), 
 						URI.create("http://www.w3.org/2001/XMLSchema#dateTimeStamp")))
+//				._pipEndpoint_(URI.create("http://pip.endpoint.before"))
 				.build();
 		
 		Permission permission2 = new PermissionBuilder()
 				._target_(URI.create("http://w3id.org/engrd/connector/artifact/1"))
-				._assignee_(Util.asList(URI.create("https://assignee.com")))
-				._assigner_(Util.asList(URI.create("https://assigner.com")))
 				._action_(Util.asList(Action.USE))
 				._constraint_(Util.asList(before, after))
+				._title_(new TypedLiteral("Example Usage Policy"))
+				._description_(new TypedLiteral("provide-access"))
 				.build();
 		
 		return new ContractOfferBuilder()
-				._consumer_(URI.create("https://consumer.com"))
-				._provider_(URI.create("https://provider.com"))
+				._provider_(issuerConnectorURI)
 				._permission_(Util.asList(permission2))
 				._contractDate_(DateUtil.now())
 				._contractStart_(UtilMessageService.START_DATE)

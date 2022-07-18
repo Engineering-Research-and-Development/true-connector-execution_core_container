@@ -19,6 +19,14 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
 public interface MultipartMessageService {
 
 	String addToken(Message message, String token);
+	/**
+	 * 
+	 * @param header
+	 * @param payload
+	 * @param frowardTo
+	 * @param ctPayload
+	 * @return
+	 */
 	HttpEntity createMultipartMessage(String header, String payload, String frowardTo,ContentType ctPayload);
 	String getToken(Message message) throws JsonProcessingException;
 	Message getMessageFromHeaderMap(Map<String, Object> headers) throws JsonProcessingException;

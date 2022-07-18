@@ -1,9 +1,11 @@
 package it.eng.idsa.businesslogic.processor.common;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.net.URI;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -13,19 +15,22 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestClientException;
 
+import de.fraunhofer.iais.eis.ContractAgreement;
 import de.fraunhofer.iais.eis.ContractAgreementMessage;
-import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
+import de.fraunhofer.iais.eis.MessageProcessedNotificationMessage;
+import de.fraunhofer.iais.eis.MessageProcessedNotificationMessageBuilder;
 import it.eng.idsa.businesslogic.service.CommunicationService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.MockUtil;
+import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
+import it.eng.idsa.multipart.util.DateUtil;
 import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class ContractAgreementProcessorTest {
 	
-	private static final String CONTRACT_AGREEMENT_MOCK = "CONTRACT_AGREEMENT_MOCK";
-
 	@InjectMocks
 	private ContractAgreementProcessor processor;
 	
@@ -34,13 +39,19 @@ public class ContractAgreementProcessorTest {
 	@Mock
 	private Message camelMessage;
 	@Mock
-	private CommunicationService communicationService;
+	private UsageControlService usageControlService;
 	
 	@Mock
 	private MultipartMessage multipartMessage;
-
+	
+	@Mock
+	private CommunicationService communicationService;
+	
+	@Mock
 	private RejectionMessageService rejectionMessageService;
-	private ContractAgreementMessage contractAggreAgreementMessage;
+	
+	private ContractAgreementMessage contractAgreementMessage;
+	private ContractAgreement contractAgreement;
 	
 	private String usageControlDataAppURL = "http://ucdata.app.mock";
 	private String addPolicyEndpoint = "/addPolicy";
@@ -50,41 +61,39 @@ public class ContractAgreementProcessorTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		ReflectionTestUtils.setField(processor, "usageControlDataAppURL", usageControlDataAppURL, String.class);
-		ReflectionTestUtils.setField(processor, "addPolicyEndpoint", addPolicyEndpoint, String.class);
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", Boolean.TRUE, Boolean.class);
-		contractAggreAgreementMessage = UtilMessageService.getContractAgreementMessage();
+		contractAgreementMessage = UtilMessageService.getContractAgreementMessage();
+		contractAgreement = UtilMessageService.getContractAgreement();
 	}
 	
 	@Test
 	public void verifyContractAgreement() throws Exception {
 		when(exchange.getMessage()).thenReturn(camelMessage);
 		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
-		when(multipartMessage.getHeaderContent()).thenReturn(contractAggreAgreementMessage);
-		when(multipartMessage.getPayloadContent()).thenReturn(CONTRACT_AGREEMENT_MOCK);
-		when(communicationService.sendDataAsJson(ucDataAppAddPolicyEndpoint, multipartMessage.getPayloadContent()))
-			.thenReturn("response from UC dataApp when uplading policy");
+		when(exchange.getMessage().getHeader("Original-Message-Header")).thenReturn(contractAgreementMessage);
+		when(exchange.getMessage().getHeader("Original-Message-Payload")).thenReturn(UtilMessageService.getMessageAsString(contractAgreement));
+		when(multipartMessage.getHeaderContent()).thenReturn(createProcessNotificationMessage());
+		when(usageControlService.uploadPolicy(any(String.class))).thenReturn("UPLOADED POLICY");
 
 		processor.process(exchange);
 		
-		verify(communicationService).sendDataAsJson(ucDataAppAddPolicyEndpoint, multipartMessage.getPayloadContent());
+		verify(usageControlService).uploadPolicy(any(String.class));
 	}
 	
 	@Test
-	public void verifyContractAgreementFailed_NoPayload() throws Exception {
-		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService);
-		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
-				rejectionMessageService, RejectionMessageService.class);
-		
+	public void verifyContractAgreement_NotUploaded() throws Exception {
 		when(exchange.getMessage()).thenReturn(camelMessage);
 		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
-		when(multipartMessage.getHeaderContent()).thenReturn(contractAggreAgreementMessage);
+		when(exchange.getMessage().getHeader("Original-Message-Header")).thenReturn(contractAgreementMessage);
+		when(exchange.getMessage().getHeader("Original-Message-Payload")).thenReturn(UtilMessageService.getMessageAsString(contractAgreement));
+		when(multipartMessage.getHeaderContent()).thenReturn(createProcessNotificationMessage());
+		when(usageControlService.uploadPolicy(any(String.class))).thenReturn("UPLOADED POLICY");
+		when(communicationService.sendDataAsJson(any(String.class), any(String.class), any(String.class))).thenThrow(RestClientException.class);
 
-		assertThrows(ExceptionForProcessor.class,
-	            ()->{
-	            	processor.process(exchange);
-	            });
-		verify(communicationService, times(0)).sendDataAsJson(ucDataAppAddPolicyEndpoint, multipartMessage.getPayloadContent());
+		processor.process(exchange);
+		
+		verify(usageControlService).uploadPolicy(any(String.class));
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(any(RejectionMessageType.class), any(de.fraunhofer.iais.eis.Message.class));
 	}
 	
 	@Test
@@ -94,7 +103,19 @@ public class ContractAgreementProcessorTest {
 		when(multipartMessage.getHeaderContent()).thenReturn(UtilMessageService.getArtifactRequestMessage());
 
 		processor.process(exchange);
-		
-		verify(communicationService, times(0)).sendDataAsJson(ucDataAppAddPolicyEndpoint, multipartMessage.getPayloadContent());
+
+		verify(usageControlService, times(0)).uploadPolicy(any(String.class));
 	}
+	
+	private MessageProcessedNotificationMessage createProcessNotificationMessage() {
+		return new MessageProcessedNotificationMessageBuilder()
+				._issued_(DateUtil.now())
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
+				._issuerConnector_(URI.create("auto-generated"))
+				._recipientConnector_(URI.create("auto-generated"))
+				._correlationMessage_(URI.create("auto-generated"))
+				._securityToken_(UtilMessageService.getDynamicAttributeToken())
+				._senderAgent_(URI.create("auto-generated"))
+				.build();
+	}	
 }

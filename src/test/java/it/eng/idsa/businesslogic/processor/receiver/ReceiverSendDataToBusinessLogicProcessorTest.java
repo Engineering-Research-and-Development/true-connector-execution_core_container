@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +24,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -45,7 +48,13 @@ public class ReceiverSendDataToBusinessLogicProcessorTest {
 	private Message message;
 	@Mock
 	private MultipartMessage multipartMessage;
-
+	@Mock
+	private MultipartMessageService multipartMessageService;
+	@Mock
+	private HttpEntity resultEntity;
+	@Mock
+	private Header header;
+	
 	@Captor
 	private ArgumentCaptor<String> key;
 	@Captor
@@ -82,7 +91,11 @@ public class ReceiverSendDataToBusinessLogicProcessorTest {
 				.withHeaderContent(UtilMessageService.getRejectionMessage(RejectionReason.NOT_AUTHENTICATED)).build();
 
 		when(message.getBody(MultipartMessage.class)).thenReturn(mm);
-
+		when(multipartMessageService.createMultipartMessage(mm.getHeaderContentString(), mm.getPayloadContent(), 
+				null, ContentType.APPLICATION_JSON))
+			.thenReturn(resultEntity);
+		when(resultEntity.getContentType()).thenReturn(header);
+		when(header.getValue()).thenReturn("multipart/form");
 		processor.process(exchange);
 		
 		verify(message).setHeader(key.capture(), value.capture());

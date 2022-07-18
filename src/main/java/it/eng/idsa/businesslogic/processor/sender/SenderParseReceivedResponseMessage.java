@@ -1,6 +1,7 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.activation.DataHandler;
@@ -56,14 +57,13 @@ public class SenderParseReceivedResponseMessage implements Processor {
 	public void process(Exchange exchange) throws Exception {
 
 		String header = null;
-		String payload = null;
 		Map<String, Object> headersParts = exchange.getMessage().getHeaders();
+		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		Message message = null;
-		MultipartMessage multipartMessage = null;
+		MultipartMessage multipartMessageWithToken = null;
 		String token = null;
 
 		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) {
-			payload = exchange.getMessage().getBody(String.class);
 			message = headerService.headersToMessage(headersParts);
 			if (message == null) {
 				logger.error("Can't generate a IDS-Message from the received headers.");
@@ -76,10 +76,16 @@ public class SenderParseReceivedResponseMessage implements Processor {
 //				token = headersParts.get("IDS-SecurityToken-TokenValue").toString();
 //			}
 			token = message.getSecurityToken() != null ? message.getSecurityToken().getTokenValue() : null;
-
-			multipartMessage = new MultipartMessageBuilder()
+			Map<String, String> headerHeaderContentType = new HashMap<>();
+			headerHeaderContentType.put("Content-Type", "application/ld+json");
+			Map<String, String> payloadHeaderContentType = new HashMap<>();
+			payloadHeaderContentType.put("Content-Type", (String) headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
+			multipartMessageWithToken = new MultipartMessageBuilder()
+					.withHttpHeader(headerService.convertMapToStringString(headersParts))
 					.withHeaderContent(message)
-					.withPayloadContent(payload)
+					.withHeaderHeader(headerHeaderContentType)
+					.withPayloadContent(exchange.getMessage().getBody(String.class))
+					.withPayloadHeader(payloadHeaderContentType)
 					.withToken(token)
 					.build();
 
@@ -103,20 +109,26 @@ public class SenderParseReceivedResponseMessage implements Processor {
 				}
 				message = MultipartMessageProcessor.getMessage(header);
 				if(headersParts.get(MessagePart.PAYLOAD) != null) {
-					payload = headersParts.get(MessagePart.PAYLOAD).toString();
 				}
 				
 				if (isEnabledDapsInteraction) {
 					token = multipartMessageService.getToken(message);
 				}
-				multipartMessage = new MultipartMessageBuilder().withHeaderContent(header).withPayloadContent(payload)
-						.withToken(token).build();
+				multipartMessageWithToken = new MultipartMessageBuilder()
+						.withHttpHeader(multipartMessage.getHttpHeaders())
+						.withHeaderContent(multipartMessage.getHeaderContent())
+						.withHeaderHeader(multipartMessage.getHeaderHeader())
+						.withPayloadContent(multipartMessage.getPayloadContent())
+						.withPayloadHeader(multipartMessage.getPayloadHeader())
+						.withToken(token)
+						.build();
+				
 			} catch (Exception e) {
 				logger.error("Error parsing multipart message:", e);
 				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
 			}
 		}
 		exchange.getMessage().setHeaders(headersParts);
-		exchange.getMessage().setBody(multipartMessage);
+		exchange.getMessage().setBody(multipartMessageWithToken);
 	}
 }

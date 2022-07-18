@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
@@ -27,8 +28,12 @@ public class ModifyPayloadProcessor implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		if(encodeDecodePayload) {
-			logger.info("Base64 Encoding payload");
 			MultipartMessage mm = exchange.getMessage().getBody(MultipartMessage.class);
+			if (!(mm.getHeaderContent() instanceof ArtifactResponseMessage)) {
+				logger.info("Not and ArtifactResponseMessage - skipping Base64 Encoding of the payload");
+				return;
+			}
+			logger.info("Base64 Encoding payload");
 			
 			MultipartMessage mmEncoded =  new MultipartMessageBuilder()
 					.withHttpHeader(mm.getHttpHeaders())

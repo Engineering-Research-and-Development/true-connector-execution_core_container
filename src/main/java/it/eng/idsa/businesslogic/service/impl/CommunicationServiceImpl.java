@@ -71,21 +71,17 @@ public class CommunicationServiceImpl implements CommunicationService {
 	}
 
 	@Override
-	public String sendDataAsJson(String endpoint, String data) {
+	public String sendDataAsJson(String endpoint, String data, String contentType) {
 		RestTemplate restTemplate = new RestTemplate();
 
 		HttpHeaders headers = new HttpHeaders();
-		headers.set("Content-Type", "application/ld+json;charset=UTF-8");
+		headers.set("Content-Type", contentType);
 
 		HttpEntity<String> entity = new HttpEntity<>(data, headers);
-		
+
 		ResponseEntity<String> result;
-		try {
-			result = restTemplate.exchange(endpoint, HttpMethod.POST, entity, String.class);
-		} catch (RestClientException e) {
-			logger.error("Error while making a request", e);
-			return null;
-		}
+		result = restTemplate.exchange(endpoint, HttpMethod.POST, entity, String.class);
+		
 		return result.getBody();
 	}
 
