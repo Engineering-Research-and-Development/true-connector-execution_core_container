@@ -15,13 +15,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestClientException;
 
 import de.fraunhofer.iais.eis.ContractAgreement;
 import de.fraunhofer.iais.eis.ContractAgreementMessage;
 import de.fraunhofer.iais.eis.MessageProcessedNotificationMessage;
 import de.fraunhofer.iais.eis.MessageProcessedNotificationMessageBuilder;
 import it.eng.idsa.businesslogic.service.CommunicationService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
+import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.util.DateUtil;
 import it.eng.idsa.multipart.util.UtilMessageService;
@@ -43,6 +46,9 @@ public class ContractAgreementProcessorTest {
 	
 	@Mock
 	private CommunicationService communicationService;
+	
+	@Mock
+	private RejectionMessageService rejectionMessageService;
 	
 	private ContractAgreementMessage contractAgreementMessage;
 	private ContractAgreement contractAgreement;
@@ -72,6 +78,22 @@ public class ContractAgreementProcessorTest {
 		processor.process(exchange);
 		
 		verify(usageControlService).uploadPolicy(any(String.class));
+	}
+	
+	@Test
+	public void verifyContractAgreement_NotUploaded() throws Exception {
+		when(exchange.getMessage()).thenReturn(camelMessage);
+		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
+		when(exchange.getMessage().getHeader("Original-Message-Header")).thenReturn(contractAgreementMessage);
+		when(exchange.getMessage().getHeader("Original-Message-Payload")).thenReturn(UtilMessageService.getMessageAsString(contractAgreement));
+		when(multipartMessage.getHeaderContent()).thenReturn(createProcessNotificationMessage());
+		when(usageControlService.uploadPolicy(any(String.class))).thenReturn("UPLOADED POLICY");
+		when(communicationService.sendDataAsJson(any(String.class), any(String.class), any(String.class))).thenThrow(RestClientException.class);
+
+		processor.process(exchange);
+		
+		verify(usageControlService).uploadPolicy(any(String.class));
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(any(RejectionMessageType.class), any(de.fraunhofer.iais.eis.Message.class));
 	}
 	
 	@Test

@@ -78,14 +78,10 @@ public class CommunicationServiceImpl implements CommunicationService {
 		headers.set("Content-Type", contentType);
 
 		HttpEntity<String> entity = new HttpEntity<>(data, headers);
-		
+
 		ResponseEntity<String> result;
-		try {
-			result = restTemplate.exchange(endpoint, HttpMethod.POST, entity, String.class);
-		} catch (Exception e) {
-			logger.error("Error while making a request", e.getMessage());
-			throw e;
-		}
+		result = restTemplate.exchange(endpoint, HttpMethod.POST, entity, String.class);
+		
 		return result.getBody();
 	}
 

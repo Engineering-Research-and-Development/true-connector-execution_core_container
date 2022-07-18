@@ -39,9 +39,6 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
 	
-	@Value("${application.openDataAppReceiverRouter}")
-	private String openDataAppReceiverRouter;
-	
 	@Autowired(required = false)
 	private WebSocketServerConfigurationB webSocketServerConfiguration;
 	
@@ -68,9 +65,6 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 			headersParts.putAll(headerService.messageToHeaders(multipartMessage.getHeaderContent()));
 			exchange.getMessage().setBody(responseString);
 			exchange.getMessage().setHeaders(headersParts);
-//			if (isEnabledDapsInteraction) {
-//				headersParts.putAll(headerService.transformJWTTokenToHeaders(multipartMessage.getToken()));
-//			}
 		} else {
 			if (RouterType.MULTIPART_MIX.equals(eccHttpSendRouter)) {
 				responseString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);
@@ -94,8 +88,5 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 
 		headerCleaner.removeTechnicalHeaders(headersParts);
 		logger.info("Sending response to Data Consumer");
-		
-//		exchange.getMessage().setBody(responseString);
-//		exchange.getMessage().setHeaders(headersParts);
 	}
 }
