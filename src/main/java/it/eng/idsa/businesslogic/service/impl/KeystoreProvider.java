@@ -40,6 +40,7 @@ public class KeystoreProvider {
 	private String keystoreAlias;
 	private KeyManagerFactory kmf;
 	private TrustManagerFactory trustFactory;
+	private boolean isEnabledDapsInteraction;
 
 	public KeystoreProvider(@Value("${application.targetDirectory}") Path targetDirectory,
 			@Value("${application.keyStoreName}") String keyStoreName,
@@ -49,6 +50,8 @@ public class KeystoreProvider {
 			@Value("${application.trustStorePassword}") String trustStorePwd,
 			@Value("#{new Boolean('${application.disableSslVerification:false}')}") boolean disableSslVerification,
 			@Value("${application.isEnabledDapsInteraction}") boolean isEnabledDapsInteraction) {
+		
+		this.isEnabledDapsInteraction = isEnabledDapsInteraction;
 
 		keyStorePwd = keyStorePassword;
 		keystoreAlias = keystoreAliasName;
@@ -129,7 +132,7 @@ public class KeystoreProvider {
 	}
 
 	public X509Certificate getCertificate() {
-		if(keystore == null) {
+		if(keystore == null || !isEnabledDapsInteraction) {
 			logger.info("Keystore not initialized");
 			return null;
 		}
