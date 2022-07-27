@@ -44,14 +44,14 @@ public class ProtocolValidationProcessorTest {
 		
 		processor.process(exchange);
 		
-		verify(protocolValidationService).validateProtocol(any(), any());
+		verify(protocolValidationService).validateProtocol(any());
 	}
 	
 	@Test
 	public void protocolValidation_Disabled() throws Exception {
 		ReflectionTestUtils.setField(processor, "enableProtocolValidation", false);
 		
-		verify(protocolValidationService, times(0)).validateProtocol(any(), any());
+		verify(protocolValidationService, times(0)).validateProtocol(any());
 	}
 
 	

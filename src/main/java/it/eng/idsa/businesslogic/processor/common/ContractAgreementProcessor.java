@@ -62,7 +62,7 @@ public class ContractAgreementProcessor implements Processor {
 			response = usageControlService.uploadPolicy(contractAgreement);
 		} catch (Exception e) {
 			logger.warn("Policy not uploaded - {}", e.getMessage());
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, multipartMessage.getHeaderContent());
+			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL);
 		}
 		logger.info("UsageControl DataApp response {}", response);
 	}

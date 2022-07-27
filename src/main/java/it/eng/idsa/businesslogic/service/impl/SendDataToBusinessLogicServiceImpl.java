@@ -110,8 +110,6 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 
 		logger.info("Forwarding Message: Body: form-data");
 
-		Message messageForException = multipartMessage.getHeaderContent();
-
 		String ctPayload = multipartMessage.getPayloadHeader().get("content-type") == null ? 
 				MediaType.TEXT_PLAIN.toString() : multipartMessage.getPayloadHeader().get("content-type");
 		Headers headers = fillHeaders(headerParts);
@@ -122,8 +120,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 			response = okHttpClient.sendMultipartFormRequest(address, headers, body);
 		} catch (IOException e) {
 			logger.error("Error while sending form data request", e);
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-					messageForException);
+			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
 		}
 		return response;
 	}
@@ -159,8 +156,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 	public void checkResponse(Message message, Response response, String forwardTo) {
 		if (response == null) {
 			logger.info("...communication error");
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-					message);
+			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
 		} else {
 			int statusCode = response.code();
 			logger.debug("Response {}", response);
@@ -169,10 +165,10 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 				if (statusCode == 404) {
 					logger.info("...communication error - bad forwardTo URL " + forwardTo);
 					rejectionMessageService
-							.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, message);
+							.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
 				}
 				logger.info("data sent unsuccessfully to destination " + forwardTo);
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON);
 			}
 		}
 	}

@@ -71,8 +71,7 @@ public class SenderParseReceivedDataFromDAppProcessorBodyBinary implements Proce
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e.getMessage());
 			rejectionMessageService.sendRejectionMessage(
-					RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES,
-					message);
+					RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES);
 		}
 	}
 

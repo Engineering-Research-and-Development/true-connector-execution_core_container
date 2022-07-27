@@ -111,8 +111,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			success = true;
 		} catch (Exception e) {
 			logger.error("Could not register the following message to clearing house", e);
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-					correlatedMessage);
+			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
 		}
 
 		return success;

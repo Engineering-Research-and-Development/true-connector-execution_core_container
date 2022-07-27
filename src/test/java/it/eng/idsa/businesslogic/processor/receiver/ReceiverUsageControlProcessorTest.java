@@ -86,7 +86,7 @@ public class ReceiverUsageControlProcessorTest {
 			.when(usageControlService).createUsageControlObject(artifactRequestMessage, artifactResponseMessage, null);
 		processor.process(exchange);
 
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, artifactRequestMessage);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL);
 	}
 	
 	@Test
@@ -95,7 +95,7 @@ public class ReceiverUsageControlProcessorTest {
 		
 		processor.process(exchange);
 		
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(any(), any());
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(any());
 	}
 	
 	@Test
@@ -107,7 +107,7 @@ public class ReceiverUsageControlProcessorTest {
 		
 		processor.process(exchange);
 		
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, artifactRequestMessage);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL);
 	}
 	
 	@Test
@@ -120,7 +120,7 @@ public class ReceiverUsageControlProcessorTest {
 		
 		processor.process(exchange);
 		
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, artifactRequestMessage);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL);
 	}
 	
 	@Test
@@ -135,6 +135,6 @@ public class ReceiverUsageControlProcessorTest {
 		
 		processor.process(exchange);
 		
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, artifactRequestMessage);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL);
 	}
 }

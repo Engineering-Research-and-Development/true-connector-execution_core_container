@@ -18,13 +18,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
-import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 /**
  * 
@@ -45,7 +43,6 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 
 		String header = null;
 		String payload = null;
-		Message message = null;
 		Map<String, String> payloadHeaders = new HashMap<>();
 
 		// Get from the input "exchange"
@@ -63,7 +60,6 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 				}
 			} 
 			logger.debug("Header part {}", header);
-			message = MultipartMessageProcessor.getMessage(header);
 			if (receivedDataHeader.containsKey(MessagePart.PAYLOAD)) {
 				if(receivedDataHeader.get(MessagePart.PAYLOAD) instanceof String) {
 					payload = (String) receivedDataHeader.get(MessagePart.PAYLOAD);
@@ -90,7 +86,7 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
+			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES);
 		}
 	}
 

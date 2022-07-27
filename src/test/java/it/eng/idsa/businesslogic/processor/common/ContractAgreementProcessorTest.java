@@ -93,7 +93,7 @@ public class ContractAgreementProcessorTest {
 		processor.process(exchange);
 		
 		verify(usageControlService).uploadPolicy(any(String.class));
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(any(RejectionMessageType.class), any(de.fraunhofer.iais.eis.Message.class));
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(any(RejectionMessageType.class));
 	}
 	
 	@Test

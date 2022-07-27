@@ -54,7 +54,7 @@ public class RejectionMessageServiceImplTest {
 		logger.info("Testing rejection with reason {} and recevied message", messageType);
 		
         ExceptionForProcessor exception = assertThrows(ExceptionForProcessor.class,
-                () -> rejectionMessageServiceImpl.sendRejectionMessage(messageType, message));
+                () -> rejectionMessageServiceImpl.sendRejectionMessage(messageType));
         String message = exception.getMessage();
         assertTrue(message.contains(errorMessage));
         
@@ -67,7 +67,7 @@ public class RejectionMessageServiceImplTest {
 		logger.info("Testing rejection with reason {} and without received message", messageType);
 		
         ExceptionForProcessor exception = assertThrows(ExceptionForProcessor.class,
-                () -> rejectionMessageServiceImpl.sendRejectionMessage(messageType, null));
+                () -> rejectionMessageServiceImpl.sendRejectionMessage(messageType));
         String message = exception.getMessage();
         assertTrue(message.contains(errorMessage));
         

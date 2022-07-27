@@ -71,7 +71,7 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 				.withPayloadContent(null).build();
 
 		verify(message).setBody(multipartMessage);
-		verify(rejectionMessageService,times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, msg);
+		verify(rejectionMessageService,times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES);
 	}
 	
 	@Test
@@ -90,7 +90,7 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 				.withPayloadContent(null).build();
 
 		verify(message).setBody(multipartMessage);
-		verify(rejectionMessageService,times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, msg);
+		verify(rejectionMessageService,times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES);
 	}
 	
 	@Test
@@ -101,14 +101,14 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 		header = UtilMessageService.getMessageAsString(msg);
 		when(httpHeaderService.headersToMessage(httpHeaders)).thenReturn(null);
 		doThrow(ExceptionForProcessor.class)
-			.when(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+			.when(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES);
 
 		assertThrows(ExceptionForProcessor.class,
 	            ()->{
 	            	processor.process(exchange);
 	            });
 
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES);
 	}
 	
 	private void mockExchangeGetHttpHeaders(Exchange exchange) {

@@ -1,7 +1,5 @@
 package it.eng.idsa.businesslogic.service.impl;
 
-import de.fraunhofer.iais.eis.Message;
-
 public interface ProtocolValidationService {
 
 	/**
@@ -15,9 +13,8 @@ public interface ProtocolValidationService {
 	 * selected https -> forwardTo can be example.com or whatever://example.com -> method returns https://example.com</p>
 	 * 
 	 * @param forwardTo the Forward-To address that is to be checked
-	 * @param message Received message needed for exception
 	 * @return the correct Forward-To address
 	 */
-	public String validateProtocol(String forwardTo, Message message);
+	public String validateProtocol(String forwardTo);
 
 }

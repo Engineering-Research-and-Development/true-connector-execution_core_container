@@ -67,7 +67,7 @@ public class SenderParseReceivedResponseMessage implements Processor {
 			message = headerService.headersToMessage(headersParts);
 			if (message == null) {
 				logger.error("Can't generate a IDS-Message from the received headers.");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON);
 				return;
 			}
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
@@ -92,12 +92,12 @@ public class SenderParseReceivedResponseMessage implements Processor {
 		} else {
 			if (!headersParts.containsKey(MessagePart.HEADER)) {
 				logger.error("Multipart message header is missing");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON);
 			}
 
 			if (headersParts.get(MessagePart.HEADER) == null) {
 				logger.error("Multipart message header is null");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON);
 			}
 
 			try {
@@ -125,7 +125,7 @@ public class SenderParseReceivedResponseMessage implements Processor {
 				
 			} catch (Exception e) {
 				logger.error("Error parsing multipart message:", e);
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON);
 			}
 		}
 		exchange.getMessage().setHeaders(headersParts);

@@ -43,7 +43,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 		receivedDataBodyBinary = exchange.getMessage().getBody(String.class);
 		if (receivedDataBodyBinary == null) {
 			logger.error("Body of the received multipart message is null");
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES);
 		}
 		logger.debug(receivedDataBodyBinary);
 
@@ -63,7 +63,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
+			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES);
 		}
 	}
 }

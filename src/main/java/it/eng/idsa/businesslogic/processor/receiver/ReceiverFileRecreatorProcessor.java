@@ -57,8 +57,7 @@ public class ReceiverFileRecreatorProcessor implements Processor {
 			logger.info("... can not initilize the IdscpServer");
 			logger.error("Cannot initiallize server", e);
 			rejectionMessageService.sendRejectionMessage(
-					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-					message);
+					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
 		}
 	}
 

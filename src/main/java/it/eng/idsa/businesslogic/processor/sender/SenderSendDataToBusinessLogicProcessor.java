@@ -103,8 +103,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 					this.extractWebSocketIPAndPort(forwardTo, REGEX_WSS);
 				} catch (Exception e) {
 					logger.info("... bad wss URL - '{}', {}", forwardTo, e.getMessage());
-					rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-							message);
+					rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
 				}
 				
 				// -- Send data using HTTPS - (Client) - WebSocket
@@ -149,8 +148,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 			}
 			default:
 				logger.error("Applicaton property: application.eccHttpSendRouter is not properly set");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES,
-						message);
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES);
 			}
 		return response;
 	}
@@ -191,8 +189,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	private void handleResponseWebSocket(Exchange exchange, Message message, String responseString, String forwardTo) {
 		if (responseString == null) {
 			logger.info("...communication error");
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-					message);
+			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
 		} else {
 //			logger.info("response received from the DataAPP=" + responseString);
 			logger.info("data sent to destination " + forwardTo);

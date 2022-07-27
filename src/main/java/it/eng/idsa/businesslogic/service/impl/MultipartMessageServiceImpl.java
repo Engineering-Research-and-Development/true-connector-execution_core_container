@@ -130,13 +130,13 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 			if (jsonObject == null) {
 				logger.error(
 						"Token is not set: securityToken is not set in the part of the header in the multipart message");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN, message);
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN);
 			} else {
 				token = (String) jsonObject.get("ids:tokenValue");
 				if (token == null) {
 					logger.error(
 							"Token is not set: tokenValue is not set in the part of the header in the multipart message");
-					rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN, message);
+					rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN);
 				}
 			}
 		} catch (IOException | ParseException e) {

@@ -20,6 +20,7 @@ import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcess
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorSender;
+import it.eng.idsa.businesslogic.processor.exception.RejectionProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderFileRecreatorProcessor;
 import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataFromDAppProcessorBodyBinary;
 import it.eng.idsa.businesslogic.processor.sender.SenderParseReceivedDataProcessorBodyBinary;
@@ -124,6 +125,9 @@ public class CamelRouteSender extends RouteBuilder {
 	
 	@Autowired
 	private ProtocolValidationProcessor protocolValidationProcessor;
+	
+	@Autowired
+	private RejectionProcessor rejectionProcessor;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -162,6 +166,7 @@ public class CamelRouteSender extends RouteBuilder {
 			
 			from("direct:registrationProcess")
 				.routeId("registrationProcess")
+				.process(rejectionProcessor)
 				.process(protocolValidationProcessor)
 				.process(getTokenFromDapsProcessor)
 				.process(sendDataToBusinessLogicProcessor)
@@ -191,6 +196,7 @@ public class CamelRouteSender extends RouteBuilder {
 
 			from("direct:HTTP")
 				.routeId("HTTP")
+				.process(rejectionProcessor)
 				.process(protocolValidationProcessor)
 				.process(modifyPayloadProcessor)
 		        .process(getTokenFromDapsProcessor)
@@ -237,6 +243,7 @@ public class CamelRouteSender extends RouteBuilder {
             from("direct:IDSCP2")
             	.routeId("IDSCP2 - sender - HTTP internal")
             	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
+            	.process(rejectionProcessor)
             	.process(protocolValidationProcessor)
             	.process(contractAgreementProcessor)
             	.process(registerTransactionToCHProcessor)
@@ -261,6 +268,7 @@ public class CamelRouteSender extends RouteBuilder {
     	    	.routeId("Sender - dataApp-ECC over WSS and ECC-ECC over IDSCP2")
 	        	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
 	            .process(fileRecreatorProcessor)
+	            .process(rejectionProcessor)
 				.process(parseReceivedDataFromDAppProcessorBodyBinary)
 				.process(protocolValidationProcessor)
 				.process(contractAgreementProcessor)
@@ -280,6 +288,7 @@ public class CamelRouteSender extends RouteBuilder {
 			from("timer://timerEndpointA?repeatCount=-1") //EndPoint A
 				.routeId("WSS EndPoint A")
 				.process(fileRecreatorProcessor)
+				.process(rejectionProcessor)
 				.process(parseReceivedDataFromDAppProcessorBodyBinary)
 				.process(protocolValidationProcessor)
 				.process(contractAgreementProcessor)

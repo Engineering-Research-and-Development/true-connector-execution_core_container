@@ -68,7 +68,7 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 				payload = exchange.getMessage().getBody(String.class);
 			} else {
 				logger.error("Payload is null");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON);
 			}
 			// create Message object from IDS-* headers, needs for UsageControl flow
 //			header = headerService.headersToMessage(headersParts);
@@ -82,12 +82,12 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 
 			if (!headersParts.containsKey(MessagePart.HEADER)) {
 				logger.error("Multipart message header is missing");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON);
 			}
 
 			if (headersParts.get(MessagePart.HEADER) == null) {
 				logger.error("Multipart message header is null");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON);
 			}
 
 			try {
@@ -112,7 +112,7 @@ public class ReceiverMultiPartMessageProcessor implements Processor {
 				}
 			} catch (Exception e) {
 				logger.error("Error parsing multipart message:", e);
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON);
 			}
 		}
 

@@ -40,6 +40,8 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 	
 	private SelfDescriptionConfiguration selfDescriptionConfiguration;
 	
+	private Message requestMessage;
+	
 	public RejectionMessageServiceImpl(DapsTokenProviderService dapsProvider,
 			SelfDescriptionConfiguration selfDescriptionConfiguration) {
 		super();
@@ -48,13 +50,13 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 	}
 
 	@Override
-	public void sendRejectionMessage(RejectionMessageType rejectionMessageType, Message message) {
+	public void sendRejectionMessage(RejectionMessageType rejectionMessageType) {
 		logger.info("Creating rejection message of type {}", rejectionMessageType);
-		if(message == null) {
+		if(requestMessage == null) {
 			logger.info("Could not get original message, creating default rejectionMessage");
-			message = UtilMessageService.getRejectionMessage(RejectionReason.MALFORMED_MESSAGE);
+			requestMessage = UtilMessageService.getRejectionMessage(RejectionReason.MALFORMED_MESSAGE);
 		}
-		Message rejectionMessage = createRejectionMessage(rejectionMessageType.toString(), message);
+		Message rejectionMessage = createRejectionMessage(rejectionMessageType.toString(), requestMessage);
 
 		MultipartMessage multipartMessage = new MultipartMessageBuilder()
 				.withHeaderContent(rejectionMessage)
@@ -189,5 +191,10 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 				._securityToken_(dapsProvider.getDynamicAtributeToken())
 				._senderAgent_(whoIAm())
 				.build();
+	}
+
+	@Override
+	public void saveMessage(Message message) {
+		this.requestMessage = message;
 	}
 }

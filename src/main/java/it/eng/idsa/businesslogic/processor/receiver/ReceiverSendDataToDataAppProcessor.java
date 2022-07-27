@@ -99,7 +99,7 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 			}
 			default: {
 				logger.error("Applicaton property: application.openDataAppReceiverRouter is not properly set");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
+				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES);
 			}
 			}
 			

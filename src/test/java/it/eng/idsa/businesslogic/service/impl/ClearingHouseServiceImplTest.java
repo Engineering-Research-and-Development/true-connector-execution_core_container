@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -78,13 +77,13 @@ public class ClearingHouseServiceImplTest {
 	  public void testRegisterTransactionFail () {
 		  when(restTemplate.postForObject(any(String.class), any(), any())).thenThrow(new RestClientException("Service offline"));
 		  assertFalse(clearingHouseServiceImpl.registerTransaction(message, payload));
-		  verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, message);
+		  verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
 	  }
 	  
 	  @Test
 	  public void testRegisterTransactionSuccess ()  {
 		 assertTrue(clearingHouseServiceImpl.registerTransaction(message, payload));
-		 verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, message);
+		 verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
 	  }
 	  
 	  @Test

@@ -71,7 +71,7 @@ public class ValidateTokenProcessorTest {
 		processor.process(exchange);
 
 		verify(dapsService).validateToken(TOKEN);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN, message);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN);
 	}
 
 	@Test
@@ -87,7 +87,7 @@ public class ValidateTokenProcessorTest {
 		processor.process(exchange);
 
 		verify(dapsService).validateToken(TOKEN);
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN, message);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN);
 
 	}
 	

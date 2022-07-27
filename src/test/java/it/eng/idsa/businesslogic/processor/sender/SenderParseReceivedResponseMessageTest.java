@@ -117,7 +117,7 @@ public class SenderParseReceivedResponseMessageTest {
 		
 		processor.process(exchange);
 		
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, null);
+		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON);
 	}
 	
 	private void mockExchangeHeaderAndBody() {

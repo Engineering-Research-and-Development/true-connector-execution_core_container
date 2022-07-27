@@ -68,8 +68,7 @@ public class ReceiverWebSocketSendDataToDataAppProcessor implements Processor {
           if (response == null) {
               logger.info("...communication error with: " + openApiDataAppAddress);
               rejectionMessageService.sendRejectionMessage(
-                      RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-                      message);
+                      RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
           } else {
         	  logger.info("Received response from DataAPP");
         	  logger.debug("response received from the DataAPP=" + response);

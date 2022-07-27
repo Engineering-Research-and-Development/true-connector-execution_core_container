@@ -62,8 +62,7 @@ public class SenderFileRecreatorProcessor implements Processor {
 			if(mm.getPayloadContent() != null) {
 				multipartMessageParts.put(MessagePart.PAYLOAD, mm.getPayloadContent());
 			}
-			multipartMessage = new MultipartMessage(
-					null, null, mm.getHeaderContent(), null, mm.getPayloadContent(), null, null,null);
+			multipartMessage = new MultipartMessage(null, null, mm.getHeaderContent(), null, mm.getPayloadContent(),  null, null, null);
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);
 			// TODO: Send WebSocket rejection message
@@ -79,8 +78,7 @@ public class SenderFileRecreatorProcessor implements Processor {
 		} catch(Exception e) {
 			logger.info("... can not initilize the IdscpServer");
 			rejectionMessageService.sendRejectionMessage(
-					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, 
-					message);
+					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
 		}
 	}
 

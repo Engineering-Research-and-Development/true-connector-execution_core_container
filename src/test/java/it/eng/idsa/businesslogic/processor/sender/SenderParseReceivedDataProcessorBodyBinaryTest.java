@@ -88,8 +88,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 		processor.process(exchange);
 
 		verify(messageOut).setBody(multipartMessage);
-		verify(rejectionMessageService,times(0)).sendRejectionMessage(any(RejectionMessageType.class),
-				any(de.fraunhofer.iais.eis.Message.class));
+		verify(rejectionMessageService,times(0)).sendRejectionMessage(any(RejectionMessageType.class));
 	}
 
 	@Test
