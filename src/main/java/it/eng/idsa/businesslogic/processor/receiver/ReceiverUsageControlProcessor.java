@@ -82,7 +82,7 @@ public class ReceiverUsageControlProcessor implements Processor {
 			exchange.getMessage().setBody(reponseMultipartMessage);
 		} catch (Exception e) {
 			logger.error("Usage Control Enforcement has failed with MESSAGE: {}", e.getMessage());
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL);
+			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionMessageType.REJECTION_USAGE_CONTROL);
 		}
     }
 }

@@ -29,8 +29,6 @@ import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.service.ClearingHouseService;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.HashFileService;
-import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.clearinghouse.model.Body;
 import it.eng.idsa.clearinghouse.model.NotificationContent;
 import it.eng.idsa.multipart.util.DateUtil;
@@ -49,9 +47,6 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	@Autowired
 	private ApplicationConfiguration configuration;
 
-	@Autowired
-	private RejectionMessageService rejectionMessageService;
-	
 	@Autowired
 	private SelfDescriptionConfiguration selfDescriptionConfiguration;
 	
@@ -111,7 +106,6 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			success = true;
 		} catch (Exception e) {
 			logger.error("Could not register the following message to clearing house", e);
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
 		}
 
 		return success;

@@ -93,15 +93,13 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		String ctPayload = getPayloadContentType(headerParts);
 		Headers httpHeaders = fillHeaders(headerParts);
 
-		Response response;
 		try {
-			response = okHttpClient.sendHttpHeaderRequest(address, httpHeaders, multipartMessage.getPayloadContent(),
+			return okHttpClient.sendHttpHeaderRequest(address, httpHeaders, multipartMessage.getPayloadContent(),
 					ctPayload);
 		} catch (IOException e) {
 			logger.error("Error while calling Receiver", e);
-			return null;
 		}
-		return response;
+		return null;
 	}
 
 	@Override
@@ -115,14 +113,12 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		Headers headers = fillHeaders(headerParts);
 		RequestBody body = okHttpClient.createMultipartFormRequest(multipartMessage, ctPayload);
 
-		Response response = null;
 		try {
-			response = okHttpClient.sendMultipartFormRequest(address, headers, body);
+			return okHttpClient.sendMultipartFormRequest(address, headers, body);
 		} catch (IOException e) {
 			logger.error("Error while sending form data request", e);
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
 		}
-		return response;
+		return null;
 	}
 
 	private Headers fillHeaders(Map<String, Object> headerParts) {
@@ -153,10 +149,10 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 	}
 
 	@Override
-	public void checkResponse(Message message, Response response, String forwardTo) {
+	public void checkResponse(Message messageForRejection, Response response, String forwardTo) {
 		if (response == null) {
 			logger.info("...communication error");
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
+			rejectionMessageService.sendRejectionMessage(messageForRejection, RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
 		} else {
 			int statusCode = response.code();
 			logger.debug("Response {}", response);
@@ -165,10 +161,10 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 				if (statusCode == 404) {
 					logger.info("...communication error - bad forwardTo URL " + forwardTo);
 					rejectionMessageService
-							.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
+							.sendRejectionMessage(messageForRejection, RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
 				}
 				logger.info("data sent unsuccessfully to destination " + forwardTo);
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON);
+				rejectionMessageService.sendRejectionMessage(messageForRejection, RejectionMessageType.REJECTION_MESSAGE_COMMON);
 			}
 		}
 	}

@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionMessage;
 import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
@@ -42,6 +44,11 @@ public class ValidateTokenProcessor implements Processor {
         }
 		
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
+		
+		if (multipartMessage.getHeaderContent() instanceof RejectionMessage) {
+			logger.info("Not validating DAT for rejection message");
+            return;
+		}
 		String token = multipartMessage.getHeaderContent().getSecurityToken().getTokenValue();
 		logger.info("token: {}", token);
 		
@@ -50,7 +57,7 @@ public class ValidateTokenProcessor implements Processor {
 		
 		if(isTokenValid==false) {			
 			logger.error("Token is invalid");
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN);
+			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionMessageType.REJECTION_TOKEN);
 		}
 		
 		logger.info("is token valid: "+isTokenValid);

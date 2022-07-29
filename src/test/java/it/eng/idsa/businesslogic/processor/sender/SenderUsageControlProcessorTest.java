@@ -52,10 +52,14 @@ public class SenderUsageControlProcessorTest {
 	
 	private Message message;
 	
+	private Message requestMessage;
+	
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		message = UtilMessageService.getArtifactResponseMessage();
+		requestMessage = UtilMessageService.getArtifactRequestMessage();
+		when(exchange.getProperty("Original-Message-Header")).thenReturn(requestMessage);
 		headers = new HashMap<>();
 	}
 
@@ -76,8 +80,7 @@ public class SenderUsageControlProcessorTest {
 		processor.process(exchange);
 		
 		verify(ucService).enforceUsageControl(any(URI.class), any(String.class));
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(
-                RejectionMessageType.REJECTION_USAGE_CONTROL);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(requestMessage,  RejectionMessageType.REJECTION_USAGE_CONTROL);
 	}
 
 	@Test
@@ -112,8 +115,7 @@ public class SenderUsageControlProcessorTest {
 		processor.process(exchange);
 		
 		verify(ucService).enforceUsageControl(any(URI.class), any(String.class));
-		verify(rejectionMessageService).sendRejectionMessage(
-                RejectionMessageType.REJECTION_USAGE_CONTROL);
+		verify(rejectionMessageService).sendRejectionMessage(requestMessage ,RejectionMessageType.REJECTION_USAGE_CONTROL);
 	}
 	
 	@Test
@@ -126,8 +128,7 @@ public class SenderUsageControlProcessorTest {
 		processor.process(exchange);
 		
 		verify(ucService).enforceUsageControl(any(URI.class), any());
-		verify(rejectionMessageService).sendRejectionMessage(
-                RejectionMessageType.REJECTION_USAGE_CONTROL);
+		verify(rejectionMessageService).sendRejectionMessage(requestMessage, RejectionMessageType.REJECTION_USAGE_CONTROL);
 	}
 	
 	@Test
@@ -139,8 +140,7 @@ public class SenderUsageControlProcessorTest {
 		processor.process(exchange);
 		
 		verify(ucService, times(0)).enforceUsageControl(any(URI.class), any(String.class));
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(
-                RejectionMessageType.REJECTION_USAGE_CONTROL);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(requestMessage, RejectionMessageType.REJECTION_USAGE_CONTROL);
 	}
 
 	private void mockExchangeHeaderAndBody() {

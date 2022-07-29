@@ -1,6 +1,7 @@
 package it.eng.idsa.businesslogic.processor.common;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,17 +42,16 @@ public class ProtocolValidationProcessorTest {
 	public void protocolValidation_Enabled() throws Exception {
 		ReflectionTestUtils.setField(processor, "enableProtocolValidation", true);
 		mockExchange();
-		
 		processor.process(exchange);
 		
-		verify(protocolValidationService).validateProtocol(any());
+		verify(protocolValidationService).validateProtocol(anyString(), any(de.fraunhofer.iais.eis.Message.class));
 	}
 	
 	@Test
 	public void protocolValidation_Disabled() throws Exception {
 		ReflectionTestUtils.setField(processor, "enableProtocolValidation", false);
 		
-		verify(protocolValidationService, times(0)).validateProtocol(any());
+		verify(protocolValidationService, times(0)).validateProtocol(anyString(), any(de.fraunhofer.iais.eis.Message.class));
 	}
 
 	
@@ -62,6 +62,7 @@ public class ProtocolValidationProcessorTest {
 				.build();
 		when(exchange.getMessage()).thenReturn(messageIn);
 		when(messageIn.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
+		when(exchange.getProperty("Original-Message-Header")).thenReturn(UtilMessageService.getArtifactRequestMessage());
 		when(messageIn.getHeader("Forward-To")).thenReturn("https://example.com");
 	}
 }

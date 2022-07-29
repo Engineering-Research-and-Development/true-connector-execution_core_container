@@ -11,7 +11,5 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 public interface RejectionMessageService {
 	
-	public void sendRejectionMessage(RejectionMessageType rejectionMessageType);
-
-	public void saveMessage(Message message);
+	public void sendRejectionMessage(Message requestMessage, RejectionMessageType rejectionMessageType);
 }

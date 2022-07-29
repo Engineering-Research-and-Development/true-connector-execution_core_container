@@ -58,9 +58,6 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 	@Autowired
 	private HttpHeaderService httpHeaderService;
 
-	private Message originalMessage;
-	private String originalPayload;
-
 	@Autowired
 	private SendDataToBusinessLogicServiceImpl sendDataToBusinessLogicService;
 
@@ -76,8 +73,6 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		// Get header, payload and message
 		Message message = multipartMessage.getHeaderContent();
 
-		this.originalMessage = multipartMessage.getHeaderContent();
-		this.originalPayload = multipartMessage.getPayloadContent();
 		// Send data to the endpoint F for the Open API Data App
 		Response response = null;
 		try {
@@ -99,7 +94,7 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 			}
 			default: {
 				logger.error("Applicaton property: application.openDataAppReceiverRouter is not properly set");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES);
+				rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES);
 			}
 			}
 			
@@ -123,10 +118,7 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 
 		Map<String, Object> headers = httpHeaderService.okHttpHeadersToMap(response.headers());
 		exchange.getMessage().setHeaders(headers);
-		if (isEnabledUsageControl) {
-			exchange.getMessage().setHeader("Original-Message-Header", originalMessage);
-			exchange.getMessage().setHeader("Original-Message-Payload", originalPayload);
-		}
+		
 		if (RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
 			exchange.getMessage().setBody(responseString);
 			message = httpHeaderService.headersToMessage(headers);

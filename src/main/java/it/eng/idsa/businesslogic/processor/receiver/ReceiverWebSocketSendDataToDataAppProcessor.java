@@ -53,7 +53,7 @@ public class ReceiverWebSocketSendDataToDataAppProcessor implements Processor {
         // Get header, payload and message
         String header = multipartMessage.getHeaderContentString();
         String payload = null;
-        this.originalHeader = header;
+        this.originalHeader = (String) exchange.getProperty("Original-Message-Header");
         payload = multipartMessage.getPayloadContent();
         Message message = multipartMessage.getHeaderContent();
         URL openDataAppReceiverRouterUrl = new URL(openDataAppReceiver);
@@ -67,17 +67,16 @@ public class ReceiverWebSocketSendDataToDataAppProcessor implements Processor {
       private void handleResponse(Exchange exchange, Message message, String response, String openApiDataAppAddress) throws UnsupportedOperationException, IOException {
           if (response == null) {
               logger.info("...communication error with: " + openApiDataAppAddress);
-              rejectionMessageService.sendRejectionMessage(
-                      RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
+              rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
           } else {
         	  logger.info("Received response from DataAPP");
         	  logger.debug("response received from the DataAPP=" + response);
 			  MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(response);
               exchange.getMessage().setHeader(MessagePart.HEADER, multipartMessage.getHeaderContentString());
               //Save original Header for Usage Control Enforcement
-              if(isEnabledUsageControl) {
-                  exchange.getMessage().setHeader("Original-Message-Header", originalHeader);
-              }
+              
+              exchange.getProperties().put("Original-Message-Header", originalHeader);
+              
               if (multipartMessage.getPayloadContent() != null) {
                   exchange.getMessage().setHeader(MessagePart.PAYLOAD, multipartMessage.getPayloadContent());
               }

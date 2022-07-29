@@ -70,8 +70,8 @@ public class ContractAgreementProcessorTest {
 	public void verifyContractAgreement() throws Exception {
 		when(exchange.getMessage()).thenReturn(camelMessage);
 		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
-		when(exchange.getMessage().getHeader("Original-Message-Header")).thenReturn(contractAgreementMessage);
-		when(exchange.getMessage().getHeader("Original-Message-Payload")).thenReturn(UtilMessageService.getMessageAsString(contractAgreement));
+		when(exchange.getProperty("Original-Message-Header")).thenReturn(contractAgreementMessage);
+		when(exchange.getProperty("Original-Message-Payload")).thenReturn(UtilMessageService.getMessageAsString(contractAgreement));
 		when(multipartMessage.getHeaderContent()).thenReturn(createProcessNotificationMessage());
 		when(usageControlService.uploadPolicy(any(String.class))).thenReturn("UPLOADED POLICY");
 
@@ -84,8 +84,8 @@ public class ContractAgreementProcessorTest {
 	public void verifyContractAgreement_NotUploaded() throws Exception {
 		when(exchange.getMessage()).thenReturn(camelMessage);
 		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
-		when(exchange.getMessage().getHeader("Original-Message-Header")).thenReturn(contractAgreementMessage);
-		when(exchange.getMessage().getHeader("Original-Message-Payload")).thenReturn(UtilMessageService.getMessageAsString(contractAgreement));
+		when(exchange.getProperty("Original-Message-Header")).thenReturn(contractAgreementMessage);
+		when(exchange.getProperty("Original-Message-Payload")).thenReturn(UtilMessageService.getMessageAsString(contractAgreement));
 		when(multipartMessage.getHeaderContent()).thenReturn(createProcessNotificationMessage());
 		when(usageControlService.uploadPolicy(any(String.class))).thenReturn("UPLOADED POLICY");
 		when(communicationService.sendDataAsJson(any(String.class), any(String.class), any(String.class))).thenThrow(RestClientException.class);
@@ -93,7 +93,7 @@ public class ContractAgreementProcessorTest {
 		processor.process(exchange);
 		
 		verify(usageControlService).uploadPolicy(any(String.class));
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(any(RejectionMessageType.class));
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(any(de.fraunhofer.iais.eis.Message.class), any(RejectionMessageType.class));
 	}
 	
 	@Test

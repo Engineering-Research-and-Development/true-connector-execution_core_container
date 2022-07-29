@@ -1,12 +1,11 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.any;
-
 
 import java.util.HashMap;
 import java.util.Map;
@@ -74,6 +73,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 		message = UtilMessageService.getArtifactRequestMessage();
 		headers.put("Forward-To", FORWARD_TO);
 		when(httpHeaderService.okHttpHeadersToMap(okHeaders)).thenReturn(headers);
+		when(exchange.getProperty("Original-Message-Header")).thenReturn(UtilMessageService.getArtifactRequestMessage());
 		artifactResponse = UtilMessageService.getArtifactResponseMessage();
 		MultipartMessage multipartMessage = new MultipartMessageBuilder()
 				.withHeaderContent(artifactResponse)

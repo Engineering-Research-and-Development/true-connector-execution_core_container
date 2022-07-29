@@ -21,7 +21,7 @@ public class MockUtil {
 	public static RejectionMessageService mockRejectionService(RejectionMessageService rejectionMessageService) {
 		SelfDescriptionConfiguration selfDescriptionConfiguration = mock(SelfDescriptionConfiguration.class);
 		DapsTokenProviderService dapsProvider = mock(DapsTokenProviderService.class);
-		rejectionMessageService = new RejectionMessageServiceImpl(dapsProvider, selfDescriptionConfiguration);
+		rejectionMessageService = new RejectionMessageServiceImpl(selfDescriptionConfiguration);
 		when(dapsProvider.getDynamicAtributeToken()).thenReturn(UtilMessageService.getDynamicAttributeToken());
 		when(selfDescriptionConfiguration.getConnectorURI()).thenReturn(UtilMessageService.ISSUER_CONNECTOR);
 		return rejectionMessageService;

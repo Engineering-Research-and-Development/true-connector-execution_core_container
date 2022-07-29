@@ -45,7 +45,7 @@ public class MapIDSCP2toMultipart implements Processor {
 
 		exchange.getMessage().setBody(multipartMessage);
 		if(isEnabledUsageControl && receiver) {
-            exchange.getMessage().setHeader("Original-Message-Header", multipartMessage.getHeaderContentString());
+            exchange.getProperties().put("Original-Message-Header", multipartMessage.getHeaderContentString());
         }
 	}
 }

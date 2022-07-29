@@ -117,8 +117,7 @@ public class MessageWebSocketOverHttpSender {
         } catch (Exception e) {
             logger.info("... can not create the WebSocket connection HTTP at '{}', {}", WS_URL, e);
             if (null != message)
-                rejectionMessageService.sendRejectionMessage(
-                        RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
+                rejectionMessageService.sendRejectionMessage(message, RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
         }
         return wsClient;
     }
@@ -157,8 +156,7 @@ public class MessageWebSocketOverHttpSender {
         } catch (Exception e) {
             logger.error("Problems encountered during Client Shutdown with error: " + e.getMessage());
             if (null != message)
-                rejectionMessageService.sendRejectionMessage(
-                        RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
+                rejectionMessageService.sendRejectionMessage(message, RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
         }
     }
 

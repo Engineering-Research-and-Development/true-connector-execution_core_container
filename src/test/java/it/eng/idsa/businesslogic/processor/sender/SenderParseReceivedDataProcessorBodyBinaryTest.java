@@ -1,6 +1,5 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -88,7 +87,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 		processor.process(exchange);
 
 		verify(messageOut).setBody(multipartMessage);
-		verify(rejectionMessageService,times(0)).sendRejectionMessage(any(RejectionMessageType.class));
+		verify(rejectionMessageService,times(0)).sendRejectionMessage(null, RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES);
 	}
 
 	@Test

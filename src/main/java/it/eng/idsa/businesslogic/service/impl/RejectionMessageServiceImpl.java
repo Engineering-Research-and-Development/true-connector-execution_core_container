@@ -15,7 +15,6 @@ import de.fraunhofer.iais.eis.RejectionReason;
 import de.fraunhofer.iais.eis.ResultMessageBuilder;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
-import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -36,21 +35,15 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 	
 	private static final Logger logger = LoggerFactory.getLogger(RejectionMessageServiceImpl.class);
 	
-	private DapsTokenProviderService dapsProvider;
-	
 	private SelfDescriptionConfiguration selfDescriptionConfiguration;
 	
-	private Message requestMessage;
-	
-	public RejectionMessageServiceImpl(DapsTokenProviderService dapsProvider,
-			SelfDescriptionConfiguration selfDescriptionConfiguration) {
+	public RejectionMessageServiceImpl(SelfDescriptionConfiguration selfDescriptionConfiguration) {
 		super();
-		this.dapsProvider = dapsProvider;
 		this.selfDescriptionConfiguration = selfDescriptionConfiguration;
 	}
 
 	@Override
-	public void sendRejectionMessage(RejectionMessageType rejectionMessageType) {
+	public void sendRejectionMessage(Message requestMessage, RejectionMessageType rejectionMessageType) {
 		logger.info("Creating rejection message of type {}", rejectionMessageType);
 		if(requestMessage == null) {
 			logger.info("Could not get original message, creating default rejectionMessage");
@@ -104,7 +97,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
 				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
-				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._securityToken_(UtilMessageService.getDynamicAttributeToken())
 				._senderAgent_(whoIAm())
 				.build();
 	}
@@ -117,7 +110,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
 				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
 				._rejectionReason_(RejectionReason.MALFORMED_MESSAGE)
-				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._securityToken_(UtilMessageService.getDynamicAttributeToken())
 				._senderAgent_(whoIAm())
 				.build();
 	}
@@ -130,7 +123,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
 				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
 				._rejectionReason_(RejectionReason.NOT_AUTHENTICATED)
-				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._securityToken_(UtilMessageService.getDynamicAttributeToken())
 				._senderAgent_(whoIAm())
 				.build();
 	}
@@ -138,7 +131,6 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 
 	private URI whoIAm() {
 		return selfDescriptionConfiguration.getConnectorURI();
-//		return URI.create("http://auto-generated");
 	}
 
 	private Message createRejectionMessageLocalIssues(Message header) {
@@ -146,10 +138,10 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 				._issuerConnector_(URI.create("http://auto-generated.com"))
 				._issued_(DateUtil.now())
 				._modelVersion_(UtilMessageService.MODEL_VERSION)
-				//._recipientConnectors_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
-				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
+				._recipientConnector_(header != null ? header.getIssuerConnector() : URI.create("http://auto-generated.com"))
+				._correlationMessage_(header != null ? header.getId() : URI.create("http://auto-generated.com"))
 				._rejectionReason_(RejectionReason.MALFORMED_MESSAGE)
-				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._securityToken_(UtilMessageService.getDynamicAttributeToken())
 				._senderAgent_(whoIAm())
 				.build();
 	}
@@ -162,7 +154,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
 				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
 				._rejectionReason_(RejectionReason.NOT_AUTHENTICATED)
-				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._securityToken_(UtilMessageService.getDynamicAttributeToken())
 				._senderAgent_(whoIAm())
 				.build();
 	}
@@ -175,7 +167,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
 				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
 				._rejectionReason_(RejectionReason.NOT_FOUND)
-				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._securityToken_(UtilMessageService.getDynamicAttributeToken())
 				._senderAgent_(whoIAm())
 				.build();
 	}
@@ -188,13 +180,8 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
 				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))
 				._rejectionReason_(RejectionReason.NOT_AUTHORIZED)
-				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._securityToken_(UtilMessageService.getDynamicAttributeToken())
 				._senderAgent_(whoIAm())
 				.build();
-	}
-
-	@Override
-	public void saveMessage(Message message) {
-		this.requestMessage = message;
 	}
 }

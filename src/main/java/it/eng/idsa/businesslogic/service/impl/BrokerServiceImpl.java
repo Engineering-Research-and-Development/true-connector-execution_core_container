@@ -52,7 +52,7 @@ public class BrokerServiceImpl implements BrokerService {
 			if(StringUtils.isNotEmpty(token)) {
 				requestMessage = multiPartMessageService.addToken(message, token);
 			} else {
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN_LOCAL_ISSUES);
+				rejectionMessageService.sendRejectionMessage(message, RejectionMessageType.REJECTION_TOKEN_LOCAL_ISSUES);
 			}
 			
 			MultipartMessage multipartMessage = new MultipartMessageBuilder()

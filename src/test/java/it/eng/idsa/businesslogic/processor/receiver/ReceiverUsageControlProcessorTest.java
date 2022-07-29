@@ -1,6 +1,5 @@
 package it.eng.idsa.businesslogic.processor.receiver;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -82,11 +81,12 @@ public class ReceiverUsageControlProcessorTest {
 		when(camelMessage.getHeaders()).thenReturn(headers);
 		when(multipartMessage.getHeaderContent()).thenReturn(artifactResponseMessage);
 		when(multipartMessage.getPayloadContent()).thenReturn(null);
+		when(exchange.getProperty("Original-Message-Header")).thenReturn(artifactRequestMessage);
 		doThrow(JsonSyntaxException.class)
 			.when(usageControlService).createUsageControlObject(artifactRequestMessage, artifactResponseMessage, null);
 		processor.process(exchange);
 
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL);
+		verify(rejectionMessageService).sendRejectionMessage(artifactRequestMessage, RejectionMessageType.REJECTION_USAGE_CONTROL);
 	}
 	
 	@Test
@@ -95,7 +95,7 @@ public class ReceiverUsageControlProcessorTest {
 		
 		processor.process(exchange);
 		
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(any());
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(artifactRequestMessage, RejectionMessageType.REJECTION_USAGE_CONTROL);
 	}
 	
 	@Test
@@ -107,7 +107,7 @@ public class ReceiverUsageControlProcessorTest {
 		
 		processor.process(exchange);
 		
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(artifactRequestMessage, RejectionMessageType.REJECTION_USAGE_CONTROL);
 	}
 	
 	@Test
@@ -120,7 +120,7 @@ public class ReceiverUsageControlProcessorTest {
 		
 		processor.process(exchange);
 		
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(artifactRequestMessage, RejectionMessageType.REJECTION_USAGE_CONTROL);
 	}
 	
 	@Test
@@ -135,6 +135,6 @@ public class ReceiverUsageControlProcessorTest {
 		
 		processor.process(exchange);
 		
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(artifactRequestMessage, RejectionMessageType.REJECTION_USAGE_CONTROL);
 	}
 }

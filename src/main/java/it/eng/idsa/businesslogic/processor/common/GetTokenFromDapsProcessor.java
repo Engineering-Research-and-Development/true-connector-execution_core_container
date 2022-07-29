@@ -56,17 +56,17 @@ public class GetTokenFromDapsProcessor implements Processor {
 			logger.debug("DAT token: {}", token);
 		} catch (Exception e) {
 			logger.error("Can not get the token from the DAPS server ", e);
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN_LOCAL_ISSUES);
+			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionMessageType.REJECTION_TOKEN_LOCAL_ISSUES);
 		}
 
 		if (token == null) {
 			logger.error("Can not get the token from the DAPS server");
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
+			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
 		}
 
 		if (token.isEmpty()) {
 			logger.error("The token from the DAPS server is empty");
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN_LOCAL_ISSUES);
+			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionMessageType.REJECTION_TOKEN_LOCAL_ISSUES);
 		}
 
 		String messageStringWithToken = multipartMessageService.addToken(message, token);
