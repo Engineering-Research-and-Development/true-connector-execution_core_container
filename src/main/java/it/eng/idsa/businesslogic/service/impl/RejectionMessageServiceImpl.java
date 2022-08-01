@@ -135,7 +135,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 
 	private Message createRejectionMessageLocalIssues(Message header) {
 		return new RejectionMessageBuilder()
-				._issuerConnector_(URI.create("http://auto-generated.com"))
+				._issuerConnector_(whoIAm())
 				._issued_(DateUtil.now())
 				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._recipientConnector_(header != null ? header.getIssuerConnector() : URI.create("http://auto-generated.com"))
@@ -148,7 +148,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 
 	private Message createRejectionTokenLocalIssues(Message header) {
 		return new RejectionMessageBuilder()
-				._issuerConnector_(header!=null?header.getIssuerConnector():URI.create("http://auto-generated.com"))
+				._issuerConnector_(whoIAm())
 				._issued_(DateUtil.now())
 				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
@@ -161,7 +161,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 
 	private Message createRejectionCommunicationLocalIssues(Message header) {
 		return new RejectionMessageBuilder()
-				._issuerConnector_(header!=null?header.getIssuerConnector():URI.create("http://auto-generated.com"))
+				._issuerConnector_(whoIAm())
 				._issued_(DateUtil.now())
 				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
@@ -174,7 +174,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 	
 	private Message createRejectionUsageControl(Message header) {
 		return new RejectionMessageBuilder()
-				._issuerConnector_(header!=null?header.getIssuerConnector():URI.create("http://auto-generated.com"))
+				._issuerConnector_(whoIAm())
 				._issued_(DateUtil.now())
 				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))

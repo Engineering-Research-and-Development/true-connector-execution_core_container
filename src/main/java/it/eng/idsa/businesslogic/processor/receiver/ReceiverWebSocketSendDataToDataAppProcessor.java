@@ -44,8 +44,6 @@ public class ReceiverWebSocketSendDataToDataAppProcessor implements Processor {
     @Value("#{new Boolean('${application.isEnabledUsageControl}')}")
     private boolean isEnabledUsageControl;
 
-    private String originalHeader;
-
     @Override
     public void process(Exchange exchange) throws Exception {
         MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
@@ -53,7 +51,6 @@ public class ReceiverWebSocketSendDataToDataAppProcessor implements Processor {
         // Get header, payload and message
         String header = multipartMessage.getHeaderContentString();
         String payload = null;
-        this.originalHeader = (String) exchange.getProperty("Original-Message-Header");
         payload = multipartMessage.getPayloadContent();
         Message message = multipartMessage.getHeaderContent();
         URL openDataAppReceiverRouterUrl = new URL(openDataAppReceiver);
@@ -74,8 +71,6 @@ public class ReceiverWebSocketSendDataToDataAppProcessor implements Processor {
 			  MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(response);
               exchange.getMessage().setHeader(MessagePart.HEADER, multipartMessage.getHeaderContentString());
               //Save original Header for Usage Control Enforcement
-              
-              exchange.getProperties().put("Original-Message-Header", originalHeader);
               
               if (multipartMessage.getPayloadContent() != null) {
                   exchange.getMessage().setHeader(MessagePart.PAYLOAD, multipartMessage.getPayloadContent());

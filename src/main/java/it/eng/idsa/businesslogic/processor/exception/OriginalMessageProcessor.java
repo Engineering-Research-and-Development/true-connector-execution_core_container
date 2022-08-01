@@ -20,7 +20,9 @@ public class OriginalMessageProcessor implements Processor {
 		
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		exchange.getProperties().put("Original-Message-Header", multipartMessage.getHeaderContent());
-		exchange.getProperties().put("Original-Message-Payload", multipartMessage.getPayloadContent());
+		if (null != multipartMessage.getPayloadContent()) {
+			exchange.getProperties().put("Original-Message-Payload", multipartMessage.getPayloadContent());
+		}
 
 	}
 

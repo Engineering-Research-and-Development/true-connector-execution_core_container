@@ -115,7 +115,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 		onException(ExceptionForProcessor.class, RuntimeException.class)
 			.handled(true)
 			.process(exceptionProcessorReceiver)
-			.process(getTokenFromDapsProcessor)
 			.process(registerTransactionToCHProcessor)
 			.process(sendDataToBusinessLogicProcessor);
 		
