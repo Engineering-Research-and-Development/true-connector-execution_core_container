@@ -2,10 +2,13 @@
 All notable changes to this project will be documented in this file.
 
 
-## [0.1.15-SNAPSHOT] - 2022-07-27
+## [0.1.15-SNAPSHOT] - 2022-08-02
 
 ### Changed
  - Rejection message is now always created from the request message
+ 
+ ### Removed
+ - removed DAT from rejection message
 
 ## [0.1.14-SNAPSHOT] - 2022-07-18
 
