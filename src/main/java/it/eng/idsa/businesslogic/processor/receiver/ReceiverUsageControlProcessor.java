@@ -14,9 +14,9 @@ import org.springframework.stereotype.Component;
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
@@ -82,7 +82,7 @@ public class ReceiverUsageControlProcessor implements Processor {
 			exchange.getMessage().setBody(reponseMultipartMessage);
 		} catch (Exception e) {
 			logger.error("Usage Control Enforcement has failed with MESSAGE: {}", e.getMessage());
-			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionMessageType.REJECTION_USAGE_CONTROL);
+			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.NOT_AUTHORIZED);
 		}
     }
 }

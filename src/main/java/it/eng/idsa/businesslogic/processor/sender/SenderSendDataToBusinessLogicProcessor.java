@@ -20,11 +20,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.processor.sender.websocket.client.MessageWebSocketOverHttpSender;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -90,7 +90,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 					this.extractWebSocketIPAndPort(forwardTo, REGEX_WSS);
 				} catch (Exception e) {
 					logger.info("... bad wss URL - '{}', {}", forwardTo, e.getMessage());
-					rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
+					rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.BAD_PARAMETERS);
 				}
 				
 				// -- Send data using HTTPS - (Client) - WebSocket
@@ -135,7 +135,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 			}
 			default:
 				logger.error("Applicaton property: application.eccHttpSendRouter is not properly set");
-				rejectionMessageService.sendRejectionMessage(message, RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES);
+				rejectionMessageService.sendRejectionMessage(message, RejectionReason.INTERNAL_RECIPIENT_ERROR);
 			}
 		return response;
 	}
@@ -172,7 +172,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	private void handleResponseWebSocket(Exchange exchange, Message message, String responseString, String forwardTo) {
 		if (responseString == null) {
 			logger.info("...communication error");
-			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
+			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.INTERNAL_RECIPIENT_ERROR);
 		} else {
 //			logger.info("response received from the DataAPP=" + responseString);
 			logger.info("data sent to destination " + forwardTo);

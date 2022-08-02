@@ -12,11 +12,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.sender.websocket.client.MessageWebSocketOverHttpSender;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.MessagePart;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
@@ -64,7 +64,7 @@ public class ReceiverWebSocketSendDataToDataAppProcessor implements Processor {
       private void handleResponse(Exchange exchange, Message message, String response, String openApiDataAppAddress) throws UnsupportedOperationException, IOException {
           if (response == null) {
               logger.info("...communication error with: " + openApiDataAppAddress);
-              rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
+              rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.INTERNAL_RECIPIENT_ERROR);
           } else {
         	  logger.info("Received response from DataAPP");
         	  logger.debug("response received from the DataAPP=" + response);

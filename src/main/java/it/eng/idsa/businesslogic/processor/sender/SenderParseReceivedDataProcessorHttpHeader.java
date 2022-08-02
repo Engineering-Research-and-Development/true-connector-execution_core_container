@@ -10,10 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.exception.MultipartMessageException;
@@ -66,7 +66,7 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);
-			rejectionMessageService.sendRejectionMessage(null, RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES);
+			rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 		}
 	}
 }

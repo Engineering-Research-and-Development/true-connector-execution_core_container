@@ -21,10 +21,10 @@ import de.fraunhofer.iais.eis.ContractAgreement;
 import de.fraunhofer.iais.eis.ContractAgreementMessage;
 import de.fraunhofer.iais.eis.MessageProcessedNotificationMessage;
 import de.fraunhofer.iais.eis.MessageProcessedNotificationMessageBuilder;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.CommunicationService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.util.DateUtil;
 import it.eng.idsa.multipart.util.UtilMessageService;
@@ -93,7 +93,7 @@ public class ContractAgreementProcessorTest {
 		processor.process(exchange);
 		
 		verify(usageControlService).uploadPolicy(any(String.class));
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(any(de.fraunhofer.iais.eis.Message.class), any(RejectionMessageType.class));
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(any(de.fraunhofer.iais.eis.Message.class), any(RejectionReason.class));
 	}
 	
 	@Test

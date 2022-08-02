@@ -12,12 +12,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.BrokerService;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import okhttp3.Response;
@@ -52,7 +52,7 @@ public class BrokerServiceImpl implements BrokerService {
 			if(StringUtils.isNotEmpty(token)) {
 				requestMessage = multiPartMessageService.addToken(message, token);
 			} else {
-				rejectionMessageService.sendRejectionMessage(message, RejectionMessageType.REJECTION_TOKEN_LOCAL_ISSUES);
+				rejectionMessageService.sendRejectionMessage(message, RejectionReason.NOT_AUTHENTICATED);
 			}
 			
 			MultipartMessage multipartMessage = new MultipartMessageBuilder()

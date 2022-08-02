@@ -22,7 +22,6 @@ import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class RejectionMessageServiceImplTest {
@@ -49,12 +48,12 @@ public class RejectionMessageServiceImplTest {
 
 	@ParameterizedTest
     @MethodSource("provideParameters")
-    public void testRejectionMessagesWithMessage(RejectionMessageType messageType, String errorMessage) {
+    public void testRejectionMessagesWithMessage(RejectionReason rejectionReason, String errorMessage) {
         
-		logger.info("Testing rejection with reason {} and recevied message", messageType);
+		logger.info("Testing rejection with reason {} and recevied message", rejectionReason);
 		
         ExceptionForProcessor exception = assertThrows(ExceptionForProcessor.class,
-                () -> rejectionMessageServiceImpl.sendRejectionMessage(UtilMessageService.getArtifactRequestMessage(), messageType));
+                () -> rejectionMessageServiceImpl.sendRejectionMessage(UtilMessageService.getArtifactRequestMessage(), rejectionReason));
         String message = exception.getMessage();
         assertTrue(message.contains(errorMessage));
         
@@ -62,12 +61,12 @@ public class RejectionMessageServiceImplTest {
 	
 	@ParameterizedTest
     @MethodSource("provideParameters")
-    public void testRejectionMessagesWithoutMessage(RejectionMessageType messageType, String errorMessage) {
+    public void testRejectionMessagesWithoutMessage(RejectionReason rejectionReason, String errorMessage) {
         
-		logger.info("Testing rejection with reason {} and without received message", messageType);
+		logger.info("Testing rejection with reason {} and without received message", rejectionReason);
 		
         ExceptionForProcessor exception = assertThrows(ExceptionForProcessor.class,
-                () -> rejectionMessageServiceImpl.sendRejectionMessage(UtilMessageService.getArtifactRequestMessage(), messageType));
+                () -> rejectionMessageServiceImpl.sendRejectionMessage(UtilMessageService.getArtifactRequestMessage(), rejectionReason));
         String message = exception.getMessage();
         assertTrue(message.contains(errorMessage));
         
@@ -77,13 +76,17 @@ public class RejectionMessageServiceImplTest {
 
     private static Stream<Arguments> provideParameters() {
         return Stream.of(
-                Arguments.of(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, RejectionReason.NOT_FOUND.getId().toString()),
-                Arguments.of(RejectionMessageType.REJECTION_MESSAGE_COMMON, RejectionReason.MALFORMED_MESSAGE.getId().toString()),
-                Arguments.of(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, RejectionReason.MALFORMED_MESSAGE.getId().toString()),
-                Arguments.of(RejectionMessageType.REJECTION_TOKEN, RejectionReason.NOT_AUTHENTICATED.getId().toString()),
-                Arguments.of(RejectionMessageType.REJECTION_TOKEN_LOCAL_ISSUES, RejectionReason.NOT_AUTHENTICATED.getId().toString()),
-                Arguments.of(RejectionMessageType.REJECTION_USAGE_CONTROL, RejectionReason.NOT_AUTHORIZED.getId().toString()),
-                Arguments.of(RejectionMessageType.RESULT_MESSAGE, "")
+                Arguments.of(RejectionReason.NOT_FOUND, RejectionReason.NOT_FOUND.getId().toString()),
+                Arguments.of(RejectionReason.MALFORMED_MESSAGE, RejectionReason.MALFORMED_MESSAGE.getId().toString()),
+                Arguments.of(RejectionReason.BAD_PARAMETERS, RejectionReason.BAD_PARAMETERS.getId().toString()),
+                Arguments.of(RejectionReason.NOT_AUTHENTICATED, RejectionReason.NOT_AUTHENTICATED.getId().toString()),
+                Arguments.of(RejectionReason.INTERNAL_RECIPIENT_ERROR, RejectionReason.INTERNAL_RECIPIENT_ERROR.getId().toString()),
+                Arguments.of(RejectionReason.NOT_AUTHORIZED, RejectionReason.NOT_AUTHORIZED.getId().toString()),
+                Arguments.of(RejectionReason.MESSAGE_TYPE_NOT_SUPPORTED, RejectionReason.MESSAGE_TYPE_NOT_SUPPORTED.getId().toString()),
+                Arguments.of(RejectionReason.METHOD_NOT_SUPPORTED, RejectionReason.METHOD_NOT_SUPPORTED.getId().toString()),
+                Arguments.of(RejectionReason.TEMPORARILY_NOT_AVAILABLE, RejectionReason.TEMPORARILY_NOT_AVAILABLE.getId().toString()),
+                Arguments.of(RejectionReason.TOO_MANY_RESULTS, RejectionReason.TOO_MANY_RESULTS.getId().toString()),
+                Arguments.of(RejectionReason.VERSION_NOT_SUPPORTED, RejectionReason.VERSION_NOT_SUPPORTED.getId().toString())
         );
     }
 }

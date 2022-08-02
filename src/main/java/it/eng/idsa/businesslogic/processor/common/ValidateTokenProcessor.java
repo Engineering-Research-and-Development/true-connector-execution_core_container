@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionMessage;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
 /**
@@ -57,7 +57,7 @@ public class ValidateTokenProcessor implements Processor {
 		
 		if(isTokenValid==false) {			
 			logger.error("Token is invalid");
-			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionMessageType.REJECTION_TOKEN);
+			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.NOT_AUTHENTICATED);
 		}
 		
 		logger.info("is token valid: "+isTokenValid);

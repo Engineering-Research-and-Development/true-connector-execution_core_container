@@ -22,9 +22,9 @@ import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.DescriptionRequestMessage;
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.util.UtilMessageService;
 
@@ -86,7 +86,7 @@ public class ReceiverUsageControlProcessorTest {
 			.when(usageControlService).createUsageControlObject(artifactRequestMessage, artifactResponseMessage, null);
 		processor.process(exchange);
 
-		verify(rejectionMessageService).sendRejectionMessage(artifactRequestMessage, RejectionMessageType.REJECTION_USAGE_CONTROL);
+		verify(rejectionMessageService).sendRejectionMessage(artifactRequestMessage, RejectionReason.NOT_AUTHORIZED);
 	}
 	
 	@Test
@@ -95,7 +95,7 @@ public class ReceiverUsageControlProcessorTest {
 		
 		processor.process(exchange);
 		
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(artifactRequestMessage, RejectionMessageType.REJECTION_USAGE_CONTROL);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(artifactRequestMessage, RejectionReason.NOT_AUTHORIZED);
 	}
 	
 	@Test
@@ -107,7 +107,7 @@ public class ReceiverUsageControlProcessorTest {
 		
 		processor.process(exchange);
 		
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(artifactRequestMessage, RejectionMessageType.REJECTION_USAGE_CONTROL);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(artifactRequestMessage, RejectionReason.NOT_AUTHORIZED);
 	}
 	
 	@Test
@@ -120,7 +120,7 @@ public class ReceiverUsageControlProcessorTest {
 		
 		processor.process(exchange);
 		
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(artifactRequestMessage, RejectionMessageType.REJECTION_USAGE_CONTROL);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(artifactRequestMessage, RejectionReason.NOT_AUTHORIZED);
 	}
 	
 	@Test
@@ -135,6 +135,6 @@ public class ReceiverUsageControlProcessorTest {
 		
 		processor.process(exchange);
 		
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(artifactRequestMessage, RejectionMessageType.REJECTION_USAGE_CONTROL);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(artifactRequestMessage, RejectionReason.NOT_AUTHORIZED);
 	}
 }

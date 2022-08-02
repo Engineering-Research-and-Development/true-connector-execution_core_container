@@ -1,4 +1,4 @@
-package it.eng.idsa.businesslogic.processor.exception;
+package it.eng.idsa.businesslogic.processor.common;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;

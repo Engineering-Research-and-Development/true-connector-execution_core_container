@@ -17,9 +17,9 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.util.UtilMessageService;
 
@@ -71,7 +71,7 @@ public class ValidateTokenProcessorTest {
 		processor.process(exchange);
 
 		verify(dapsService).validateToken(TOKEN);
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(message, RejectionMessageType.REJECTION_TOKEN);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(message, RejectionReason.NOT_AUTHENTICATED);
 	}
 
 	@Test
@@ -88,7 +88,7 @@ public class ValidateTokenProcessorTest {
 		processor.process(exchange);
 
 		verify(dapsService).validateToken(TOKEN);
-		verify(rejectionMessageService).sendRejectionMessage(message, RejectionMessageType.REJECTION_TOKEN);
+		verify(rejectionMessageService).sendRejectionMessage(message, RejectionReason.NOT_AUTHENTICATED);
 
 	}
 	

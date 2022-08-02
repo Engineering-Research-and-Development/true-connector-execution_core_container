@@ -16,9 +16,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -87,7 +87,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 		processor.process(exchange);
 
 		verify(messageOut).setBody(multipartMessage);
-		verify(rejectionMessageService,times(0)).sendRejectionMessage(null, RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES);
+		verify(rejectionMessageService,times(0)).sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 	}
 
 	@Test

@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationB;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.FileRecreatorBeanServer;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
  *
@@ -53,7 +53,7 @@ public class ReceiverFileRecreatorProcessor implements Processor {
 		} catch(Exception e) {
 			logger.info("... can not initilize the IdscpServer");
 			logger.error("Cannot initiallize server", e);
-			rejectionMessageService.sendRejectionMessage(null, RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
+			rejectionMessageService.sendRejectionMessage(null, RejectionReason.TEMPORARILY_NOT_AVAILABLE);
 		}
 	}
 

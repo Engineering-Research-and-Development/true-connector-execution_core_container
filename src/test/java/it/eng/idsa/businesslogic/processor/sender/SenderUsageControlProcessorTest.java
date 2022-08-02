@@ -26,7 +26,6 @@ import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.MockUtil;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.util.UtilMessageService;
 
@@ -80,7 +79,7 @@ public class SenderUsageControlProcessorTest {
 		processor.process(exchange);
 		
 		verify(ucService).enforceUsageControl(any(URI.class), any(String.class));
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(requestMessage,  RejectionMessageType.REJECTION_USAGE_CONTROL);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(requestMessage,  RejectionReason.NOT_AUTHORIZED);
 	}
 
 	@Test
@@ -115,7 +114,7 @@ public class SenderUsageControlProcessorTest {
 		processor.process(exchange);
 		
 		verify(ucService).enforceUsageControl(any(URI.class), any(String.class));
-		verify(rejectionMessageService).sendRejectionMessage(requestMessage ,RejectionMessageType.REJECTION_USAGE_CONTROL);
+		verify(rejectionMessageService).sendRejectionMessage(requestMessage ,RejectionReason.NOT_AUTHORIZED);
 	}
 	
 	@Test
@@ -128,7 +127,7 @@ public class SenderUsageControlProcessorTest {
 		processor.process(exchange);
 		
 		verify(ucService).enforceUsageControl(any(URI.class), any());
-		verify(rejectionMessageService).sendRejectionMessage(requestMessage, RejectionMessageType.REJECTION_USAGE_CONTROL);
+		verify(rejectionMessageService).sendRejectionMessage(requestMessage, RejectionReason.NOT_AUTHORIZED);
 	}
 	
 	@Test
@@ -140,7 +139,7 @@ public class SenderUsageControlProcessorTest {
 		processor.process(exchange);
 		
 		verify(ucService, times(0)).enforceUsageControl(any(URI.class), any(String.class));
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(requestMessage, RejectionMessageType.REJECTION_USAGE_CONTROL);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(requestMessage, RejectionReason.NOT_AUTHORIZED);
 	}
 
 	private void mockExchangeHeaderAndBody() {

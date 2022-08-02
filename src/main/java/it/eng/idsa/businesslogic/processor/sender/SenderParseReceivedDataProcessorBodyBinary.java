@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 import it.eng.idsa.multipart.util.MultipartMessageKey;
@@ -41,7 +41,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 		receivedDataBodyBinary = exchange.getMessage().getBody(String.class);
 		if (receivedDataBodyBinary == null) {
 			logger.error("Body of the received multipart message is null");
-			rejectionMessageService.sendRejectionMessage(null, RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES);
+			rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 		}
 		logger.debug(receivedDataBodyBinary);
 
@@ -60,7 +60,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);
-			rejectionMessageService.sendRejectionMessage(null, RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES);
+			rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 		}
 	}
 }

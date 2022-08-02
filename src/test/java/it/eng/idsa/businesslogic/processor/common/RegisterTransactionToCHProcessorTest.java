@@ -13,9 +13,9 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.ClearingHouseService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.util.UtilMessageService;
 
@@ -71,7 +71,7 @@ public class RegisterTransactionToCHProcessorTest {
 		
 		processor.process(exchange);
 		
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(requestMessage, RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(requestMessage, RejectionReason.INTERNAL_RECIPIENT_ERROR);
 		verify(clearingHouseService).registerTransaction(requestMessage, payload);
 	}
 	
@@ -83,7 +83,7 @@ public class RegisterTransactionToCHProcessorTest {
 		
 		processor.process(exchange);
 		
-		verify(rejectionMessageService).sendRejectionMessage(requestMessage, RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
+		verify(rejectionMessageService).sendRejectionMessage(requestMessage, RejectionReason.INTERNAL_RECIPIENT_ERROR);
 		verify(clearingHouseService).registerTransaction(requestMessage, payload);
 	}
 	

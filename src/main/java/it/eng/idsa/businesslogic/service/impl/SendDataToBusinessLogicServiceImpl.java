@@ -16,12 +16,12 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.service.SenderClientService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.util.MultipartMessageKey;
 import okhttp3.Headers;
@@ -152,7 +152,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 	public void checkResponse(Message messageForRejection, Response response, String forwardTo) {
 		if (response == null) {
 			logger.info("...communication error");
-			rejectionMessageService.sendRejectionMessage(messageForRejection, RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
+			rejectionMessageService.sendRejectionMessage(messageForRejection, RejectionReason.TEMPORARILY_NOT_AVAILABLE);
 		} else {
 			int statusCode = response.code();
 			logger.debug("Response {}", response);
@@ -161,10 +161,10 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 				if (statusCode == 404) {
 					logger.info("...communication error - bad forwardTo URL " + forwardTo);
 					rejectionMessageService
-							.sendRejectionMessage(messageForRejection, RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES);
+							.sendRejectionMessage(messageForRejection, RejectionReason.BAD_PARAMETERS);
 				}
 				logger.info("data sent unsuccessfully to destination " + forwardTo);
-				rejectionMessageService.sendRejectionMessage(messageForRejection, RejectionMessageType.REJECTION_MESSAGE_COMMON);
+				rejectionMessageService.sendRejectionMessage(messageForRejection, RejectionReason.INTERNAL_RECIPIENT_ERROR);
 			}
 		}
 	}
