@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.impl.ProtocolValidationService;
-import it.eng.idsa.multipart.domain.MultipartMessage;
 
 @Component
 public class ProtocolValidationProcessor implements Processor {
@@ -30,8 +30,7 @@ public class ProtocolValidationProcessor implements Processor {
 		}
 		logger.info("Processing Forward-To protocol");
 		String forwardTo = (String) exchange.getMessage().getHeader("Forward-To");
-		MultipartMessage mm = exchange.getMessage().getBody(MultipartMessage.class);
-		String validatedForwardTo = protocolValidationService.validateProtocol(forwardTo, mm.getHeaderContent());
+		String validatedForwardTo = protocolValidationService.validateProtocol(forwardTo, (Message) exchange.getProperty("Original-Message-Header"));
 		exchange.getMessage().getHeaders().replace("Forward-To", validatedForwardTo);
 	}
 

@@ -10,9 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 import it.eng.idsa.multipart.util.MultipartMessageKey;
@@ -34,7 +33,6 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		logger.info("Received multipart/mixed request");
-		Message message = null;
 		Map<String, Object> headerParts = new HashMap<String, Object>();
 		String receivedDataBodyBinary = null;
 
@@ -43,13 +41,12 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 		receivedDataBodyBinary = exchange.getMessage().getBody(String.class);
 		if (receivedDataBodyBinary == null) {
 			logger.error("Body of the received multipart message is null");
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+			rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 		}
 		logger.debug(receivedDataBodyBinary);
 
 		try {
 			MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
-			message = multipartMessage.getHeaderContent();
 			// Create headers parts
 			headerParts.put("Payload-Content-Type",
 					multipartMessage.getPayloadHeader().get(MultipartMessageKey.CONTENT_TYPE.label));
@@ -63,7 +60,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
+			rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 		}
 	}
 }

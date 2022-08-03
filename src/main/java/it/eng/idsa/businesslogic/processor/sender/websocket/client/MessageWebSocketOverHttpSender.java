@@ -25,10 +25,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.HttpWebSocketServerBean;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -117,9 +117,7 @@ public class MessageWebSocketOverHttpSender {
         } catch (Exception e) {
             logger.info("... can not create the WebSocket connection HTTP at '{}', {}", WS_URL, e);
             if (null != message)
-                rejectionMessageService.sendRejectionMessage(
-                        RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-                        message);
+                rejectionMessageService.sendRejectionMessage(message, RejectionReason.INTERNAL_RECIPIENT_ERROR);
         }
         return wsClient;
     }
@@ -158,9 +156,7 @@ public class MessageWebSocketOverHttpSender {
         } catch (Exception e) {
             logger.error("Problems encountered during Client Shutdown with error: " + e.getMessage());
             if (null != message)
-                rejectionMessageService.sendRejectionMessage(
-                        RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-                        message);
+                rejectionMessageService.sendRejectionMessage(message, RejectionReason.INTERNAL_RECIPIENT_ERROR);
         }
     }
 

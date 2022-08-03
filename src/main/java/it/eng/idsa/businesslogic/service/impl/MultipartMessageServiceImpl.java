@@ -25,12 +25,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.fraunhofer.iais.eis.DynamicAttributeTokenBuilder;
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
 import de.fraunhofer.iais.eis.Token;
 import de.fraunhofer.iais.eis.TokenFormat;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.MessagePart;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -130,13 +130,13 @@ public class MultipartMessageServiceImpl implements MultipartMessageService {
 			if (jsonObject == null) {
 				logger.error(
 						"Token is not set: securityToken is not set in the part of the header in the multipart message");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN, message);
+				rejectionMessageService.sendRejectionMessage(message, RejectionReason.NOT_AUTHENTICATED);
 			} else {
 				token = (String) jsonObject.get("ids:tokenValue");
 				if (token == null) {
 					logger.error(
 							"Token is not set: tokenValue is not set in the part of the header in the multipart message");
-					rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_TOKEN, message);
+					rejectionMessageService.sendRejectionMessage(message, RejectionReason.NOT_AUTHENTICATED);
 				}
 			}
 		} catch (IOException | ParseException e) {

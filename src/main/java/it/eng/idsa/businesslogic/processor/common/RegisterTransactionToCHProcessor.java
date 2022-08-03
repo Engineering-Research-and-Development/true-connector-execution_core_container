@@ -8,7 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.ClearingHouseService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
 /**
@@ -24,6 +27,9 @@ public class RegisterTransactionToCHProcessor implements Processor {
 
 	@Autowired
 	private ClearingHouseService clearingHouseService;
+	
+	@Autowired
+	private RejectionMessageService rejectionMessageService;
 	
 	@Value("${application.isEnabledClearingHouse}")
 	private boolean isEnabledClearingHouse;
@@ -43,6 +49,7 @@ public class RegisterTransactionToCHProcessor implements Processor {
 			logger.info("Clearing house registered successfully");
 		}else {
 			logger.info("Failed to register to clearing house");
+			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.INTERNAL_RECIPIENT_ERROR);
 		}
 		exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
 		exchange.getMessage().setBody(exchange.getMessage().getBody());

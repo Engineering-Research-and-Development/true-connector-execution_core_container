@@ -15,6 +15,7 @@ import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.common.MapIDSCP2toMultipart;
 import it.eng.idsa.businesslogic.processor.common.MapMultipartToIDSCP2;
 import it.eng.idsa.businesslogic.processor.common.ModifyPayloadProcessor;
+import it.eng.idsa.businesslogic.processor.common.OriginalMessageProcessor;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
@@ -86,6 +87,9 @@ public class CamelRouteReceiver extends RouteBuilder {
 	private ModifyPayloadProcessor modifyPayloadProcessor;
 	@Autowired
 	private DeModifyPayloadProcessor deModifyPayloadProcessor;
+	
+	@Autowired
+	private OriginalMessageProcessor originalMessageProcessor;
 
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
@@ -111,7 +115,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 		onException(ExceptionForProcessor.class, RuntimeException.class)
 			.handled(true)
 			.process(exceptionProcessorReceiver)
-			.process(getTokenFromDapsProcessor)
 			.process(registerTransactionToCHProcessor)
 			.process(sendDataToBusinessLogicProcessor);
 		
@@ -120,6 +123,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/data")
 				.routeId("data")
 				.process(connectorRequestProcessor)
+				.process(originalMessageProcessor)
 				.process(deModifyPayloadProcessor)
 				.process(validateTokenProcessor)
                 .process(registerTransactionToCHProcessor)
@@ -148,6 +152,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 				.routeId("WSS")
 				.process(fileRecreatorProcessor)
 				.process(connectorRequestProcessor)
+				.process(originalMessageProcessor)
 				.process(validateTokenProcessor)
 				.process(contractAgreementProcessor)
                 .process(registerTransactionToCHProcessor)
@@ -173,6 +178,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 					.routeId("IDSCP2 - receiver - HTTP internal")
 					.log("### IDSCP2 SERVER RECEIVER: Detected Message")
 					.process(mapIDSCP2toMultipart)
+					.process(originalMessageProcessor)
 					.process(contractAgreementProcessor)
 					.process(registerTransactionToCHProcessor)
 					// Send to the Endpoint: F
@@ -190,6 +196,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 					.routeId("Receiver - dataApp-ECC over WSS and ECC-ECC over IDSCP2")
 					.log("### IDSCP2 SERVER RECEIVER: Detected Message")
 					.process(mapIDSCP2toMultipart)
+					.process(originalMessageProcessor)
 					.process(contractAgreementProcessor)
 					.process(registerTransactionToCHProcessor)
 					// Send to the Endpoint: F

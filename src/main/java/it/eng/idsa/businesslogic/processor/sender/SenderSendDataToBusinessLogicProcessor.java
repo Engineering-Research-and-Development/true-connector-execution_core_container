@@ -19,13 +19,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import de.fraunhofer.iais.eis.ContractAgreementMessage;
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.processor.sender.websocket.client.MessageWebSocketOverHttpSender;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -47,9 +46,6 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
 	
-	@Value("#{new Boolean('${application.isEnabledUsageControl}')}")
-	private boolean isEnabledUsageControl;
-
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
 
@@ -74,9 +70,6 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	private String webSocketHost;
 	private Integer webSocketPort;
 	
-	private Message originalMessage;
-	private String originalPayload;
-
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
@@ -88,13 +81,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 
 		payload = multipartMessage.getPayloadContent();
 		header= multipartMessage.getHeaderContentString();
-		message = multipartMessage.getHeaderContent();
 
-		if (message instanceof ContractAgreementMessage) {
-			originalMessage = message;
-			originalPayload = payload;
-		}
-		
 		String forwardTo = (String) headerParts.get("Forward-To");
 		logger.info("Sending data to business logic ...");
 			if (isEnabledWebSocket) {
@@ -103,13 +90,12 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 					this.extractWebSocketIPAndPort(forwardTo, REGEX_WSS);
 				} catch (Exception e) {
 					logger.info("... bad wss URL - '{}', {}", forwardTo, e.getMessage());
-					rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-							message);
+					rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.BAD_PARAMETERS);
 				}
 				
 				// -- Send data using HTTPS - (Client) - WebSocket
 				String response = messageWebSocketOverHttpSender.sendMultipartMessageWebSocketOverHttps(this.webSocketHost,
-						this.webSocketPort, header, payload, message);
+						this.webSocketPort, header, payload, (Message) exchange.getProperty("Original-Message-Header"));
 				// Handle response
 				this.handleResponseWebSocket(exchange, message, response, forwardTo);
 			} else {
@@ -118,7 +104,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 					// Send MultipartMessage HTTPS
 					httpResponse = this.sendMultipartMessage(headerParts, forwardTo, message, multipartMessage);
 					// Check response
-					sendDataToBusinessLogicService.checkResponse(message, httpResponse, forwardTo);
+					sendDataToBusinessLogicService.checkResponse((Message) exchange.getProperty("Original-Message-Header"), httpResponse, forwardTo);
 					// Handle response
 					this.handleResponse(exchange, message, httpResponse, forwardTo);
 				} finally {
@@ -149,8 +135,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 			}
 			default:
 				logger.error("Applicaton property: application.eccHttpSendRouter is not properly set");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES,
-						message);
+				rejectionMessageService.sendRejectionMessage(message, RejectionReason.INTERNAL_RECIPIENT_ERROR);
 			}
 		return response;
 	}
@@ -160,13 +145,9 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 			throws UnsupportedOperationException, IOException {
 		String responseString = getResponseBodyAsString(response);
 		logger.info("data received from destination " + forwardTo);
-		logger.info("response received from the DataAPP=" + responseString);
+		logger.info("response received from Provider Connector = " + responseString);
 
 		exchange.getMessage().setHeaders(httpHeaderService.okHttpHeadersToMap(response.headers()));
-		if (isEnabledUsageControl) {
-			exchange.getMessage().setHeader("Original-Message-Header", originalMessage);
-			exchange.getMessage().setHeader("Original-Message-Payload", originalPayload);
-		}
 		
 		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) {
 //			exchange.getMessage().setBody(responseString);
@@ -191,8 +172,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	private void handleResponseWebSocket(Exchange exchange, Message message, String responseString, String forwardTo) {
 		if (responseString == null) {
 			logger.info("...communication error");
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-					message);
+			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.INTERNAL_RECIPIENT_ERROR);
 		} else {
 //			logger.info("response received from the DataAPP=" + responseString);
 			logger.info("data sent to destination " + forwardTo);

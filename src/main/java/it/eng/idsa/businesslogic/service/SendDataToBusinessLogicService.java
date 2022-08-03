@@ -21,6 +21,6 @@ public interface SendDataToBusinessLogicService {
 	Response sendMessageFormData(String address, MultipartMessage message,
 			Map<String, Object> headerParts) throws UnsupportedEncodingException;
 
-	void checkResponse(Message message, Response response, String forwardTo);
+	void checkResponse(Message messageForRejection, Response response, String forwardTo);
 
 }

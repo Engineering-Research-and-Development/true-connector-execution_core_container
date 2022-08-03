@@ -15,7 +15,7 @@ public interface ProtocolValidationService {
 	 * selected https -> forwardTo can be example.com or whatever://example.com -> method returns https://example.com</p>
 	 * 
 	 * @param forwardTo the Forward-To address that is to be checked
-	 * @param message Received message needed for exception
+	 * @param message request message needed in case of rejection
 	 * @return the correct Forward-To address
 	 */
 	public String validateProtocol(String forwardTo, Message message);

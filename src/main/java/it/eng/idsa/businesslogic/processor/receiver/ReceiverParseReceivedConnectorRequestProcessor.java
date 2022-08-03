@@ -20,11 +20,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.MessagePart;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -79,12 +79,12 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 				message = headerService.headersToMessage(headersParts);
 			} catch (Exception e) {
 				logger.error("Message could not be created - check if all required headers are present.");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+				rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 			}
 			// TODO check if we need catch and null check
 			if(message == null) {
 				logger.error("Message could not be created - check if all required headers are present.");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+				rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 			}
 
 			token = message.getSecurityToken() != null ? message.getSecurityToken().getTokenValue() : null;
@@ -101,14 +101,14 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 			String receivedDataBodyBinary = MessageHelper.extractBodyAsString(exchange.getMessage());
 			if (receivedDataBodyBinary == null) {
 				logger.error("Received body is empty.");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+				rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 			}
 			try {
 				multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
 			}
 			catch (MultipartMessageException e) {
 				logger.error("Error parsing multipart message:", e);
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+				rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 			}			
 			if (isEnabledDapsInteraction) {
 				token = multipartMessageService.getToken(multipartMessage.getHeaderContent());
@@ -125,12 +125,12 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 		else {
 			if (!headersParts.containsKey(MessagePart.HEADER)) {
 				logger.error("Multipart message header is missing");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+				rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 			}
 
 			if (headersParts.get(MessagePart.HEADER) == null) {
 				logger.error("Multipart message header is null");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+				rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 			}
 
 			Map<String, String> payloadHeaders = new HashMap<>();
@@ -173,7 +173,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 				headersParts.put("Payload-Content-Type", headersParts.get("payload.org.eclipse.jetty.servlet.contentType"));
 			} catch (Exception e) {
 				logger.error("Error parsing multipart message:", e);
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+				rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 			}
 		}
 		

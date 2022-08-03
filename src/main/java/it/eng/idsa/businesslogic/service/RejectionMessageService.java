@@ -1,7 +1,7 @@
 package it.eng.idsa.businesslogic.service;
 
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
+import de.fraunhofer.iais.eis.RejectionReason;
 
 /**
  * 
@@ -11,5 +11,5 @@ import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 public interface RejectionMessageService {
 	
-	public void sendRejectionMessage(RejectionMessageType rejectionMessageType, Message message);
+	public void sendRejectionMessage(Message requestMessage, RejectionReason rejectionReason);
 }

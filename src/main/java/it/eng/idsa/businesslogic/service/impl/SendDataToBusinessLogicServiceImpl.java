@@ -16,12 +16,12 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.service.SenderClientService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.util.MultipartMessageKey;
 import okhttp3.Headers;
@@ -93,15 +93,13 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 		String ctPayload = getPayloadContentType(headerParts);
 		Headers httpHeaders = fillHeaders(headerParts);
 
-		Response response;
 		try {
-			response = okHttpClient.sendHttpHeaderRequest(address, httpHeaders, multipartMessage.getPayloadContent(),
+			return okHttpClient.sendHttpHeaderRequest(address, httpHeaders, multipartMessage.getPayloadContent(),
 					ctPayload);
 		} catch (IOException e) {
 			logger.error("Error while calling Receiver", e);
-			return null;
 		}
-		return response;
+		return null;
 	}
 
 	@Override
@@ -110,22 +108,17 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 
 		logger.info("Forwarding Message: Body: form-data");
 
-		Message messageForException = multipartMessage.getHeaderContent();
-
 		String ctPayload = multipartMessage.getPayloadHeader().get("content-type") == null ? 
 				MediaType.TEXT_PLAIN.toString() : multipartMessage.getPayloadHeader().get("content-type");
 		Headers headers = fillHeaders(headerParts);
 		RequestBody body = okHttpClient.createMultipartFormRequest(multipartMessage, ctPayload);
 
-		Response response = null;
 		try {
-			response = okHttpClient.sendMultipartFormRequest(address, headers, body);
+			return okHttpClient.sendMultipartFormRequest(address, headers, body);
 		} catch (IOException e) {
 			logger.error("Error while sending form data request", e);
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-					messageForException);
 		}
-		return response;
+		return null;
 	}
 
 	private Headers fillHeaders(Map<String, Object> headerParts) {
@@ -156,11 +149,10 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 	}
 
 	@Override
-	public void checkResponse(Message message, Response response, String forwardTo) {
+	public void checkResponse(Message messageForRejection, Response response, String forwardTo) {
 		if (response == null) {
 			logger.info("...communication error");
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-					message);
+			rejectionMessageService.sendRejectionMessage(messageForRejection, RejectionReason.TEMPORARILY_NOT_AVAILABLE);
 		} else {
 			int statusCode = response.code();
 			logger.debug("Response {}", response);
@@ -169,10 +161,10 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 				if (statusCode == 404) {
 					logger.info("...communication error - bad forwardTo URL " + forwardTo);
 					rejectionMessageService
-							.sendRejectionMessage(RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES, message);
+							.sendRejectionMessage(messageForRejection, RejectionReason.BAD_PARAMETERS);
 				}
 				logger.info("data sent unsuccessfully to destination " + forwardTo);
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, message);
+				rejectionMessageService.sendRejectionMessage(messageForRejection, RejectionReason.INTERNAL_RECIPIENT_ERROR);
 			}
 		}
 	}

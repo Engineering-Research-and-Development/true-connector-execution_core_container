@@ -18,10 +18,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.util.UtilMessageService;
@@ -71,7 +71,7 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 				.withPayloadContent(null).build();
 
 		verify(message).setBody(multipartMessage);
-		verify(rejectionMessageService,times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, msg);
+		verify(rejectionMessageService,times(0)).sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 	}
 	
 	@Test
@@ -90,7 +90,7 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 				.withPayloadContent(null).build();
 
 		verify(message).setBody(multipartMessage);
-		verify(rejectionMessageService,times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, msg);
+		verify(rejectionMessageService,times(0)).sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 	}
 	
 	@Test
@@ -101,14 +101,14 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 		header = UtilMessageService.getMessageAsString(msg);
 		when(httpHeaderService.headersToMessage(httpHeaders)).thenReturn(null);
 		doThrow(ExceptionForProcessor.class)
-			.when(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+			.when(rejectionMessageService).sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 
 		assertThrows(ExceptionForProcessor.class,
 	            ()->{
 	            	processor.process(exchange);
 	            });
 
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		verify(rejectionMessageService).sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 	}
 	
 	private void mockExchangeGetHttpHeaders(Exchange exchange) {

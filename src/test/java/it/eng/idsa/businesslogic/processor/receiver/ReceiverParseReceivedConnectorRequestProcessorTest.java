@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
@@ -18,11 +19,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.MessagePart;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -65,7 +66,7 @@ public class ReceiverParseReceivedConnectorRequestProcessorTest {
 		processor.process(exchange);
 		
 		verify(message).setBody(any(MultipartMessage.class));
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(any(), any(RejectionReason.class));
 	}
 	
 	@Test
@@ -76,14 +77,14 @@ public class ReceiverParseReceivedConnectorRequestProcessorTest {
 		
 		doThrow(NullPointerException.class).when(headerService).headersToMessage(headersAsMap);
 		doThrow(ExceptionForProcessor.class)
-			.when(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+			.when(rejectionMessageService).sendRejectionMessage(any(), any(RejectionReason.class));
 
 		assertThrows(ExceptionForProcessor.class,
 	            ()->{
 	            	processor.process(exchange);
 	            });
 		
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		verify(rejectionMessageService).sendRejectionMessage(any(), any(RejectionReason.class));
 	}
 	
 	@Test
@@ -93,14 +94,14 @@ public class ReceiverParseReceivedConnectorRequestProcessorTest {
 		when(message.getHeaders()).thenReturn(headersAsMap);
 		
 		when(headerService.headersToMessage(headersAsMap)).thenReturn(null);
-		doThrow(ExceptionForProcessor.class).when(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		doThrow(ExceptionForProcessor.class).when(rejectionMessageService).sendRejectionMessage(any(), any(RejectionReason.class));
 		
 		assertThrows(ExceptionForProcessor.class,
 	            ()->{
 	            	processor.process(exchange);
 	            });
 		
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		verify(rejectionMessageService).sendRejectionMessage(any(), any(RejectionReason.class));
 	}
 
 	@Test
@@ -117,7 +118,7 @@ public class ReceiverParseReceivedConnectorRequestProcessorTest {
 		processor.process(exchange);
 		
 		verify(message).setBody(any(MultipartMessage.class));
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(any(), any(RejectionReason.class));
 	}
 	
 	@Test
@@ -125,14 +126,14 @@ public class ReceiverParseReceivedConnectorRequestProcessorTest {
 		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.MULTIPART_MIX, String.class);
 		when(exchange.getMessage()).thenReturn(message);
 		when(message.getBody()).thenReturn("MESSAGE BODY");
-		doThrow(ExceptionForProcessor.class).when(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, null);
+		doThrow(ExceptionForProcessor.class).when(rejectionMessageService).sendRejectionMessage(any(), any(RejectionReason.class));
 
 		assertThrows(ExceptionForProcessor.class,
 	            ()->{
 	            	processor.process(exchange);
 	            });
 		
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		verify(rejectionMessageService).sendRejectionMessage(any(), any(RejectionReason.class));
 	}
 	
 	@Test
@@ -141,28 +142,29 @@ public class ReceiverParseReceivedConnectorRequestProcessorTest {
 		when(exchange.getMessage()).thenReturn(message);
 		when(message.getBody()).thenReturn(null);
 		
-		doThrow(ExceptionForProcessor.class).when(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		doThrow(ExceptionForProcessor.class).when(rejectionMessageService).sendRejectionMessage(any(), any(RejectionReason.class));
 		
 		assertThrows(ExceptionForProcessor.class,
 	            ()->{
 	            	processor.process(exchange);
 	            });
 		
-		verify(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		verify(rejectionMessageService).sendRejectionMessage(any(), any(RejectionReason.class));
 	}
 	
 	@Test
 	public void processFormSuccess() throws Exception {
 		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.MULTIPART_BODY_FORM, String.class);
 		when(exchange.getMessage()).thenReturn(message);
-		when(message.getHeaders()).thenReturn(headersAsMap);
+		Map<String, Object> parts = new HashMap<>();
+		parts.put(MessagePart.HEADER, UtilMessageService.getMessageAsString(UtilMessageService.getArtifactRequestMessage()));
+		parts.put(MessagePart.PAYLOAD, "PAYLOAD");
+		when(message.getHeaders()).thenReturn(parts);
 		
-		when(headersAsMap.get(MessagePart.HEADER)).thenReturn(UtilMessageService.getMessageAsString(UtilMessageService.getArtifactRequestMessage()));
-		when(headersAsMap.get(MessagePart.PAYLOAD)).thenReturn("PAYLOAD");
 		processor.process(exchange);
 		
 		verify(message).setBody(any(MultipartMessage.class));
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(any(), any(RejectionReason.class));
 	}
 	
 	@Test
@@ -172,7 +174,7 @@ public class ReceiverParseReceivedConnectorRequestProcessorTest {
 		when(message.getHeaders()).thenReturn(headersAsMap);
 		
 		when(headersAsMap.get(MessagePart.HEADER)).thenReturn(null);
-		doThrow(ExceptionForProcessor.class).when(rejectionMessageService).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_COMMON, null);
+		doThrow(ExceptionForProcessor.class).when(rejectionMessageService).sendRejectionMessage(any(), any(RejectionReason.class));
 
 		assertThrows(ExceptionForProcessor.class,
 	            ()->{
@@ -180,7 +182,7 @@ public class ReceiverParseReceivedConnectorRequestProcessorTest {
 	            });		
 		
 		verify(message, times(0)).setBody(any(MultipartMessage.class));
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, null);
+		verify(rejectionMessageService).sendRejectionMessage(any(), any(RejectionReason.class));
 	}
 
 }

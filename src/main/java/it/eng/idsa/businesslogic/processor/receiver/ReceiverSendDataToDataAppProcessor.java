@@ -14,11 +14,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.SendDataToBusinessLogicServiceImpl;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -58,9 +58,6 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 	@Autowired
 	private HttpHeaderService httpHeaderService;
 
-	private Message originalMessage;
-	private String originalPayload;
-
 	@Autowired
 	private SendDataToBusinessLogicServiceImpl sendDataToBusinessLogicService;
 
@@ -76,31 +73,29 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		// Get header, payload and message
 		Message message = multipartMessage.getHeaderContent();
 
-		this.originalMessage = multipartMessage.getHeaderContent();
-		this.originalPayload = multipartMessage.getPayloadContent();
 		// Send data to the endpoint F for the Open API Data App
 		Response response = null;
 		try {
 			switch (openDataAppReceiverRouter) {
-			case "mixed": {
-				response = sendDataToBusinessLogicService.sendMessageBinary(configuration.getOpenDataAppReceiver(),
-						multipartMessage, headerParts);
-				break;
-			}
-			case "form": {
-				response = sendDataToBusinessLogicService.sendMessageFormData(configuration.getOpenDataAppReceiver(),
-						multipartMessage, headerParts);
-				break;
-			}
-			case "http-header": {
-				response = sendDataToBusinessLogicService.sendMessageHttpHeader(configuration.getOpenDataAppReceiver(),
-						multipartMessage, headerParts);
-				break;
-			}
-			default: {
-				logger.error("Applicaton property: application.openDataAppReceiverRouter is not properly set");
-				rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_MESSAGE_LOCAL_ISSUES, message);
-			}
+				case "mixed": {
+					response = sendDataToBusinessLogicService.sendMessageBinary(configuration.getOpenDataAppReceiver(),
+							multipartMessage, headerParts);
+					break;
+				}
+				case "form": {
+					response = sendDataToBusinessLogicService.sendMessageFormData(configuration.getOpenDataAppReceiver(),
+							multipartMessage, headerParts);
+					break;
+				}
+				case "http-header": {
+					response = sendDataToBusinessLogicService.sendMessageHttpHeader(configuration.getOpenDataAppReceiver(),
+							multipartMessage, headerParts);
+					break;
+				}
+				default: {
+					logger.error("Applicaton property: application.openDataAppReceiverRouter is not properly set");
+					rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.INTERNAL_RECIPIENT_ERROR);
+				}
 			}
 			
 			// Check response
@@ -123,10 +118,7 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 
 		Map<String, Object> headers = httpHeaderService.okHttpHeadersToMap(response.headers());
 		exchange.getMessage().setHeaders(headers);
-		if (isEnabledUsageControl) {
-			exchange.getMessage().setHeader("Original-Message-Header", originalMessage);
-			exchange.getMessage().setHeader("Original-Message-Payload", originalPayload);
-		}
+		
 		if (RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
 			exchange.getMessage().setBody(responseString);
 			message = httpHeaderService.headersToMessage(headers);

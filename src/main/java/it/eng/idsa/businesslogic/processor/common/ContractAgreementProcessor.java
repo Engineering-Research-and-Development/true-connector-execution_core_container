@@ -9,11 +9,12 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.ContractAgreementMessage;
+import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.MessageProcessedNotificationMessage;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.CommunicationService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
 /**
@@ -48,21 +49,21 @@ public class ContractAgreementProcessor implements Processor {
 
 		if (!isEnabledUsageControl 
 				|| !(multipartMessage.getHeaderContent() instanceof MessageProcessedNotificationMessage)
-				|| null == exchange.getMessage().getHeader("Original-Message-Header")
-				|| !(exchange.getMessage().getHeader("Original-Message-Header") instanceof ContractAgreementMessage)
-				|| null == exchange.getMessage().getHeader("Original-Message-Payload")) {
+				|| null == exchange.getProperty("Original-Message-Header")
+				|| !(exchange.getProperty("Original-Message-Header") instanceof ContractAgreementMessage)
+				|| null == exchange.getProperty("Original-Message-Payload")) {
 			logger.info("Policy upload interupted - IsEnabledUsegeControl is {} or requirements not met", isEnabledUsageControl);
 			return;
 		}
 		logger.info("Uploading policy...");
-		String contractAgreement = (String) exchange.getMessage().getHeader("Original-Message-Payload");
+		String contractAgreement = (String) exchange.getProperty("Original-Message-Payload");
 		
 		String response = null;
 		try {
 			response = usageControlService.uploadPolicy(contractAgreement);
 		} catch (Exception e) {
 			logger.warn("Policy not uploaded - {}", e.getMessage());
-			rejectionMessageService.sendRejectionMessage(RejectionMessageType.REJECTION_USAGE_CONTROL, multipartMessage.getHeaderContent());
+			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.NOT_AUTHORIZED);
 		}
 		logger.info("UsageControl DataApp response {}", response);
 	}

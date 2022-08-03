@@ -8,11 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
-import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationB;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.FileRecreatorBeanServer;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.util.RejectionMessageType;
 
 /**
  *
@@ -34,14 +33,12 @@ public class ReceiverFileRecreatorProcessor implements Processor {
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
 
-
 	@Override
 	public void process(Exchange exchange) throws Exception {
 
-		Message message=null;
 		//  Receive and recreate Multipart message
 		FileRecreatorBeanServer fileRecreatorBean = webSocketServerConfiguration.fileRecreatorBeanWebSocket();
-		this.initializeServer(message, fileRecreatorBean);
+		this.initializeServer(fileRecreatorBean);
 		Thread fileRecreatorBeanThread = new Thread(fileRecreatorBean, "FileRecreator_"+this.getClass().getSimpleName());
 		fileRecreatorBeanThread.start();
 		String recreatedMultipartMessage = webSocketServerConfiguration.recreatedMultipartMessageBeanWebSocket().remove();
@@ -50,15 +47,13 @@ public class ReceiverFileRecreatorProcessor implements Processor {
 		exchange.getMessage().setBody(recreatedMultipartMessage, String.class);
 	}
 
-	private void initializeServer(Message message, FileRecreatorBeanServer fileRecreatorBean) {
+	private void initializeServer(FileRecreatorBeanServer fileRecreatorBean) {
 		try {
 			fileRecreatorBean.setup();
 		} catch(Exception e) {
 			logger.info("... can not initilize the IdscpServer");
 			logger.error("Cannot initiallize server", e);
-			rejectionMessageService.sendRejectionMessage(
-					RejectionMessageType.REJECTION_COMMUNICATION_LOCAL_ISSUES,
-					message);
+			rejectionMessageService.sendRejectionMessage(null, RejectionReason.TEMPORARILY_NOT_AVAILABLE);
 		}
 	}
 
