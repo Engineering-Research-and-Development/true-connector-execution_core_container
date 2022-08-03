@@ -1,6 +1,18 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.16-SNAPSHOT] - 2022-08-03
+
+### Changed
+ - Upgraded versions for following dependencies:
+	camel version update
+	async-http-client
+	com.auth0
+	bcprov-jdk15on
+	com.squareup.okhttp3
+	com.squareup.okio
+ - Dockerfile base image version upgrade
+
 
 ## [0.1.15-SNAPSHOT] - 2022-08-02
 
