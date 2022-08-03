@@ -98,8 +98,10 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 			
 		} 
 		else if(RouterType.MULTIPART_MIX.equals(eccHttpSendRouter)) {
-			String receivedDataBodyBinary = MessageHelper.extractBodyAsString(exchange.getMessage());
-			if (receivedDataBodyBinary == null) {
+			String receivedDataBodyBinary = null;
+			try {
+				receivedDataBodyBinary = MessageHelper.extractBodyAsString(exchange.getMessage());
+			} catch (NullPointerException npe) {
 				logger.error("Received body is empty.");
 				rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 			}
