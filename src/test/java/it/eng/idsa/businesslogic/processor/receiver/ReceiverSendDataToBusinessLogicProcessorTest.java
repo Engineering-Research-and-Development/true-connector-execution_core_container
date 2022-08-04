@@ -2,6 +2,7 @@ package it.eng.idsa.businesslogic.processor.receiver;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,6 +12,7 @@ import java.util.Map;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +25,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
-import it.eng.idsa.businesslogic.service.impl.MultipartMessageServiceImpl;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -54,6 +56,12 @@ public class ReceiverSendDataToBusinessLogicProcessorTest {
 	private ArgumentCaptor<String> key;
 	@Captor
 	private ArgumentCaptor<String> value;
+	
+	@Mock
+	private HttpEntity httpEntity;
+	
+	@Mock
+	private MultipartMessageService multipartMessageService;
 
 	private Map<String, Object> headers;
 
@@ -82,21 +90,20 @@ public class ReceiverSendDataToBusinessLogicProcessorTest {
 	@Test
 	public void sendDataMultipartForm() throws Exception {
 		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.MULTIPART_BODY_FORM, String.class);
-		//TODO change this to be proper (mock the service instead of new)
-		ReflectionTestUtils.setField(processor, "multipartMessageService", new MultipartMessageServiceImpl());
-		MultipartMessage mm = new MultipartMessageBuilder()
-				.withHeaderContent(UtilMessageService.getRejectionMessage(RejectionReason.NOT_AUTHENTICATED)).build();
-
-		when(message.getBody(MultipartMessage.class)).thenReturn(mm);
-//		when(multipartMessageService.createMultipartMessage(anyString(), anyString(), any(), any(ContentType.class)))
-//			.thenReturn(resultEntity);
-//		when(resultEntity.getContentType()).thenReturn(header);
-		when(header.getValue()).thenReturn("multipart/form");
-		processor.process(exchange);
 		
-		verify(message).setHeader(key.capture(), value.capture());
-    	assertEquals("Content-Type", key.getValue());
-    	assertTrue(value.getValue().contains("multipart/form"));
+		MultipartMessage multipartMessage = new MultipartMessageBuilder()
+				.withHeaderContent(UtilMessageService.getArtifactRequestMessage())
+				.withPayloadContent("payload").build();
+		when(message.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
+		when(multipartMessageService.createMultipartMessage(multipartMessage.getHeaderContentString(),
+				multipartMessage.getPayloadContent(), null, ContentType.TEXT_PLAIN)).thenReturn(httpEntity);
+		when(httpEntity.getContentType()).thenReturn(header);
+		when(header.getValue()).thenReturn("text/plain");
+
+		processor.process(exchange);
+
+		verify(message).setBody(anyString());
+		verify(headerCleaner).removeTechnicalHeaders(message.getHeaders());
 	}
 	
 	@Test

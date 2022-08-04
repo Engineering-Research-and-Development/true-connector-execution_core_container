@@ -1,6 +1,7 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,7 +12,6 @@ import org.apache.camel.Exchange;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -91,20 +91,19 @@ public class SenderSendResponseToDataAppProcessorTest {
 	}
 	
 	@Test
-	@Disabled("Logic is same like multipart/mixed")
 	public void sendDataToMultipartForm() throws Exception {
 		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", RouterType.MULTIPART_BODY_FORM);
 		mockExchangeHeaderAndBody();
 
 		when(multipartMessageService.createMultipartMessage(multipartMessage.getHeaderContentString(), 
 						multipartMessage.getPayloadContent(),
-						null, ContentType.APPLICATION_JSON)).thenReturn(httpEntity);
+						null, ContentType.TEXT_PLAIN)).thenReturn(httpEntity);
 		when(httpEntity.getContentType()).thenReturn(header);
-		when(header.getValue()).thenReturn("plain/text");
+		when(header.getValue()).thenReturn("text/plain");
 		
 		processor.process(exchange);
 		
-    	verify(camelMessage).setBody(httpEntity.getContent());
+    	verify(camelMessage).setBody(anyString());
     	verify(headerCleaner).removeTechnicalHeaders(camelMessage.getHeaders());
 	}
 	

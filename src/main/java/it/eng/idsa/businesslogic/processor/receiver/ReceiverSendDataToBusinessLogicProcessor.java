@@ -8,9 +8,6 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,29 +71,19 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 				responseString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);
 				Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(responseString);
 				String contentType = "multipart/mixed; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
-				exchange.getMessage().setBody(responseString);
+				exchange.getMessage().setBody(responseString.getBytes());
 				exchange.getMessage().setHeader("Content-Type", contentType);
 			} else if ((RouterType.MULTIPART_BODY_FORM.equals(eccHttpSendRouter))) {
-				ContentType ct = ContentType.APPLICATION_JSON;
-				
-				try {
-			        new JSONObject(multipartMessage.getPayloadContent());
-			    } catch (Exception ex) {
-			        try {
-			            new JSONArray(multipartMessage.getPayloadContent());
-			        } catch (Exception ex1) {
-			            ct = ContentType.TEXT_PLAIN;
-			        }
-			    }
-				
+				ContentType ct = multipartMessage.getPayloadHeader().get(Exchange.CONTENT_TYPE) != null ? 
+						ContentType.parse(multipartMessage.getPayloadHeader().get(Exchange.CONTENT_TYPE)) : ContentType.TEXT_PLAIN;
 				HttpEntity resultEntity = multipartMessageService.createMultipartMessage(multipartMessage.getHeaderContentString(), 
 						multipartMessage.getPayloadContent(), null, ct);
+				exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, resultEntity.getContentType().getValue());
 				
 				ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		        resultEntity.writeTo(outStream);
 		        outStream.flush();
 		        
-		        exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, resultEntity.getContentType().getValue());
 				exchange.getMessage().setBody(outStream.toString());
 			}
 		}
