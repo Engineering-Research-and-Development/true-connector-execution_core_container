@@ -30,6 +30,7 @@ import de.fraunhofer.iais.eis.ConstraintBuilder;
 import de.fraunhofer.iais.eis.ContentType;
 import de.fraunhofer.iais.eis.ContractOffer;
 import de.fraunhofer.iais.eis.ContractOfferBuilder;
+import de.fraunhofer.iais.eis.IANAMediaTypeBuilder;
 import de.fraunhofer.iais.eis.KeyType;
 import de.fraunhofer.iais.eis.Language;
 import de.fraunhofer.iais.eis.LeftOperand;
@@ -156,9 +157,14 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 
 
 	private java.util.List<ResourceCatalog> getCatalog() {
-		Artifact defaultArtifact = new ArtifactBuilder(URI.create("http://w3id.org/engrd/connector/artifact/1"))
+		URI defaultTarget = URI.create("http://w3id.org/engrd/connector/artifact/1");
+		URI bigResource = URI.create("http://w3id.org/engrd/connector/artifact/big");
+		Artifact defaultArtifact = new ArtifactBuilder(defaultTarget)
 			._creationDate_(DateUtil.now())
 			.build();
+		Artifact bigArtifact = new ArtifactBuilder(bigResource)
+				._creationDate_(DateUtil.now())
+				.build();
 		
 		Resource offeredResource = (new TextResourceBuilder())
 				._title_(Util.asList(new TypedLiteral("Default resource")))
@@ -169,13 +175,27 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._version_("1.0.0")._language_(Util.asList(Language.EN, Language.IT))
 				._modified_(DateUtil.now())
 				._created_(DateUtil.now())
-				._contractOffer_(Util.asList(createContractOffer()))
+				._contractOffer_(Util.asList(createContractOffer(defaultTarget)))
 				._representation_(Util.asList(getTextRepresentation(defaultArtifact)))
+				.build();
+		
+		Resource offeredResourceBig = (new TextResourceBuilder())
+				._title_(Util.asList(new TypedLiteral("World class literature")))
+				._description_(Util.asList(new TypedLiteral("Used to verify large data transfer")))
+				._contentType_(ContentType.SCHEMA_DEFINITION)
+				._keyword_(Util.asList(new TypedLiteral("Engineering Ingegneria Informatica SpA"),
+						new TypedLiteral("TRUEConnector")))
+				._version_("1.0.0")._language_(Util.asList(Language.EN, Language.IT))
+				._modified_(DateUtil.now())
+				._created_(DateUtil.now())
+				._contractOffer_(Util.asList(createContractOffer(bigResource)))
+				._representation_(Util.asList(getTextRepresentation(bigArtifact)))
 				.build();
 		
 		List<ResourceCatalog> catalogList = new ArrayList<>();
 		ArrayList<Resource> offeredResources = new ArrayList<>();
 		offeredResources.add(offeredResource);
+		offeredResources.add(offeredResourceBig);
 		catalogList.add(new ResourceCatalogBuilder()._offeredResource_(offeredResources).build());
 		return catalogList;
 	}
@@ -188,7 +208,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				.build();
 	}
 	
-	private ContractOffer createContractOffer() {
+	private ContractOffer createContractOffer(URI target) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		OffsetDateTime dateTime = OffsetDateTime.now(ZoneOffset.UTC);
 		
@@ -209,7 +229,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				.build();
 		
 		Permission permission2 = new PermissionBuilder()
-				._target_(URI.create("http://w3id.org/engrd/connector/artifact/1"))
+				._target_(target)
 				._action_(Util.asList(Action.USE))
 				._constraint_(Util.asList(before, after))
 				._title_(new TypedLiteral("Example Usage Policy"))
