@@ -1,5 +1,6 @@
 package it.eng.idsa.businesslogic.processor.receiver;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Map;
 import java.util.Optional;
 
@@ -70,13 +71,20 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 				responseString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);
 				Optional<String> boundary = MultipartMessageProcessor.getMessageBoundaryFromMessage(responseString);
 				String contentType = "multipart/mixed; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
-				exchange.getMessage().setBody(responseString);
+				exchange.getMessage().setBody(responseString.getBytes());
 				exchange.getMessage().setHeader("Content-Type", contentType);
 			} else if ((RouterType.MULTIPART_BODY_FORM.equals(eccHttpSendRouter))) {
+				ContentType ct = multipartMessage.getPayloadHeader().get(Exchange.CONTENT_TYPE) != null ? 
+						ContentType.parse(multipartMessage.getPayloadHeader().get(Exchange.CONTENT_TYPE)) : ContentType.TEXT_PLAIN;
 				HttpEntity resultEntity = multipartMessageService.createMultipartMessage(multipartMessage.getHeaderContentString(), 
-						multipartMessage.getPayloadContent(), null, ContentType.APPLICATION_JSON);
+						multipartMessage.getPayloadContent(), null, ct);
 				exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, resultEntity.getContentType().getValue());
-				exchange.getMessage().setBody(resultEntity.getContent());
+				
+				ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+		        resultEntity.writeTo(outStream);
+		        outStream.flush();
+		        
+				exchange.getMessage().setBody(outStream.toString());
 			}
 		}
 

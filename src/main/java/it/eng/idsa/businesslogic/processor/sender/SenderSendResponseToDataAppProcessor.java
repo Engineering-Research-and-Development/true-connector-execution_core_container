@@ -1,10 +1,13 @@
 package it.eng.idsa.businesslogic.processor.sender;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Component;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationA;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.ResponseMessageBufferBean;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
+import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -46,6 +50,9 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 
 	@Autowired
 	private HttpHeaderService httpHeaderService;
+	
+	@Autowired
+	private MultipartMessageService multipartMessageService;
 
 	@Autowired
 	private HeaderCleaner headerCleaner;
@@ -62,12 +69,17 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 		switch (openDataAppReceiverRouter) {
 		case "form":
 			//changed regarding Tecnalia problem - content lenght too long
-			String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);
-			Optional<String> boundaryy = MultipartMessageProcessor
-					.getMessageBoundaryFromMessage(multipartMessageString);
-			contentType = "multipart/form; boundary=" + boundaryy.orElse("---aaa") + ";charset=UTF-8";
-			headerParts.put(Exchange.CONTENT_TYPE, contentType);
-			exchange.getMessage().setBody(multipartMessageString);
+			ContentType ct = multipartMessage.getPayloadHeader().get(Exchange.CONTENT_TYPE) != null ? 
+					ContentType.parse(multipartMessage.getPayloadHeader().get(Exchange.CONTENT_TYPE)) : ContentType.TEXT_PLAIN;
+			HttpEntity resultEntity = multipartMessageService.createMultipartMessage(multipartMessage.getHeaderContentString(), 
+					multipartMessage.getPayloadContent(), null, ct);
+			exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, resultEntity.getContentType().getValue());
+			
+			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+	        resultEntity.writeTo(outStream);
+	        outStream.flush();
+	        
+			exchange.getMessage().setBody(outStream.toString());
 			break;
 		case "mixed":
 			responseString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);
