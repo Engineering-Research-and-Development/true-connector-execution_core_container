@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.17-SNAPSHOT] - 2022-08-05
+
+### Added
+ - added new GHA tests for big payload
+
+### Changed
+  - mixed and form responses are now passed through OutputStream to avoid org.apache.http.ContentTooLongException
+  - updated existing GHA tests with new .env files
+
 ## [0.1.16-SNAPSHOT] - 2022-08-03
 
 ### Changed
@@ -19,7 +28,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
  - Rejection message is now always created from the request message
  
- ### Removed
+### Removed
  - removed DAT from rejection message
 
 ## [0.1.14-SNAPSHOT] - 2022-07-18

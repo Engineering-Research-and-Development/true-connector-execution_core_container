@@ -30,7 +30,6 @@ import de.fraunhofer.iais.eis.ConstraintBuilder;
 import de.fraunhofer.iais.eis.ContentType;
 import de.fraunhofer.iais.eis.ContractOffer;
 import de.fraunhofer.iais.eis.ContractOfferBuilder;
-import de.fraunhofer.iais.eis.IANAMediaTypeBuilder;
 import de.fraunhofer.iais.eis.KeyType;
 import de.fraunhofer.iais.eis.Language;
 import de.fraunhofer.iais.eis.LeftOperand;
@@ -80,7 +79,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 
 	@Autowired
 	public SelfDescriptionServiceImpl(
-			SelfDescriptionConfiguration selfDescriptionConfiguration,
+			SelfDescriptionConfiguration selfDescriptionConfiguration,	
 			DapsTokenProviderService dapsProvider,
 			SelfDescriptionManager selfDescriptionManager,
 			KeystoreProvider keystoreProvider) {
