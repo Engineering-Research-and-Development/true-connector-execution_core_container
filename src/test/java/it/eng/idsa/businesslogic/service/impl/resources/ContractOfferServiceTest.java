@@ -1,9 +1,6 @@
 package it.eng.idsa.businesslogic.service.impl.resources;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -54,17 +51,6 @@ public class ContractOfferServiceTest {
 		when(sdManager.addContractOfferToResource(any(Connector.class), any(ContractOffer.class), any(URI.class))).thenReturn(connector);
 		service.addContractOfferToResource(contractOffer, contractOfferURI);
 		verify(sdManager).saveConnector();
-	}
-	
-	@Test
-	public void addContractOfferToResource_throwsException() throws JsonSyntaxException, IOException {
-		when(sdManager.addContractOfferToResource(isNull(), any(ContractOffer.class), any(URI.class)))
-			.thenThrow(JsonSyntaxException.class);
-		
-		assertThrows(JsonSyntaxException.class,
-	                () -> service.addContractOfferToResource(contractOffer, contractOfferURI));
-
-		verify(sdManager, times(0)).saveConnector();
 	}
 	
 	@Test
