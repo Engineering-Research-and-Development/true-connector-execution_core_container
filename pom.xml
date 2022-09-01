@@ -26,6 +26,7 @@
 		<application.basedir>${basedir}</application.basedir>
 		<multipart.message.processor.version>1.0.14-SNAPSHOT</multipart.message.processor.version>
 		<idscp2.libraries.version>0.5.2</idscp2.libraries.version>
+		<jacoco.version>0.8.8</jacoco.version>
 	</properties>
 
 	<repositories>
@@ -305,7 +306,11 @@
             <artifactId>logback-classic</artifactId>
             <groupId>ch.qos.logback</groupId>
  		</dependency>
- 
+		<dependency>
+			<groupId>net.logstash.logback</groupId>
+			<artifactId>logstash-logback-encoder</artifactId>
+			<version>6.2</version>
+		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
@@ -473,7 +478,31 @@
 					</execution>
 				</executions>
 			</plugin>
-
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<configuration>
+			        <excludes>
+			            <exclude>it/eng/idsa/businesslogic/usagecontrol/model/**</exclude>
+			        </excludes>
+		        </configuration>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>generate-coverage-report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
