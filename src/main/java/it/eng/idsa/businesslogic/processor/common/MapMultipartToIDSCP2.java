@@ -14,14 +14,11 @@ public class MapMultipartToIDSCP2 implements Processor {
 
 	private static final Logger logger = LoggerFactory.getLogger(MapMultipartToIDSCP2.class);
 
-	@Value("${application.dataApp.websocket.isEnabled}")
-	private boolean isEnabledDataAppWebSocket;
-
 	@Value("${application.idscp2.isEnabled}")
-	private boolean isEnabledIdscp2;
+	private Boolean isEnabledIdscp2;
 
 	@Value("${application.isReceiver}")
-	private boolean receiver;
+	private Boolean receiver;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {

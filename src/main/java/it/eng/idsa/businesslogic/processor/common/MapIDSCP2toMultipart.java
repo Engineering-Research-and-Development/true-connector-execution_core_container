@@ -18,10 +18,10 @@ public class MapIDSCP2toMultipart implements Processor {
 	private static final Logger logger = LoggerFactory.getLogger(MapIDSCP2toMultipart.class);
 	
 	@Value("#{new Boolean('${application.isEnabledUsageControl}')}")
-    private boolean isEnabledUsageControl;
+    private Boolean isEnabledUsageControl;
 	
 	@Value("${application.isReceiver}")
-	private boolean receiver;
+	private Boolean receiver;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -45,7 +45,7 @@ public class MapIDSCP2toMultipart implements Processor {
 
 		exchange.getMessage().setBody(multipartMessage);
 		if(isEnabledUsageControl && receiver) {
-            exchange.getProperties().put("Original-Message-Header", multipartMessage.getHeaderContentString());
+            exchange.getProperties().put("Original-Message-Header", multipartMessage.getHeaderContent());
         }
 	}
 }
