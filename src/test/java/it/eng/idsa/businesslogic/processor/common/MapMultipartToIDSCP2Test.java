@@ -22,8 +22,6 @@ public class MapMultipartToIDSCP2Test {
 	@InjectMocks
 	private MapMultipartToIDSCP2 processor;
 	
-	private String IDSCP2_HEADER = "idscp2-header";
-
 	@Mock
 	private Exchange exchange;
 	@Mock

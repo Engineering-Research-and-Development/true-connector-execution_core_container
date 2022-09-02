@@ -1,6 +1,7 @@
 package it.eng.idsa.businesslogic.util;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 import java.util.List;
 import java.util.Map;
 
@@ -13,17 +14,18 @@ import org.springframework.stereotype.Component;
 public class HeaderCleaner {
 	private static final Logger logger = LoggerFactory.getLogger(HeaderCleaner.class);
 
-	@Value("${application.technicalHeaders}")
-	public void setHeaders(String headers) {
-		technicalHeaders = headers;
+	private String headersForRemoval;
+	
+	public HeaderCleaner(@Value("${application.technicalHeaders}") String headersForRemoval) {
+		this.headersForRemoval = headersForRemoval;
 	}
-
-	private String technicalHeaders;
 
 	public void removeTechnicalHeaders(Map<String, Object> headers) {
 
-		List<String> technicalHeadersList = Arrays.asList(technicalHeaders.split(","));
-
+		List<String> technicalHeadersList = Arrays.stream(headersForRemoval.split(","))
+			    .map(String::trim)
+			    .collect(Collectors.toList());
+				
 		for (String technicalHeader : technicalHeadersList) {
 			if (headers.containsKey(technicalHeader)) {
 				logger.debug("==============Technical header=========================="+ technicalHeader);
