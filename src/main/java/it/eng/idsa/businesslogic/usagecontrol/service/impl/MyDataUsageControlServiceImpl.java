@@ -9,7 +9,6 @@ import java.time.ZonedDateTime;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.ComponentScan;
@@ -52,16 +51,17 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
 	
 	private String policyEndpoint = "policy/usage/odrl";
 
-	@Autowired(required = false)
 	private Gson gson;
 
 	public MyDataUsageControlServiceImpl(UcRestCallService ucRestCallService, 
 			CommunicationService communicationService,
-			@Value("${spring.ids.ucapp.baseUrl}") String usageControlDataAppURL) {
+			@Value("${spring.ids.ucapp.baseUrl}") String usageControlDataAppURL,
+			Gson gson) {
 		super();
 		this.ucRestCallService = ucRestCallService;
 		this.communicationService = communicationService;
 		this.usageControlDataAppURL = usageControlDataAppURL;
+		this.gson = gson;
 	}
 
 
