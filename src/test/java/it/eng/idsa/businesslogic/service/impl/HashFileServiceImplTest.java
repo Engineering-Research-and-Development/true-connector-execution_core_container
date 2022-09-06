@@ -6,19 +6,29 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.MockitoAnnotations;
+import org.springframework.test.util.ReflectionTestUtils;
 
 public class HashFileServiceImplTest {
 
+	@InjectMocks
 	private HashFileServiceImpl hashFileService;
 
+	private String clearingHouseHashDir;
+	
+	private String payload;
+	
 	@BeforeEach
 	public void setup() {
-		hashFileService = new HashFileServiceImpl("clearingHouseHashDir");
+		MockitoAnnotations.initMocks(this);
+		clearingHouseHashDir = "some/directory";
+		payload = "Some payload to hash";
+		ReflectionTestUtils.setField(hashFileService, "clearingHouseHashDir", clearingHouseHashDir);
 	}
 
 	@Test
 	public void hashSuccessful() {
-		String payload = "Some payload to hash";
 		String hashedValue = hashFileService.hash(payload);
 		assertNotNull(hashedValue);
 		assertTrue(hashedValue.startsWith("fc56de6811d1"));
@@ -28,6 +38,11 @@ public class HashFileServiceImplTest {
 	public void hashFailed() {
 		String hashedValue = hashFileService.hash(null);
 		assertNull(hashedValue);
+	}
+	
+	@Test
+	public void recordHash() {
+		hashFileService.recordHash(clearingHouseHashDir, payload, null);
 	}
 
 }
