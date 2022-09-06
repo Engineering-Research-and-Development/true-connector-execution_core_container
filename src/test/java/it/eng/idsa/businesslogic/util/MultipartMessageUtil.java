@@ -22,10 +22,26 @@ public class MultipartMessageUtil {
 				.build();
 	}
 	
+	public static MultipartMessage getMultipartMessageToken(String token) {
+		return new MultipartMessageBuilder()
+				.withHeaderContent(UtilMessageService.getArtifactResponseMessage())
+				.withPayloadContent("PAYLOAD")
+				.withToken(token)
+				.build();
+	}
+	
 	public static MultipartMessage getMultipartMessage(Message message, String payload) {
 		return new MultipartMessageBuilder()
 				.withHeaderContent(message)
 				.withPayloadContent(payload)
+				.build();
+	}
+	
+	public static MultipartMessage getMultipartMessage(Message message, String payload, String token) {
+		return new MultipartMessageBuilder()
+				.withHeaderContent(message)
+				.withPayloadContent(payload)
+				.withToken(token)
 				.build();
 	}
 	

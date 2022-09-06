@@ -25,41 +25,15 @@ import it.eng.idsa.businesslogic.service.CommunicationService;
 public class CommunicationServiceImpl implements CommunicationService {
 
 	private static final Logger logger = LoggerFactory.getLogger(CommunicationServiceImpl.class);
-
-	@Override
-	@Deprecated
-	public String sendData(String endpoint, org.apache.http.HttpEntity data) {
-		RestTemplate restTemplate = new RestTemplate();
-
-		String result;
-		try {
-			result = restTemplate.postForObject(endpoint, data, String.class);
-		} catch (RestClientException e) {
-			logger.error("Error while making a request", e);
-			return null;
-		}
-		return result;
-	}
-
-	@Override
-	@Deprecated
-	public String sendData(String endpoint, org.springframework.http.HttpEntity<?> data) {
-		RestTemplate restTemplate = new RestTemplate();
-
-		String result;
-		try {
-			result = restTemplate.postForObject(endpoint, data, String.class);
-		} catch (RestClientException e) {
-			logger.error("Error while making a request", e);
-			return null;
-		}
-		return result;
-	}
 	
+	private RestTemplate restTemplate;
+	
+	public CommunicationServiceImpl(RestTemplate restTemplate) {
+		this.restTemplate = restTemplate;
+	}
+
 	@Override
 	public String sendData(String endpoint, String data) {
-		RestTemplate restTemplate = new RestTemplate();
-
 		String result;
 		try {
 			result = restTemplate.postForObject(endpoint, data, String.class);
@@ -72,8 +46,6 @@ public class CommunicationServiceImpl implements CommunicationService {
 
 	@Override
 	public String sendDataAsJson(String endpoint, String data, String contentType) {
-		RestTemplate restTemplate = new RestTemplate();
-
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Content-Type", contentType);
 
