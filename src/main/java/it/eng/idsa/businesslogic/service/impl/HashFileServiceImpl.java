@@ -62,11 +62,6 @@ public class HashFileServiceImpl implements HashFileService {
     public void recordHash(String hash, String payload, NotificationContent notificationContent) {
         try {
             Path path = getPath(hash);
-            if (StringUtils.isBlank(getClearingHouseHashDir())) {
-                logger.error("No File PATH to record hash was found! application.clearingHouseHashFile" +
-                        " or application.clearingHouseHashDir props are empty");
-                return;
-            }
             if (null == hash || null == notificationContent) {
                 logger.error("No Hash Recording was possible! Hash or NotificationContent inputs are empty");
                 return;
