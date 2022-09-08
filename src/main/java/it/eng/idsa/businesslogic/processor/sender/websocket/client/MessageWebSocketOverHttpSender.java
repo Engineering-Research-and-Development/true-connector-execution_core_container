@@ -21,12 +21,10 @@ import org.asynchttpclient.ws.WebSocket;
 import org.asynchttpclient.ws.WebSocketUpgradeHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
-import it.eng.idsa.businesslogic.configuration.WebSocketClientConfiguration;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.HttpWebSocketServerBean;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -41,11 +39,19 @@ import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 public class MessageWebSocketOverHttpSender {
     private static final Logger logger = LoggerFactory.getLogger(MessageWebSocketOverHttpSender.class);
 
-    @Autowired
-    private WebSocketClientConfiguration webSocketClientConfiguration;
-
-    @Autowired
+//    private WebSocketClientConfiguration webSocketClientConfiguration;
     private RejectionMessageService rejectionMessageService;
+    private FileStreamingBean fileStreamingBean;
+    private ResponseMessageBufferClient responseMessageBufferClient;
+    private InputStreamSocketListenerClient inputStreamSocketListenerWebSocketClient;
+    
+    public MessageWebSocketOverHttpSender(RejectionMessageService rejectionMessageService, FileStreamingBean fileStreamingBean,
+    		ResponseMessageBufferClient responseMessageBufferClient, InputStreamSocketListenerClient inputStreamSocketListenerWebSocketClient) {
+    	this.rejectionMessageService = rejectionMessageService;
+    	this.fileStreamingBean = fileStreamingBean;
+    	this.responseMessageBufferClient = responseMessageBufferClient;
+    	this.inputStreamSocketListenerWebSocketClient = inputStreamSocketListenerWebSocketClient;
+    }
 
     public String sendMultipartMessageWebSocketOverHttps(String webSocketHost, Integer webSocketPort, String header, String payload)
             throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
@@ -78,13 +84,13 @@ public class MessageWebSocketOverHttpSender {
     	//TODO Use this implementation with includeHttpHeaders set to false, but in future implementations these headers may be mandatory
     	String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);
     													                                                        
-        FileStreamingBean fileStreamingBean = webSocketClientConfiguration.fileStreamingWebSocket();
+//        FileStreamingBean fileStreamingBean = webSocketClientConfiguration.fileStreamingWebSocket();
         WebSocket wsClient = createWebSocketClient(webSocketHost, webSocketPort, webSocketPath, message);
         // Try to connect to the Server. Wait until you are not connected to the server.
         fileStreamingBean.setup(wsClient);
         fileStreamingBean.sendMultipartMessage(multipartMessageString);
         // We don't have status of the response (is it 200 OK or not). We have only the content of the response.
-        String responseMessage = new String(webSocketClientConfiguration.responseMessageBufferWebSocketClient().remove());
+        String responseMessage = new String(responseMessageBufferClient.remove());
         closeWSClient(wsClient, message);
         logger.info("Response is received");
         logger.debug("response content: " + responseMessage);
@@ -108,7 +114,7 @@ public class MessageWebSocketOverHttpSender {
             WebSocketUpgradeHandler.Builder upgradeHandlerBuilder
                     = new WebSocketUpgradeHandler.Builder();
             WebSocketUpgradeHandler wsHandler = upgradeHandlerBuilder
-                    .addWebSocketListener(webSocketClientConfiguration.inputStreamSocketListenerWebSocketClient()).build();
+                    .addWebSocketListener(inputStreamSocketListenerWebSocketClient).build();
             wsClient = asyncHttpClient(clientConfig)
                     .prepareGet(WS_URL)
                     .execute(wsHandler)

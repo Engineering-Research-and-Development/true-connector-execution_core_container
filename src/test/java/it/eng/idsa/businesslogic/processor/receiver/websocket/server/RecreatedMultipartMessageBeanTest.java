@@ -10,7 +10,7 @@ public class RecreatedMultipartMessageBeanTest {
 
 	private RecreatedMultipartMessageBean recreatedMultipartMessageBean;
 	
-	public String message = "MESSAGE";
+	private String message = "MESSAGE";
 	
 	@BeforeEach
 	public void setup() {
