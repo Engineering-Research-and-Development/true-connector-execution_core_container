@@ -60,7 +60,7 @@ public class MessageWebSocketOverHttpSender {
 
     public String sendMultipartMessageWebSocketOverHttps(String webSocketHost, Integer webSocketPort, String header, String payload, Message message)
             throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
-        return doSendMultipartMessageWebSocketOverHttps(webSocketHost, webSocketPort,null, header, payload, message);
+        return doSendMultipartMessageWebSocketOverHttps(webSocketHost, webSocketPort, null, header, payload, message);
     }
 
     public String sendMultipartMessageWebSocketOverHttps(String webSocketHost, Integer webSocketPort, String webSocketPath, String header, String payload)
@@ -70,7 +70,7 @@ public class MessageWebSocketOverHttpSender {
 
     public String sendMultipartMessageWebSocketOverHttps(String webSocketHost, Integer webSocketPort, String webSocketPath, String header, String payload, Message message)
             throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
-        return doSendMultipartMessageWebSocketOverHttps(webSocketHost, webSocketPort, header, webSocketPath,  payload, message);
+        return doSendMultipartMessageWebSocketOverHttps(webSocketHost, webSocketPort, webSocketPath, header,  payload, message);
     }
 
 
