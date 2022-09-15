@@ -1,11 +1,10 @@
 package it.eng.idsa.businesslogic.processor.receiver.websocket.server;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
-
-import static org.mockito.Mockito.any;
 
 import org.eclipse.jetty.websocket.api.Session;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +29,6 @@ public class InputStreamSocketListenerServerTest {
 	private Session session;
 	
 	private String message = "MESSAGE";
-	public static final String END_BINARY_FRAME_SEPARATOR = "�normal-IDS-ENG-SEPARATOR the-last-frame";
 	
 	@BeforeEach
 	public void setup() {
@@ -50,9 +48,9 @@ public class InputStreamSocketListenerServerTest {
 	public void onMessage_end_frame_separator() {
 		when(webSocketServerConfiguration.responseMessageSendPartialWebSocket()).thenReturn(responseMessageSendPartialServer);
 		
-		inputStreamSocketListenerServer.onMessage(session, END_BINARY_FRAME_SEPARATOR.getBytes(StandardCharsets.UTF_8));
+		inputStreamSocketListenerServer.onMessage(session, InputStreamSocketListenerServer.END_BINARY_FRAME_SEPARATOR.getBytes(StandardCharsets.UTF_8));
 		
-		verify(frameBufferBean).add(END_BINARY_FRAME_SEPARATOR.getBytes(StandardCharsets.UTF_8));
+		verify(frameBufferBean).add(InputStreamSocketListenerServer.END_BINARY_FRAME_SEPARATOR.getBytes(StandardCharsets.UTF_8));
 		verify(responseMessageSendPartialServer).setup(any(Session.class));
 	}
 }

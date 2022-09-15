@@ -41,8 +41,6 @@ public class DapsUtilityProvider {
 	
 	@Value("${application.targetDirectory}")
 	private Path targetDirectory;
-	@Value("${application.dapsUrl}")
-	private String dapsUrl;
 	@Value("${application.keyStoreName}")
 	private String keyStoreName;
 	@Value("${application.keyStorePassword}")
