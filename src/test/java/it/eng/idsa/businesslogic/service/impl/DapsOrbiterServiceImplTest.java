@@ -75,7 +75,7 @@ public class DapsOrbiterServiceImplTest {
 		jsonObject.put("scope", "all");
 		Gson gson = new GsonBuilder().create();
 		String jsonString = gson.toJson(jsonObject);
-		RequestBody formBody = RequestBody.create(MediaType.get("application/json; charset=utf-8"), jsonString); // new
+		RequestBody formBody = RequestBody.create(jsonString, MediaType.get("application/json; charset=utf-8")); // new
 
 		requestDaps = new Request.Builder().url(dapsUrl).header("Host", "ecc-receiver")
 				.header("accept", "application/json").header("Content-Type", "application/json").post(formBody).build();
@@ -89,7 +89,7 @@ public class DapsOrbiterServiceImplTest {
 					.request(requestDaps)
 					.protocol(Protocol.HTTP_1_1)
 					.message("ABC")
-					.body(ResponseBody.create(MediaType.get("application/json; charset=utf-8"), JSONAnswer))
+					.body(ResponseBody.create(JSONAnswer, MediaType.get("application/json; charset=utf-8")))
 					.code(200)
 				.build();
 
@@ -103,7 +103,7 @@ public class DapsOrbiterServiceImplTest {
 						.request(requestDaps)
 						.protocol(Protocol.HTTP_1_1)
 						.message("ABC")
-						.body(ResponseBody.create(MediaType.get("text/plain"), stringAnswer))
+						.body(ResponseBody.create(stringAnswer, MediaType.get("text/plain")))
 						.code(200)
 					.build();
 		when(call.execute()).thenReturn(response);
@@ -152,7 +152,7 @@ public class DapsOrbiterServiceImplTest {
 		jsonObject.put("token", mockToken);
 		Gson gson = new GsonBuilder().create();
 		String jsonStringValidate = gson.toJson(jsonObject);
-		RequestBody formBodyValidate = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonStringValidate);
+		RequestBody formBodyValidate = RequestBody.create(jsonStringValidate, MediaType.parse("application/json; charset=utf-8"));
       
 		// @formatter:off
 		Request requestDapsValidate = new Request.Builder()
@@ -168,7 +168,7 @@ public class DapsOrbiterServiceImplTest {
 				.request(requestDapsValidate)
 				.protocol(Protocol.HTTP_1_1)
 				.message("ABC_Validate")
-				.body(ResponseBody.create(MediaType.get("application/json; charset=utf-8"), tokenResponseValid))
+				.body(ResponseBody.create(tokenResponseValid, MediaType.get("application/json; charset=utf-8")))
 				.code(200)
 				.build();
 

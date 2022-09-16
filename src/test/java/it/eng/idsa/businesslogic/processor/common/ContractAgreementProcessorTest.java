@@ -15,14 +15,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.client.RestClientException;
 
 import de.fraunhofer.iais.eis.ContractAgreement;
 import de.fraunhofer.iais.eis.ContractAgreementMessage;
 import de.fraunhofer.iais.eis.MessageProcessedNotificationMessage;
 import de.fraunhofer.iais.eis.MessageProcessedNotificationMessageBuilder;
 import de.fraunhofer.iais.eis.RejectionReason;
-import it.eng.idsa.businesslogic.service.CommunicationService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -43,9 +41,6 @@ public class ContractAgreementProcessorTest {
 	
 	@Mock
 	private MultipartMessage multipartMessage;
-	
-	@Mock
-	private CommunicationService communicationService;
 	
 	@Mock
 	private RejectionMessageService rejectionMessageService;
@@ -88,7 +83,6 @@ public class ContractAgreementProcessorTest {
 		when(exchange.getProperty("Original-Message-Payload")).thenReturn(UtilMessageService.getMessageAsString(contractAgreement));
 		when(multipartMessage.getHeaderContent()).thenReturn(createProcessNotificationMessage());
 		when(usageControlService.uploadPolicy(any(String.class))).thenReturn("UPLOADED POLICY");
-		when(communicationService.sendDataAsJson(any(String.class), any(String.class), any(String.class))).thenThrow(RestClientException.class);
 
 		processor.process(exchange);
 		

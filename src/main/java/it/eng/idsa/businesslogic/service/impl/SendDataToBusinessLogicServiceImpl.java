@@ -40,7 +40,7 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 	private boolean isEnabledDapsInteraction;
 
 	@Value("${application.idscp2.isEnabled}")
-	private boolean isEnabledIdscp2;
+	private Boolean isEnabledIdscp2;
 
 	@Autowired
 	private RejectionMessageService rejectionMessageService;

@@ -15,9 +15,11 @@ import java.security.cert.CertificateException;
 import java.security.cert.PKIXParameters;
 import java.security.cert.TrustAnchor;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -142,5 +144,16 @@ public class KeystoreProvider {
 			logger.error("Error while trying to get certificate key from keystore, {}", e);
 		}
 		return null;
+	}
+	
+	public String getCertificateSubject() {
+		if(keystore == null || !isEnabledDapsInteraction) {
+			logger.info("Keystore not initialized");
+			return UUID.randomUUID().toString();
+		}
+		return Arrays.stream(getCertificate().getSubjectX500Principal().getName().split(","))
+				.filter(role -> role.contains("CN"))
+				.map(val -> val.split("=")[1].trim())
+			    .collect(Collectors.joining(","));
 	}
 }

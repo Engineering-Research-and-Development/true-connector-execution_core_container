@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.18-SNAPSHOT] - 2022-09-15
+
+### Added
+ - added new junit tests
+ 
+### Changed
+  - small code refactoring
+
 ## [0.1.17-SNAPSHOT] - 2022-08-05
 
 ### Added

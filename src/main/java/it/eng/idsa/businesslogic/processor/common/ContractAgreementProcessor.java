@@ -12,7 +12,6 @@ import de.fraunhofer.iais.eis.ContractAgreementMessage;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.MessageProcessedNotificationMessage;
 import de.fraunhofer.iais.eis.RejectionReason;
-import it.eng.idsa.businesslogic.service.CommunicationService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -35,7 +34,6 @@ public class ContractAgreementProcessor implements Processor {
 	private Boolean isEnabledUsageControl;
 
 	public ContractAgreementProcessor(@Nullable UsageControlService usageControlService,
-			CommunicationService communicationService,
 			@Value("#{new Boolean('${application.isEnabledUsageControl}')}") Boolean isEnabledUsageControl,
 			RejectionMessageService rejectionMessageService) {
 		this.usageControlService = usageControlService;

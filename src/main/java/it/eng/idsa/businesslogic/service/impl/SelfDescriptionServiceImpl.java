@@ -107,10 +107,16 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		issuerConnectorURI = selfDescriptionConfiguration.getConnectorURI();
 		
 		PublicKey publicKey = null;
-        byte[] serverCertificate = null;
 		try {
-			serverCertificate = keystoreProvider.getCertificate() != null ? keystoreProvider.getCertificate().getEncoded() : null;
-			publicKey = new PublicKeyBuilder()._keyType_(KeyType.RSA)._keyValue_(serverCertificate).build();
+			var serverCertificate = keystoreProvider.getCertificate();
+			if(serverCertificate != null) {
+				publicKey = new PublicKeyBuilder(URI.create("https://w3id.org/idsa/autogen/publicKey/" + keystoreProvider.getCertificateSubject()))
+						._keyType_(KeyType.RSA)
+						._keyValue_(serverCertificate.getEncoded())
+						.build();
+			} else {
+				logger.info("DAPS not configured so no PublicKey element present in Self description element");
+			}
 		} catch (CertificateEncodingException | NullPointerException e) {
 			logger.error("Error while creating PublicKey", e);
 		}

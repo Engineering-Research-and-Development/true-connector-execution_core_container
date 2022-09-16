@@ -2,9 +2,14 @@ package it.eng.idsa.businesslogic.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -18,7 +23,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SenderClientService;
@@ -45,10 +54,8 @@ public class SendDataToBusinessLogicServiceImplTest {
 	
 	@Mock
 	private SenderClientService okHttpClient;
-
 	
 	String header;
-	
 	String payload;
 	
 	Map<String, Object> headerParts;
@@ -72,6 +79,7 @@ public class SendDataToBusinessLogicServiceImplTest {
 		headerParts = new HashMap<>();
 		multipartMessage = createMultipartMessage();
 		messageAsMap = getArtifactResponseMessageAsMap();
+		ReflectionTestUtils.setField(service, "isEnabledIdscp2", Boolean.FALSE, Boolean.class);
 	}
 	
 	private MultipartMessage createMultipartMessage() {
@@ -100,6 +108,32 @@ public class SendDataToBusinessLogicServiceImplTest {
 		assertTrue(result.isSuccessful());
 		
 		verify(okHttpClient).createMultipartMixRequest(multipartMessage, MediaType.TEXT_PLAIN.toString());
+	}
+	
+	@Test
+	void sendMessageBinarySuccess_idscpv2() throws IOException {
+		ReflectionTestUtils.setField(service, "isEnabledIdscp2", Boolean.TRUE, Boolean.class);
+
+		RequestBody mixRequestBody = RequestResponseUtil.createRequestBody(payload);
+		when(okHttpClient.createMultipartMixRequest(multipartMessage, MediaType.TEXT_PLAIN.toString()))
+			.thenReturn(mixRequestBody);
+		Map<String, String> h = new HashMap<>();
+		h.put("idscp2", "idscp2");
+		Headers headers = Headers.of(h);
+		Response response = RequestResponseUtil.createResponse(
+				RequestResponseUtil.createRequest(URL, mixRequestBody), 
+				RESPONSE_SUCCESFULL_MESSAGE, 
+				RequestResponseUtil.createResponseBodyJsonUTF8(RESPONSE_PAYLOAD), 
+				200);
+		when(okHttpClient.sendMultipartMixRequest(URL, headers, mixRequestBody)).thenReturn(response);
+		
+		Response result = service.sendMessageBinary(URL, multipartMessage, headerParts);
+		
+		assertNotNull(result);
+		assertTrue(result.isSuccessful());
+		
+		verify(okHttpClient).createMultipartMixRequest(multipartMessage, MediaType.TEXT_PLAIN.toString());
+		verify(headerCleaner).removeTechnicalHeaders(any(Map.class));
 	}
 	
 	@Test
@@ -213,6 +247,73 @@ public class SendDataToBusinessLogicServiceImplTest {
 		assertEquals(result.code(), 400);
 		
 		verify(okHttpClient).sendHttpHeaderRequest(URL, headers, multipartMessage.getPayloadContent(), MediaType.TEXT_PLAIN.toString());
+	}
+	
+	@Test
+	public void checkResponse_success() {
+		Message messageForRejection = UtilMessageService.getArtifactRequestMessage();
+		RequestBody headerRequestBody = RequestResponseUtil.createRequestBody(payload); 
+		
+		Response response = RequestResponseUtil.createResponse(
+				RequestResponseUtil.createRequest(URL, headerRequestBody), 
+				RESPONSE_SUCCESFULL_MESSAGE, 
+				RequestResponseUtil.createResponseBodyJsonUTF8(RESPONSE_PAYLOAD), 
+				200);
+		
+		service.checkResponse(messageForRejection, response, "http://forward.to");
+		
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(messageForRejection, RejectionReason.TEMPORARILY_NOT_AVAILABLE);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(messageForRejection, RejectionReason.BAD_PARAMETERS);
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(messageForRejection, RejectionReason.INTERNAL_RECIPIENT_ERROR);
+	}
+	
+	@Test
+	public void checkResponse_fail() {
+		Message messageForRejection = UtilMessageService.getArtifactRequestMessage();
+		RequestBody headerRequestBody = RequestResponseUtil.createRequestBody(payload); 
+		
+		Response response = RequestResponseUtil.createResponse(
+				RequestResponseUtil.createRequest(URL, headerRequestBody), 
+				RESPONSE_FAILED_MESSAGE, 
+				RequestResponseUtil.createResponseBodyJsonUTF8(RESPONSE_PAYLOAD), 
+				400);
+		
+		service.checkResponse(messageForRejection, response, "http://forward.to");
+		
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(messageForRejection, RejectionReason.TEMPORARILY_NOT_AVAILABLE);
+		verify(rejectionMessageService).sendRejectionMessage(messageForRejection, RejectionReason.INTERNAL_RECIPIENT_ERROR);
+	}
+	
+	@Test
+	public void checkResponse_notFound() {
+		Message messageForRejection = UtilMessageService.getArtifactRequestMessage();
+		RequestBody headerRequestBody = RequestResponseUtil.createRequestBody(payload); 
+		
+		Response response = RequestResponseUtil.createResponse(
+				RequestResponseUtil.createRequest(URL, headerRequestBody), 
+				RESPONSE_FAILED_MESSAGE, 
+				RequestResponseUtil.createResponseBodyJsonUTF8(RESPONSE_PAYLOAD), 
+				404);
+		
+		service.checkResponse(messageForRejection, response, "http://forward.to");
+		
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(messageForRejection, RejectionReason.TEMPORARILY_NOT_AVAILABLE);
+		verify(rejectionMessageService).sendRejectionMessage(messageForRejection, RejectionReason.BAD_PARAMETERS);
+	}
+	
+	@Test
+	public void checkResponse_response_null() {
+		Message messageForRejection = UtilMessageService.getArtifactRequestMessage();
+		
+		doThrow(ExceptionForProcessor.class)
+			.when(rejectionMessageService).sendRejectionMessage(messageForRejection, RejectionReason.TEMPORARILY_NOT_AVAILABLE);
+		
+		assertThrows(ExceptionForProcessor.class,
+	            ()->{
+	            	service.checkResponse(messageForRejection, null, "http://forward.to");
+	            });
+		
+		verify(rejectionMessageService).sendRejectionMessage(messageForRejection, RejectionReason.TEMPORARILY_NOT_AVAILABLE);
 	}
 
 	private Map<String, Object> getArtifactResponseMessageAsMap() {

@@ -2,6 +2,7 @@ package it.eng.idsa.businesslogic.service.impl;
 
 import java.net.URL;
 import java.nio.file.Path;
+import java.security.PublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
@@ -40,8 +41,6 @@ public class DapsUtilityProvider {
 	
 	@Value("${application.targetDirectory}")
 	private Path targetDirectory;
-	@Value("${application.dapsUrl}")
-	private String dapsUrl;
 	@Value("${application.keyStoreName}")
 	private String keyStoreName;
 	@Value("${application.keyStorePassword}")
@@ -76,6 +75,10 @@ public class DapsUtilityProvider {
 		}
 		return jws;
 	}
+	
+	public PublicKey getPublicKey() {
+		return keystoreProvider.getCertificate().getPublicKey();
+	}
     
     public Algorithm provideAlgorithm(String tokenValue) {
     	DecodedJWT jwt = JWT.decode(tokenValue);
@@ -91,7 +94,7 @@ public class DapsUtilityProvider {
 		return algorithm;
     }
     
-	private String getConnectorUUID() {
+	public String getConnectorUUID() {
 		 // Get AKI
         //GET 2.5.29.14	SubjectKeyIdentifier / 2.5.29.35	AuthorityKeyIdentifier
         String aki_oid = Extension.authorityKeyIdentifier.getId();
