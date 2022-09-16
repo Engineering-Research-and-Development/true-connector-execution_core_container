@@ -16,6 +16,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import org.bouncycastle.asn1.ASN1OctetString;
+import org.bouncycastle.asn1.x509.Extension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -82,8 +83,8 @@ public class DapsUtilityProviderTest {
 	
 	@Test
 	public void testGetDapsV2Jws() throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException{
-		when(keystoreProvider.getCertificate().getExtensionValue("2.5.29.35")).thenReturn(x509Certificate.getExtensionValue("2.5.29.35"));
-		when(keystoreProvider.getCertificate().getExtensionValue("2.5.29.14")).thenReturn(x509Certificate.getExtensionValue("2.5.29.14"));
+		when(keystoreProvider.getCertificate().getExtensionValue(Extension.authorityKeyIdentifier.getId())).thenReturn(x509Certificate.getExtensionValue(Extension.authorityKeyIdentifier.getId()));
+		when(keystoreProvider.getCertificate().getExtensionValue(Extension.subjectKeyIdentifier.getId())).thenReturn(x509Certificate.getExtensionValue(Extension.subjectKeyIdentifier.getId()));
 		when(keystoreProvider.getPrivateKey()).thenReturn(keyStore.getKey(keystoreAliasName, keyStorePassword.toCharArray()));
 		
 		String jws = dapsUtilityProvider.getDapsV2Jws();
