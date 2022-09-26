@@ -3,40 +3,34 @@
  */
 package it.eng.idsa.businesslogic.service.impl;
 
-import java.net.URI;
-
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import de.fraunhofer.iais.eis.LogMessage;
-import de.fraunhofer.iais.eis.LogMessageBuilder;
-import de.fraunhofer.iais.eis.Message;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import de.fraunhofer.iais.eis.*;
+import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.service.ClearingHouseService;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.HashFileService;
+import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.clearinghouse.model.Body;
 import it.eng.idsa.clearinghouse.model.NotificationContent;
+import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
+import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.util.DateUtil;
 import it.eng.idsa.multipart.util.UtilMessageService;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.util.HashMap;
 
 /**
  * @author Milan Karajovic and Gabriele De Luca
- *
  */
 
 @Service
@@ -53,20 +47,43 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	@Autowired
 	private DapsTokenProviderService dapsProvider;
 
-	@Autowired
-	private RestTemplate restTemplate;
+    @Autowired
+    private HashFileService hashService;
 
-	@Autowired
-	private HashFileService hashService;
+    @Autowired
+    private SendDataToBusinessLogicService sendDataToBusinessLogicService;
 
-	@Override
-	public boolean registerTransaction(Message correlatedMessage, String payload) {
+    @Override
+    public boolean registerTransaction(Message correlatedMessage, String payload) {
+        String messageLogEndpoint = "messages/log/";
+        String processEndpoint = "process/";
 
-		boolean success = false;
-		try {
-			logger.info("registerTransaction...");
-			String endpoint = configuration.getClearingHouseUrl();
-			// Create Message for Clearing House
+        boolean success = false;
+        try {
+            logger.info("registerTransaction...");
+            String endpoint;
+            String pid;
+
+            // Searches if a process has already been created
+            boolean test = correlatedMessage.getTransferContract() != null;
+            if (test) {
+                //TODO write logic
+                pid = extractPIDfromContract(correlatedMessage);
+
+                //TODO write logic
+                if (alreadyExists(pid)) {
+                    //TODO write logic
+                    createProcess(correlatedMessage, processEndpoint, pid);
+                } else {
+                    //TODO write logic
+                    createProcess(correlatedMessage, processEndpoint, pid);
+                }
+            } else {
+                //default random PID
+                pid = createPID(correlatedMessage);
+            }
+
+            endpoint = configuration.getClearingHouseUrl() + messageLogEndpoint + pid; //Create Message for Clearing House
 
 			LogMessage logInfo = new LogMessageBuilder()
 					._modelVersion_(UtilMessageService.MODEL_VERSION)
@@ -76,32 +93,29 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 					._securityToken_(dapsProvider.getDynamicAtributeToken())
 					.build();
 
-			NotificationContent notificationContent = new NotificationContent();
-			notificationContent.setHeader(logInfo);
-			Body body = new Body();
-			body.setHeader(correlatedMessage);
-			String hash = hashService.hash(payload);
-			body.setPayload(hash);
+            String hash = hashService.hash(payload);
+            NotificationContent notificationContent = createNotificationContent(logInfo, correlatedMessage, hash);
 
-			notificationContent.setBody(body);
+            Serializer serializer = new Serializer();
+            Message notificationContentHeader = notificationContent.getHeader();
+            Body notificationContentBody = notificationContent.getBody();
 
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_JSON);
-//			String msgSerialized = MultipartMessageProcessor.serializeMessage(notificationContent);
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
-	        mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-			
-	        String msgSerialized = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(notificationContent);
-			logger.info("msgSerialized to CH=" + msgSerialized);
-			JSONParser parser = new JSONParser();
-			JSONObject jsonObject = (JSONObject) parser.parse(msgSerialized);
-			HttpEntity<JSONObject> entity = new HttpEntity<>(jsonObject, headers);
+            String msgPayload = serializer.serialize(notificationContentBody);
+            MultipartMessage multipartMessage = new MultipartMessageBuilder().withHeaderContent(notificationContentHeader)
+                                                                             .withPayloadContent(msgPayload)
+                                                                             .build();
 
-			logger.info("Sending Data to the Clearing House " + endpoint + " ...");
-			restTemplate.postForObject(endpoint, entity, String.class);
-			logger.info("Data [LogMessage.id=" + logInfo.getId() + "] sent to the Clearing House " + endpoint);
-			hashService.recordHash(hash, payload, notificationContent);
+            LoggerCHMessage chMessage = new LoggerCHMessage(notificationContentHeader, notificationContentBody);
+            String msgSerialized = "Serialized Message which is sending to CH=" + serializer.serialize(chMessage);
+            logger.info(msgSerialized);
+            String sendingDataInfo = "Sending Data to the Clearing House " + endpoint + " ...";
+            logger.info(sendingDataInfo);
+            sendDataToBusinessLogicService.sendMessageFormData(endpoint, multipartMessage, new HashMap<>());
+
+
+            String logMessageIdInfo = "Data [LogMessage.id=" + logInfo.getId() + "] sent to the Clearing House " + endpoint;
+            logger.info(logMessageIdInfo);
+            hashService.recordHash(hash, payload, notificationContent);
 
 			success = true;
 		} catch (Exception e) {
@@ -115,4 +129,80 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		return selfDescriptionConfiguration.getConnectorURI();
 	}
 
+    private boolean alreadyExists(String pid) {
+        //TODO search process in fCH
+
+        return Boolean.parseBoolean(pid); //fake return - it will be changed
+    }
+
+    private void createProcess(Message correlatedMessage, String endpoint, String pid) throws UnsupportedEncodingException {
+        //TODO call processCreate endpoint
+        String processEndpoint = configuration.getClearingHouseUrl() + endpoint + pid; //Create a process in CH
+
+        RequestMessage processMessage = new RequestMessageBuilder()
+                ._modelVersion_(UtilMessageService.MODEL_VERSION)
+                ._issuerConnector_(whoIAm())
+                ._issued_(DateUtil.now())
+                ._senderAgent_(correlatedMessage.getSenderAgent())
+                ._securityToken_(dapsProvider.getDynamicAtributeToken())
+                .build();
+
+        //TODO need MultipartMessage
+        MultipartMessage multipartMessage = new MultipartMessageBuilder().withHeaderContent(processMessage)
+                                                                         .withPayloadContent("")
+                                                                         .build();
+        sendDataToBusinessLogicService.sendMessageFormData(processEndpoint, multipartMessage, new HashMap<>());
+    }
+
+    private String extractPIDfromContract(Message correlatedMessage) {
+        //TODO
+        String[] strings = correlatedMessage.getTransferContract().getPath().split("/");
+        return strings[strings.length - 1];
+    }
+
+    private static String createPID(Message correlatedMessage) {
+        ObjectIdGenerators.UUIDGenerator uuidGenerator = new ObjectIdGenerators.UUIDGenerator();
+        return uuidGenerator.generateId(correlatedMessage).toString();
+    }
+
+    @NotNull
+    private static NotificationContent createNotificationContent(LogMessage logInfo, Message correlatedMessage, String hash) {
+        NotificationContent notificationContent = new NotificationContent();
+
+        // Header Management
+        notificationContent.setHeader(logInfo);
+        //explicity setHeader because notificationContent.setHeader return always "DummyTokenValue"
+        notificationContent.getHeader().setSecurityToken(logInfo.getSecurityToken());
+
+        notificationContent.setBody(getBodyFromMessageAndHash(correlatedMessage, hash));
+        return notificationContent;
+    }
+
+    @NotNull
+    private static Body getBodyFromMessageAndHash(Message correlatedMessage, String hash) {
+        Body body = new Body();
+        body.setHeader(correlatedMessage);
+        body.setPayload(hash);
+        return body;
+    }
+
+
+    private static class LoggerCHMessage {
+        private final Message header;
+        private final Body payload;
+
+        public LoggerCHMessage(Message header, Body body) {
+            this.header = header;
+            this.payload = body;
+        }
+
+        public Message getHeader() {
+            return header;
+        }
+
+        public Body getPayload() {
+            return payload;
+        }
+    }
 }
+
