@@ -43,47 +43,37 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 
 	@Autowired
 	private SelfDescriptionConfiguration selfDescriptionConfiguration;
-	
+
 	@Autowired
 	private DapsTokenProviderService dapsProvider;
 
-    @Autowired
-    private HashFileService hashService;
+	@Autowired
+	private HashFileService hashService;
 
-    @Autowired
-    private SendDataToBusinessLogicService sendDataToBusinessLogicService;
+	@Autowired
+	private SendDataToBusinessLogicService sendDataToBusinessLogicService;
 
-    @Override
-    public boolean registerTransaction(Message correlatedMessage, String payload) {
-        String messageLogEndpoint = "messages/log/";
-        String processEndpoint = "process/";
+	@Override
+	public boolean registerTransaction(Message correlatedMessage, String payload) {
+		String messageLogEndpoint = "messages/log/";
+		String processEndpoint = "process/";
 
-        boolean success = false;
-        try {
-            logger.info("registerTransaction...");
-            String endpoint;
-            String pid;
+		boolean success = false;
+		try {
+			logger.info("registerTransaction...");
+			String endpoint;
+			String pid;
 
-            // Searches if a process has already been created
-            boolean test = correlatedMessage.getTransferContract() != null;
-            if (test) {
-                //TODO write logic
-                pid = extractPIDfromContract(correlatedMessage);
+			if (correlatedMessage.getTransferContract() != null) {
+				//log all exchanged messages relating to same ContractAgreement in same process
+				pid = extractPIDfromContract(correlatedMessage);
+				createProcess(correlatedMessage, processEndpoint, pid);
+			} else {
+				//default random PID
+				pid = createPID(correlatedMessage);
+			}
 
-                //TODO write logic
-                if (alreadyExists(pid)) {
-                    //TODO write logic
-                    createProcess(correlatedMessage, processEndpoint, pid);
-                } else {
-                    //TODO write logic
-                    createProcess(correlatedMessage, processEndpoint, pid);
-                }
-            } else {
-                //default random PID
-                pid = createPID(correlatedMessage);
-            }
-
-            endpoint = configuration.getClearingHouseUrl() + messageLogEndpoint + pid; //Create Message for Clearing House
+			endpoint = configuration.getClearingHouseUrl() + messageLogEndpoint + pid; //Create Message for Clearing House
 
 			LogMessage logInfo = new LogMessageBuilder()
 					._modelVersion_(UtilMessageService.MODEL_VERSION)
@@ -93,29 +83,29 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 					._securityToken_(dapsProvider.getDynamicAtributeToken())
 					.build();
 
-            String hash = hashService.hash(payload);
-            NotificationContent notificationContent = createNotificationContent(logInfo, correlatedMessage, hash);
+			String hash = hashService.hash(payload);
+			NotificationContent notificationContent = createNotificationContent(logInfo, correlatedMessage, hash);
 
-            Serializer serializer = new Serializer();
-            Message notificationContentHeader = notificationContent.getHeader();
-            Body notificationContentBody = notificationContent.getBody();
+			Serializer serializer = new Serializer();
+			Message notificationContentHeader = notificationContent.getHeader();
+			Body notificationContentBody = notificationContent.getBody();
 
-            String msgPayload = serializer.serialize(notificationContentBody);
-            MultipartMessage multipartMessage = new MultipartMessageBuilder().withHeaderContent(notificationContentHeader)
-                                                                             .withPayloadContent(msgPayload)
-                                                                             .build();
+			String msgPayload = serializer.serialize(notificationContentBody);
+			MultipartMessage multipartMessage = new MultipartMessageBuilder().withHeaderContent(notificationContentHeader)
+																			 .withPayloadContent(msgPayload)
+																			 .build();
 
-            LoggerCHMessage chMessage = new LoggerCHMessage(notificationContentHeader, notificationContentBody);
-            String msgSerialized = "Serialized Message which is sending to CH=" + serializer.serialize(chMessage);
-            logger.info(msgSerialized);
-            String sendingDataInfo = "Sending Data to the Clearing House " + endpoint + " ...";
-            logger.info(sendingDataInfo);
-            sendDataToBusinessLogicService.sendMessageFormData(endpoint, multipartMessage, new HashMap<>());
+			LoggerCHMessage chMessage = new LoggerCHMessage(notificationContentHeader, notificationContentBody);
+			String msgSerialized = "Serialized Message which is sending to CH=\n" + serializer.serialize(chMessage);
+			logger.info(msgSerialized);
+			String sendingDataInfo = "Sending Data to the Clearing House " + endpoint + " ...";
+			logger.info(sendingDataInfo);
+			sendDataToBusinessLogicService.sendMessageFormData(endpoint, multipartMessage, new HashMap<>());
 
 
-            String logMessageIdInfo = "Data [LogMessage.id=" + logInfo.getId() + "] sent to the Clearing House " + endpoint;
-            logger.info(logMessageIdInfo);
-            hashService.recordHash(hash, payload, notificationContent);
+			String logMessageIdInfo = "Data [LogMessage.id=" + logInfo.getId() + "] sent to the Clearing House " + endpoint;
+			logger.info(logMessageIdInfo);
+			hashService.recordHash(hash, payload, notificationContent);
 
 			success = true;
 		} catch (Exception e) {
@@ -129,80 +119,74 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		return selfDescriptionConfiguration.getConnectorURI();
 	}
 
-    private boolean alreadyExists(String pid) {
-        //TODO search process in fCH
+	private void createProcess(Message correlatedMessage, String endpoint, String pid) throws UnsupportedEncodingException {
+		String processEndpoint = configuration.getClearingHouseUrl() + endpoint + pid;
 
-        return Boolean.parseBoolean(pid); //fake return - it will be changed
-    }
+		RequestMessage processMessage = new RequestMessageBuilder()
+				._modelVersion_(UtilMessageService.MODEL_VERSION)
+				._issuerConnector_(whoIAm())
+				._issued_(DateUtil.now())
+				._senderAgent_(correlatedMessage.getSenderAgent())
+				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				.build();
 
-    private void createProcess(Message correlatedMessage, String endpoint, String pid) throws UnsupportedEncodingException {
-        //TODO call processCreate endpoint
-        String processEndpoint = configuration.getClearingHouseUrl() + endpoint + pid; //Create a process in CH
+		MultipartMessage multipartMessage = new MultipartMessageBuilder().withHeaderContent(processMessage)
+																		 .withPayloadContent("")
+																		 .build();
+		sendDataToBusinessLogicService.sendMessageFormData(processEndpoint, multipartMessage, new HashMap<>());
+	}
 
-        RequestMessage processMessage = new RequestMessageBuilder()
-                ._modelVersion_(UtilMessageService.MODEL_VERSION)
-                ._issuerConnector_(whoIAm())
-                ._issued_(DateUtil.now())
-                ._senderAgent_(correlatedMessage.getSenderAgent())
-                ._securityToken_(dapsProvider.getDynamicAtributeToken())
-                .build();
+	private String extractPIDfromContract(Message correlatedMessage) {
+		//TODO search a better way to extract UUID
+		String[] strings = correlatedMessage.getTransferContract().getPath().split("/");
+		return strings[strings.length - 1];
+	}
 
-        //TODO need MultipartMessage
-        MultipartMessage multipartMessage = new MultipartMessageBuilder().withHeaderContent(processMessage)
-                                                                         .withPayloadContent("")
-                                                                         .build();
-        sendDataToBusinessLogicService.sendMessageFormData(processEndpoint, multipartMessage, new HashMap<>());
-    }
+	private static String createPID(Message correlatedMessage) {
+		ObjectIdGenerators.UUIDGenerator uuidGenerator = new ObjectIdGenerators.UUIDGenerator();
+		return uuidGenerator.generateId(correlatedMessage).toString();
+	}
 
-    private String extractPIDfromContract(Message correlatedMessage) {
-        //TODO
-        String[] strings = correlatedMessage.getTransferContract().getPath().split("/");
-        return strings[strings.length - 1];
-    }
+	@NotNull
+	private static NotificationContent createNotificationContent(LogMessage logInfo, Message correlatedMessage, String hash) {
+		NotificationContent notificationContent = new NotificationContent();
 
-    private static String createPID(Message correlatedMessage) {
-        ObjectIdGenerators.UUIDGenerator uuidGenerator = new ObjectIdGenerators.UUIDGenerator();
-        return uuidGenerator.generateId(correlatedMessage).toString();
-    }
+		// Header Management
+		notificationContent.setHeader(logInfo);
+		//Fix setHeader (notificationContent.setHeader always return "DummyTokenValue")
+		notificationContent.getHeader().setSecurityToken(logInfo.getSecurityToken());
 
-    @NotNull
-    private static NotificationContent createNotificationContent(LogMessage logInfo, Message correlatedMessage, String hash) {
-        NotificationContent notificationContent = new NotificationContent();
+		//Body Management
+		notificationContent.setBody(getBodyFromMessageAndHash(correlatedMessage, hash));
 
-        // Header Management
-        notificationContent.setHeader(logInfo);
-        //explicity setHeader because notificationContent.setHeader return always "DummyTokenValue"
-        notificationContent.getHeader().setSecurityToken(logInfo.getSecurityToken());
+		return notificationContent;
+	}
 
-        notificationContent.setBody(getBodyFromMessageAndHash(correlatedMessage, hash));
-        return notificationContent;
-    }
-
-    @NotNull
-    private static Body getBodyFromMessageAndHash(Message correlatedMessage, String hash) {
-        Body body = new Body();
-        body.setHeader(correlatedMessage);
-        body.setPayload(hash);
-        return body;
-    }
+	@NotNull
+	private static Body getBodyFromMessageAndHash(Message correlatedMessage, String hash) {
+		Body body = new Body();
+		body.setHeader(correlatedMessage);
+		body.setPayload(hash);
+		return body;
+	}
 
 
-    private static class LoggerCHMessage {
-        private final Message header;
-        private final Body payload;
+	private static class LoggerCHMessage {
+		private final Message header;
+		private final Body payload;
 
-        public LoggerCHMessage(Message header, Body body) {
-            this.header = header;
-            this.payload = body;
-        }
+		public LoggerCHMessage(Message header, Body body) {
+			this.header = header;
+			this.payload = body;
+		}
 
-        public Message getHeader() {
-            return header;
-        }
+		public Message getHeader() {
+			return header;
+		}
 
-        public Body getPayload() {
-            return payload;
-        }
-    }
+		public Body getPayload() {
+			return payload;
+		}
+	}
 }
 
