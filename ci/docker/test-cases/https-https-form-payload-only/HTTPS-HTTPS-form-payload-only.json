@@ -17,6 +17,8 @@
 									"});\r",
 									"pm.test(\"Body matches string\", function () {\r",
 									"    pm.expect(pm.response.text()).to.not.include(\"ArtifactResponseMessage\");\r",
+									"pm.test(\"Content-Type is JSON\", function () {\r",
+									"    pm.response.to.be.header(\"Content-Type\", \"application/json\");\r",
 									"});"
 								],
 								"type": "text/javascript"
