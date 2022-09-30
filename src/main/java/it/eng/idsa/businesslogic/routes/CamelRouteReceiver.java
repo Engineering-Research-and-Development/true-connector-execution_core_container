@@ -106,7 +106,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void configure() throws Exception {
-		logger.debug("Starting Camel Routes...receiver side");
+		logger.info("Starting Camel Routes...receiver side");
 		camelContext.getShutdownStrategy().setLogInflightExchangesOnTimeout(false);
 		camelContext.getShutdownStrategy().setTimeout(3);
 //		camelContext.setCaseInsensitiveHeaders(false);
@@ -120,6 +120,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 		
 		// Camel SSL - Endpoint: B communication http
 		if(!isEnabledWebSocket && !isEnabledIdscp2) {
+			logger.info("REST Configuration");
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/data")
 				.routeId("data")
 				.process(connectorRequestProcessor)
@@ -147,6 +148,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 		} 
 		
 		if (isEnabledWebSocket) {
+			logger.info("WSS Configuration");
 			// End point B. ECC communication (Web Socket)
 			from("timer://timerEndpointB?repeatCount=-1") //EndPoint B
 				.routeId("WSS")
@@ -171,7 +173,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 			//@formatter:on
 		}
 		if (isEnabledIdscp2 && receiver && !isEnabledDataAppWebSocket) {
-			logger.info("Starting IDSCP v2 Server route");
+			logger.info("Starting IDSCP v2 Receiver route");
 			// End point B. ECC communication (dataApp-ECC communication with http
 			// and communication between ECCs with IDSCP2)
 			from("idscp2server://0.0.0.0:29292?transportSslContextParameters=#sslContext&dapsSslContextParameters=#sslContext")
@@ -191,6 +193,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 		if (isEnabledIdscp2 && receiver && isEnabledDataAppWebSocket) {
 			// End point B. ECC communication (dataApp-ECC communication with Web Socket
 			// and communication between ECCs with IDSCP2)
+			logger.info("IDSCP configuration wss dataApp");
 
 			from("idscp2server://0.0.0.0:29292?sslContextParameters=#sslContext")
 					.routeId("Receiver - dataApp-ECC over WSS and ECC-ECC over IDSCP2")

@@ -13,7 +13,31 @@ The Self Description logic can be accessed directly or by using the SwaggerUI
 ```
 https://{IPADDRESS}:{SERVER_PORT}/swagger-ui/index.html
 ```
+## Endpoint Security - lock user
 
+All endpoints after /api/** are protected and you will have to provide credentials with each request (Basic authentication) to obtain desired functionality. 
+
+![Basic Auth](basic_auth.jpg?raw=true "Basic Authorization for api endpoints")
+
+Credentials are located in property file, and for now, there is only one user:
+
+```
+spring.security.user.name=admin
+spring.security.user.password=encoded_password
+
+```
+
+There is also mechanism to lock user after configured number of consecutive failed attempts from same IP address. Following functionality can be configured by changing:
+
+```
+#number of consecutive failed attempts
+spring.security.user.maxattempts=5
+# duration for how long user will be locked
+application.user.lock.duration=30
+# time unit used for locking user, possible values are: SECONDS,MINUTES,HOURS,DAYS
+application.user.lock.unit=MINUTES
+
+```
 
 ## Getting the Self Description
 
