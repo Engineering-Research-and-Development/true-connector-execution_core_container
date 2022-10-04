@@ -116,8 +116,8 @@ jobs:
         run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form/.env down -v
         
       - name: Run docker container HTTPS-HTTPS-form-payload-only
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/HTTPS-HTTPS-form-payload-only/.env up -d
-        
+        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form-payload-only/.env up -d
+
       - name: Wait for cointainer starting
         run: sleep 120 
         
@@ -161,7 +161,7 @@ jobs:
         run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header/.envdown -v
         
       - name: Run docker container HTTPS-HTTPS-header-payload-only
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/HTTPS-HTTPS-header-payload-only/.env up -d
+        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header-payload-only/.env up -d
         
       - name: Wait for cointainer starting
         run: sleep 120 
@@ -177,7 +177,7 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container HTTPS-HTTPS-header-payload-only
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/HTTPS-HTTPS-header-payload-only/.envdown -v
+        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header-payload-only/.envdown -v
       
       - name: Run docker container HTTPS-IDSCP2-mixed
         run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env up -d
