@@ -19,7 +19,7 @@
 									"    pm.response.to.not.have.header(\"IDS-MessageType\");\r",
 									"});\r",
 									"pm.test(\"Content-Type is JSON\", function () {\r",
-									"    pm.response.to.be.header(\"Content-Type\", \"application/json;charset=UTF-8\");\r",
+									"    pm.response.to.be.header(\"Content-Type\", \"application/json\");\r",
 									"});\r",
 									"pm.test(\"Body contains John\", function () {\r",
 									"    pm.expect(pm.response.json()[\"firstName\"]).to.equal(\"John\");\r",
