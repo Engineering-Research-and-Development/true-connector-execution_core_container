@@ -125,7 +125,7 @@ jobs:
         run: docker ps -a 
       
       - name: Run Test HTTPS-HTTPS-form-payload-only
-        run: newman run ./ci/docker/test-cases/HTTPS-HTTPS-form-payload-only/HTTPS-HTTPS-form-payload-only.json --timeout-request 120000 --insecure --bail --verbose
+        run: newman run ./ci/docker/test-cases/https-https-form-payload-only/HTTPS-HTTPS-form-payload-only.json --timeout-request 120000 --insecure --bail --verbose
       
       - name: Dump docker HTTPS-HTTPS-form-payload-only
         if: failure()
@@ -170,7 +170,7 @@ jobs:
         run: docker ps -a 
       
       - name: Run Test HTTPS-HTTPS-header-payload-only
-        run: newman run ./ci/docker/test-cases/HTTPS-HTTPS-header-payload-only/HTTPS-HTTPS-header-payload-only.json --timeout-request 120000 --insecure --bail --verbose
+        run: newman run ./ci/docker/test-cases/https-https-header-payload-only/HTTPS-HTTPS-header-payload-only.json --timeout-request 120000 --insecure --bail --verbose
         
       - name: Dump docker HTTPS-HTTPS-header-payload-only
         if: failure()
