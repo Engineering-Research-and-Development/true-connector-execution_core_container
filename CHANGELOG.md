@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [0.1.19-SNAPSHOT] - 2022-10-01
+## [0.1.20-SNAPSHOT] - 2022-10-05
 
 ### Added
  - logic for locking API user after consecutive failed attempts
@@ -10,6 +10,11 @@ All notable changes to this project will be documented in this file.
 ### Changed
  - updated documentation with new functionality
  - added log lines to track of connector setup: REST, WSS, IDSCPv2
+
+## [0.1.19-SNAPSHOT] - 2022-10-04
+
+### Added
+ - added new GHA tests for payload extraction logic
 
 ## [0.1.18-SNAPSHOT] - 2022-09-15
 

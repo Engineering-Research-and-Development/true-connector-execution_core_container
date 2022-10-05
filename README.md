@@ -12,7 +12,7 @@ The ENG Execution Core Container, based on the IDS Base Connector, is the core c
 
 ![Execution Core Container Architecture](doc/connector_schema_v1.1.PNG?raw=true "ENG Execution Core Container Architecture")
 
-## How to Configurate and Run
+## How to Configure and Run
 
 The configuration should be performed customizing the following variables in the **docker-compose** file:
 * **DATA_APP_ENDPOINT=192.168.56.1:8083/incoming-data-app/dataAppIncomingMessageReceiver** DataAPP endpoint for receiveing data (F endpoint in the above picture)
