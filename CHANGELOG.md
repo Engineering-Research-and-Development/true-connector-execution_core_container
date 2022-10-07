@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.20-SNAPSHOT] - 2022-10-07
+
+### Added
+ - logic for locking API user after consecutive failed attempts
+ - new properties to configure user locking functionality
+ 
+### Changed
+ - updated documentation with new functionality
+ - added log lines to track of connector setup: REST, WSS, IDSCPv2
+
 ## [0.1.19-SNAPSHOT] - 2022-10-04
 
 ### Added

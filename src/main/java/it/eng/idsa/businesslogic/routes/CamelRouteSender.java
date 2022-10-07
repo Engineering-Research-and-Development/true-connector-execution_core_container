@@ -128,7 +128,7 @@ public class CamelRouteSender extends RouteBuilder {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void configure() throws Exception {
-		logger.debug("Starting Camel Routes...sender side");
+		logger.info("Starting Camel Routes...sender side");
 
 		camelContext.getShutdownStrategy().setLogInflightExchangesOnTimeout(false);
 		camelContext.getShutdownStrategy().setTimeout(3);
@@ -139,6 +139,7 @@ public class CamelRouteSender extends RouteBuilder {
 			.process(processorException);
 
 		if(!isEnabledDataAppWebSocket) {
+			logger.info("REST self registration configuration");
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/selfRegistration/register")
 				.routeId("selfRegistration/register")
 				.process(createRegistratioMessageSender)
@@ -171,7 +172,8 @@ public class CamelRouteSender extends RouteBuilder {
 		}
 		
 		if(!isEnabledDataAppWebSocket && !isEnabledIdscp2) {
-			
+			logger.info("REST configuration");
+
 			// Camel SSL - Endpoint: A - Body binary
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/incoming-data-app/multipartMessageBodyBinary")
 				.routeId("multipartMessageBodyBinary")
@@ -209,7 +211,9 @@ public class CamelRouteSender extends RouteBuilder {
 				.removeHeaders("Camel*");
             } 
         
-		if(isEnabledIdscp2 && !receiver && !isEnabledDataAppWebSocket) {			
+		if(isEnabledIdscp2 && !receiver && !isEnabledDataAppWebSocket) {		
+			logger.info("IDSCP configuration REST dataApp");
+
 			// End point B. ECC communication (dataApp-ECC communication with http
 			// and communication between ECCs with IDSCP2)
 			
@@ -254,6 +258,8 @@ public class CamelRouteSender extends RouteBuilder {
 			}
 		
 		if(isEnabledIdscp2 && !receiver && isEnabledDataAppWebSocket && !isEnabledWebSocket) {
+			logger.info("IDSCP configuration wss dataApp");
+
         	// End point B. ECC communication (dataApp-ECC communication with WebSocket
     		// and communication between ECCs with IDSCP2)
 	        	               	
@@ -278,6 +284,8 @@ public class CamelRouteSender extends RouteBuilder {
     	    }
 		
 		if(!isEnabledIdscp2 && !receiver && isEnabledDataAppWebSocket) {
+			logger.info("WSS configuration");
+
 			// End point A. Communication between Data App and ECC Sender.
 			//fixedRate=true&period=10s
 			from("timer://timerEndpointA?repeatCount=-1") //EndPoint A
