@@ -1,24 +1,27 @@
 package it.eng.idsa.businesslogic.service.user;
 
+import static java.util.Optional.ofNullable;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
-
-import static java.util.Optional.ofNullable;
-
 @Service
 public class InMemoryUserCrudService implements UserCrudService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(InMemoryUserCrudService.class);
 	
 	/**
 	 * Username defined in application.properties.
@@ -60,6 +63,7 @@ public class InMemoryUserCrudService implements UserCrudService {
 	public Optional<User> findByUsername(String username) {
 		String ip = getClientIP();
 		if (loginAttemptService.isBlocked(ip)) {
+			logger.info("User '{}' is blocked", username);
 			throw new RuntimeException("blocked");
 		}
 		return users.values().stream().filter(u -> Objects.equals(username, u.getUsername())).findFirst();
@@ -69,6 +73,7 @@ public class InMemoryUserCrudService implements UserCrudService {
 	public Optional<User> findByUsernameAndPassword(String username, String password) {
 		String ip = getClientIP();
 		if (loginAttemptService.isBlocked(ip)) {
+			logger.info("User '{}' is blocked!", username);
 			throw new RuntimeException("blocked");
 		}
 		return users.values().stream().filter(u -> Objects.equals(username, u.getUsername()) 

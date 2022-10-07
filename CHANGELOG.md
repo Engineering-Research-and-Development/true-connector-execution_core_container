@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [0.1.20-SNAPSHOT] - 2022-10-05
+## [0.1.20-SNAPSHOT] - 2022-10-07
 
 ### Added
  - logic for locking API user after consecutive failed attempts

@@ -2,6 +2,8 @@ package it.eng.idsa.businesslogic.service.user;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TokenAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
+
+	private static final Logger logger = LoggerFactory.getLogger(TokenAuthenticationProvider.class);
 
 	@Autowired
 	private UserCrudService userService;
@@ -27,6 +31,7 @@ public class TokenAuthenticationProvider extends AbstractUserDetailsAuthenticati
 	 	final Object token = authentication.getCredentials();
 	 	Optional<User> user = userService.findByUsernameAndPassword(username, (String)token);
 	 	if(user.isPresent()) {
+	 		logger.debug("User '{}' found", username);
 	 		return user.get();
 	 	} 
 	    throw new UsernameNotFoundException("Cannot find user with authentication token=" + token);
