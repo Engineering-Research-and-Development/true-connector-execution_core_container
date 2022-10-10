@@ -15,11 +15,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class InMemoryUserCrudService implements UserCrudService {
+public class InMemoryUserCrudService implements UserDetailsService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(InMemoryUserCrudService.class);
 	
@@ -48,18 +51,20 @@ public class InMemoryUserCrudService implements UserCrudService {
 	public void setup() {
 		users.put(username, new User(UUID.randomUUID().toString(), username, password));
 	}
-
+	
 	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		return findByUsername(username).orElse(null);
+	}
+
 	public User save(User user) {
 		return users.put(user.getId(), user);
 	}
 
-	@Override
 	public Optional<User> find(String id) {
 		return ofNullable(users.get(id));
 	}
 
-	@Override
 	public Optional<User> findByUsername(String username) {
 		String ip = getClientIP();
 		if (loginAttemptService.isBlocked(ip)) {
@@ -69,7 +74,6 @@ public class InMemoryUserCrudService implements UserCrudService {
 		return users.values().stream().filter(u -> Objects.equals(username, u.getUsername())).findFirst();
 	}
 
-	@Override
 	public Optional<User> findByUsernameAndPassword(String username, String password) {
 		String ip = getClientIP();
 		if (loginAttemptService.isBlocked(ip)) {

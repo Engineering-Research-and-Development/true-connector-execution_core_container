@@ -94,7 +94,7 @@ public class ContractOfferController {
 			Serializer s = new Serializer();
 			ContractOffer co = s.deserialize(contractOffer, ContractOffer.class);
 			logger.info("Updatig contract offer with id '{}' to resource '{}'", co.getId(), resource);
-			modifiedConnector = service.addContractOfferToResource(co, resource);
+			modifiedConnector = service.updateContractOfferToResource(co, resource);
 		} catch (IOException e) {
 			throw new JsonException("Error while processing request\n" + e.getMessage());
 		}
