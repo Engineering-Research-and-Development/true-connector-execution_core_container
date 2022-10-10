@@ -105,6 +105,13 @@ jobs:
         if: failure()
         uses: jwalton/gh-docker-logs@v1
         
+      - name: Run Test HTTPS-HTTPS-form-SelfDescription
+        run: newman run ./ci/docker/test-cases/https-https-form/HTTPS-HTTPS-form-SelfDescription.json --timeout-request 120000 --insecure --bail --verbose
+      
+      - name: Dump docker HTTPS-HTTPS-form-SelfDescription
+        if: failure()
+        uses: jwalton/gh-docker-logs@v1
+        
       - name: Run Test HTTPS-HTTPS-form-BigPayload
         run: newman run ./ci/docker/test-cases/https-https-form/HTTPS-HTTPS-form-BigPayload.json --timeout-request 120000 --insecure --bail --verbose
       
