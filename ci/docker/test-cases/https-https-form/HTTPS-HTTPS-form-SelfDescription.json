@@ -162,12 +162,12 @@
 					}
 				],
 				"url": {
-					"raw": "https://localhost:8443/api/offeredResource/",
+					"raw": "https://localhost:8090/api/offeredResource/",
 					"protocol": "https",
 					"host": [
 						"localhost"
 					],
-					"port": "8443",
+					"port": "8090",
 					"path": [
 						"api",
 						"offeredResource",
