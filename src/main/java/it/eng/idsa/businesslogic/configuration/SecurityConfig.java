@@ -3,6 +3,7 @@ package it.eng.idsa.businesslogic.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -22,8 +23,13 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
+    public void configure(WebSecurity web) throws Exception {
+		// allow Swagger UI to be displayed without asking credentials in browser
+        web.ignoring().antMatchers("/swagger-ui.html", "/swagger-ui/**");
+    }
+	 
+	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-
 		http
 			.cors()
 			.and()
@@ -31,8 +37,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and()
 			.authorizeRequests()
-			.antMatchers("/").anonymous()
-			.antMatchers("/about/**").anonymous()
+			.antMatchers("/").permitAll()
+			.antMatchers("/about/**").permitAll()
 			.antMatchers("/api/**").authenticated()
 			.anyRequest().authenticated()
 			.and()
