@@ -55,7 +55,6 @@ public class SelfDescriptionManager {
 	 * @param resource
 	 * @return new connector instance
 	 */
-	@SuppressWarnings("unchecked")
 	public Connector addOfferedResource(Connector connector, URI resourceCatalogId, Resource resource) {
 		ResourceCatalog resourceCatalog = checkIfResourceCatalogExists(connector, resourceCatalogId);
 
@@ -73,7 +72,6 @@ public class SelfDescriptionManager {
 		return connector;
 	}
 
-	@SuppressWarnings("unchecked")
 	/**
 	 * Update resource for giver resource catalog
 	 * @param connector
@@ -199,7 +197,6 @@ public class SelfDescriptionManager {
 		return connector;
 	}
 	
-	@SuppressWarnings("unchecked")
 	/**
 	 * Update representation for given resource
 	 * @param connector

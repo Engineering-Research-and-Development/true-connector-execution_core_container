@@ -5,6 +5,9 @@ import org.springframework.context.annotation.Configuration;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 
 /**
  * 
@@ -14,11 +17,16 @@ import io.swagger.v3.oas.models.info.Info;
 
 @Configuration
 public class OpenAPIConfig {
+	final String securitySchemeName = "bearerAuth";
 	
 	@Bean
 	public OpenAPI api() {
 		return new OpenAPI()
-				.info(apiDetails());
+				.info(apiDetails())
+				.components(new Components().addSecuritySchemes("basicAuth", new SecurityScheme()
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("basic")))
+				.addSecurityItem(new SecurityRequirement().addList("basicAuth"));
 	}
 
 	private Info apiDetails() {

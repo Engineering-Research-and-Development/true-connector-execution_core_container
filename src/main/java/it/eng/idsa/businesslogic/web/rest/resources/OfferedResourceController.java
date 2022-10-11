@@ -108,10 +108,10 @@ public class OfferedResourceController {
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> deleteResource(@RequestHeader("resource") URI resource) throws IOException {
+	public ResponseEntity<String> deleteResource(@RequestHeader("resource") URI offeredResource) throws IOException {
 		Connector modifiedConnector = null;
-		logger.info("Deleting offered resource with id '{}'", resource);
-		modifiedConnector = service.deleteOfferedResource(resource);
+		logger.info("Deleting offered resource with id '{}'", offeredResource);
+		modifiedConnector = service.deleteOfferedResource(offeredResource);
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
 	}
 }
