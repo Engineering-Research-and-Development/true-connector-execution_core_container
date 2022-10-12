@@ -1,0 +1,19 @@
+<configuration>
+  <appender name="jsonConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+  </appender>
+  
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%-4relative [%thread] %-5level %logger{35} - %msg %n</pattern>
+    </encoder>
+  </appender>
+  
+  <logger name="JSON" level="INFO">
+    <appender-ref ref="jsonConsoleAppender"/>
+  </logger>
+  
+  <root level="INFO">
+  	<appender-ref ref="STDOUT"/>
+  </root>
+</configuration>
