@@ -1,4 +1,4 @@
-package it.eng.idsa.businesslogic.listener;
+package it.eng.idsa.businesslogic.audit;
 
 public enum TrueConnectorEventType {
 
@@ -21,7 +21,10 @@ public enum TrueConnectorEventType {
 	REPRESENTATION_UPDATED("Representation updated"),
 	REPRESENTATION_DELETED("Representation deleted"),
 	BAD_REQUEST("Bad request"),
-	NOT_FOUND("Entity not found");
+	NOT_FOUND("Entity not found"),
+	/// Camel
+	CAMEL_SENDER("Camel sender route event"), 
+	CAMEL_SENDER_SEND("Sending message");
 	
 	private final String text;
 

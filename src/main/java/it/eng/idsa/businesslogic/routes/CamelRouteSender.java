@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.common.ContractAgreementProcessor;
+import it.eng.idsa.businesslogic.processor.common.CorrelationIDProcessor;
 import it.eng.idsa.businesslogic.processor.common.DeModifyPayloadProcessor;
 import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
 import it.eng.idsa.businesslogic.processor.common.MapIDSCP2toMultipart;
@@ -125,6 +126,9 @@ public class CamelRouteSender extends RouteBuilder {
 	@Autowired
 	private OriginalMessageProcessor originalMessageProcessor;
 
+	@Autowired
+	private CorrelationIDProcessor correlationIDProcessor;
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void configure() throws Exception {
@@ -133,6 +137,9 @@ public class CamelRouteSender extends RouteBuilder {
 		camelContext.getShutdownStrategy().setLogInflightExchangesOnTimeout(false);
 		camelContext.getShutdownStrategy().setTimeout(3);
 //		camelContext.setCaseInsensitiveHeaders(false);
+		
+		interceptFrom().process(correlationIDProcessor);
+		
 		//@formatter:off
 		onException(ExceptionForProcessor.class, RuntimeException.class)
 			.handled(true)

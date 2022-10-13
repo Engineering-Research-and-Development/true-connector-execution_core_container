@@ -11,14 +11,11 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import it.eng.idsa.businesslogic.listener.TrueConnectorEventType;
-import it.eng.idsa.businesslogic.listener.TrueConnectordEvent;
-
 @Component
 public class TrueConnectorAuditableInterceptor extends HandlerInterceptorAdapter {
 	
-	private static final Logger logger = LoggerFactory.getLogger(TrueConnectorAuditableInterceptor.class);
-	public static final String AUDIT_PAYLOAD = "auditPayload";
+//	private static final Logger logger = LoggerFactory.getLogger(TrueConnectorAuditableInterceptor.class);
+//	public static final String AUDIT_PAYLOAD = "auditPayload";
 	
 	private final ApplicationEventPublisher publisher;
 	
@@ -32,7 +29,7 @@ public class TrueConnectorAuditableInterceptor extends HandlerInterceptorAdapter
 		if(handler instanceof HandlerMethod) {
 			Auditable annotation = ((HandlerMethod) handler).getMethodAnnotation(Auditable.class);
 			if (annotation != null) {
-				publisher.publishEvent(new TrueConnectordEvent(request, TrueConnectorEventType.HTTP_REQUEST_RECEIVED));
+				publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.HTTP_REQUEST_RECEIVED));
 			}
 		}
 		return super.preHandle(request, response, handler);
@@ -45,10 +42,8 @@ public class TrueConnectorAuditableInterceptor extends HandlerInterceptorAdapter
 			Auditable annotation = ((HandlerMethod) handler).getMethodAnnotation(Auditable.class);
 			if (annotation != null) {
 //				fire event for someone to log it or process
-				publisher.publishEvent(new TrueConnectordEvent(request, annotation.eventType()));
-			} else {
-                logger.warn("Not sending audit - response code is ${response.status}");
-            }
+				publisher.publishEvent(new TrueConnectorEvent(request, annotation.eventType()));
+			}
 		}
 		super.postHandle(request, response, handler, modelAndView);
 	}

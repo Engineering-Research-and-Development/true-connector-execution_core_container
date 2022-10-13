@@ -16,9 +16,12 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -37,6 +40,8 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
+	@Autowired
+	private ApplicationEventPublisher publisher;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -79,10 +84,11 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 					.withPayloadHeader(payloadHeaders)
 					.withPayloadContent(payload)
 					.build();
-			
+
 			// Return exchange
 			exchange.getMessage().setHeaders(receivedDataHeader);
 			exchange.getMessage().setBody(multipartMessage);
+			publisher.publishEvent(new TrueConnectorEvent("camel", TrueConnectorEventType.CAMEL_SENDER, exchange.getMessage()));
 
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);

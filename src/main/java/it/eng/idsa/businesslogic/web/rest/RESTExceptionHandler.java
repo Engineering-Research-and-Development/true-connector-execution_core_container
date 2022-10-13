@@ -17,8 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import it.eng.idsa.businesslogic.listener.TrueConnectordEvent;
-import it.eng.idsa.businesslogic.listener.TrueConnectorEventType;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.resources.BadRequestException;
 import it.eng.idsa.businesslogic.service.resources.JsonException;
 import it.eng.idsa.businesslogic.service.resources.ResourceNotFoundException;
@@ -50,7 +50,7 @@ public class RESTExceptionHandler {
 		Map<String, String> map = new HashMap<>();
 	    map.put("message", exception.getMessage());
 	    
-		publisher.publishEvent(new TrueConnectordEvent(request, TrueConnectorEventType.NOT_FOUND));
+		publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.NOT_FOUND));
 
 		return new ResponseEntity<>(map, headers, HttpStatus.NOT_FOUND);
 	}
@@ -70,7 +70,7 @@ public class RESTExceptionHandler {
 		Map<String, String> map = new HashMap<>();
 	    map.put("message", exception.getMessage());
 	    
-		publisher.publishEvent(new TrueConnectordEvent(request, TrueConnectorEventType.BAD_REQUEST));
+		publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.BAD_REQUEST));
 
 		return new ResponseEntity<>(map, headers, HttpStatus.BAD_REQUEST);
 	}
@@ -89,7 +89,7 @@ public class RESTExceptionHandler {
 		Map<String, String> map = new HashMap<>();
 	    map.put("message", exception.getMessage());
 	    
-	    publisher.publishEvent(new TrueConnectordEvent(request, TrueConnectorEventType.BAD_REQUEST));
+	    publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.BAD_REQUEST));
 	    
 		return new ResponseEntity<>(map, headers, HttpStatus.BAD_REQUEST);
 	}

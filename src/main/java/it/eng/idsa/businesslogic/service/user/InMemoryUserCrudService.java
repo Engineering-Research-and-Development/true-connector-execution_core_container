@@ -22,7 +22,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import it.eng.idsa.businesslogic.listener.UserBlockedApplicationEvent;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 
 @Service
 public class InMemoryUserCrudService implements UserDetailsService {
@@ -63,7 +64,7 @@ public class InMemoryUserCrudService implements UserDetailsService {
 		String ip = getClientIP();
 		if (loginAttemptService.isBlocked(ip)) {
 			logger.info("User '{}' is blocked!", username);
-			publisher.publishEvent(new UserBlockedApplicationEvent(request, null));
+			publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.USER_BLOCEKD));
 			throw new RuntimeException("blocked");
 		}
 		return findByUsername(username).orElse(null);

@@ -29,7 +29,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.eng.idsa.businesslogic.audit.Auditable;
-import it.eng.idsa.businesslogic.listener.TrueConnectorEventType;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.resources.JsonException;
 import it.eng.idsa.businesslogic.service.resources.RepresentationResourceService;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;

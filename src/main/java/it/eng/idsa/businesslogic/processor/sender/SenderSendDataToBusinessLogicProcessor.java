@@ -17,10 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.processor.sender.websocket.client.MessageWebSocketOverHttpSender;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
@@ -66,6 +69,8 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	
 	@Autowired
 	private HttpHeaderService httpHeaderService;
+	@Autowired
+	private ApplicationEventPublisher publisher;
 
 	private String webSocketHost;
 	private Integer webSocketPort;
@@ -85,7 +90,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		String forwardTo = (String) headerParts.get("Forward-To");
 		logger.info("Sending data to business logic ...");
 			if (isEnabledWebSocket) {
-				// check & exstract HTTPS WebSocket IP and Port
+				// check & extract HTTPS WebSocket IP and Port
 				try {
 					this.extractWebSocketIPAndPort(forwardTo, REGEX_WSS);
 				} catch (Exception e) {
@@ -102,6 +107,8 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 				Response httpResponse = null;
 				try {
 					// Send MultipartMessage HTTPS
+					publisher.publishEvent(new TrueConnectorEvent("camel", TrueConnectorEventType.CAMEL_SENDER_SEND, exchange.getMessage()));
+
 					httpResponse = this.sendMultipartMessage(headerParts, forwardTo, message, multipartMessage);
 					// Check response
 					sendDataToBusinessLogicService.checkResponse((Message) exchange.getProperty("Original-Message-Header"), httpResponse, forwardTo);
