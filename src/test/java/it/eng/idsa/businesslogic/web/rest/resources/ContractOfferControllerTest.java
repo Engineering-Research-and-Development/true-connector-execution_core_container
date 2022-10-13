@@ -3,10 +3,10 @@ package it.eng.idsa.businesslogic.web.rest.resources;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.any;
 
 import java.io.IOException;
 import java.net.URI;
@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 
 import de.fraunhofer.iais.eis.ContractOffer;
@@ -34,8 +33,6 @@ public class ContractOfferControllerTest {
 	
 	@Mock
 	private ContractOfferService service;
-	@Mock
-	private ApplicationEventPublisher publisher;
 	@Mock
 	private HttpServletRequest request;
 	

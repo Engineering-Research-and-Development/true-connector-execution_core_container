@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,7 +30,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import it.eng.idsa.businesslogic.listener.TrueConnectordEvent;
+import it.eng.idsa.businesslogic.audit.Auditable;
 import it.eng.idsa.businesslogic.listener.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.resources.ContractOfferService;
 import it.eng.idsa.businesslogic.service.resources.JsonException;
@@ -45,11 +44,9 @@ public class ContractOfferController {
 	private static final Logger logger = LoggerFactory.getLogger(ContractOfferController.class);
 	
 	private ContractOfferService service;
-	private ApplicationEventPublisher publisher;
 	
-	public ContractOfferController(ContractOfferService service, ApplicationEventPublisher publisher) {
+	public ContractOfferController(ContractOfferService service) {
 		this.service = service;
-		this.publisher = publisher;
 	}
 	
 	@Operation(tags = "Contract offer controller", summary = "Get requested contract offer")
@@ -58,6 +55,7 @@ public class ContractOfferController {
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ContractOfferImpl.class)) }) })
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
+	@Auditable(eventType = TrueConnectorEventType.CONTRACT_OFFER)
 	public ResponseEntity<String> getContractOffer(@RequestHeader("contractOffer") URI contractOffer) 
 			throws IOException {
 		logger.debug("Fetching contractOffer with id '{}'", contractOffer);
@@ -69,6 +67,7 @@ public class ContractOfferController {
 			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+	@Auditable(eventType = TrueConnectorEventType.CONTRACT_OFFER_CREATED)
 	@ResponseBody
 	public ResponseEntity<String> addOrUpdateContractOffer(@RequestHeader("resource") URI resource,
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ContractOfferImpl.class)) })
@@ -81,10 +80,8 @@ public class ContractOfferController {
 			logger.info("Adding contract offer with id '{}' to resource '{}'", co.getId(), resource);
 			modifiedConnector = service.addContractOfferToResource(co, resource);
 		} catch (IOException e) {
-			publisher.publishEvent(new TrueConnectordEvent(request, TrueConnectorEventType.BAD_REQUEST));
 			throw new JsonException("Error while processing request\n" + e.getMessage());
 		}
-		publisher.publishEvent(new TrueConnectordEvent(request, TrueConnectorEventType.CONTRACT_OFFER_CREATED));
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
 	}
 	
@@ -93,6 +90,7 @@ public class ContractOfferController {
 			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+	@Auditable(eventType = TrueConnectorEventType.CONTRACT_OFFER_UPDATED)
 	@ResponseBody
 	public ResponseEntity<String> updateContractOffer(@RequestHeader("resource") URI resource,
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ContractOfferImpl.class)) })
@@ -105,19 +103,17 @@ public class ContractOfferController {
 			logger.info("Updatig contract offer with id '{}' to resource '{}'", co.getId(), resource);
 			modifiedConnector = service.updateContractOfferToResource(co, resource);
 		} catch (IOException e) {
-			publisher.publishEvent(new TrueConnectordEvent(request, TrueConnectorEventType.BAD_REQUEST));
 			throw new JsonException("Error while processing request\n" + e.getMessage());
 		}
-		publisher.publishEvent(new TrueConnectordEvent(request, TrueConnectorEventType.CONTRACT_OFFER_UPDATED));
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
 	}
-	
 
 	@Operation(tags = "Contract offer controller", summary = "Delete existing contract offer")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	@Auditable(eventType = TrueConnectorEventType.CONTRACT_OFFER_DELETED)
 	@ResponseBody
 	public ResponseEntity<String> deleteContractOffer(@RequestHeader("contractOffer") URI contractOffer,
 			HttpServletRequest request)
@@ -125,8 +121,6 @@ public class ContractOfferController {
 		Connector modifiedConnector = null;
 		logger.info("Deleting offered resource with id '{}'", contractOffer);
 		modifiedConnector = service.deleteContractOfferService(contractOffer);
-		publisher.publishEvent(new TrueConnectordEvent(request, TrueConnectorEventType.CONTRACT_OFFER_DELETED));
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
 	}
-
 }

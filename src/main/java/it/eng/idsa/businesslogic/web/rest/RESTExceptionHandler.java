@@ -76,7 +76,7 @@ public class RESTExceptionHandler {
 	}
 	
 	@ExceptionHandler(value = { JsonException.class })
-	public ResponseEntity<?> handleJsonException(final JsonException exception) {
+	public ResponseEntity<?> handleJsonException(final JsonException exception, HttpServletRequest request) {
 		if (logger.isErrorEnabled()) {
 			logger.error("Json exception has been caught. [exception=({})]",
 					exception == null ? "Passed null as exception" : exception.getMessage(), exception);
@@ -88,7 +88,9 @@ public class RESTExceptionHandler {
 
 		Map<String, String> map = new HashMap<>();
 	    map.put("message", exception.getMessage());
-
+	    
+	    publisher.publishEvent(new TrueConnectordEvent(request, TrueConnectorEventType.BAD_REQUEST));
+	    
 		return new ResponseEntity<>(map, headers, HttpStatus.BAD_REQUEST);
 	}
 }

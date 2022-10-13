@@ -17,6 +17,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.eng.idsa.businesslogic.listener.TrueConnectorEventType;
+import it.eng.idsa.businesslogic.audit.Auditable;
 import it.eng.idsa.businesslogic.service.resources.JsonException;
 import it.eng.idsa.businesslogic.service.resources.SelfDescription;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -33,6 +35,7 @@ public class SelfDescriptionController {
 			@ApiResponse(responseCode = "200", description = "Self description document without validation", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	@Auditable(eventType = TrueConnectorEventType.SELF_DESCRIPTION)
 	public ResponseEntity<String> getSelfDescription()  {
 		logger.debug("Fetching self description");
 		try {
