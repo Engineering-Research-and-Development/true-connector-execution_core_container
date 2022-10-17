@@ -75,7 +75,7 @@ public class ContractOfferControllerTest {
 		Serializer s = new Serializer();
 		controller.updateContractOffer(resourceURI, s.serialize(co));
 		
-		verify(service).addContractOfferToResource(co, resourceURI);
+		verify(service).updateContractOfferToResource(co, resourceURI);
 	}
 	
 	@Test

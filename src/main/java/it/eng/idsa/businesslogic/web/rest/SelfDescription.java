@@ -1,7 +1,6 @@
 package it.eng.idsa.businesslogic.web.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -13,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
 
@@ -23,7 +23,8 @@ import it.eng.idsa.businesslogic.service.SelfDescriptionService;
 
 @Tag(name = "Self description controller - only valid documents", description = "Returns only offered resources that have: at least one representation with at least one artifact and at least one contract offer")
 @RestController
-@EnableAutoConfiguration
+// exclude this endpoint from Swagger basic auth
+@SecurityRequirements
 public class SelfDescription {
     @Autowired
     private SelfDescriptionService selfDescriptionService;

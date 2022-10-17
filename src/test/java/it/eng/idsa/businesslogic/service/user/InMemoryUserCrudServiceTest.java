@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class InMemoryUserCrudServiceTest {
@@ -37,6 +38,19 @@ public class InMemoryUserCrudServiceTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		user = new User(UUID.randomUUID().toString(), "testUsername", "testPassword");
+	}
+	
+	@Test
+	public void loadUserByUsername() {
+		userService.save(user);
+		UserDetails userDetails = userService.loadUserByUsername(user.getUsername());
+		assertNotNull(userDetails);
+	}
+	
+	@Test
+	public void loadUserByUsername_NotFound() {
+		UserDetails userDetails = userService.loadUserByUsername(user.getUsername());
+		assertNull(userDetails);
 	}
 	
 	@Test
