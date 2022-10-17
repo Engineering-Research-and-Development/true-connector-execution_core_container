@@ -8,10 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
@@ -37,6 +40,9 @@ public class GetTokenFromDapsProcessor implements Processor {
 
 	@Autowired(required = false)
 	private DapsTokenProviderService dapsTokenProviderService;
+	
+	@Autowired
+	private ApplicationEventPublisher publisher;
 
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
@@ -80,6 +86,9 @@ public class GetTokenFromDapsProcessor implements Processor {
 				.withPayloadContent(multipartMessage.getPayloadContent())
 				.withToken(token)
 				.build();
+		
+		publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_FETCH_TOKEN, exchange.getMessage()));
+
 		// Return exchange
 		exchange.getMessage().setBody(multipartMessage);
 		exchange.getMessage().setHeaders(headersParts);

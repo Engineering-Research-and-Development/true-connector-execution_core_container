@@ -29,8 +29,8 @@ public class TrueConnectorEvent extends AuditApplicationEvent {
 		super(principal, type.name(), detailsMultipartMessage(multipartMessage));
 	}
 	
-	public TrueConnectorEvent(String principal, TrueConnectorEventType type, Message camelMessage) {
-		super(principal, type.name(), detailsCamelMessage(camelMessage));
+	public TrueConnectorEvent(TrueConnectorEventType type, Message camelMessage) {
+		super("connector", type.name(), detailsCamelMessage(camelMessage));
 	}
 	
 	public TrueConnectorEvent(String principal, TrueConnectorEventType type, Map<String, Object> data) {

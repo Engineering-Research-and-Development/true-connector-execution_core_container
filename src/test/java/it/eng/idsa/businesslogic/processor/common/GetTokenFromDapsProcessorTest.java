@@ -17,6 +17,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.HttpServerErrorException.InternalServerError;
 
@@ -42,12 +43,15 @@ public class GetTokenFromDapsProcessorTest {
 	private DapsTokenProviderService dapsTokenProviderService;
 	@Mock
 	private MultipartMessageService multipartMessageService;
+	@Mock
+	private ApplicationEventPublisher publisher;
 
 	@Mock
 	private org.apache.camel.Message camelMessage;
 	
 	@Mock
 	private MultipartMessage multipartMessage;
+	
 	
 	@Captor 
 	ArgumentCaptor<MultipartMessage> argCaptorMultipartMessage;

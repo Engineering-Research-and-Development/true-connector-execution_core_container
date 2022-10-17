@@ -107,7 +107,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 				Response httpResponse = null;
 				try {
 					// Send MultipartMessage HTTPS
-					publisher.publishEvent(new TrueConnectorEvent("camel", TrueConnectorEventType.CAMEL_SENDER_SEND, exchange.getMessage()));
+					publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_SEND, exchange.getMessage()));
 
 					httpResponse = this.sendMultipartMessage(headerParts, forwardTo, message, multipartMessage);
 					// Check response

@@ -88,7 +88,7 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 			// Return exchange
 			exchange.getMessage().setHeaders(receivedDataHeader);
 			exchange.getMessage().setBody(multipartMessage);
-			publisher.publishEvent(new TrueConnectorEvent("camel", TrueConnectorEventType.CAMEL_SENDER, exchange.getMessage()));
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_REQUEST, exchange.getMessage()));
 
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);

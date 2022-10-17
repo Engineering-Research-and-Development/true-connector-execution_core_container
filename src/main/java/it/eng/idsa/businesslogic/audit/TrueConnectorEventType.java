@@ -22,9 +22,19 @@ public enum TrueConnectorEventType {
 	REPRESENTATION_DELETED("Representation deleted"),
 	BAD_REQUEST("Bad request"),
 	NOT_FOUND("Entity not found"),
+	SERVER_ERROR("Server error"),
 	/// Camel
-	CAMEL_SENDER("Camel sender route event"), 
-	CAMEL_SENDER_SEND("Sending message");
+	CONNECTOR("Connector event"), 
+	CONNECTOR_REQUEST("Connector received message"), 
+	CONNECTOR_SEND("Connector message forwarding"),
+	CONNECTOR_FETCH_TOKEN("Connector obtained DAT token"),
+	CONNECTOR_VALIDATED_TOKEN_SUCCESS("Connector validated DAT token successfuly"),
+	CONNECTOR_VALIDATED_TOKEN_FAIL("Connector failed to validate DAT token"),
+	CONNECTOR_CLEARING_HOUSE("Connector clearing house"),
+	CONNECTOR_BROKER_REGISTER("Connector register connector to Broker"),
+	CONNECTOR_BROKER_UPDATE("Connector update Broker registration"),
+	CONNECTOR_BROKER_UNREGISTER("Connector clearing house")
+	;
 	
 	private final String text;
 

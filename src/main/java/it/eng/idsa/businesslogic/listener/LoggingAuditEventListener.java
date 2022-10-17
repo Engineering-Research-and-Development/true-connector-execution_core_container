@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import static net.logstash.logback.argument.StructuredArguments.keyValue;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.audit.listener.AuditApplicationEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -19,6 +21,9 @@ import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
 @Component
 public class LoggingAuditEventListener {
 	private static final Logger LOGGER = LoggerFactory.getLogger("JSON");
+	
+	@Value("${application.isReceiver}")
+	boolean isConnectorReceiver;
 
 //	@EventListener
 //	@Async
@@ -26,6 +31,7 @@ public class LoggingAuditEventListener {
 		Map<String, String> backup = MDC.getCopyOfContextMap();
 		MDC.put("event.type", event.getAuditEvent().getType());
 		MDC.put("event.principal", event.getAuditEvent().getPrincipal());
+		MDC.put("connectorRole", isConnectorReceiver());
 
 		LOGGER.info("An Audit Event was received", keyValue("event", event.getAuditEvent()));
 
@@ -34,6 +40,10 @@ public class LoggingAuditEventListener {
 		}
 	}
 	
+	private String isConnectorReceiver() {
+		return isConnectorReceiver ? "Receiver" : "Sender";
+	}
+
 	@EventListener
 	@Async
 	public void on(TrueConnectorEvent event) {
@@ -41,6 +51,7 @@ public class LoggingAuditEventListener {
 		MDC.put("event.type", event.getAuditEvent().getType());
 		MDC.put("event.principal", event.getAuditEvent().getPrincipal());
 		MDC.put("correlationId", event.getCorrelationId());
+		MDC.put("connectorRole", isConnectorReceiver());
 
 		LOGGER.info("TrueConnector Audit Event was received", keyValue("event", event.getAuditEvent()));
 
@@ -59,6 +70,7 @@ public class LoggingAuditEventListener {
 			MDC.put("event.principal", event.getAuthentication().getName());
 			FilterInvocation filterInvocation = (FilterInvocation) event.getSource();
 			MDC.put("source.requestUrl", filterInvocation.getRequestUrl());
+			MDC.put("connectorRole", isConnectorReceiver());
 		}
 		// and other checks for other subclasses
 		LOGGER.info("An AuthorizationFailureEvent was received: {}", keyValue("event", abstractEvent.getSource()));
