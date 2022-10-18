@@ -87,7 +87,7 @@ public class GetTokenFromDapsProcessor implements Processor {
 				.withToken(token)
 				.build();
 		
-		publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_FETCH_TOKEN, exchange.getMessage()));
+		publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_FETCH_TOKEN, multipartMessage));
 
 		// Return exchange
 		exchange.getMessage().setBody(multipartMessage);

@@ -69,6 +69,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	
 	@Autowired
 	private HttpHeaderService httpHeaderService;
+
 	@Autowired
 	private ApplicationEventPublisher publisher;
 
@@ -107,7 +108,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 				Response httpResponse = null;
 				try {
 					// Send MultipartMessage HTTPS
-					publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_SEND, exchange.getMessage()));
+					publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_SEND, multipartMessage));
 
 					httpResponse = this.sendMultipartMessage(headerParts, forwardTo, message, multipartMessage);
 					// Check response
@@ -119,6 +120,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 						httpResponse.close();
 					}
 				}
+				publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_RESPONSE, multipartMessage));
 			}
 	}
 

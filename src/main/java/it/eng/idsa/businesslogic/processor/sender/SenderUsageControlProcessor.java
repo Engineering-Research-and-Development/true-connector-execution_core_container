@@ -6,11 +6,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
 import it.eng.idsa.businesslogic.util.HeaderCleaner;
@@ -32,6 +35,9 @@ public class SenderUsageControlProcessor implements Processor {
 
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
+
+	@Autowired
+	private ApplicationEventPublisher publisher;
 
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
@@ -81,9 +87,11 @@ public class SenderUsageControlProcessor implements Processor {
 			exchange.getMessage().setBody(multipartMessageResponse);
 			exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
 			logger.info("Usage control policy enforcementd - completed");
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_POLICY_ENFORCEMENT_SUCCESS, multipartMessage));
 
 		} catch (Exception e) {
 			logger.error("Usage Control Enforcement has failed with MESSAGE: {}", e.getMessage());
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_POLICY_ENFORCEMENT_FAILED, multipartMessage));
 			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.NOT_AUTHORIZED);
 		}
 	}

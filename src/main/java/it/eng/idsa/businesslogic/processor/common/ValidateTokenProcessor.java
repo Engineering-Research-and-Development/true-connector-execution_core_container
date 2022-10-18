@@ -63,11 +63,11 @@ public class ValidateTokenProcessor implements Processor {
 		
 		if(isTokenValid==false) {			
 			logger.error("Token is invalid");
-			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_VALIDATED_TOKEN_FAIL, exchange.getMessage()));
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_VALIDATED_TOKEN_FAIL, multipartMessage));
 			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.NOT_AUTHENTICATED);
 		}
 		
-		publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_VALIDATED_TOKEN_SUCCESS, exchange.getMessage()));
+		publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_VALIDATED_TOKEN_SUCCESS, multipartMessage));
 
 		logger.info("is token valid: "+isTokenValid);
 	}

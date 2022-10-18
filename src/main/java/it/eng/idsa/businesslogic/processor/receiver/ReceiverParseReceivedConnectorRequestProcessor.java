@@ -17,10 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
@@ -60,6 +63,9 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
+	
+	@Autowired
+	private ApplicationEventPublisher publisher;
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -154,7 +160,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 					if(headersParts.get(MessagePart.PAYLOAD) instanceof String) {
 						payload = (String) headersParts.get(MessagePart.PAYLOAD);
 					}
-				}else if (exchange.getMessage(AttachmentMessage.class) != null && 
+				} else if (exchange.getMessage(AttachmentMessage.class) != null && 
 						exchange.getMessage(AttachmentMessage.class).getAttachmentObject(MessagePart.PAYLOAD) != null) {
 					Attachment att1 = exchange.getMessage(AttachmentMessage.class).getAttachmentObject(MessagePart.PAYLOAD);
 					DataHandler dh1 = att1.getDataHandler();
@@ -175,12 +181,15 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 				headersParts.put("Payload-Content-Type", headersParts.get("payload.org.eclipse.jetty.servlet.contentType"));
 			} catch (Exception e) {
 				logger.error("Error parsing multipart message:", e);
+				publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.BAD_REQUEST, multipartMessage));
 				rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 			}
 		}
 		
 		exchange.getMessage().setHeaders(headersParts);
 		exchange.getMessage().setBody(multipartMessage);
+		
+		publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_REQUEST, multipartMessage));
 	}
 	
 	private Map<String, String> getPayloadHeadersFromAttachment(Attachment att1) {

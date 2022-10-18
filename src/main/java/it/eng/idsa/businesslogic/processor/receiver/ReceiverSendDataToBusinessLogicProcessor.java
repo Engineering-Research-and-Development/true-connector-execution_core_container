@@ -12,8 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
+import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationB;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.ResponseMessageBufferBean;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
@@ -51,6 +54,9 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 	
 	@Autowired
 	private MultipartMessageService multipartMessageService;
+	
+	@Autowired
+	private ApplicationEventPublisher publisher;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -59,6 +65,8 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		String responseString = null;
 
+		publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_SEND, multipartMessage));
+		
 		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) {
 			responseString = multipartMessage.getPayloadContent();
 			headersParts.putAll(multipartMessage.getHttpHeaders());

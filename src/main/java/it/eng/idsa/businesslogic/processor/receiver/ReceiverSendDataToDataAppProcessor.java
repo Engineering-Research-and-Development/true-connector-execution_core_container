@@ -7,14 +7,18 @@ import java.util.Map;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
@@ -60,6 +64,9 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 
 	@Autowired
 	private SendDataToBusinessLogicServiceImpl sendDataToBusinessLogicService;
+	
+	@Autowired
+	private ApplicationEventPublisher publisher;
 
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
@@ -69,6 +76,8 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 
 		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
+		
+		publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_SEND_DATAAPP, multipartMessage));
 		
 		// Get header, payload and message
 		Message message = multipartMessage.getHeaderContent();
@@ -103,6 +112,7 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 			// Handle response
 			handleResponse(exchange, message, response, configuration.getOpenDataAppReceiver());
 			
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_RESPONSE, multipartMessage));
 		} finally {
 			if (response != null) {
 				response.close();
@@ -117,6 +127,10 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		logger.info("response received from the DataAPP=" + responseString);
 
 		Map<String, Object> headers = httpHeaderService.okHttpHeadersToMap(response.headers());
+		String correlationId = (String) exchange.getMessage().getHeader("correlationId");
+		if(StringUtils.isNotBlank(correlationId)) {
+			headers.put("correlationId", correlationId);
+		}
 		exchange.getMessage().setHeaders(headers);
 		
 		if (RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {

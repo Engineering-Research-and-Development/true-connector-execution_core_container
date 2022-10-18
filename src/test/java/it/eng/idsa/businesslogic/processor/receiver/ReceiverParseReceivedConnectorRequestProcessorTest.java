@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.RejectionReason;
@@ -39,6 +40,8 @@ public class ReceiverParseReceivedConnectorRequestProcessorTest {
 	private HttpHeaderService headerService;
 	@Mock
 	private RejectionMessageService rejectionMessageService;
+	@Mock
+	private ApplicationEventPublisher publisher;
 	
 	@Mock
 	private Exchange exchange;
@@ -48,11 +51,15 @@ public class ReceiverParseReceivedConnectorRequestProcessorTest {
 	private Map<String, Object> headersAsMap;
 	@Mock
 	private de.fraunhofer.iais.eis.Message idsMessage;
+	@Mock
+	private MultipartMessage multipartMessage;
 	
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		when(exchange.getMessage()).thenReturn(message);
+		when(message.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
+		when(multipartMessage.getHeaderContent()).thenReturn(UtilMessageService.getArtifactRequestMessage());
 	}
 	
 	@Test

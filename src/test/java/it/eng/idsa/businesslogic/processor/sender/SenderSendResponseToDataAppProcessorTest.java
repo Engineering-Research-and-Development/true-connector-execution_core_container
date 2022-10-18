@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
@@ -39,6 +40,8 @@ public class SenderSendResponseToDataAppProcessorTest {
 	private HttpHeaderService httpHeaderService;
 	@Mock
 	private HeaderCleaner headerCleaner;
+	@Mock
+	private ApplicationEventPublisher publisher;
 	
 	@Mock
 	private Exchange exchange;
@@ -59,6 +62,7 @@ public class SenderSendResponseToDataAppProcessorTest {
 		multipartMessage = new MultipartMessageBuilder()
 				.withHeaderContent(UtilMessageService.getArtifactRequestMessage())
 				.withPayloadContent(PAYLOAD).build();
+		when(exchange.getMessage(MultipartMessage.class)).thenReturn(multipartMessage);
 	}
 	
 	@Test

@@ -7,10 +7,13 @@ import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
@@ -32,6 +35,9 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 	
 	@Autowired
 	MultipartMessageService multipartMessageService;
+	
+	@Autowired
+	private ApplicationEventPublisher publisher;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -44,7 +50,7 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 		// Get from the input "exchange"
 		headersParts = exchange.getMessage().getHeaders();
 		payload = exchange.getMessage().getBody(String.class);
-		
+		MultipartMessage multipartMessage = null;
 		try {
 			headerContentHeaders = headerService.getIDSHeaders(headersParts);
 			message = headerService.headersToMessage(headersParts);
@@ -52,20 +58,22 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 				logger.error("Message could not be created - check if all required headers are present.");
 				throw new MultipartMessageException("Message could not be created - check if all required headers are present");
 			}
-			MultipartMessage multipartMessage = new MultipartMessageBuilder()
+			multipartMessage = new MultipartMessageBuilder()
 					.withHttpHeader(headerService.convertMapToStringString(headerContentHeaders))
 //					.withHeaderContent(header)
 					.withHeaderContent(message)
 					.withPayloadContent(payload)
 					.build();
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
-			
+
 			// Return exchange
 			exchange.getMessage().setHeaders(headersParts);
 			exchange.getMessage().setBody(multipartMessage);
 
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_REQUEST, multipartMessage));
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.BAD_REQUEST, multipartMessage));
 			rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 		}
 	}

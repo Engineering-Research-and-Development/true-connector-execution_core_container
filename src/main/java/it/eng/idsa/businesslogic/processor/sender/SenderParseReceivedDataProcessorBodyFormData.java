@@ -53,7 +53,7 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 		// Get from the input "exchange"
 		Map<String, Object> receivedDataHeader = exchange.getMessage().getHeaders();
 		logger.info("Received multipart/form request");
-
+		MultipartMessage multipartMessage = null;
 		try {
 			// Create multipart message parts
 			if (receivedDataHeader.containsKey(MessagePart.HEADER)) {
@@ -69,7 +69,7 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 				if(receivedDataHeader.get(MessagePart.PAYLOAD) instanceof String) {
 					payload = (String) receivedDataHeader.get(MessagePart.PAYLOAD);
 				}
-			}else if (exchange.getMessage(AttachmentMessage.class) != null 
+			} else if (exchange.getMessage(AttachmentMessage.class) != null 
 					&& exchange.getMessage(AttachmentMessage.class).getAttachmentObject(MessagePart.PAYLOAD) != null) {
 				Attachment att1 = exchange.getMessage(AttachmentMessage.class).getAttachmentObject(MessagePart.PAYLOAD);
 				DataHandler dh1 = att1.getDataHandler();
@@ -79,7 +79,7 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 				
 			logger.debug("Payload part {}", payload);
 
-			MultipartMessage multipartMessage = new MultipartMessageBuilder()
+			multipartMessage = new MultipartMessageBuilder()
 					.withHeaderContent(header)
 					.withPayloadHeader(payloadHeaders)
 					.withPayloadContent(payload)
@@ -88,10 +88,11 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 			// Return exchange
 			exchange.getMessage().setHeaders(receivedDataHeader);
 			exchange.getMessage().setBody(multipartMessage);
-			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_REQUEST, exchange.getMessage()));
 
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_REQUEST, multipartMessage));
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:", e);
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.BAD_REQUEST, multipartMessage));
 			rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 		}
 	}

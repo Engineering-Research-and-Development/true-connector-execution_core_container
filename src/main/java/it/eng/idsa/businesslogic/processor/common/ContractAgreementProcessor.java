@@ -5,6 +5,7 @@ import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,8 @@ import de.fraunhofer.iais.eis.ContractAgreementMessage;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.MessageProcessedNotificationMessage;
 import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -32,13 +35,16 @@ public class ContractAgreementProcessor implements Processor {
 	private UsageControlService usageControlService;
 	private RejectionMessageService rejectionMessageService;
 	private Boolean isEnabledUsageControl;
+	private ApplicationEventPublisher publisher;
 
 	public ContractAgreementProcessor(@Nullable UsageControlService usageControlService,
 			@Value("#{new Boolean('${application.isEnabledUsageControl}')}") Boolean isEnabledUsageControl,
-			RejectionMessageService rejectionMessageService) {
+			RejectionMessageService rejectionMessageService,
+			ApplicationEventPublisher publisher) {
 		this.usageControlService = usageControlService;
 		this.isEnabledUsageControl = isEnabledUsageControl;
 		this.rejectionMessageService = rejectionMessageService;
+		this.publisher = publisher;
 	}
 
 	@Override
@@ -59,8 +65,10 @@ public class ContractAgreementProcessor implements Processor {
 		String response = null;
 		try {
 			response = usageControlService.uploadPolicy(contractAgreement);
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_CONTRACT_AGREEMENT_SUCCESS, multipartMessage));
 		} catch (Exception e) {
 			logger.warn("Policy not uploaded - {}", e.getMessage());
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_CONTRACT_AGREEMENT_SUCCESS, multipartMessage));
 			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.NOT_AUTHORIZED);
 		}
 		logger.info("UsageControl DataApp response {}", response);

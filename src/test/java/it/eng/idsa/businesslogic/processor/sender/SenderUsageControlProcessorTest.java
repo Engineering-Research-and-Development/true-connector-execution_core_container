@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.Message;
@@ -40,6 +41,8 @@ public class SenderUsageControlProcessorTest {
 	private HeaderCleaner headerCleaner;
 	@Mock
 	private RejectionMessageService rejectionMessageService;
+	@Mock
+	private ApplicationEventPublisher publisher;
 	@Mock
 	private Exchange exchange;
 	@Mock

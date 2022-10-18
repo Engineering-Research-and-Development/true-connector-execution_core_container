@@ -26,11 +26,17 @@ public enum TrueConnectorEventType {
 	/// Camel
 	CONNECTOR("Connector event"), 
 	CONNECTOR_REQUEST("Connector received message"), 
+	CONNECTOR_RESPONSE("Connector received response"), 
 	CONNECTOR_SEND("Connector message forwarding"),
+	CONNECTOR_SEND_DATAAPP("Connector message forwarding - dataApp"),
 	CONNECTOR_FETCH_TOKEN("Connector obtained DAT token"),
 	CONNECTOR_VALIDATED_TOKEN_SUCCESS("Connector validated DAT token successfuly"),
 	CONNECTOR_VALIDATED_TOKEN_FAIL("Connector failed to validate DAT token"),
-	CONNECTOR_CLEARING_HOUSE("Connector clearing house"),
+	CONNECTOR_CLEARING_HOUSE("Connector registers transaction to clearing house"),
+	CONNECTOR_CONTRACT_AGREEMENT_SUCCESS("Connector contract agreement uplaod success"),
+	CONNECTOR_CONTRACT_AGREEMENT_FAILED("Connector contract agreement uplaod failed"),
+	CONNECTOR_POLICY_ENFORCEMENT_SUCCESS("Connector successfuly enforces policy"),
+	CONNECTOR_POLICY_ENFORCEMENT_FAILED("Connector failed to enforce policy"),
 	CONNECTOR_BROKER_REGISTER("Connector register connector to Broker"),
 	CONNECTOR_BROKER_UPDATE("Connector update Broker registration"),
 	CONNECTOR_BROKER_UNREGISTER("Connector clearing house")

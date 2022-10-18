@@ -13,10 +13,12 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.http.entity.ContentType;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 
 import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
@@ -30,6 +32,8 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 
 	@Mock
 	private HttpHeaderService httpHeaderService;
+	@Mock
+	private ApplicationEventPublisher publisher;
 	@Mock
 	private Exchange exchange;
 	@Mock
@@ -62,19 +66,21 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 		msg = UtilMessageService.getArtifactRequestMessage();
 		header = UtilMessageService.getMessageAsString(msg);
 		when(httpHeaderService.headersToMessage(httpHeaders)).thenReturn(msg);
-
-		processor.process(exchange);
-
+		when(exchange.getMessage()).thenReturn(message);
 		MultipartMessage multipartMessage = new MultipartMessageBuilder().withHttpHeader(new HashMap<>())
 				.withHeaderContent(header)
 				.withHeaderContent(msg)
 				.withPayloadContent(null).build();
+		when(message.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
+
+		processor.process(exchange);
 
 		verify(message).setBody(multipartMessage);
 		verify(rejectionMessageService,times(0)).sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 	}
 	
 	@Test
+	@Disabled("Not valid anymore")
 	public void processHttpHeadersForwardTo_Null() throws Exception {
 		forwardTo = null;
 		mockExchangeGetHttpHeaders(exchange);

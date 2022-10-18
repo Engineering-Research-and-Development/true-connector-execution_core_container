@@ -15,9 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 
 import de.fraunhofer.iais.eis.RejectionReason;
-import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -36,7 +36,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 	@Mock
 	private RejectionMessageService rejectionMessageService;
 	@Mock
-	private DapsTokenProviderService dapsProvider;
+	private ApplicationEventPublisher publisher;
 
 	private MultipartMessage multipartMessage;
 	private String receivedDataBodyBinary;
@@ -63,6 +63,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 		msg = UtilMessageService.getArtifactRequestMessage();
 		when(exchange.getMessage()).thenReturn(messageOut);
 		when(messageOut.getBody(String.class)).thenReturn(receivedDataBodyBinary);
+		when(messageOut.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
 		mockExchangeGetHttpHeaders();
 
 		processor.process(exchange);
@@ -83,6 +84,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 		when(exchange.getMessage()).thenReturn(messageOut);
 		when(messageOut.getBody(String.class)).thenReturn(receivedDataBodyBinary);
 		mockExchangeGetHttpHeaders();
+		when(messageOut.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
 
 		processor.process(exchange);
 
@@ -105,6 +107,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 		when(exchange.getMessage()).thenReturn(messageOut);
 		when(messageOut.getBody(String.class)).thenReturn(receivedDataBodyBinary);
 		mockExchangeGetHttpHeaders();
+		when(messageOut.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
 
 		processor.process(exchange);
 
@@ -123,6 +126,7 @@ public class SenderParseReceivedDataProcessorBodyBinaryTest {
 		when(exchange.getMessage()).thenReturn(messageOut);
 		when(messageOut.getBody(String.class)).thenReturn(receivedDataBodyBinary);
 		mockExchangeGetHttpHeaders();
+		when(messageOut.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
 
 		processor.process(exchange);
 
