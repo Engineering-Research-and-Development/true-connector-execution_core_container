@@ -3,7 +3,9 @@
  */
 package it.eng.idsa.businesslogic.service.impl;
 
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iais.eis.*;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
@@ -18,6 +20,7 @@ import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.util.DateUtil;
 import it.eng.idsa.multipart.util.UtilMessageService;
+import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +30,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.HashMap;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Milan Karajovic and Gabriele De Luca
@@ -67,10 +72,10 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			if (correlatedMessage.getTransferContract() != null) {
 				//log all exchanged messages relating to same ContractAgreement in same process
 				pid = extractPIDfromContract(correlatedMessage);
-				createProcess(correlatedMessage, processEndpoint, pid);
+				createProcessPID(correlatedMessage, processEndpoint, pid);
 			} else {
 				//default random PID
-				pid = createPID(correlatedMessage);
+				pid = createPID();
 			}
 
 			endpoint = configuration.getClearingHouseUrl() + messageLogEndpoint + pid; //Create Message for Clearing House
@@ -100,14 +105,21 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			logger.info(msgSerialized);
 			String sendingDataInfo = "Sending Data to the Clearing House " + endpoint + " ...";
 			logger.info(sendingDataInfo);
-			sendDataToBusinessLogicService.sendMessageFormData(endpoint, multipartMessage, new HashMap<>());
+			Response response = sendDataToBusinessLogicService.sendMessageFormData(endpoint, multipartMessage, new HashMap<>());
 
 
 			String logMessageIdInfo = "Data [LogMessage.id=" + logInfo.getId() + "] sent to the Clearing House " + endpoint;
+
 			logger.info(logMessageIdInfo);
 			hashService.recordHash(hash, payload, notificationContent);
 
-			success = true;
+			if (response.code() == 201) {
+				success = true;
+			} else {
+				String errorMessage = "Clearing house registered fails.\nRejectionReason: " + response.code() + " " + response.message();
+				logger.error(errorMessage);
+			}
+
 		} catch (Exception e) {
 			logger.error("Could not register the following message to clearing house", e);
 		}
@@ -119,7 +131,11 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		return selfDescriptionConfiguration.getConnectorURI();
 	}
 
-	private void createProcess(Message correlatedMessage, String endpoint, String pid) throws UnsupportedEncodingException {
+	private String createPID() {
+		return UUID.randomUUID().toString();
+	}
+
+	private void createProcessPID(Message correlatedMessage, String endpoint, String pid) throws UnsupportedEncodingException {
 		String processEndpoint = configuration.getClearingHouseUrl() + endpoint + pid;
 
 		RequestMessage processMessage = new RequestMessageBuilder()
@@ -130,21 +146,68 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 				._securityToken_(dapsProvider.getDynamicAtributeToken())
 				.build();
 
+
+		String fingerprint = getFingerprint(correlatedMessage);
+
+		List<String> owners = new ArrayList<>();
+		owners.add(fingerprint);
+
 		MultipartMessage multipartMessage = new MultipartMessageBuilder().withHeaderContent(processMessage)
-																		 .withPayloadContent("")
+																		 .withPayloadContent(ownersList(owners))
 																		 .build();
+
+
 		sendDataToBusinessLogicService.sendMessageFormData(processEndpoint, multipartMessage, new HashMap<>());
 	}
 
-	private String extractPIDfromContract(Message correlatedMessage) {
-		//TODO search a better way to extract UUID
-		String[] strings = correlatedMessage.getTransferContract().getPath().split("/");
-		return strings[strings.length - 1];
+	private static String ownersList(List<String> list) {
+		Map<String, List<String>> owners = new HashMap<>();
+		ObjectMapper mapper = new ObjectMapper();
+
+		owners.put("owners", list);
+
+		try {
+			return mapper.writeValueAsString(owners);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException("Error to write owners' JSON" + e);
+		}
 	}
 
-	private static String createPID(Message correlatedMessage) {
-		ObjectIdGenerators.UUIDGenerator uuidGenerator = new ObjectIdGenerators.UUIDGenerator();
-		return uuidGenerator.generateId(correlatedMessage).toString();
+	private static String getFingerprint(Message correlatedMessage) {
+		String jwt = correlatedMessage.getSecurityToken().getTokenValue();
+		String[] chunks = jwt.split("\\.");
+
+		Base64.Decoder decoder = Base64.getUrlDecoder();
+		String payload = new String(decoder.decode(chunks[1]));
+
+		ObjectMapper mapper = new ObjectMapper();
+
+		JsonNode jsonNode;
+		try {
+			jsonNode = mapper.readTree(payload);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException("Error to read jwt: " + e);
+		}
+		return jsonNode.get("sub").asText();
+	}
+
+	private String extractPIDfromContract(Message correlatedMessage) {
+		Pattern uuidPattern = Pattern.compile("[a-f0-9]{8}(?:-[a-f0-9]{4}){4}[a-f0-9]{8}");
+		String path = correlatedMessage.getTransferContract().getPath();
+		Matcher matcher = uuidPattern.matcher(path);
+
+		List<String> matches = new ArrayList<>();
+		while (matcher.find()) {
+			matches.add(matcher.group(0));
+		}
+
+		int match = matches.size() - 1;
+
+		//If a UUID cannot be extracted from the contract, a new one is created
+		if (match < 0) {
+			return createPID();
+		}
+		return matches.get(matches.size() - 1);
 	}
 
 	@NotNull
