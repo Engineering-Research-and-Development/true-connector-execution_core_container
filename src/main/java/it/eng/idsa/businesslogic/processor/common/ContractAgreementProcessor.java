@@ -50,7 +50,7 @@ public class ContractAgreementProcessor implements Processor {
 				|| null == exchange.getProperty("Original-Message-Header")
 				|| !(exchange.getProperty("Original-Message-Header") instanceof ContractAgreementMessage)
 				|| null == exchange.getProperty("Original-Message-Payload")) {
-			logger.info("Policy upload interupted - IsEnabledUsegeControl is {} or requirements not met", isEnabledUsageControl);
+			logger.info("Policy upload interupted - IsEnabledUsageControl is {} or requirements not met", isEnabledUsageControl);
 			return;
 		}
 		logger.info("Uploading policy...");
