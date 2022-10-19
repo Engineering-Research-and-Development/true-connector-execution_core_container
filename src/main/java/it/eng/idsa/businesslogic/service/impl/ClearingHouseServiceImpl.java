@@ -116,7 +116,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			if (response.code() == 201) {
 				success = true;
 			} else {
-				String errorMessage = "Clearing house registered fails.\nRejectionReason: " + response.code() + " " + response.message();
+				String errorMessage = "Clearing house registered fails - RejectionReason: " + response.code() + " " + response.message();
 				logger.error(errorMessage);
 			}
 
@@ -157,7 +157,9 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 																		 .build();
 
 
-		sendDataToBusinessLogicService.sendMessageFormData(processEndpoint, multipartMessage, new HashMap<>());
+		Response response = sendDataToBusinessLogicService.sendMessageFormData(processEndpoint, multipartMessage, new HashMap<>());
+		String warnMessage = "ProcessPID creation in Clearing House fails - RejectionReason: " + response.code() + " " + response.message();
+		logger.warn(warnMessage);
 	}
 
 	private static String ownersList(List<String> list) {
@@ -178,6 +180,10 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		String[] chunks = jwt.split("\\.");
 
 		Base64.Decoder decoder = Base64.getUrlDecoder();
+		if (chunks.length < 3){
+			logger.warn("JWT Token is not standard: {}", jwt);
+			return null;
+		}
 		String payload = new String(decoder.decode(chunks[1]));
 
 		ObjectMapper mapper = new ObjectMapper();
