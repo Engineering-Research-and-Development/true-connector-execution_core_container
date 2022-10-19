@@ -64,7 +64,7 @@ public class InMemoryUserCrudService implements UserDetailsService {
 		String ip = getClientIP();
 		if (loginAttemptService.isBlocked(ip)) {
 			logger.info("User '{}' is blocked!", username);
-			publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.USER_BLOCEKD));
+			publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.USER_BLOCKED));
 			throw new RuntimeException("blocked");
 		}
 		return findByUsername(username).orElse(null);

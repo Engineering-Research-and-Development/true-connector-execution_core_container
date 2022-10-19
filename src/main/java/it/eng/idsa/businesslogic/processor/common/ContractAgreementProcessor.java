@@ -68,7 +68,7 @@ public class ContractAgreementProcessor implements Processor {
 			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_CONTRACT_AGREEMENT_SUCCESS, multipartMessage));
 		} catch (Exception e) {
 			logger.warn("Policy not uploaded - {}", e.getMessage());
-			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_CONTRACT_AGREEMENT_SUCCESS, multipartMessage));
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_CONTRACT_AGREEMENT_FAILED, multipartMessage));
 			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.NOT_AUTHORIZED);
 		}
 		logger.info("UsageControl DataApp response {}", response);

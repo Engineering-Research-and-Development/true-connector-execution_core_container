@@ -6,7 +6,7 @@ public enum TrueConnectorEventType {
 	HTTP_REQUEST_RECEIVED("Http request received"),
 	AUTHORIZATION_FAILURE("Authorization failure"),
 	AUTHORIZATION_SUCCESS("Authorization success"),
-	USER_BLOCEKD("User blocked"),
+	USER_BLOCKED("User blocked"),
 	SELF_DESCRIPTION("Self description requested"),
 	CONTRACT_OFFER("Contract offer requested"),
 	CONTRACT_OFFER_CREATED("Contract offer created"),

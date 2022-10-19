@@ -10,7 +10,7 @@ True Connector has list of audit events which can be found in following table:
 |HTTP_REQUEST_RECEIVED | Http request received |
 |AUTHORIZATION_FAILURE | Authorization failure |
 |AUTHORIZATION_SUCCESS | Authorization success |
-|USER_BLOCEKD | User blocked |
+|USER_BLOCKED | User blocked |
 |SELF_DESCRIPTION | Self description requested |
 |CONTRACT_OFFER | Contract offer requested |
 |CONTRACT_OFFER_CREATED | Contract offer created |
@@ -42,7 +42,7 @@ True Connector has list of audit events which can be found in following table:
 |CONNECTOR_POLICY_ENFORCEMENT_FAILED | Connector failed to enforce policy |
 |CONNECTOR_BROKER_REGISTER | Connector register connector to Broker |
 |CONNECTOR_BROKER_UPDATE | Connector update Broker registration |
-|CONNECTOR_BROKER_UNREGISTER | Connector clearing house") |
+|CONNECTOR_BROKER_UNREGISTER | Connector clearing house |
 
 ## Audit event configuration
 
@@ -64,7 +64,7 @@ Here is the binding of properties and which events are covered with it:
 | OFFERED_RESOURCE | OFFERED_RESOURCE, OFFERED_RESOURCE_CREATED, OFFERED_RESOURCE_UPDATED, OFFERED_RESOURCE_DELETED | Events related  with **Offered resource** manipulation (requested, created, updated, deleted) |
 | REPRESENTATION | REPRESENTATION, REPRESENTATION_CREATED, REPRESENTATION_UPDATED, REPRESENTATION_DELETED | Events related  with **Representation** manipulation (requested, created, updated, deleted) |
 | CONNECTOR | CONNECTOR_REQUEST, CONNECTOR_RESPONSE, CONNECTOR_SEND, CONNECTOR_SEND_DATAAPP, CONNECTOR_FETCH_TOKEN, CONNECTOR_VALIDATED_TOKEN_SUCCESS, CONNECTOR_VALIDATED_TOKEN_FAIL, CONNECTOR_CLEARING_HOUSE, CONNECTOR_CONTRACT_AGREEMENT_SUCCESS, CONNECTOR_CONTRACT_AGREEMENT_FAILED, CONNECTOR_POLICY_ENFORCEMENT_SUCCESS, CONNECTOR_POLICY_ENFORCEMENT_FAILED, CONNECTOR_BROKER_REGISTER, CONNECTOR_BROKER_UPDATE, CONNECTOR_BROKER_UNREGISTER | Events related with message exchange process |
-| USER | AUTHORIZATION_FAILURE,	AUTHORIZATION_SUCCESS, USER_BLOCEKD | User activity related events |
+| USER | AUTHORIZATION_FAILURE,	AUTHORIZATION_SUCCESS, USER_BLOCKED | User activity related events |
 | EXCEPTION | BAD_REQUEST, NOT_FOUND, SERVER_ERROR | All events that are translated to invalid state (errors) |
 
 ## Example of Audit log entry

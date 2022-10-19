@@ -7,12 +7,11 @@ import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
-import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
+import it.eng.idsa.businesslogic.audit.CamelAuditable;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
@@ -36,10 +35,9 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 	@Autowired
 	MultipartMessageService multipartMessageService;
 	
-	@Autowired
-	private ApplicationEventPublisher publisher;
-
 	@Override
+	@CamelAuditable(successEventType = TrueConnectorEventType.CONNECTOR_REQUEST, 
+		failureEventType = TrueConnectorEventType.BAD_REQUEST)
 	public void process(Exchange exchange) throws Exception {
 		
 		Message message = null;
@@ -69,11 +67,8 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 			// Return exchange
 			exchange.getMessage().setHeaders(headersParts);
 			exchange.getMessage().setBody(multipartMessage);
-
-			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_REQUEST, multipartMessage));
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);
-			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.BAD_REQUEST, multipartMessage));
 			rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 		}
 	}
