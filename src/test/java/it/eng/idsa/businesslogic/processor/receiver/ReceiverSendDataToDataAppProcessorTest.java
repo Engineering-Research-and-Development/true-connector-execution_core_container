@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.RejectionReason;
@@ -43,8 +42,6 @@ public class ReceiverSendDataToDataAppProcessorTest {
 	private RejectionMessageService rejectionMessageService;
 	@Mock
 	private HttpHeaderService httpHeaderService;
-	@Mock
-	private ApplicationEventPublisher publisher;
 	
 	@Mock
 	private Exchange exchange;
@@ -65,7 +62,6 @@ public class ReceiverSendDataToDataAppProcessorTest {
 		MockitoAnnotations.initMocks(this);
 		when(exchange.getMessage()).thenReturn(message);
 		when(message.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
-		when(multipartMessage.getHeaderContent()).thenReturn(UtilMessageService.getArtifactRequestMessage());
 		when(configuration.getOpenDataAppReceiver()).thenReturn("http://openDataAppReceiver");
 	}
 	

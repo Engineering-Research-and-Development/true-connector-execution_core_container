@@ -37,7 +37,7 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 	
 	@Override
 	@CamelAuditable(successEventType = TrueConnectorEventType.CONNECTOR_REQUEST, 
-		failureEventType = TrueConnectorEventType.BAD_REQUEST)
+		failureEventType = TrueConnectorEventType.EXCEPTION_BAD_REQUEST)
 	public void process(Exchange exchange) throws Exception {
 		
 		Message message = null;
@@ -67,6 +67,7 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 			// Return exchange
 			exchange.getMessage().setHeaders(headersParts);
 			exchange.getMessage().setBody(multipartMessage);
+
 		} catch (Exception e) {
 			logger.error("Error parsing multipart message:" + e);
 			rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);

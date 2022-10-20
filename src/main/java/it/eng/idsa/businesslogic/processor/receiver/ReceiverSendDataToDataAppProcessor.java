@@ -12,12 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
-import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
+import it.eng.idsa.businesslogic.audit.CamelAuditable;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
@@ -65,19 +64,17 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 	@Autowired
 	private SendDataToBusinessLogicServiceImpl sendDataToBusinessLogicService;
 	
-	@Autowired
-	private ApplicationEventPublisher publisher;
-
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
 	
 	@Override
+	@CamelAuditable(beforeEventType =  TrueConnectorEventType.CONNECTOR_SEND_DATAAPP,
+	successEventType = TrueConnectorEventType.CONNECTOR_RESPONSE, 
+	failureEventType = TrueConnectorEventType.EXCEPTION_SERVER_ERROR)
 	public void process(Exchange exchange) throws Exception {
 
 		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
-		
-		publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_SEND_DATAAPP, multipartMessage));
 		
 		// Get header, payload and message
 		Message message = multipartMessage.getHeaderContent();
@@ -111,8 +108,6 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 			sendDataToBusinessLogicService.checkResponse(message, response, configuration.getOpenDataAppReceiver());
 			// Handle response
 			handleResponse(exchange, message, response, configuration.getOpenDataAppReceiver());
-			
-			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_RESPONSE, multipartMessage));
 		} finally {
 			if (response != null) {
 				response.close();

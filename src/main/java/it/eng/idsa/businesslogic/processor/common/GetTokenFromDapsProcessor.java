@@ -8,12 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
-import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
+import it.eng.idsa.businesslogic.audit.CamelAuditable;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
@@ -41,13 +40,12 @@ public class GetTokenFromDapsProcessor implements Processor {
 	@Autowired(required = false)
 	private DapsTokenProviderService dapsTokenProviderService;
 	
-	@Autowired
-	private ApplicationEventPublisher publisher;
-
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
 	
 	@Override
+	@CamelAuditable(successEventType = TrueConnectorEventType.CONNECTOR_TOKEN_FETCH_SUCCESS, 
+	failureEventType = TrueConnectorEventType.CONNECTOR_TOKEN_FETCH_FAILURE)
 	public void process(Exchange exchange) throws Exception {
 		logger.info("Enriching message with DAT token");
 
@@ -87,8 +85,6 @@ public class GetTokenFromDapsProcessor implements Processor {
 				.withToken(token)
 				.build();
 		
-		publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_FETCH_TOKEN, multipartMessage));
-
 		// Return exchange
 		exchange.getMessage().setBody(multipartMessage);
 		exchange.getMessage().setHeaders(headersParts);

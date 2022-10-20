@@ -74,8 +74,8 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	
 	@Override
 	@CamelAuditable(beforeEventType =  TrueConnectorEventType.CONNECTOR_SEND,
-			successEventType = TrueConnectorEventType.CONNECTOR_SEND, 
-			failureEventType = TrueConnectorEventType.SERVER_ERROR)
+			successEventType = TrueConnectorEventType.CONNECTOR_RESPONSE, 
+			failureEventType = TrueConnectorEventType.EXCEPTION_SERVER_ERROR)
 	public void process(Exchange exchange) throws Exception {
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
@@ -107,8 +107,6 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 				Response httpResponse = null;
 				try {
 					// Send MultipartMessage HTTPS
-//					publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_SEND, multipartMessage));
-
 					httpResponse = this.sendMultipartMessage(headerParts, forwardTo, message, multipartMessage);
 					// Check response
 					sendDataToBusinessLogicService.checkResponse((Message) exchange.getProperty("Original-Message-Header"), httpResponse, forwardTo);
@@ -119,7 +117,6 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 						httpResponse.close();
 					}
 				}
-//				publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_RESPONSE, multipartMessage));
 			}
 	}
 

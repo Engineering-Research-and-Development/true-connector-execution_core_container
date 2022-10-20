@@ -50,7 +50,7 @@ public class RESTExceptionHandler {
 		Map<String, String> map = new HashMap<>();
 	    map.put("message", exception.getMessage());
 	    
-		publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.NOT_FOUND));
+		publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.EXCEPTION_NOT_FOUND));
 
 		return new ResponseEntity<>(map, headers, HttpStatus.NOT_FOUND);
 	}
@@ -70,7 +70,7 @@ public class RESTExceptionHandler {
 		Map<String, String> map = new HashMap<>();
 	    map.put("message", exception.getMessage());
 	    
-		publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.BAD_REQUEST));
+		publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.EXCEPTION_BAD_REQUEST));
 
 		return new ResponseEntity<>(map, headers, HttpStatus.BAD_REQUEST);
 	}
@@ -89,8 +89,28 @@ public class RESTExceptionHandler {
 		Map<String, String> map = new HashMap<>();
 	    map.put("message", exception.getMessage());
 	    
-	    publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.BAD_REQUEST));
+	    publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.EXCEPTION_BAD_REQUEST));
 	    
 		return new ResponseEntity<>(map, headers, HttpStatus.BAD_REQUEST);
+	}
+	
+	@ExceptionHandler(value = {Exception.class})
+	public ResponseEntity<?> handleGeneralException(final Exception exception, 
+			HttpServletRequest request) {
+		if (logger.isErrorEnabled()) {
+			logger.error("Something went wrong. [exception=({})]",
+					exception == null ? "Passed null as exception" : exception.getMessage(), exception);
+		}
+
+		final var headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("X-Error", "true");
+
+		Map<String, String> map = new HashMap<>();
+	    map.put("message", exception.getMessage());
+	    
+		publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.EXCEPTION_GENERAL));
+
+		return new ResponseEntity<>(map, headers, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 }

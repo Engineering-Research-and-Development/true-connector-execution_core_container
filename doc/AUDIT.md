@@ -24,18 +24,21 @@ True Connector has list of audit events which can be found in following table:
 |REPRESENTATION_CREATED | Representation created |
 |REPRESENTATION_UPDATED | Representation updated |
 |REPRESENTATION_DELETED | Representation deleted |
-|BAD_REQUEST | Bad request |
-|NOT_FOUND | Entity not found |
-|SERVER_ERROR | Server error |
+|EXCEPTION_BAD_REQUEST | Bad request |
+|EXCEPTION_NOT_FOUND | Entity not found |
+|EXCEPTION_SERVER_ERROR | Server error |
+|EXCEPTION_GENERAL | General exception |
 |CONNECTOR | Connector event | 
 |CONNECTOR_REQUEST | Connector received message | 
 |CONNECTOR_RESPONSE | Connector received response | 
 |CONNECTOR_SEND | Connector message forwarding |
 |CONNECTOR_SEND_DATAAPP | Connector message forwarding - dataApp |
-|CONNECTOR_FETCH_TOKEN | Connector obtained DAT token |
+|CONNECTOR_TOKEN_FETCH_SUCCESS | Connector obtained DAT token|
+|CONNECTOR_TOKEN_FETCH_FAILURE | Connector could not obtain DAT token|
 |CONNECTOR_VALIDATED_TOKEN_SUCCESS | Connector validated DAT token successfully |
 |CONNECTOR_VALIDATED_TOKEN_FAIL | Connector failed to validate DAT token |
-|CONNECTOR_CLEARING_HOUSE | Connector registers transaction to clearing house |
+|CONNECTOR_CLEARING_HOUSE_SUCCESS | Connector registered transaction to clearing house|
+|CONNECTOR_CLEARING_HOUSE_FAILURE | Connector could not register transaction to clearing house|
 |CONNECTOR_CONTRACT_AGREEMENT_SUCCESS | Connector contract agreement upload success |
 |CONNECTOR_CONTRACT_AGREEMENT_FAILED | Connector contract agreement upload failed |
 |CONNECTOR_POLICY_ENFORCEMENT_SUCCESS | Connector successfully enforces policy |
@@ -49,7 +52,7 @@ True Connector has list of audit events which can be found in following table:
 User can configure True Connector to include or exclude some events to be logged or not. This can be done with following property in application.property file:
 
 ```
-auditableEvents=ALL,NONE,SELF_DESCRIPTION,CONTRACT_OFFER,OFFERED_RESOURCE,REPRESENTATION,SENDER,RECEIVER,USER,EXCEPTION
+auditableEvents=ALL,NONE,SELF_DESCRIPTION,SELF_DESCRIPTION_ALL,CONTRACT_OFFER,OFFERED_RESOURCE,REPRESENTATION,USER,EXCEPTION,CONNECTOR
 ```
 
 User has possibility to turn on all audit events, by setting property to *ALL*, or to turn off all events by setting the property to *NONE*, or make combination to turn on only specific events, by setting up correct property.
@@ -63,9 +66,9 @@ Here is the binding of properties and which events are covered with it:
 | CONTRACT_OFFER | CONTRACT_OFFER,CONTRACT_OFFER_CREATED, CONTRACT_OFFER_UPDATED,CONTRACT_OFFER_DELETED | Events related  with **Contract offer** manipulation (requested, created, updated, deleted) |
 | OFFERED_RESOURCE | OFFERED_RESOURCE, OFFERED_RESOURCE_CREATED, OFFERED_RESOURCE_UPDATED, OFFERED_RESOURCE_DELETED | Events related  with **Offered resource** manipulation (requested, created, updated, deleted) |
 | REPRESENTATION | REPRESENTATION, REPRESENTATION_CREATED, REPRESENTATION_UPDATED, REPRESENTATION_DELETED | Events related  with **Representation** manipulation (requested, created, updated, deleted) |
-| CONNECTOR | CONNECTOR_REQUEST, CONNECTOR_RESPONSE, CONNECTOR_SEND, CONNECTOR_SEND_DATAAPP, CONNECTOR_FETCH_TOKEN, CONNECTOR_VALIDATED_TOKEN_SUCCESS, CONNECTOR_VALIDATED_TOKEN_FAIL, CONNECTOR_CLEARING_HOUSE, CONNECTOR_CONTRACT_AGREEMENT_SUCCESS, CONNECTOR_CONTRACT_AGREEMENT_FAILED, CONNECTOR_POLICY_ENFORCEMENT_SUCCESS, CONNECTOR_POLICY_ENFORCEMENT_FAILED, CONNECTOR_BROKER_REGISTER, CONNECTOR_BROKER_UPDATE, CONNECTOR_BROKER_UNREGISTER | Events related with message exchange process |
+| CONNECTOR | CONNECTOR_REQUEST, CONNECTOR_RESPONSE, CONNECTOR_SEND, CONNECTOR_SEND_DATAAPP, CONNECTOR_TOKEN_FETCH_SUCCESS,CONNECTOR_TOKEN_FETCH_FAILURE , CONNECTOR_VALIDATED_TOKEN_SUCCESS, CONNECTOR_TOKEN_VALIDATED_FAILURE, CONNECTOR_CLEARING_HOUSE_SUCCESS,CONNECTOR_CLEARING_HOUSE_FAILURE , CONNECTOR_CONTRACT_AGREEMENT_SUCCESS, CONNECTOR_CONTRACT_AGREEMENT_FAILED, CONNECTOR_POLICY_ENFORCEMENT_SUCCESS, CONNECTOR_POLICY_ENFORCEMENT_FAILED, CONNECTOR_BROKER_REGISTER, CONNECTOR_BROKER_UPDATE, CONNECTOR_BROKER_UNREGISTER | Events related with message exchange process |
 | USER | AUTHORIZATION_FAILURE,	AUTHORIZATION_SUCCESS, USER_BLOCKED | User activity related events |
-| EXCEPTION | BAD_REQUEST, NOT_FOUND, SERVER_ERROR | All events that are translated to invalid state (errors) |
+| EXCEPTION | EXCEPTION_BAD_REQUEST, EXCEPTION_NOT_FOUND, EXCEPTION_SERVER_ERROR, EXCEPTION_GENERAL | All events that are translated to invalid state (errors) |
 
 ## Example of Audit log entry
 

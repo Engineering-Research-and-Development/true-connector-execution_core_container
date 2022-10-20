@@ -17,12 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
-import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
+import it.eng.idsa.businesslogic.audit.CamelAuditable;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
@@ -64,10 +63,9 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
 	
-	@Autowired
-	private ApplicationEventPublisher publisher;
-	
 	@Override
+	@CamelAuditable(successEventType = TrueConnectorEventType.CONNECTOR_REQUEST, 
+	failureEventType = TrueConnectorEventType.EXCEPTION_BAD_REQUEST)
 	public void process(Exchange exchange) throws Exception {
 		String header = null;
 		String payload = null;
@@ -181,7 +179,6 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 				headersParts.put("Payload-Content-Type", headersParts.get("payload.org.eclipse.jetty.servlet.contentType"));
 			} catch (Exception e) {
 				logger.error("Error parsing multipart message:", e);
-				publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.BAD_REQUEST, multipartMessage));
 				rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 			}
 		}
@@ -189,7 +186,6 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 		exchange.getMessage().setHeaders(headersParts);
 		exchange.getMessage().setBody(multipartMessage);
 		
-		publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_REQUEST, multipartMessage));
 	}
 	
 	private Map<String, String> getPayloadHeadersFromAttachment(Attachment att1) {

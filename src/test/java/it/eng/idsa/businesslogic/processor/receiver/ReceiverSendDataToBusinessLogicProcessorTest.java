@@ -21,7 +21,6 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.RejectionReason;
@@ -44,8 +43,6 @@ public class ReceiverSendDataToBusinessLogicProcessorTest {
 	private HttpHeaderService headerService;
 	@Mock
 	private HeaderCleaner headerCleaner;
-	@Mock
-	private ApplicationEventPublisher publisher;
 	@Mock
 	private Exchange exchange;
 	@Mock
@@ -73,8 +70,6 @@ public class ReceiverSendDataToBusinessLogicProcessorTest {
 		MockitoAnnotations.initMocks(this);
 		when(exchange.getMessage()).thenReturn(message);
 		when(message.getHeaders()).thenReturn(new HashMap<>());
-		when(message.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
-		when(multipartMessage.getHeaderContent()).thenReturn(UtilMessageService.getArtifactRequestMessage());
 	}
 
 	@Test

@@ -6,13 +6,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionMessage;
 import de.fraunhofer.iais.eis.RejectionReason;
-import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
+import it.eng.idsa.businesslogic.audit.CamelAuditable;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
@@ -38,10 +37,9 @@ public class ValidateTokenProcessor implements Processor {
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
 	
-	@Autowired
-	private ApplicationEventPublisher publisher;
-	
 	@Override
+	@CamelAuditable(successEventType = TrueConnectorEventType.CONNECTOR_TOKEN_VALIDATED_SUCCESS, 
+	failureEventType = TrueConnectorEventType.CONNECTOR_TOKEN_VALIDATED_FAILURE)
 	public void process(Exchange exchange) throws Exception {
 		
 		if (!isEnabledDapsInteraction) {
@@ -63,12 +61,8 @@ public class ValidateTokenProcessor implements Processor {
 		
 		if(isTokenValid==false) {			
 			logger.error("Token is invalid");
-			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_VALIDATED_TOKEN_FAIL, multipartMessage));
 			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.NOT_AUTHENTICATED);
 		}
-		
-		publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_VALIDATED_TOKEN_SUCCESS, multipartMessage));
-
 		logger.info("is token valid: "+isTokenValid);
 	}
 }

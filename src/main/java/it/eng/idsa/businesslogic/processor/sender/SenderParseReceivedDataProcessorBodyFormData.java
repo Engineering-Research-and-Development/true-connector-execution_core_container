@@ -42,7 +42,7 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 
 	@Override
 	@CamelAuditable(successEventType = TrueConnectorEventType.CONNECTOR_REQUEST, 
-		failureEventType = TrueConnectorEventType.BAD_REQUEST)
+		failureEventType = TrueConnectorEventType.EXCEPTION_BAD_REQUEST)
 	public void process(Exchange exchange) throws Exception {
 
 		String header = null;

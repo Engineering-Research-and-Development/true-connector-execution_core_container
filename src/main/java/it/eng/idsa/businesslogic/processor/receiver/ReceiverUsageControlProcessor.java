@@ -15,6 +15,8 @@ import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.audit.CamelAuditable;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -43,6 +45,8 @@ public class ReceiverUsageControlProcessor implements Processor {
 	private UsageControlService usageControlService;
 
     @Override
+    @CamelAuditable(successEventType = TrueConnectorEventType.CONNECTOR_POLICY_ENFORCEMENT_SUCCESS, 
+	failureEventType = TrueConnectorEventType.CONNECTOR_POLICY_ENFORCEMENT_FAILED)
     public void process(Exchange exchange) {
         if (!isEnabledUsageControl) {
             logger.info("Usage control not configured - continued with flow");

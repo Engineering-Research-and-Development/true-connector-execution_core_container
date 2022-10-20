@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.context.ApplicationEventPublisher;
 
 import com.sun.istack.ByteArrayDataSource;
 
@@ -46,8 +45,6 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 	private AttachmentMessage attachmentMessage;
 	@Mock
 	private Attachment attachment;
-	@Mock
-	private ApplicationEventPublisher publisher;
 	
 	private de.fraunhofer.iais.eis.Message msg;
 	private String headerAsString;

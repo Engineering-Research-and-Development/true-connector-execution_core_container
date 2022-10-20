@@ -34,7 +34,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 
 	@Override
 	@CamelAuditable(successEventType = TrueConnectorEventType.CONNECTOR_REQUEST, 
-		failureEventType = TrueConnectorEventType.BAD_REQUEST)
+		failureEventType = TrueConnectorEventType.EXCEPTION_BAD_REQUEST)
 	public void process(Exchange exchange) throws Exception {
 		logger.info("Received multipart/mixed request");
 		Map<String, Object> headerParts = new HashMap<String, Object>();

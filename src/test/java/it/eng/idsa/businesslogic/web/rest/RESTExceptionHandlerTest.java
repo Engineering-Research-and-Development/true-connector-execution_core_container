@@ -66,4 +66,11 @@ public class RESTExceptionHandlerTest {
 		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 	}
 	
+	@Test
+	public void handleGenericException() {
+		var response = handler.handleGeneralException(new Exception("SOMETHING WENT WRONG"), request);
+		
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+	}
+	
 }
