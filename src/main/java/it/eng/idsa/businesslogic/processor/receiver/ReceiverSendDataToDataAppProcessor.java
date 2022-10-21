@@ -23,6 +23,7 @@ import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.SendDataToBusinessLogicServiceImpl;
 import it.eng.idsa.businesslogic.util.RouterType;
+import it.eng.idsa.businesslogic.util.TrueConnectorConstants;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -122,9 +123,9 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		logger.info("response received from the DataAPP=" + responseString);
 
 		Map<String, Object> headers = httpHeaderService.okHttpHeadersToMap(response.headers());
-		String correlationId = (String) exchange.getMessage().getHeader("correlationId");
+		String correlationId = (String) exchange.getMessage().getHeader(TrueConnectorConstants.CORRELATION_ID);
 		if(StringUtils.isNotBlank(correlationId)) {
-			headers.put("correlationId", correlationId);
+			headers.put(TrueConnectorConstants.CORRELATION_ID, correlationId);
 		}
 		exchange.getMessage().setHeaders(headers);
 		

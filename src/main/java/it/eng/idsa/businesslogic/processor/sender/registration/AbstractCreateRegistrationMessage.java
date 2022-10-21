@@ -23,7 +23,7 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 	
 	@Autowired
 	private SelfDescriptionService selfDescriptionService;
-
+	
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		Map<String, Object> headersParts = new HashMap<String, Object>();

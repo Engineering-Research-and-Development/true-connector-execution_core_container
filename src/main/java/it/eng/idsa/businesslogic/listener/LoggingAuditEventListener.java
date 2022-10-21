@@ -8,8 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import static net.logstash.logback.argument.StructuredArguments.keyValue;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.audit.listener.AuditApplicationEvent;
 import org.springframework.context.event.EventListener;

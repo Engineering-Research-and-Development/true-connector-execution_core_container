@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 
 import de.fraunhofer.iais.eis.ConnectorUpdateMessage;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
@@ -31,6 +32,9 @@ public class SenderCreateRegistrationMessageProcessorTest {
 	private Message camelMessage;
 	@Mock 
 	private ConnectorUpdateMessage connMessage;
+	
+	@Mock
+	private ApplicationEventPublisher publisher;
 	
 	ConnectorUpdateMessage connectorAvailable = UtilMessageService.getConnectorUpdateMessage(
 			UtilMessageService.SENDER_AGENT, 

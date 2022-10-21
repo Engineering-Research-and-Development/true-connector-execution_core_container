@@ -25,7 +25,7 @@ public class TrueConnectorEvent extends AuditApplicationEvent {
 	private static final long serialVersionUID = -87655024649097585L;
 
 	public TrueConnectorEvent(String principal, TrueConnectorEventType type, MultipartMessage multipartMessage) {
-		super(principal, type.name(), detailsMultipartMessage(multipartMessage));
+		super(principal, type.name(), detailsMultipartMessage(multipartMessage, null));
 	}
 	
 	/**
@@ -34,7 +34,11 @@ public class TrueConnectorEvent extends AuditApplicationEvent {
 	 * @param multipartMessage - logs information from multipartMessage to event
 	 */
 	public TrueConnectorEvent(TrueConnectorEventType type, MultipartMessage multipartMessage) {
-		super("connector", type.name(), detailsMultipartMessage(multipartMessage));
+		super("connector", type.name(), detailsMultipartMessage(multipartMessage, null));
+	}
+	
+	public TrueConnectorEvent(TrueConnectorEventType type, MultipartMessage multipartMessage, String correlationId) {
+		super("connector", type.name(), detailsMultipartMessage(multipartMessage, correlationId));
 	}
 	
 	public TrueConnectorEvent(String principal, TrueConnectorEventType type, Map<String, Object> data) {
@@ -49,9 +53,12 @@ public class TrueConnectorEvent extends AuditApplicationEvent {
 		return Optional.ofNullable(request.getUserPrincipal()).map(Principal::getName).orElse("anonymousUser");
 	}
 	
-	private static Map<String, Object> detailsMultipartMessage(MultipartMessage multipartMessage) {
+	private static Map<String, Object> detailsMultipartMessage(MultipartMessage multipartMessage, String correlationId) {
 		Map<String, Object> details = new HashMap<>();
 		details.put("http.method", HttpMethod.POST);
+		if (correlationId != null) {
+			details.put("correlationId", correlationId);
+		}
 		if(multipartMessage != null) {
 			details.put("http.message", multipartMessage.getHeaderContent().getClass().getCanonicalName());
 		} else {

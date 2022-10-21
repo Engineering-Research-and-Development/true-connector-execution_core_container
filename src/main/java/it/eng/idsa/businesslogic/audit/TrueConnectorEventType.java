@@ -42,7 +42,9 @@ public enum TrueConnectorEventType {
 	CONNECTOR_POLICY_ENFORCEMENT_FAILED("Connector failed to enforce policy"),
 	CONNECTOR_BROKER_REGISTER("Connector register connector to Broker"),
 	CONNECTOR_BROKER_UPDATE("Connector update Broker registration"),
-	CONNECTOR_BROKER_UNREGISTER("Connector clearing house");
+	CONNECTOR_BROKER_PASSIVATE("Connector passivate connector on Broker"),
+	CONNECTOR_BROKER_DELETE("Connector delete connector from Broker"),
+	CONNECTOR_BROKER_QUERY("Connector query to Broker");
 	
 	private final String text;
 

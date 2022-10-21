@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
+import it.eng.idsa.businesslogic.util.TrueConnectorConstants;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
 @Aspect
@@ -43,7 +44,7 @@ public class CamelProcessorAspect {
 		TrueConnectorEventType beforeEvent = camelAuditable.beforeEventType();
 		if(!beforeEvent.equals(TrueConnectorEventType.TRUE_CONNECTOR_EVENT)) {
 			MultipartMessage multipartMessage = getMultipartMessage(joinPoint);
-			publisher.publishEvent(new TrueConnectorEvent(beforeEvent, multipartMessage));
+			publisher.publishEvent(new TrueConnectorEvent(beforeEvent, multipartMessage, getCorrelationId(joinPoint)));
 		}
     }
 
@@ -51,14 +52,14 @@ public class CamelProcessorAspect {
 	public void logAfterAllMethods(JoinPoint joinPoint) {
 		TrueConnectorEventType successEvent = getEventType(joinPoint, true);
 		MultipartMessage multipartMessage = getMultipartMessage(joinPoint);
-		publisher.publishEvent(new TrueConnectorEvent(successEvent, multipartMessage));
+		publisher.publishEvent(new TrueConnectorEvent(successEvent, multipartMessage, getCorrelationId(joinPoint)));
 	}
 
 	@AfterThrowing(pointcut = "auditableProcessor()", throwing = "e")
 	public void logExceptions(JoinPoint joinPoint, Exception e) {
 		TrueConnectorEventType failurEvent = getEventType(joinPoint, false);
 		MultipartMessage multipartMessage = getMultipartMessage(joinPoint);
-		publisher.publishEvent(new TrueConnectorEvent(failurEvent, multipartMessage));
+		publisher.publishEvent(new TrueConnectorEvent(failurEvent, multipartMessage, getCorrelationId(joinPoint)));
 	}
 
 	private TrueConnectorEventType getEventType(JoinPoint joinPoint, boolean success) {
@@ -76,6 +77,15 @@ public class CamelProcessorAspect {
 		if (signatureArgs != null && signatureArgs.length == 1) {
 			Exchange exchange = (Exchange) signatureArgs[0];
 			return exchange.getMessage().getBody(MultipartMessage.class);
+		}
+		return null;
+	}
+	
+	private String getCorrelationId(JoinPoint joinPoint) {
+		Object[] signatureArgs = joinPoint.getArgs();
+		if (signatureArgs != null && signatureArgs.length == 1) {
+			Exchange exchange = (Exchange) signatureArgs[0];
+			return (String) exchange.getMessage().getHeader(TrueConnectorConstants.CORRELATION_ID);
 		}
 		return null;
 	}
