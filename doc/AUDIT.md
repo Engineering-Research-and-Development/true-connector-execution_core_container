@@ -8,8 +8,8 @@ True Connector has list of audit events which can be found in following table:
 | ----------- | ----------- |
 |TRUE_CONNECTOR_EVENT | Default TrueConnector event |
 |HTTP_REQUEST_RECEIVED | Http request received |
-|AUTHORIZATION_FAILURE | Authorization failure |
-|AUTHORIZATION_SUCCESS | Authorization success |
+|USER_AUTHORIZATION_FAILURE | Authorization failure |
+|USER_AUTHORIZATION_SUCCESS | Authorization success |
 |USER_BLOCKED | User blocked |
 |SELF_DESCRIPTION | Self description requested |
 |CONTRACT_OFFER | Contract offer requested |
@@ -67,7 +67,7 @@ Here is the binding of properties and which events are covered with it:
 | OFFERED_RESOURCE | OFFERED_RESOURCE, OFFERED_RESOURCE_CREATED, OFFERED_RESOURCE_UPDATED, OFFERED_RESOURCE_DELETED | Events related  with **Offered resource** manipulation (requested, created, updated, deleted) |
 | REPRESENTATION | REPRESENTATION, REPRESENTATION_CREATED, REPRESENTATION_UPDATED, REPRESENTATION_DELETED | Events related  with **Representation** manipulation (requested, created, updated, deleted) |
 | CONNECTOR | CONNECTOR_REQUEST, CONNECTOR_RESPONSE, CONNECTOR_SEND, CONNECTOR_SEND_DATAAPP, CONNECTOR_TOKEN_FETCH_SUCCESS,CONNECTOR_TOKEN_FETCH_FAILURE , CONNECTOR_VALIDATED_TOKEN_SUCCESS, CONNECTOR_TOKEN_VALIDATED_FAILURE, CONNECTOR_CLEARING_HOUSE_SUCCESS,CONNECTOR_CLEARING_HOUSE_FAILURE , CONNECTOR_CONTRACT_AGREEMENT_SUCCESS, CONNECTOR_CONTRACT_AGREEMENT_FAILED, CONNECTOR_POLICY_ENFORCEMENT_SUCCESS, CONNECTOR_POLICY_ENFORCEMENT_FAILED, CONNECTOR_BROKER_REGISTER, CONNECTOR_BROKER_UPDATE, CONNECTOR_BROKER_UNREGISTER | Events related with message exchange process |
-| USER | AUTHORIZATION_FAILURE,	AUTHORIZATION_SUCCESS, USER_BLOCKED | User activity related events |
+| USER | USER_AUTHORIZATION_FAILURE, USER_AUTHORIZATION_SUCCESS, USER_BLOCKED | User activity related events |
 | EXCEPTION | EXCEPTION_BAD_REQUEST, EXCEPTION_NOT_FOUND, EXCEPTION_SERVER_ERROR, EXCEPTION_GENERAL | All events that are translated to invalid state (errors) |
 
 ## Example of Audit log entry

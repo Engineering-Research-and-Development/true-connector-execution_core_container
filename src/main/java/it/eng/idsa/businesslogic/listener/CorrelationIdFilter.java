@@ -29,6 +29,7 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
 				correlationId = UUID.randomUUID().toString();
 			}
 			try (MDC.MDCCloseable ignored = MDC.putCloseable("correlationId", correlationId)) {
+				 response.addHeader(TrueConnectorConstants.CORRELATION_ID, correlationId);
 				filterChain.doFilter(request, response);
 			}
 		} else {

@@ -9,6 +9,8 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
+import it.eng.idsa.businesslogic.util.TrueConnectorConstants;
+
 @Component
 public class TrueConnectorAuditableInterceptor extends HandlerInterceptorAdapter {
 	
@@ -27,7 +29,8 @@ public class TrueConnectorAuditableInterceptor extends HandlerInterceptorAdapter
 		if(handler instanceof HandlerMethod) {
 			Auditable annotation = ((HandlerMethod) handler).getMethodAnnotation(Auditable.class);
 			if (annotation != null) {
-				publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.HTTP_REQUEST_RECEIVED));
+				publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.HTTP_REQUEST_RECEIVED,
+						response.getHeader(TrueConnectorConstants.CORRELATION_ID)));
 			}
 		}
 		return super.preHandle(request, response, handler);
@@ -40,7 +43,8 @@ public class TrueConnectorAuditableInterceptor extends HandlerInterceptorAdapter
 			Auditable annotation = ((HandlerMethod) handler).getMethodAnnotation(Auditable.class);
 			if (annotation != null) {
 //				fire event for someone to log it or process
-				publisher.publishEvent(new TrueConnectorEvent(request, annotation.eventType()));
+				publisher.publishEvent(new TrueConnectorEvent(request, annotation.eventType(), 
+						response.getHeader(TrueConnectorConstants.CORRELATION_ID)));
 			}
 		}
 		super.postHandle(request, response, handler, modelAndView);

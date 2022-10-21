@@ -10,6 +10,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,8 @@ public class RESTExceptionHandlerTest {
 	@Mock
 	private HttpServletRequest request;
 	@Mock
+	private HttpServletResponse response;
+	@Mock
 	private Principal principal;
 	private RESTExceptionHandler handler;
 
@@ -47,30 +50,30 @@ public class RESTExceptionHandlerTest {
 
 	@Test
 	public void handleResourceNotFoundException() {
-		var response = handler.handleResourceNotFoundException(new ResourceNotFoundException("NOT FOUND"), request);
+		var responseEntity = handler.handleResourceNotFoundException(new ResourceNotFoundException("NOT FOUND"), request, response);
 
-		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+		assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
 	}
 	
 	@Test
 	public void handleBadRequestException() {
-		var response = handler.handleBadRequestException(new BadRequestException("BAD REQUEST"), request);
+		var responseEntity = handler.handleBadRequestException(new BadRequestException("BAD REQUEST"), request, response);
 		
-		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+		assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
 	}
 	
 	@Test
 	public void handleJsonException() {
-		var response = handler.handleJsonException(new JsonException("JSON EXCEPTION"), request);
+		var responseEntity = handler.handleJsonException(new JsonException("JSON EXCEPTION"), request, response);
 		
-		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+		assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
 	}
 	
 	@Test
 	public void handleGenericException() {
-		var response = handler.handleGeneralException(new Exception("SOMETHING WENT WRONG"), request);
+		var responseEntity = handler.handleGeneralException(new Exception("SOMETHING WENT WRONG"), request, response);
 		
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
 	}
 	
 }

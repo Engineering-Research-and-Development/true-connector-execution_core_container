@@ -66,7 +66,7 @@ public class LoggingAuditEventListener {
 		Map<String, String> backup = MDC.getCopyOfContextMap();
 		MDC.put("event.type", event.getAuditEvent().getType());
 		MDC.put("event.principal", event.getAuditEvent().getPrincipal());
-		MDC.put("correlationId", event.getCorrelationId());
+//		MDC.put("correlationId", event.getCorrelationId());
 		MDC.put("connectorRole", isConnectorReceiver());
 
 		LOGGER.info("TrueConnector Audit Event was received", keyValue("event", event.getAuditEvent()));

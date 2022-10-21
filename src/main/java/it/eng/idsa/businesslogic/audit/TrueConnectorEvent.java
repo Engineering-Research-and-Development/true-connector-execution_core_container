@@ -15,13 +15,6 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
 
 public class TrueConnectorEvent extends AuditApplicationEvent {
 	
-	private static String correlationId;
-	
-	// TODO check if this is correct approach
-	public String getCorrelationId() {
-		return TrueConnectorEvent.correlationId;
-	}
-
 	private static final long serialVersionUID = -87655024649097585L;
 
 	public TrueConnectorEvent(String principal, TrueConnectorEventType type, MultipartMessage multipartMessage) {
@@ -46,7 +39,11 @@ public class TrueConnectorEvent extends AuditApplicationEvent {
 	}
 	
 	public TrueConnectorEvent(HttpServletRequest request, TrueConnectorEventType type) {
-		super(principal(request), type.name(), details(request));
+		super(principal(request), type.name(), details(request, null));
+	}
+	
+	public TrueConnectorEvent(HttpServletRequest request, TrueConnectorEventType type, String correlationId) {
+		super(principal(request), type.name(), details(request, correlationId));
 	}
 
 	private static String principal(HttpServletRequest request) {
@@ -81,11 +78,14 @@ public class TrueConnectorEvent extends AuditApplicationEvent {
 //		return details;
 //	}
 
-	private static Map<String, Object> details(HttpServletRequest request) {
+	private static Map<String, Object> details(HttpServletRequest request, String correlationId) {
 		Map<String, Object> details = new HashMap<>();
 		details.put("http.method", request.getMethod());
 		details.put("http.path", request.getRequestURL());
 		details.put("http.headers", getHeadersInfo(request));
+		if (correlationId != null) {
+			details.put("correlationId", correlationId);
+		}
 		return details;
 	}
 
