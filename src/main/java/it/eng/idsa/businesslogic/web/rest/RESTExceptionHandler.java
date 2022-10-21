@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,6 @@ import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.resources.BadRequestException;
 import it.eng.idsa.businesslogic.service.resources.JsonException;
 import it.eng.idsa.businesslogic.service.resources.ResourceNotFoundException;
-import it.eng.idsa.businesslogic.util.TrueConnectorConstants;
 
 @ControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)
@@ -39,7 +37,7 @@ public class RESTExceptionHandler {
 
 	@ExceptionHandler(value = { ResourceNotFoundException.class })
 	public ResponseEntity<?> handleResourceNotFoundException(final ResourceNotFoundException exception, 
-			HttpServletRequest request, HttpServletResponse response) {
+			HttpServletRequest request) {
 		if (logger.isErrorEnabled()) {
 			logger.error("A resource not found exception has been caught. [exception=({})]",
 					exception == null ? "Passed null as exception" : exception.getMessage(), exception);
@@ -52,16 +50,14 @@ public class RESTExceptionHandler {
 		Map<String, String> map = new HashMap<>();
 	    map.put("message", exception.getMessage());
 	    
-		publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.EXCEPTION_NOT_FOUND,
-				response.getHeader(TrueConnectorConstants.CORRELATION_ID)));
+		publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.EXCEPTION_NOT_FOUND));
 
 		return new ResponseEntity<>(map, headers, HttpStatus.NOT_FOUND);
 	}
 	
 	
 	@ExceptionHandler(value = { BadRequestException.class })
-	public ResponseEntity<?> handleBadRequestException(final BadRequestException exception, HttpServletRequest request,
-			HttpServletResponse response) {
+	public ResponseEntity<?> handleBadRequestException(final BadRequestException exception, HttpServletRequest request) {
 		if (logger.isErrorEnabled()) {
 			logger.error("A bad request exception has been caught. [exception=({})]",
 					exception == null ? "Passed null as exception" : exception.getMessage(), exception);
@@ -74,15 +70,13 @@ public class RESTExceptionHandler {
 		Map<String, String> map = new HashMap<>();
 	    map.put("message", exception.getMessage());
 	    
-		publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.EXCEPTION_BAD_REQUEST, 
-				response.getHeader(TrueConnectorConstants.CORRELATION_ID)));
+		publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.EXCEPTION_BAD_REQUEST));
 
 		return new ResponseEntity<>(map, headers, HttpStatus.BAD_REQUEST);
 	}
 	
 	@ExceptionHandler(value = { JsonException.class })
-	public ResponseEntity<?> handleJsonException(final JsonException exception, HttpServletRequest request, 
-			HttpServletResponse response) {
+	public ResponseEntity<?> handleJsonException(final JsonException exception, HttpServletRequest request) {
 		if (logger.isErrorEnabled()) {
 			logger.error("Json exception has been caught. [exception=({})]",
 					exception == null ? "Passed null as exception" : exception.getMessage(), exception);
@@ -95,15 +89,13 @@ public class RESTExceptionHandler {
 		Map<String, String> map = new HashMap<>();
 	    map.put("message", exception.getMessage());
 	    
-	    publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.EXCEPTION_BAD_REQUEST,
-	    		response.getHeader(TrueConnectorConstants.CORRELATION_ID)));
+	    publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.EXCEPTION_BAD_REQUEST));
 	    
 		return new ResponseEntity<>(map, headers, HttpStatus.BAD_REQUEST);
 	}
 	
 	@ExceptionHandler(value = {Exception.class})
-	public ResponseEntity<?> handleGeneralException(final Exception exception, 
-			HttpServletRequest request, HttpServletResponse response) {
+	public ResponseEntity<?> handleGeneralException(final Exception exception, HttpServletRequest request) {
 		if (logger.isErrorEnabled()) {
 			logger.error("Something went wrong. [exception=({})]",
 					exception == null ? "Passed null as exception" : exception.getMessage(), exception);
@@ -116,8 +108,7 @@ public class RESTExceptionHandler {
 		Map<String, String> map = new HashMap<>();
 	    map.put("message", exception.getMessage());
 	    
-		publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.EXCEPTION_GENERAL,
-				response.getHeader(TrueConnectorConstants.CORRELATION_ID)));
+		publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.EXCEPTION_GENERAL));
 
 		return new ResponseEntity<>(map, headers, HttpStatus.INTERNAL_SERVER_ERROR);
 	}

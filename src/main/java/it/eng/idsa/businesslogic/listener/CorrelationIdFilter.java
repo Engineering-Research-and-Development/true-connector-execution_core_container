@@ -28,10 +28,14 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
 			if (null == correlationId || !UUID_PATTERN.matcher(correlationId).matches()) {
 				correlationId = UUID.randomUUID().toString();
 			}
-			try (MDC.MDCCloseable ignored = MDC.putCloseable("correlationId", correlationId)) {
-				 response.addHeader(TrueConnectorConstants.CORRELATION_ID, correlationId);
-				filterChain.doFilter(request, response);
-			}
+				try {
+					MDC.put("correlationId", correlationId);
+					filterChain.doFilter(request, response);
+				} catch (IllegalArgumentException | IOException | ServletException e) {
+					throw e;
+				}
+			
+			
 		} else {
 			filterChain.doFilter(request, response);
 		}

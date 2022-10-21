@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.Message;
@@ -41,6 +42,8 @@ public class ValidateTokenProcessorTest {
 	private MultipartMessage multipartMessage;
 	@Mock
 	private RejectionMessageService rejectionMessageService;
+	@Mock
+	private ApplicationEventPublisher publisher;
 	private Map<String, Object> headers = new HashMap<>();
 	private Message message;
 

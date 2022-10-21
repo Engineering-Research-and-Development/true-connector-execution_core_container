@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.google.gson.JsonSyntaxException;
@@ -51,6 +52,8 @@ public class ReceiverUsageControlProcessorTest {
 	private Message message;
 	@Mock
 	private MultipartMessage multipartMessage;
+	@Mock
+	private ApplicationEventPublisher publisher;
 
 	private ArtifactRequestMessage artifactRequestMessage;
 	private ArtifactResponseMessage artifactResponseMessage;
