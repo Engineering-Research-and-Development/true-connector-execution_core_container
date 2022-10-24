@@ -53,8 +53,6 @@ public class SenderUsageControlProcessor implements Processor {
 	private ApplicationEventPublisher publisher;
 
 	@Override
-	@CamelAuditable(successEventType = TrueConnectorEventType.CONNECTOR_POLICY_ENFORCEMENT_SUCCESS, 
-	failureEventType = TrueConnectorEventType.CONNECTOR_POLICY_ENFORCEMENT_FAILED)
 	public void process(Exchange exchange) {
 		if (!isEnabledUsageControl) {
 			logger.info("Usage control not configured - continued with flow");
