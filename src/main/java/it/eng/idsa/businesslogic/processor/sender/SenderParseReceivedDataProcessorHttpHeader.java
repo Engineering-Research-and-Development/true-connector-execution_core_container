@@ -48,7 +48,6 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 		// Get from the input "exchange"
 		headersParts = exchange.getMessage().getHeaders();
 		payload = exchange.getMessage().getBody(String.class);
-		MultipartMessage multipartMessage = null;
 		try {
 			headerContentHeaders = headerService.getIDSHeaders(headersParts);
 			message = headerService.headersToMessage(headersParts);
@@ -56,7 +55,7 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 				logger.error("Message could not be created - check if all required headers are present.");
 				throw new MultipartMessageException("Message could not be created - check if all required headers are present");
 			}
-			multipartMessage = new MultipartMessageBuilder()
+			MultipartMessage multipartMessage = new MultipartMessageBuilder()
 					.withHttpHeader(headerService.convertMapToStringString(headerContentHeaders))
 //					.withHeaderContent(header)
 					.withHeaderContent(message)

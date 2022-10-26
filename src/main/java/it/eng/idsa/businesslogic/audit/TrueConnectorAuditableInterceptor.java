@@ -14,9 +14,6 @@ import it.eng.idsa.businesslogic.util.TrueConnectorConstants;
 @Component
 public class TrueConnectorAuditableInterceptor extends HandlerInterceptorAdapter {
 	
-//	private static final Logger logger = LoggerFactory.getLogger(TrueConnectorAuditableInterceptor.class);
-//	public static final String AUDIT_PAYLOAD = "auditPayload";
-	
 	private final ApplicationEventPublisher publisher;
 	
 	public TrueConnectorAuditableInterceptor(ApplicationEventPublisher publisher) {

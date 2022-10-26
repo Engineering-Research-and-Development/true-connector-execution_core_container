@@ -16,6 +16,7 @@ import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.TrueConnectorConstants;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
 /**
@@ -50,6 +51,7 @@ public class ValidateTokenProcessor implements Processor {
         }
 		
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
+		String correlationId = (String) exchange.getMessage().getHeader(TrueConnectorConstants.CORRELATION_ID);
 		
 		if (multipartMessage.getHeaderContent() instanceof RejectionMessage) {
 			logger.info("Not validating DAT for rejection message");
@@ -63,10 +65,10 @@ public class ValidateTokenProcessor implements Processor {
 		
 		if(isTokenValid==false) {			
 			logger.error("Token is invalid");
-			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_TOKEN_VALIDATED_FAILURE, multipartMessage));
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_TOKEN_VALIDATED_FAILURE, multipartMessage, correlationId));
 			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.NOT_AUTHENTICATED);
 		}
 		logger.info("is token valid: "+isTokenValid);
-		publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_TOKEN_VALIDATED_SUCCESS, multipartMessage));
+		publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_TOKEN_VALIDATED_SUCCESS, multipartMessage, correlationId));
 	}
 }

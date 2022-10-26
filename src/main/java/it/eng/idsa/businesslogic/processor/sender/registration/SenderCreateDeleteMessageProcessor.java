@@ -8,6 +8,7 @@ import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
+import it.eng.idsa.multipart.domain.MultipartMessage;
 
 @Component
 public class SenderCreateDeleteMessageProcessor extends AbstractCreateRegistrationMessage {
@@ -20,7 +21,12 @@ public class SenderCreateDeleteMessageProcessor extends AbstractCreateRegistrati
 
 	@Override
 	public Message getConnectorMessage() {
-		publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_BROKER_DELETE, null));
 		return selfDescriptionService.getConnectorUnavailableMessage();
+	}
+
+	@Override
+	void publishEvent(MultipartMessage multipartMessage, String correlationId) {
+		publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_BROKER_DELETE, 
+				multipartMessage, correlationId));
 	}
 }

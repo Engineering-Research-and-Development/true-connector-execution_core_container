@@ -17,6 +17,7 @@ import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
+import it.eng.idsa.businesslogic.util.TrueConnectorConstants;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
 /**
@@ -50,6 +51,7 @@ public class ContractAgreementProcessor implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
+		String correlationId = (String) exchange.getMessage().getHeader(TrueConnectorConstants.CORRELATION_ID);
 
 		if (!isEnabledUsageControl 
 				|| !(multipartMessage.getHeaderContent() instanceof MessageProcessedNotificationMessage)
@@ -65,10 +67,12 @@ public class ContractAgreementProcessor implements Processor {
 		String response = null;
 		try {
 			response = usageControlService.uploadPolicy(contractAgreement);
-			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_CONTRACT_AGREEMENT_SUCCESS, multipartMessage));
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_CONTRACT_AGREEMENT_SUCCESS, 
+					multipartMessage, correlationId));
 		} catch (Exception e) {
 			logger.warn("Policy not uploaded - {}", e.getMessage());
-			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_CONTRACT_AGREEMENT_FAILED, multipartMessage));
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_CONTRACT_AGREEMENT_FAILED, 
+					multipartMessage, correlationId));
 			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.NOT_AUTHORIZED);
 		}
 		logger.info("UsageControl DataApp response {}", response);

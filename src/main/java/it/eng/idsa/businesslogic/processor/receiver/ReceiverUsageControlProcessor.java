@@ -16,11 +16,11 @@ import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
-import it.eng.idsa.businesslogic.audit.CamelAuditable;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
+import it.eng.idsa.businesslogic.util.TrueConnectorConstants;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
@@ -60,6 +60,7 @@ public class ReceiverUsageControlProcessor implements Processor {
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		requestMessage = (Message) headerParts.get("Original-Message-Header");
 		responseMessage = multipartMessage.getHeaderContent();
+		String correlationId = (String) exchange.getMessage().getHeader(TrueConnectorConstants.CORRELATION_ID);
 		
 		if (!(requestMessage instanceof ArtifactRequestMessage) || !(responseMessage instanceof ArtifactResponseMessage)) {
 			logger.info("Usage Control not applied - not ArtifactRequestMessage/ArtifactResponseMessage");
@@ -87,10 +88,12 @@ public class ReceiverUsageControlProcessor implements Processor {
 					.build();
 			
 			exchange.getMessage().setBody(reponseMultipartMessage);
-			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_POLICY_ENFORCEMENT_SUCCESS, multipartMessage));
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_POLICY_ENFORCEMENT_SUCCESS, 
+					multipartMessage, correlationId));
 		} catch (Exception e) {
 			logger.error("Usage Control Enforcement has failed with MESSAGE: {}", e.getMessage());
-			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_POLICY_ENFORCEMENT_FAILED, multipartMessage));
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_POLICY_ENFORCEMENT_FAILED, 
+					multipartMessage, correlationId));
 			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.NOT_AUTHORIZED);
 		}
     }

@@ -48,9 +48,8 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 			rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 		}
 		logger.debug(receivedDataBodyBinary);
-		MultipartMessage multipartMessage = null;
 		try {
-			multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
+			MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
 			// Create headers parts
 			headerParts.put("Payload-Content-Type",
 					multipartMessage.getPayloadHeader().get(MultipartMessageKey.CONTENT_TYPE.label));

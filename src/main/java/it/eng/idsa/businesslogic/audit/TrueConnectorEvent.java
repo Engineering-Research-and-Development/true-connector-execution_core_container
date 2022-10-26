@@ -30,18 +30,41 @@ public class TrueConnectorEvent extends AuditApplicationEvent {
 		super("connector", type.name(), detailsMultipartMessage(multipartMessage, null));
 	}
 	
+	/**
+	 * TrueConnector event with correlationId
+	 * @param type
+	 * @param multipartMessage
+	 * @param correlationId
+	 */
 	public TrueConnectorEvent(TrueConnectorEventType type, MultipartMessage multipartMessage, String correlationId) {
 		super("connector", type.name(), detailsMultipartMessage(multipartMessage, correlationId));
 	}
 	
+	/**
+	 * Default TrueConnector event
+	 * @param principal
+	 * @param type
+	 * @param data
+	 */
 	public TrueConnectorEvent(String principal, TrueConnectorEventType type, Map<String, Object> data) {
 		super(principal, type.name(), data);
 	}
 	
+	/**
+	 * TrueConnectorEvent with request and type</br>
+	 * @param request
+	 * @param type
+	 */
 	public TrueConnectorEvent(HttpServletRequest request, TrueConnectorEventType type) {
 		super(principal(request), type.name(), details(request, null));
 	}
 	
+	/**
+	 * TrueConnectorEvent with request, type and correlationId
+	 * @param request
+	 * @param type
+	 * @param correlationId
+	 */
 	public TrueConnectorEvent(HttpServletRequest request, TrueConnectorEventType type, String correlationId) {
 		super(principal(request), type.name(), details(request, correlationId));
 	}
@@ -61,23 +84,9 @@ public class TrueConnectorEvent extends AuditApplicationEvent {
 		} else {
 			details.put("http.message", "NO MESSAGE");
 		}
-//		details.put("http.headers", getHeadersInfo(multipartMessage.getHttpHeaders()));
 		return details;
 	}
 	
-//	private static Map<String, Object> detailsCamelMessage(Message camelMessage) {
-//		correlationId = (String) camelMessage.getHeader("correlationId");
-//		Map<String, Object> details = new HashMap<>();
-//		details.put("http.method", HttpMethod.POST);
-//		MultipartMessage multipartMessage = camelMessage.getBody(MultipartMessage.class);
-//		if(multipartMessage != null) {
-//			details.put("http.message", camelMessage.getBody(MultipartMessage.class).getHeaderContent().getClass().getCanonicalName());
-//		} else {
-//			details.put("http.message", "NO MESSAGE");
-//		}
-//		return details;
-//	}
-
 	private static Map<String, Object> details(HttpServletRequest request, String correlationId) {
 		Map<String, Object> details = new HashMap<>();
 		details.put("http.method", request.getMethod());
