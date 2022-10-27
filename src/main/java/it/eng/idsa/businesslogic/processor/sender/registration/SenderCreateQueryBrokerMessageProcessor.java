@@ -5,6 +5,8 @@ import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import it.eng.idsa.businesslogic.audit.CamelAuditable;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -16,6 +18,8 @@ public class SenderCreateQueryBrokerMessageProcessor implements Processor {
 	private SelfDescriptionService selfDescriptionService;
 
 	@Override
+	@CamelAuditable(successEventType = TrueConnectorEventType.CONNECTOR_BROKER_QUERY, 
+	failureEventType = TrueConnectorEventType.EXCEPTION_BAD_REQUEST)
 	public void process(Exchange exchange) throws Exception {
 		String payload =  exchange.getMessage().getHeader("payload") != null 
 				// case when request is multipart-form

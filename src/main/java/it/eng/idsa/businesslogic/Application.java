@@ -8,6 +8,7 @@ import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactor
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * 
@@ -20,6 +21,7 @@ import org.springframework.context.annotation.Bean;
  */
 @EnableCaching
 @SpringBootApplication
+@EnableAsync
 public class Application {
 	//HTTP port
 	@Value("${http.port}")

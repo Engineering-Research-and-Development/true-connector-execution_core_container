@@ -345,6 +345,9 @@ Information on how to interact with a Broker, can be found on following [link](d
 ### Self Description API 
 To manage your Self Description Document please check following [link](doc/SELF_DESCRIPTION.md)
 
+### Audit logging
+Audit events logging can be configured following [this document](doc/AUDIT.md)
+
 ## Developer guide section
 
 ### How to build Execution Core Container

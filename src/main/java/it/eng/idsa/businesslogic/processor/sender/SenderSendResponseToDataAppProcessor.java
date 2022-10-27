@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import it.eng.idsa.businesslogic.audit.CamelAuditable;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationA;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.ResponseMessageBufferBean;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
@@ -56,8 +58,11 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 
 	@Autowired
 	private HeaderCleaner headerCleaner;
-
+	
 	@Override
+	@CamelAuditable(beforeEventType =  TrueConnectorEventType.CONNECTOR_SEND_DATAAPP,
+	successEventType = TrueConnectorEventType.CONNECTOR_RESPONSE, 
+	failureEventType = TrueConnectorEventType.EXCEPTION_SERVER_ERROR)
 	public void process(Exchange exchange) throws Exception {
 
 		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
@@ -97,7 +102,7 @@ public class SenderSendResponseToDataAppProcessor implements Processor {
 			break;
 		}
 		logger.info("Sending response to DataApp");
-
+		
 		headerCleaner.removeTechnicalHeaders(headerParts);
 		exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
 

@@ -15,16 +15,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
+
 @Service
 public class InMemoryUserCrudService implements UserDetailsService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(InMemoryUserCrudService.class);
+	
+	@Autowired
+	private ApplicationEventPublisher publisher;
 	
 	/**
 	 * Username defined in application.properties.
@@ -54,6 +61,12 @@ public class InMemoryUserCrudService implements UserDetailsService {
 	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		String ip = getClientIP();
+		if (loginAttemptService.isBlocked(ip)) {
+			logger.info("User '{}' is blocked!", username);
+			publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.USER_BLOCKED));
+			throw new RuntimeException("blocked");
+		}
 		return findByUsername(username).orElse(null);
 	}
 

@@ -28,6 +28,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.eng.idsa.businesslogic.audit.Auditable;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.resources.JsonException;
 import it.eng.idsa.businesslogic.service.resources.OfferedResourceService;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -50,6 +52,7 @@ public class OfferedResourceController {
 			@ApiResponse(responseCode = "200", description = "Returns requested resource", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ResourceImpl.class)) }) })
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	@Auditable(eventType = TrueConnectorEventType.OFFERED_RESOURCE)
 	@ResponseBody
 	public ResponseEntity<String> getResource(@RequestHeader("resource") URI resource) throws IOException {
 		logger.debug("Fetching offered resource with id '{}'", resource);
@@ -63,6 +66,7 @@ public class OfferedResourceController {
 			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@Auditable(eventType = TrueConnectorEventType.OFFERED_RESOURCE_CREATED)
 	@ResponseBody
 	public ResponseEntity<String> addOrUpdateResource(@RequestHeader("catalog") URI catalog,
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ResourceImpl.class)) })
@@ -85,6 +89,7 @@ public class OfferedResourceController {
 			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@Auditable(eventType = TrueConnectorEventType.OFFERED_RESOURCE_UPDATED)
 	@ResponseBody
 	public ResponseEntity<String> updateResource(@RequestHeader("catalog") URI catalog,
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ResourceImpl.class)) })
@@ -107,6 +112,7 @@ public class OfferedResourceController {
 			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	@Auditable(eventType = TrueConnectorEventType.OFFERED_RESOURCE_DELETED)
 	@ResponseBody
 	public ResponseEntity<String> deleteResource(@RequestHeader("resource") URI offeredResource) throws IOException {
 		Connector modifiedConnector = null;

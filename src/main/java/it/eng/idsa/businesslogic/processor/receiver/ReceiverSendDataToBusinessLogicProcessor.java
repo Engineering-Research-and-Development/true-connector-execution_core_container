@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import it.eng.idsa.businesslogic.audit.CamelAuditable;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationB;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.ResponseMessageBufferBean;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
@@ -51,8 +53,11 @@ public class ReceiverSendDataToBusinessLogicProcessor implements Processor {
 	
 	@Autowired
 	private MultipartMessageService multipartMessageService;
-
+	
 	@Override
+	@CamelAuditable(beforeEventType =  TrueConnectorEventType.CONNECTOR_SEND,
+	successEventType = TrueConnectorEventType.CONNECTOR_RESPONSE, 
+	failureEventType = TrueConnectorEventType.EXCEPTION_SERVER_ERROR)
 	public void process(Exchange exchange) throws Exception {
 
 		Map<String, Object> headersParts = exchange.getMessage().getHeaders();

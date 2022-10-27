@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.21-SNAPSHOT] - 2022-10-26
+
+### Added
+ - added audit logging
+ 
+### Changed
+ - updated documentation with new functionality
+ - added log lines to track of connector setup: REST, WSS, IDSCPv2
+
 ## [0.1.20-SNAPSHOT] - 2022-10-07
 
 ### Added

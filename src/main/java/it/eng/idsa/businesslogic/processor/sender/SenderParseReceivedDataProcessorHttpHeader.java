@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.audit.CamelAuditable;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
@@ -32,8 +34,10 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 	
 	@Autowired
 	MultipartMessageService multipartMessageService;
-
+	
 	@Override
+	@CamelAuditable(successEventType = TrueConnectorEventType.CONNECTOR_REQUEST, 
+		failureEventType = TrueConnectorEventType.EXCEPTION_BAD_REQUEST)
 	public void process(Exchange exchange) throws Exception {
 		
 		Message message = null;
@@ -44,7 +48,6 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 		// Get from the input "exchange"
 		headersParts = exchange.getMessage().getHeaders();
 		payload = exchange.getMessage().getBody(String.class);
-		
 		try {
 			headerContentHeaders = headerService.getIDSHeaders(headersParts);
 			message = headerService.headersToMessage(headersParts);
@@ -59,7 +62,7 @@ public class SenderParseReceivedDataProcessorHttpHeader implements Processor{
 					.withPayloadContent(payload)
 					.build();
 			headersParts.put("Payload-Content-Type", headersParts.get(MultipartMessageKey.CONTENT_TYPE.label));
-			
+
 			// Return exchange
 			exchange.getMessage().setHeaders(headersParts);
 			exchange.getMessage().setBody(multipartMessage);

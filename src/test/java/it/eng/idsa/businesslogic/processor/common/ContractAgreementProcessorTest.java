@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.ContractAgreement;
@@ -45,6 +46,8 @@ public class ContractAgreementProcessorTest {
 	@Mock
 	private RejectionMessageService rejectionMessageService;
 	
+	@Mock
+	private ApplicationEventPublisher publisher;
 	private ContractAgreementMessage contractAgreementMessage;
 	private ContractAgreement contractAgreement;
 	

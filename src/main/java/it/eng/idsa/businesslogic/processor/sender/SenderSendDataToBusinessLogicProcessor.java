@@ -21,6 +21,8 @@ import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.audit.CamelAuditable;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.processor.sender.websocket.client.MessageWebSocketOverHttpSender;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
@@ -71,6 +73,9 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	private Integer webSocketPort;
 	
 	@Override
+	@CamelAuditable(beforeEventType =  TrueConnectorEventType.CONNECTOR_SEND,
+			successEventType = TrueConnectorEventType.CONNECTOR_RESPONSE, 
+			failureEventType = TrueConnectorEventType.EXCEPTION_SERVER_ERROR)
 	public void process(Exchange exchange) throws Exception {
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
@@ -85,7 +90,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		String forwardTo = (String) headerParts.get("Forward-To");
 		logger.info("Sending data to business logic ...");
 			if (isEnabledWebSocket) {
-				// check & exstract HTTPS WebSocket IP and Port
+				// check & extract HTTPS WebSocket IP and Port
 				try {
 					this.extractWebSocketIPAndPort(forwardTo, REGEX_WSS);
 				} catch (Exception e) {

@@ -28,6 +28,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.eng.idsa.businesslogic.audit.Auditable;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.resources.JsonException;
 import it.eng.idsa.businesslogic.service.resources.RepresentationResourceService;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -50,6 +52,7 @@ public class RepresentationResourceController {
 			@ApiResponse(responseCode = "200", description = "Returns requested resource representation", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = RepresentationImpl.class)) }) })
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	@Auditable(eventType = TrueConnectorEventType.REPRESENTATION)
 	@ResponseBody
 	public ResponseEntity<Object> getRepresentationForResource(@RequestHeader("representation") URI representation)
 			throws IOException {
@@ -64,6 +67,7 @@ public class RepresentationResourceController {
 			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@Auditable(eventType = TrueConnectorEventType.REPRESENTATION_CREATED)
 	@ResponseBody
 	public ResponseEntity<String> addRepresentationToResource(@RequestHeader("resource") URI resource,
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(content = { @Content(mediaType = "application/json", schema = @Schema(implementation = RepresentationImpl.class)) })
@@ -86,6 +90,7 @@ public class RepresentationResourceController {
 			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@Auditable(eventType = TrueConnectorEventType.REPRESENTATION_UPDATED)
 	@ResponseBody
 	public ResponseEntity<String> updateRepresentationToResource(@RequestHeader("resource") URI resource,
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(content = { @Content(mediaType = "application/json", schema = @Schema(implementation = RepresentationImpl.class)) })
@@ -108,6 +113,7 @@ public class RepresentationResourceController {
 			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	@Auditable(eventType = TrueConnectorEventType.REPRESENTATION_DELETED)
 	@ResponseBody
 	public ResponseEntity<String> deleteRepresentation(@RequestHeader("representation") URI representation)
 			throws IOException {

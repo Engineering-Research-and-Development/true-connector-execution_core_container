@@ -21,6 +21,8 @@ import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.audit.CamelAuditable;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
@@ -62,6 +64,8 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 	private RejectionMessageService rejectionMessageService;
 	
 	@Override
+	@CamelAuditable(successEventType = TrueConnectorEventType.CONNECTOR_REQUEST, 
+	failureEventType = TrueConnectorEventType.EXCEPTION_BAD_REQUEST)
 	public void process(Exchange exchange) throws Exception {
 		String header = null;
 		String payload = null;
@@ -154,7 +158,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 					if(headersParts.get(MessagePart.PAYLOAD) instanceof String) {
 						payload = (String) headersParts.get(MessagePart.PAYLOAD);
 					}
-				}else if (exchange.getMessage(AttachmentMessage.class) != null && 
+				} else if (exchange.getMessage(AttachmentMessage.class) != null && 
 						exchange.getMessage(AttachmentMessage.class).getAttachmentObject(MessagePart.PAYLOAD) != null) {
 					Attachment att1 = exchange.getMessage(AttachmentMessage.class).getAttachmentObject(MessagePart.PAYLOAD);
 					DataHandler dh1 = att1.getDataHandler();
@@ -181,6 +185,7 @@ public class ReceiverParseReceivedConnectorRequestProcessor implements Processor
 		
 		exchange.getMessage().setHeaders(headersParts);
 		exchange.getMessage().setBody(multipartMessage);
+		
 	}
 	
 	private Map<String, String> getPayloadHeadersFromAttachment(Attachment att1) {

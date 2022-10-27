@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 
 import de.fraunhofer.iais.eis.ConnectorUnavailableMessage;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
@@ -20,6 +21,9 @@ public class SenderCreateDeleteMessageProcessorTest {
 	
 	@Mock
 	private SelfDescriptionService selfDescriptionService;
+	
+	@Mock
+	private ApplicationEventPublisher publisher;
 	
 	ConnectorUnavailableMessage connectorAvailable = UtilMessageService.getConnectorUnavailableMessage(
 			UtilMessageService.SENDER_AGENT, 
