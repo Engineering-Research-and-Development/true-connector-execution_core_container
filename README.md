@@ -32,17 +32,25 @@ Finally, run the application:
 ## Endpoints
 The Execution Core Container will use two ports (http and https) as described by the Docker Compose File.
 It will expose the following endpoints (both over https):
+
 ```
-* /incoming-data-app/multipartMessageBodyBinary to receive data (MultiPartMessage) with binary body from Data App (the A endpoint in the above picture)
-* /incoming-data-app/multipartMessageBodyFormData to receive data (MultiPartMessage) with form-data body from Data App (the A endpoint in the above picture)
-* /incoming-data-app/multipartMessageHttpHeader to receive data (MultiPartMessage) represented with IDS-Message using http headers and payload in body from Data App (the A endpoint in the above picture)
-* /data to receive data (IDS Message) from a sender connector (the B endpoint in the above picture)
-```
-Furthermore, just for testing it will expose (http and https):
-```
-* /about/version returns business logic version 
+/incoming-data-app/multipartMessageBodyBinary to receive data (MultiPartMessage) with binary body from Data App (the A endpoint in the above picture)
+/incoming-data-app/multipartMessageBodyFormData to receive data (MultiPartMessage) with form-data body from Data App (the A endpoint in the above picture)
+/incoming-data-app/multipartMessageHttpHeader to receive data (MultiPartMessage) represented with IDS-Message using http headers and payload in body from Data App (the A endpoint in the above picture)
+/data to receive data (IDS Message) from a sender connector (the B endpoint in the above picture)
 ```
 
+Furthermore, just for testing it will expose (http and https):
+
+```
+/about/version returns business logic version 
+```
+
+Encode plain text password (used to get new hashed password for SelfDescription API). This endpoint is password protected, so you will have to use default credentials to get new password, using this endpoint, and then replace default password.
+
+```
+/notification/password/{password}
+```
 
 ## Configuration
 The ECC supports three different way to exchange data:

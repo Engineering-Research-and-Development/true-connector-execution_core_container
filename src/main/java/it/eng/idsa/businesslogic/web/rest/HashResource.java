@@ -2,6 +2,7 @@ package it.eng.idsa.businesslogic.web.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,9 @@ public class HashResource {
 
     @Autowired
     private HashFileService hashService;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @GetMapping("/content/{hash}")
     @ResponseBody
@@ -30,5 +34,10 @@ public class HashResource {
         return hashService.getContent(hash);
     }
 
-
+    @GetMapping("/password/{password}")
+    @ResponseBody
+    public String getPassword(@PathVariable String password) throws Exception {
+        return passwordEncoder.encode(password);
+    }
+    
 }
