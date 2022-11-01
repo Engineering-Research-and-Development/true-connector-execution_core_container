@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.22-SNAPSHOT] - 2022-10-31
+
+### Added
+ - New endpoint (password protected) for getting hash value for SelfDescription API password
+
+### Changed
+
+ - banner is now packed with jar, to avoid need to manually change it in dockerized version 
+
 ## [0.1.21-SNAPSHOT] - 2022-10-26
 
 ### Added
