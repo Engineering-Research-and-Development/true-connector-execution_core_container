@@ -3,6 +3,9 @@
  */
 package it.eng.idsa.businesslogic.service.impl;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,6 +60,23 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 
 	@Autowired
 	private SendDataToBusinessLogicService sendDataToBusinessLogicService;
+	@Autowired
+	private DapsUtilityProvider dapsUtilityProvider;
+
+	@Override
+	public String createProcessIdAtClearingHouse(Message contractAgreement) {
+		String providerFingerprint = dapsUtilityProvider.getConnectorUUID();
+		String consumerFingerprint = getConsumerFingerprint(contractAgreement);
+		if (consumerFingerprint == null || providerFingerprint.isEmpty()) {
+			logger.warn("Connector fingerprint missing - Cannot create process at Clearing House\n" +
+					"Provider Fingerprint: {}\n" +
+					"Consumer Fingerprint: {}", providerFingerprint, consumerFingerprint);
+		}
+		//TODO create a uuid PID
+		//TODO send message to create a process at CH
+		//TODO return PID
+		return "pippo";
+	}
 
 	@Override
 	public boolean registerTransaction(Message correlatedMessage, String payload) {
@@ -69,13 +89,25 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			String endpoint;
 			String pid;
 
+//			//TODO check correlatedMessage instanceof ContractAgreementMessage
+//			if (correlatedMessage instanceof ContractAgreementMessage) {
+//				URI id = getMessageId(payload);
+//
+//				pid = uuidFromURI(id);
+//				if (pid.isEmpty()) {
+//					pid = getUuidPid();
+//				}
+//				createProcessPID(correlatedMessage, processEndpoint, pid);
+//			}
+//			//TODO Stop
+
 			if (correlatedMessage.getTransferContract() != null) {
 				//log all exchanged messages relating to same ContractAgreement in same process
 				pid = extractPIDfromContract(correlatedMessage);
 				createProcessPID(correlatedMessage, processEndpoint, pid);
 			} else {
 				//default random PID
-				pid = createPID();
+				pid = getUuidPid();
 			}
 
 			endpoint = configuration.getClearingHouseUrl() + messageLogEndpoint + pid; //Create Message for Clearing House
@@ -87,6 +119,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 					._senderAgent_(correlatedMessage.getSenderAgent())
 					._securityToken_(dapsProvider.getDynamicAtributeToken())
 					.build();
+
 
 			String hash = hashService.hash(payload);
 			NotificationContent notificationContent = createNotificationContent(logInfo, correlatedMessage, hash);
@@ -101,23 +134,23 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 																			 .build();
 
 			LoggerCHMessage chMessage = new LoggerCHMessage(notificationContentHeader, notificationContentBody);
-			String msgSerialized = "Serialized Message which is sending to CH=\n" + serializer.serialize(chMessage);
-			logger.info(msgSerialized);
+
+			String chMessageSerialized = serializer.serialize(chMessage);
+			logger.info("Serialized Message which is sending to CH=\n{}", chMessageSerialized);
 			String sendingDataInfo = "Sending Data to the Clearing House " + endpoint + " ...";
 			logger.info(sendingDataInfo);
 			Response response = sendDataToBusinessLogicService.sendMessageFormData(endpoint, multipartMessage, new HashMap<>());
 
 
-			String logMessageIdInfo = "Data [LogMessage.id=" + logInfo.getId() + "] sent to the Clearing House " + endpoint;
-
-			logger.info(logMessageIdInfo);
+			logger.info("Data [LogMessage.id={}] sent to the Clearing House {}", logInfo.getId(), endpoint);
 			hashService.recordHash(hash, payload, notificationContent);
 
-			if (response.code() == 201) {
+			int code = response.code();
+			if (code == 201) {
 				success = true;
 			} else {
-				String errorMessage = "Clearing house registered fails - RejectionReason: " + response.code() + " " + response.message();
-				logger.error(errorMessage);
+				String message = response.message();
+				logger.error("Clearing House rejects the transaction - RejectionReason: {} {}", code, message);
 			}
 
 		} catch (Exception e) {
@@ -127,11 +160,34 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		return success;
 	}
 
+	private URI getMessageId(String message) throws JsonProcessingException {
+		JsonNode jsonNode = new ObjectMapper().readValue(message, JsonNode.class);
+		return URI.create(jsonNode.get("@id").asText());
+	}
+
 	private URI whoIAm() {
 		return selfDescriptionConfiguration.getConnectorURI();
 	}
 
-	private String createPID() {
+	private static class LoggerCHMessage {
+		private final Message header;
+		private final Body payload;
+
+		public LoggerCHMessage(Message header, Body body) {
+			this.header = header;
+			this.payload = body;
+		}
+
+		public Message getHeader() {
+			return header;
+		}
+
+		public Body getPayload() {
+			return payload;
+		}
+	}
+
+	private String getUuidPid() {
 		return UUID.randomUUID().toString();
 	}
 
@@ -146,7 +202,6 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 				._securityToken_(dapsProvider.getDynamicAtributeToken())
 				.build();
 
-
 		String fingerprint = getFingerprint(correlatedMessage);
 
 		List<String> owners = new ArrayList<>();
@@ -156,45 +211,14 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 																		 .withPayloadContent(ownersList(owners))
 																		 .build();
 
-
 		Response response = sendDataToBusinessLogicService.sendMessageFormData(processEndpoint, multipartMessage, new HashMap<>());
-		String warnMessage = "ProcessPID creation in Clearing House fails - RejectionReason: " + response.code() + " " + response.message();
-		logger.warn(warnMessage);
-	}
-
-	private static String ownersList(List<String> list) {
-		Map<String, List<String>> owners = new HashMap<>();
-		ObjectMapper mapper = new ObjectMapper();
-
-		owners.put("owners", list);
-
-		try {
-			return mapper.writeValueAsString(owners);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException("Error to write owners' JSON" + e);
+		int code = response.code();
+		if (code != 201) {
+			String message = response.message();
+			logger.warn("Clearing House didn't create a new log ProcessID - RejectionReason: {} {}", code, message);
+		} else {
+			logger.info("Clearing House created a new log ProcessID: {}", pid);
 		}
-	}
-
-	private static String getFingerprint(Message correlatedMessage) {
-		String jwt = correlatedMessage.getSecurityToken().getTokenValue();
-		String[] chunks = jwt.split("\\.");
-
-		Base64.Decoder decoder = Base64.getUrlDecoder();
-		if (chunks.length < 3){
-			logger.warn("JWT Token is not standard: {}", jwt);
-			return null;
-		}
-		String payload = new String(decoder.decode(chunks[1]));
-
-		ObjectMapper mapper = new ObjectMapper();
-
-		JsonNode jsonNode;
-		try {
-			jsonNode = mapper.readTree(payload);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException("Error to read jwt: " + e);
-		}
-		return jsonNode.get("sub").asText();
 	}
 
 	private String extractPIDfromContract(Message correlatedMessage) {
@@ -211,9 +235,62 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 
 		//If a UUID cannot be extracted from the contract, a new one is created
 		if (match < 0) {
-			return createPID();
+			return getUuidPid();
 		}
 		return matches.get(matches.size() - 1);
+	}
+
+	private String uuidFromURI(URI id) {
+		Pattern uuidPattern = Pattern.compile("[a-f0-9]{8}(?:-[a-f0-9]{4}){4}[a-f0-9]{8}");
+		Matcher matcher = uuidPattern.matcher(id.getPath());
+
+		List<String> matches = new ArrayList<>();
+		while (matcher.find()) {
+			matches.add(matcher.group(0));
+		}
+		return !matches.isEmpty() ? matches.get(matches.size() - 1) : "";
+	}
+
+	private static String getFingerprint(Message correlatedMessage) {
+		String fingerprint = null;
+		String token = correlatedMessage.getSecurityToken().getTokenValue();
+
+		try {
+			DecodedJWT jwt = new JWT().decodeJwt(token);
+			fingerprint = jwt.getSubject();
+
+		} catch (JWTDecodeException e) {
+			logger.warn("{}\nToken value: {}", e.getMessage(), token);
+		}
+		return fingerprint;
+	}
+
+
+	private String getConsumerFingerprint(Message contractAgreement) {
+		String fingerprint = null;
+		String token = contractAgreement.getSecurityToken().getTokenValue();
+
+		try {
+			DecodedJWT jwt = new JWT().decodeJwt(token);
+			fingerprint = jwt.getSubject();
+
+		} catch (JWTDecodeException e) {
+			logger.warn("{}\nToken value: {}", e.getMessage(), token);
+		}
+		return fingerprint;
+	}
+
+	private static String ownersList(List<String> list) {
+		Map<String, List<String>> owners = new HashMap<>();
+		ObjectMapper mapper = new ObjectMapper();
+
+		owners.put("owners", list);
+
+		try {
+			return mapper.writeValueAsString(owners);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException("Error to write owners' JSON" + e);
+		}
 	}
 
 	@NotNull
@@ -239,23 +316,5 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		return body;
 	}
 
-
-	private static class LoggerCHMessage {
-		private final Message header;
-		private final Body payload;
-
-		public LoggerCHMessage(Message header, Body body) {
-			this.header = header;
-			this.payload = body;
-		}
-
-		public Message getHeader() {
-			return header;
-		}
-
-		public Body getPayload() {
-			return payload;
-		}
-	}
 }
 
