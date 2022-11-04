@@ -59,15 +59,16 @@ public class ContractAgreementProcessor implements Processor {
 		}
 		logger.info("Uploading policy...");
 		String contractAgreement = (String) exchange.getProperty(originalMessagePayload);
-		Message message = (Message) exchange.getProperty(originalMessageHeader);
+		Message contractAgreementHeader = (Message) exchange.getProperty(originalMessageHeader);
 
 		String response = null;
 		try {
-			clearingHouseService.createProcessIdAtClearingHouse(message);
+			String pid = clearingHouseService.createProcessIdAtClearingHouse(contractAgreementHeader, contractAgreement);
+			logger.info("Clearing House create a process with pid: {}", pid);
 			response = usageControlService.uploadPolicy(contractAgreement);
 		} catch (Exception e) {
 			logger.warn("Policy not uploaded - {}", e.getMessage());
-			rejectionMessageService.sendRejectionMessage(message, RejectionReason.NOT_AUTHORIZED);
+			rejectionMessageService.sendRejectionMessage(contractAgreementHeader, RejectionReason.NOT_AUTHORIZED);
 		}
 		logger.info("UsageControl DataApp response {}", response);
 	}

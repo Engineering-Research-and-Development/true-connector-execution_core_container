@@ -64,24 +64,90 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	private DapsUtilityProvider dapsUtilityProvider;
 
 	@Override
-	public String createProcessIdAtClearingHouse(Message contractAgreement) {
+	public String createProcessIdAtClearingHouse(Message contractAgreementHeader, String contractAgreementBody) {
 		String providerFingerprint = dapsUtilityProvider.getConnectorUUID();
-		String consumerFingerprint = getConsumerFingerprint(contractAgreement);
+		String consumerFingerprint = getConsumerFingerprint(contractAgreementHeader);
 		if (consumerFingerprint == null || providerFingerprint.isEmpty()) {
-			logger.warn("Connector fingerprint missing - Cannot create process at Clearing House\n" +
-					"Provider Fingerprint: {}\n" +
-					"Consumer Fingerprint: {}", providerFingerprint, consumerFingerprint);
+			logger.warn("Connector fingerprint missing - Cannot create process at Clearing House\n" + "Provider Fingerprint: {}\n" + "Consumer Fingerprint: {}", providerFingerprint, consumerFingerprint);
+			//TODO error? return?
 		}
-		//TODO create a uuid PID
-		//TODO send message to create a process at CH
+/*
+		//remove
+//		String pid = extractPIDfromContract(contractAgreementHeader);
+*/
+
+		try {
+			Response response = createPID(contractAgreementHeader, contractAgreementBody, providerFingerprint, consumerFingerprint);
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+
+
 		//TODO return PID
 		return "pippo";
+	}
+
+	private Response createPID(Message contractAgreement, String contractAgreementBody, String providerFingerprint, String consumerFingerprint) throws UnsupportedEncodingException {
+		String processEndpoint = "process/";
+/*		// wrong
+//		URI messageID = contractAgreement.getId();
+		// new one*/
+		URI messageID = getMessageId(contractAgreementBody);
+
+		String pid = uuidFromURI(messageID);
+
+		String endpoint = configuration.getClearingHouseUrl() + processEndpoint + pid;
+
+		//TODO send message to create a process at CH
+		RequestMessage processMessage = buildRequestMessage(contractAgreement);
+
+		List<String> owners = ownersListOf(providerFingerprint, consumerFingerprint);
+
+		MultipartMessage multipartMessage = buildMultipartMessage(processMessage, owners);
+
+		logger.info("\n\nTry to create PID: {}\n\n", pid);
+		Response response = sendDataToBusinessLogicService.sendMessageFormData(endpoint, multipartMessage, new HashMap<>());
+		int code = response.code();
+		if (code != 201) {
+			String message = response.message();
+			logger.error("Clearing House didn't create a new log ProcessID - RejectionReason: {} {}\n{}", code, message, response.body());
+		} else {
+			logger.info("Clearing House created a new log ProcessID: {}", pid);
+		}
+		return response;
+	}
+
+	private static MultipartMessage buildMultipartMessage(RequestMessage processMessage, List<String> owners) {
+		Map<String, String> payloadHeader = new HashMap<>();
+		payloadHeader.put("content-type", "application/json");
+		return new MultipartMessageBuilder().withHeaderContent(processMessage)
+											.withPayloadContent(ownersList(owners))
+											.withPayloadHeader(payloadHeader)
+											.build();
+	}
+
+	@NotNull
+	private static List<String> ownersListOf(String providerFingerprint, String consumerFingerprint) {
+		List<String> owners = new ArrayList<>();
+		owners.add(providerFingerprint);
+		owners.add(consumerFingerprint);
+		return owners;
+	}
+
+	private RequestMessage buildRequestMessage(Message contractAgreement) {
+		return new RequestMessageBuilder()._modelVersion_(UtilMessageService.MODEL_VERSION)
+										  ._issuerConnector_(whoIAm())
+										  ._issued_(DateUtil.now())
+										  ._senderAgent_(contractAgreement.getSenderAgent())
+										  ._securityToken_(dapsProvider.getDynamicAtributeToken())
+										  .build();
 	}
 
 	@Override
 	public boolean registerTransaction(Message correlatedMessage, String payload) {
 		String messageLogEndpoint = "messages/log/";
-		String processEndpoint = "process/";
+		/*//		String processEndpoint = "process/";
+		 * */
 
 		boolean success = false;
 		try {
@@ -89,7 +155,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			String endpoint;
 			String pid;
 
-//			//TODO check correlatedMessage instanceof ContractAgreementMessage
+/*//			//TODO check correlatedMessage instanceof ContractAgreementMessage
 //			if (correlatedMessage instanceof ContractAgreementMessage) {
 //				URI id = getMessageId(payload);
 //
@@ -99,12 +165,13 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 //				}
 //				createProcessPID(correlatedMessage, processEndpoint, pid);
 //			}
-//			//TODO Stop
+//			//TODO Stop*/
 
 			if (correlatedMessage.getTransferContract() != null) {
 				//log all exchanged messages relating to same ContractAgreement in same process
 				pid = extractPIDfromContract(correlatedMessage);
-				createProcessPID(correlatedMessage, processEndpoint, pid);
+				/*//				createProcessPID(correlatedMessage, processEndpoint, pid);
+				 */
 			} else {
 				//default random PID
 				pid = getUuidPid();
@@ -134,7 +201,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 																			 .build();
 
 			LoggerCHMessage chMessage = new LoggerCHMessage(notificationContentHeader, notificationContentBody);
-
+			//TODO refactor message
 			String chMessageSerialized = serializer.serialize(chMessage);
 			logger.info("Serialized Message which is sending to CH=\n{}", chMessageSerialized);
 			String sendingDataInfo = "Sending Data to the Clearing House " + endpoint + " ...";
@@ -160,9 +227,15 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		return success;
 	}
 
-	private URI getMessageId(String message) throws JsonProcessingException {
-		JsonNode jsonNode = new ObjectMapper().readValue(message, JsonNode.class);
-		return URI.create(jsonNode.get("@id").asText());
+	private URI getMessageId(String message) {
+		JsonNode jsonNode = null;
+		try {
+			jsonNode = new ObjectMapper().readValue(message, JsonNode.class);
+		} catch (JsonProcessingException e) {
+			logger.error("Cannot serialize JSON: {}\n{}", message, e);
+
+		}
+		return jsonNode == null ? URI.create("") : URI.create(jsonNode.get("@id").asText());
 	}
 
 	private URI whoIAm() {
@@ -191,7 +264,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		return UUID.randomUUID().toString();
 	}
 
-	private void createProcessPID(Message correlatedMessage, String endpoint, String pid) throws UnsupportedEncodingException {
+	/*private void createProcessPID(Message correlatedMessage, String endpoint, String pid) throws UnsupportedEncodingException {
 		String processEndpoint = configuration.getClearingHouseUrl() + endpoint + pid;
 
 		RequestMessage processMessage = new RequestMessageBuilder()
@@ -219,11 +292,12 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		} else {
 			logger.info("Clearing House created a new log ProcessID: {}", pid);
 		}
-	}
+	}*/
 
-	private String extractPIDfromContract(Message correlatedMessage) {
+	//refactoring
+	private String extractPIDfromContract(Message message) {
 		Pattern uuidPattern = Pattern.compile("[a-f0-9]{8}(?:-[a-f0-9]{4}){4}[a-f0-9]{8}");
-		String path = correlatedMessage.getTransferContract().getPath();
+		String path = message.getTransferContract().getPath();
 		Matcher matcher = uuidPattern.matcher(path);
 
 		List<String> matches = new ArrayList<>();
@@ -251,7 +325,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		return !matches.isEmpty() ? matches.get(matches.size() - 1) : "";
 	}
 
-	private static String getFingerprint(Message correlatedMessage) {
+	/*private static String getFingerprint(Message correlatedMessage) {
 		String fingerprint = null;
 		String token = correlatedMessage.getSecurityToken().getTokenValue();
 
@@ -263,7 +337,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			logger.warn("{}\nToken value: {}", e.getMessage(), token);
 		}
 		return fingerprint;
-	}
+	}*/
 
 
 	private String getConsumerFingerprint(Message contractAgreement) {
