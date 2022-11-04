@@ -63,8 +63,7 @@ public class ContractAgreementProcessor implements Processor {
 
 		String response = null;
 		try {
-			String pid = clearingHouseService.createProcessIdAtClearingHouse(contractAgreementHeader, contractAgreement);
-			logger.info("Clearing House create a process with pid: {}", pid);
+			clearingHouseService.createProcessIdAtClearingHouse(contractAgreementHeader, contractAgreement);
 			response = usageControlService.uploadPolicy(contractAgreement);
 		} catch (Exception e) {
 			logger.warn("Policy not uploaded - {}", e.getMessage());

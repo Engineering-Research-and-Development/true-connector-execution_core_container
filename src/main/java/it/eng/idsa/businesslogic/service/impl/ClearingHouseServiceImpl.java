@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.*;
@@ -64,152 +65,51 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	private DapsUtilityProvider dapsUtilityProvider;
 
 	@Override
-	public String createProcessIdAtClearingHouse(Message contractAgreementHeader, String contractAgreementBody) {
+	public void createProcessIdAtClearingHouse(Message contractAgreementHeader, String contractAgreementBody) {
 		String providerFingerprint = dapsUtilityProvider.getConnectorUUID();
 		String consumerFingerprint = getConsumerFingerprint(contractAgreementHeader);
 		if (consumerFingerprint == null || providerFingerprint.isEmpty()) {
 			logger.warn("Connector fingerprint missing - Cannot create process at Clearing House\n" + "Provider Fingerprint: {}\n" + "Consumer Fingerprint: {}", providerFingerprint, consumerFingerprint);
 			//TODO error? return?
 		}
-/*
-		//remove
-//		String pid = extractPIDfromContract(contractAgreementHeader);
-*/
 
 		try {
-			Response response = createPID(contractAgreementHeader, contractAgreementBody, providerFingerprint, consumerFingerprint);
+			createPID(contractAgreementHeader, contractAgreementBody, providerFingerprint, consumerFingerprint);
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
-
-
-		//TODO return PID
-		return "pippo";
-	}
-
-	private Response createPID(Message contractAgreement, String contractAgreementBody, String providerFingerprint, String consumerFingerprint) throws UnsupportedEncodingException {
-		String processEndpoint = "process/";
-/*		// wrong
-//		URI messageID = contractAgreement.getId();
-		// new one*/
-		URI messageID = getMessageId(contractAgreementBody);
-
-		String pid = uuidFromURI(messageID);
-
-		String endpoint = configuration.getClearingHouseUrl() + processEndpoint + pid;
-
-		//TODO send message to create a process at CH
-		RequestMessage processMessage = buildRequestMessage(contractAgreement);
-
-		List<String> owners = ownersListOf(providerFingerprint, consumerFingerprint);
-
-		MultipartMessage multipartMessage = buildMultipartMessage(processMessage, owners);
-
-		logger.info("\n\nTry to create PID: {}\n\n", pid);
-		Response response = sendDataToBusinessLogicService.sendMessageFormData(endpoint, multipartMessage, new HashMap<>());
-		int code = response.code();
-		if (code != 201) {
-			String message = response.message();
-			logger.error("Clearing House didn't create a new log ProcessID - RejectionReason: {} {}\n{}", code, message, response.body());
-		} else {
-			logger.info("Clearing House created a new log ProcessID: {}", pid);
-		}
-		return response;
-	}
-
-	private static MultipartMessage buildMultipartMessage(RequestMessage processMessage, List<String> owners) {
-		Map<String, String> payloadHeader = new HashMap<>();
-		payloadHeader.put("content-type", "application/json");
-		return new MultipartMessageBuilder().withHeaderContent(processMessage)
-											.withPayloadContent(ownersList(owners))
-											.withPayloadHeader(payloadHeader)
-											.build();
-	}
-
-	@NotNull
-	private static List<String> ownersListOf(String providerFingerprint, String consumerFingerprint) {
-		List<String> owners = new ArrayList<>();
-		owners.add(providerFingerprint);
-		owners.add(consumerFingerprint);
-		return owners;
-	}
-
-	private RequestMessage buildRequestMessage(Message contractAgreement) {
-		return new RequestMessageBuilder()._modelVersion_(UtilMessageService.MODEL_VERSION)
-										  ._issuerConnector_(whoIAm())
-										  ._issued_(DateUtil.now())
-										  ._senderAgent_(contractAgreement.getSenderAgent())
-										  ._securityToken_(dapsProvider.getDynamicAtributeToken())
-										  .build();
 	}
 
 	@Override
 	public boolean registerTransaction(Message correlatedMessage, String payload) {
 		String messageLogEndpoint = "messages/log/";
-		/*//		String processEndpoint = "process/";
-		 * */
 
 		boolean success = false;
 		try {
 			logger.info("registerTransaction...");
 			String endpoint;
-			String pid;
+			String pid = "";
 
-/*//			//TODO check correlatedMessage instanceof ContractAgreementMessage
-//			if (correlatedMessage instanceof ContractAgreementMessage) {
-//				URI id = getMessageId(payload);
-//
-//				pid = uuidFromURI(id);
-//				if (pid.isEmpty()) {
-//					pid = getUuidPid();
-//				}
-//				createProcessPID(correlatedMessage, processEndpoint, pid);
-//			}
-//			//TODO Stop*/
-
-			if (correlatedMessage.getTransferContract() != null) {
-				//log all exchanged messages relating to same ContractAgreement in same process
-				pid = extractPIDfromContract(correlatedMessage);
-				/*//				createProcessPID(correlatedMessage, processEndpoint, pid);
-				 */
-			} else {
-				//default random PID
-				pid = getUuidPid();
+			URI transferContractURI = correlatedMessage.getTransferContract();
+			if (transferContractURI != null) {
+				pid = uuidFromURI(transferContractURI);
 			}
+			pid = pid.isEmpty() ? UUID.randomUUID().toString() : pid;
 
 			endpoint = configuration.getClearingHouseUrl() + messageLogEndpoint + pid; //Create Message for Clearing House
 
-			LogMessage logInfo = new LogMessageBuilder()
-					._modelVersion_(UtilMessageService.MODEL_VERSION)
-					._issuerConnector_(whoIAm())
-					._issued_(DateUtil.now())
-					._senderAgent_(correlatedMessage.getSenderAgent())
-					._securityToken_(dapsProvider.getDynamicAtributeToken())
-					.build();
-
-
+			LogMessage logInfo = buildLogMessage(correlatedMessage);
 			String hash = hashService.hash(payload);
 			NotificationContent notificationContent = createNotificationContent(logInfo, correlatedMessage, hash);
 
-			Serializer serializer = new Serializer();
-			Message notificationContentHeader = notificationContent.getHeader();
-			Body notificationContentBody = notificationContent.getBody();
+			MultipartMessage multipartMessage = buildMultipartMessage(notificationContent);
 
-			String msgPayload = serializer.serialize(notificationContentBody);
-			MultipartMessage multipartMessage = new MultipartMessageBuilder().withHeaderContent(notificationContentHeader)
-																			 .withPayloadContent(msgPayload)
-																			 .build();
-
-			LoggerCHMessage chMessage = new LoggerCHMessage(notificationContentHeader, notificationContentBody);
-			//TODO refactor message
-			String chMessageSerialized = serializer.serialize(chMessage);
-			logger.info("Serialized Message which is sending to CH=\n{}", chMessageSerialized);
-			String sendingDataInfo = "Sending Data to the Clearing House " + endpoint + " ...";
-			logger.info(sendingDataInfo);
+			logger.info("Sending Data to the Clearing House {} ...", endpoint);
 			Response response = sendDataToBusinessLogicService.sendMessageFormData(endpoint, multipartMessage, new HashMap<>());
 
 
 			logger.info("Data [LogMessage.id={}] sent to the Clearing House {}", logInfo.getId(), endpoint);
+
 			hashService.recordHash(hash, payload, notificationContent);
 
 			int code = response.code();
@@ -227,120 +127,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		return success;
 	}
 
-	private URI getMessageId(String message) {
-		JsonNode jsonNode = null;
-		try {
-			jsonNode = new ObjectMapper().readValue(message, JsonNode.class);
-		} catch (JsonProcessingException e) {
-			logger.error("Cannot serialize JSON: {}\n{}", message, e);
-
-		}
-		return jsonNode == null ? URI.create("") : URI.create(jsonNode.get("@id").asText());
-	}
-
-	private URI whoIAm() {
-		return selfDescriptionConfiguration.getConnectorURI();
-	}
-
-	private static class LoggerCHMessage {
-		private final Message header;
-		private final Body payload;
-
-		public LoggerCHMessage(Message header, Body body) {
-			this.header = header;
-			this.payload = body;
-		}
-
-		public Message getHeader() {
-			return header;
-		}
-
-		public Body getPayload() {
-			return payload;
-		}
-	}
-
-	private String getUuidPid() {
-		return UUID.randomUUID().toString();
-	}
-
-	/*private void createProcessPID(Message correlatedMessage, String endpoint, String pid) throws UnsupportedEncodingException {
-		String processEndpoint = configuration.getClearingHouseUrl() + endpoint + pid;
-
-		RequestMessage processMessage = new RequestMessageBuilder()
-				._modelVersion_(UtilMessageService.MODEL_VERSION)
-				._issuerConnector_(whoIAm())
-				._issued_(DateUtil.now())
-				._senderAgent_(correlatedMessage.getSenderAgent())
-				._securityToken_(dapsProvider.getDynamicAtributeToken())
-				.build();
-
-		String fingerprint = getFingerprint(correlatedMessage);
-
-		List<String> owners = new ArrayList<>();
-		owners.add(fingerprint);
-
-		MultipartMessage multipartMessage = new MultipartMessageBuilder().withHeaderContent(processMessage)
-																		 .withPayloadContent(ownersList(owners))
-																		 .build();
-
-		Response response = sendDataToBusinessLogicService.sendMessageFormData(processEndpoint, multipartMessage, new HashMap<>());
-		int code = response.code();
-		if (code != 201) {
-			String message = response.message();
-			logger.warn("Clearing House didn't create a new log ProcessID - RejectionReason: {} {}", code, message);
-		} else {
-			logger.info("Clearing House created a new log ProcessID: {}", pid);
-		}
-	}*/
-
-	//refactoring
-	private String extractPIDfromContract(Message message) {
-		Pattern uuidPattern = Pattern.compile("[a-f0-9]{8}(?:-[a-f0-9]{4}){4}[a-f0-9]{8}");
-		String path = message.getTransferContract().getPath();
-		Matcher matcher = uuidPattern.matcher(path);
-
-		List<String> matches = new ArrayList<>();
-		while (matcher.find()) {
-			matches.add(matcher.group(0));
-		}
-
-		int match = matches.size() - 1;
-
-		//If a UUID cannot be extracted from the contract, a new one is created
-		if (match < 0) {
-			return getUuidPid();
-		}
-		return matches.get(matches.size() - 1);
-	}
-
-	private String uuidFromURI(URI id) {
-		Pattern uuidPattern = Pattern.compile("[a-f0-9]{8}(?:-[a-f0-9]{4}){4}[a-f0-9]{8}");
-		Matcher matcher = uuidPattern.matcher(id.getPath());
-
-		List<String> matches = new ArrayList<>();
-		while (matcher.find()) {
-			matches.add(matcher.group(0));
-		}
-		return !matches.isEmpty() ? matches.get(matches.size() - 1) : "";
-	}
-
-	/*private static String getFingerprint(Message correlatedMessage) {
-		String fingerprint = null;
-		String token = correlatedMessage.getSecurityToken().getTokenValue();
-
-		try {
-			DecodedJWT jwt = new JWT().decodeJwt(token);
-			fingerprint = jwt.getSubject();
-
-		} catch (JWTDecodeException e) {
-			logger.warn("{}\nToken value: {}", e.getMessage(), token);
-		}
-		return fingerprint;
-	}*/
-
-
-	private String getConsumerFingerprint(Message contractAgreement) {
+	private String getConsumerFingerprint(@NotNull Message contractAgreement) {
 		String fingerprint = null;
 		String token = contractAgreement.getSecurityToken().getTokenValue();
 
@@ -354,6 +141,86 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		return fingerprint;
 	}
 
+
+	private void createPID(Message contractAgreement, String contractAgreementBody, String providerFingerprint, String consumerFingerprint) throws UnsupportedEncodingException {
+		String processEndpoint = "process/";
+		URI messageID = getMessageId(contractAgreementBody);
+		String pid = uuidFromURI(messageID);
+
+		String endpoint = configuration.getClearingHouseUrl() + processEndpoint + pid;
+
+		RequestMessage processMessage = buildRequestMessage(contractAgreement);
+		List<String> owners = ownersListOf(providerFingerprint, consumerFingerprint);
+		MultipartMessage multipartMessage = buildMultipartMessage(processMessage, owners);
+
+		Response response = sendDataToBusinessLogicService.sendMessageFormData(endpoint, multipartMessage, new HashMap<>());
+		int code = response.code();
+		if (code != 201) {
+			String message = response.message();
+			logger.error("Clearing House didn't create a new log ProcessID - RejectionReason: {} {}\n{}", code, message, response.body());
+		} else {
+			logger.info("Clearing House created a new log ProcessID: {}", pid);
+		}
+	}
+
+	@NotNull
+	private URI getMessageId(String message) {
+		JsonNode jsonNode = null;
+		try {
+			jsonNode = new ObjectMapper().readValue(message, JsonNode.class);
+		} catch (JsonProcessingException e) {
+			logger.error("Cannot serialize JSON: {}\n{}", message, e);
+
+		}
+		return jsonNode == null ? URI.create("") : URI.create(jsonNode.get("@id").asText());
+	}
+
+	private String uuidFromURI(@NotNull URI id) {
+		Pattern uuidPattern = Pattern.compile("[a-f0-9]{8}(?:-[a-f0-9]{4}){4}[a-f0-9]{8}");
+		Matcher matcher = uuidPattern.matcher(id.getPath());
+
+		List<String> matches = new ArrayList<>();
+		while (matcher.find()) {
+			matches.add(matcher.group(0));
+		}
+		return !matches.isEmpty() ? matches.get(matches.size() - 1) : "";
+	}
+
+	private RequestMessage buildRequestMessage(@NotNull Message contractAgreement) {
+		return new RequestMessageBuilder()._modelVersion_(UtilMessageService.MODEL_VERSION)
+										  ._issuerConnector_(whoIAm())
+										  ._issued_(DateUtil.now())
+										  ._senderAgent_(contractAgreement.getSenderAgent())
+										  ._securityToken_(dapsProvider.getDynamicAtributeToken())
+										  .build();
+	}
+
+	private LogMessage buildLogMessage(@NotNull Message correlatedMessage) {
+		return new LogMessageBuilder()._modelVersion_(UtilMessageService.MODEL_VERSION)
+									  ._issuerConnector_(whoIAm())
+									  ._issued_(DateUtil.now())
+									  ._senderAgent_(correlatedMessage.getSenderAgent())
+									  ._securityToken_(dapsProvider.getDynamicAtributeToken())
+									  .build();
+	}
+
+	@NotNull
+	private static List<String> ownersListOf(String providerFingerprint, String consumerFingerprint) {
+		List<String> owners = new ArrayList<>();
+		owners.add(providerFingerprint);
+		owners.add(consumerFingerprint);
+		return owners;
+	}
+
+	private static MultipartMessage buildMultipartMessage(RequestMessage processMessage, List<String> owners) {
+		Map<String, String> payloadHeader = new HashMap<>();
+		payloadHeader.put("content-type", "application/json");
+		return new MultipartMessageBuilder().withHeaderContent(processMessage)
+											.withPayloadContent(ownersList(owners))
+											.withPayloadHeader(payloadHeader)
+											.build();
+	}
+
 	private static String ownersList(List<String> list) {
 		Map<String, List<String>> owners = new HashMap<>();
 		ObjectMapper mapper = new ObjectMapper();
@@ -363,7 +230,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		try {
 			return mapper.writeValueAsString(owners);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException("Error to write owners' JSON" + e);
+			throw new RuntimeException("Error to write owners' JSON " + e);
 		}
 	}
 
@@ -388,6 +255,44 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		body.setHeader(correlatedMessage);
 		body.setPayload(hash);
 		return body;
+	}
+
+	private static MultipartMessage buildMultipartMessage(@NotNull NotificationContent notificationContent) throws IOException {
+		Serializer serializer = new Serializer();
+		Message notificationContentHeader = notificationContent.getHeader();
+		Body notificationContentBody = notificationContent.getBody();
+
+		String msgPayload = serializer.serialize(notificationContentBody);
+		MultipartMessage multipartMessage = new MultipartMessageBuilder().withHeaderContent(notificationContentHeader)
+																		 .withPayloadContent(msgPayload)
+																		 .build();
+
+		LoggerCHMessage chMessage = new LoggerCHMessage(notificationContentHeader, notificationContentBody);
+		String chMessageSerialized = serializer.serialize(chMessage);
+		logger.info("Serialized Message which is sending to Clearing House=\n{}", chMessageSerialized);
+		return multipartMessage;
+	}
+
+	private URI whoIAm() {
+		return selfDescriptionConfiguration.getConnectorURI();
+	}
+
+	private static class LoggerCHMessage {
+		private final Message header;
+		private final Body payload;
+
+		public LoggerCHMessage(Message header, Body body) {
+			this.header = header;
+			this.payload = body;
+		}
+
+		public Message getHeader() {
+			return header;
+		}
+
+		public Body getPayload() {
+			return payload;
+		}
 	}
 
 }
