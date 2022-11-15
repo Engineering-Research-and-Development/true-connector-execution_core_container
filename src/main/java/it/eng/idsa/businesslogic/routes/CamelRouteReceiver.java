@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import it.eng.idsa.businesslogic.processor.common.ConnectorHealthCheckProcessor;
 import it.eng.idsa.businesslogic.processor.common.ContractAgreementProcessor;
 import it.eng.idsa.businesslogic.processor.common.DeModifyPayloadProcessor;
 import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
@@ -90,6 +91,9 @@ public class CamelRouteReceiver extends RouteBuilder {
 	
 	@Autowired
 	private OriginalMessageProcessor originalMessageProcessor;
+	
+	@Autowired
+	private ConnectorHealthCheckProcessor connectorHealthCheckProcessor;
 
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
@@ -111,6 +115,8 @@ public class CamelRouteReceiver extends RouteBuilder {
 		camelContext.getShutdownStrategy().setTimeout(3);
 //		camelContext.setCaseInsensitiveHeaders(false);
 
+		interceptFrom().process(connectorHealthCheckProcessor);
+		
 		//@formatter:off
 		onException(ExceptionForProcessor.class, RuntimeException.class)
 			.handled(true)

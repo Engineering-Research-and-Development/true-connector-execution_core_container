@@ -10,18 +10,18 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.http.entity.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.Message;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.MultipartMessageService;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.util.RequestResponseUtil;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -31,33 +31,27 @@ import okhttp3.ResponseBody;
 
 public class BrokerServiceImplTest {
 
-	@InjectMocks
 	private BrokerServiceImpl brokerServiceImpl;
 
 	@Mock
 	private SendDataToBusinessLogicService sendDataToBusinessLogicService;
-
 	@Mock
 	private DapsTokenProviderService dapsTokenProviderService;
-
 	@Mock
 	private MultipartMessageService multiPartMessageService;
-
-	private String brokerURL;
-
-	private Message message;
+	@Mock
+	private RejectionMessageService rejectionService;
 	
+	private Message message;
 	private String payload = "mockPayload";
-
 	private Map<String, Object> headers;
-
 	private static final String FORWARD_TO = "http://forward.to";
 
 	@BeforeEach
 	public void init() {
 		MockitoAnnotations.initMocks(this);
-		brokerURL = "mockBrokerURL";
-		ReflectionTestUtils.setField(brokerServiceImpl, "brokerURL", brokerURL);
+		brokerServiceImpl = new BrokerServiceImpl(sendDataToBusinessLogicService, Optional.of(dapsTokenProviderService), 
+				multiPartMessageService, rejectionService, "mockBrokerURL");
 		when(dapsTokenProviderService.provideToken())
 				.thenReturn(UtilMessageService.getDynamicAttributeToken().getTokenValue());
 		message = UtilMessageService.getConnectorUpdateMessage(UtilMessageService.SENDER_AGENT, UtilMessageService.ISSUER_CONNECTOR, UtilMessageService.AFFECTED_CONNECTOR);

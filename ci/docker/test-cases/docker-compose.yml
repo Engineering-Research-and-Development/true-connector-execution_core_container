@@ -6,9 +6,12 @@ services:
       - "${PROVIDER_PORT}:${INTERNAL_REST_PORT}"  #Port for exposing HTTP endpoints 
       - 8889:8889  #Exposed port for receiving data from another connector (REST)
       - 8086:8086  #Exposed port for receiving data from another connector (WS)
+    depends_on:
+      - be-dataapp-provider
     environment:
        - "SPRING_PROFILES_ACTIVE=docker"  
        - DATA_APP_ENDPOINT=${PROVIDER_DATA_APP_ENDPOINT}      #Data APP enpoint for consuming received data 
+       - DATA_APP_HEALTH_ENDPOINT=${PROVIDER_DATA_APP_HEALTH_ENDPOINT}
        - MULTIPART_EDGE=${PROVIDER_MULTIPART_EDGE}                      #Data APP endpoint multipart/mixed content type
        - MULTIPART_ECC=${MULTIPART_ECC} 
        - REST_ENABLE_HTTPS=${REST_ENABLE_HTTPS}
@@ -16,6 +19,7 @@ services:
        - WS_EDGE=${PROVIDER_WS_EDGE}
        - WS_ECC=${WS_ECC}
        - UC_DATAAPP_URI=${PROVIDER_UC_DATAAPP_URI}
+       - UC_DATAAPP_HEALTH_URI=${PROVIDER_UC_DATAAPP_HEALTH_URI}
        - CLEARING_HOUSE=${CLEARING_HOUSE}
        - PUBLIC_PORT=${PROVIDER_PORT}
        - BROKER_URL=${BROKER_URL}
@@ -66,9 +70,12 @@ services:
       - "${CONSUMER_PORT}:${INTERNAL_REST_PORT}"  #Port for exposing HTTP endpoints 
       - 8890:8889  #Exposed port for receiving data from another connector (REST)
       - 8087:8086  #Exposed port for receiving data from another connector (WS)
+    depends_on:
+      - be-dataapp-consumer
     environment:
        - "SPRING_PROFILES_ACTIVE=docker"  
        - DATA_APP_ENDPOINT=${CONSUMER_DATA_APP_ENDPOINT}    #Data APP enpoint for consuming received data 
+       - DATA_APP_HEALTH_ENDPOINT=${CONSUMER_DATA_APP_HEALTH_ENDPOINT}
        - MULTIPART_EDGE=${CONSUMER_MULTIPART_EDGE}          #Data APP endpoint multipart/mixed content type
        - MULTIPART_ECC=${MULTIPART_ECC}
        - REST_ENABLE_HTTPS=${REST_ENABLE_HTTPS}
@@ -77,6 +84,7 @@ services:
        - WS_ECC=${WS_ECC}
        - CLEARING_HOUSE=${CLEARING_HOUSE}
        - UC_DATAAPP_URI=${CONSUMER_UC_DATAAPP_URI}
+       - UC_DATAAPP_HEALTH_URI=${CONSUMER_UC_DATAAPP_HEALTH_URI}
        - PUBLIC_PORT=${CONSUMER_PORT}
        - BROKER_URL=${BROKER_URL}
        - DISABLE_SSL_VALIDATION=${DISABLE_SSL_VALIDATION}

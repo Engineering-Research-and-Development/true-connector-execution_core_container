@@ -11,7 +11,7 @@ package it.eng.idsa.businesslogic.service;
  */
 public interface CommunicationService {
 	
-	public String sendData(String endpoint, String data);
-	public String sendDataAsJson(String endpoint, String data, String contentType);
-	
+	String sendData(String endpoint, String data);
+	String sendDataAsJson(String endpoint, String data, String contentType);
+	String getRequest(String url);
 }

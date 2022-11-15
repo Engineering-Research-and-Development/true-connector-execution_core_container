@@ -24,6 +24,12 @@ public class PlatoonUsageControlServiceImpl implements UsageControlService {
 	@Value("${spring.ids.ucapp.baseUrl}")
 	private String platoonURL;
 	
+	@Value("${spring.ids.ucapp.healthUrl}") 
+	private String usageControlHealthURL;
+
+	@Value("${application.isEnabledUsageControl}") 
+	private boolean isEnabledUsageControl;
+	
 	private String policyEnforcementEndpoint = "enforce/usage/agreement";
 	
 	private String policyUploadEndpoint = "contractAgreement";
@@ -60,6 +66,14 @@ public class PlatoonUsageControlServiceImpl implements UsageControlService {
 		String ucUrl = platoonURL + policyUploadEndpoint;
 
 		return communicationService.sendDataAsJson(ucUrl, payloadContent, CONTENT_TYPE);
+	}
+
+	@Override
+	public boolean isUsageControlAvailable() {
+		if(isEnabledUsageControl) {
+			 return communicationService.getRequest(usageControlHealthURL) != null ? true : false;
+		}
+		return true;
 	}
 
 }

@@ -50,6 +50,12 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
 	private String usageControlDataAppURL;
 	
 	private String policyEndpoint = "policy/usage/odrl";
+	
+	@Value("${spring.ids.ucapp.healthUrl}") 
+	private String usageControlHealthURL;
+
+	@Value("${application.isEnabledUsageControl}") 
+	private boolean isEnabledUsageControl;
 
 	private Gson gson;
 
@@ -191,6 +197,14 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
 			obj = null;
 		}
 		return obj;
+	}
+
+	@Override
+	public boolean isUsageControlAvailable() {
+		if (isEnabledUsageControl) {
+			return communicationService.getRequest(usageControlHealthURL) != null ? true : false;
+		}
+		return true;
 	}
 
 }

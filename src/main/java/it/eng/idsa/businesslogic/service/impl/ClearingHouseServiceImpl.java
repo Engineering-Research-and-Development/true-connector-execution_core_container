@@ -10,6 +10,7 @@ import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -41,6 +42,7 @@ import it.eng.idsa.multipart.util.UtilMessageService;
 
 @Service
 @Transactional
+@ConditionalOnExpression("'${application.isEnabledClearingHouse}' == 'true'")
 public class ClearingHouseServiceImpl implements ClearingHouseService {
 	private static final Logger logger = LoggerFactory.getLogger(ClearingHouseServiceImpl.class);
 
@@ -49,7 +51,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 
 	@Autowired
 	private SelfDescriptionConfiguration selfDescriptionConfiguration;
-	
+
 	@Autowired
 	private DapsTokenProviderService dapsProvider;
 
@@ -68,13 +70,10 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			String endpoint = configuration.getClearingHouseUrl();
 			// Create Message for Clearing House
 
-			LogMessage logInfo = new LogMessageBuilder()
-					._modelVersion_(UtilMessageService.MODEL_VERSION)
-					._issuerConnector_(whoIAm())
-					._issued_(DateUtil.now())
+			LogMessage logInfo = new LogMessageBuilder()._modelVersion_(UtilMessageService.MODEL_VERSION)
+					._issuerConnector_(whoIAm())._issued_(DateUtil.now())
 					._senderAgent_(correlatedMessage.getSenderAgent())
-					._securityToken_(dapsProvider.getDynamicAtributeToken())
-					.build();
+					._securityToken_(dapsProvider.getDynamicAtributeToken()).build();
 
 			NotificationContent notificationContent = new NotificationContent();
 			notificationContent.setHeader(logInfo);
@@ -90,9 +89,9 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 //			String msgSerialized = MultipartMessageProcessor.serializeMessage(notificationContent);
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
-	        mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-			
-	        String msgSerialized = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(notificationContent);
+			mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+
+			String msgSerialized = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(notificationContent);
 			logger.info("msgSerialized to CH=" + msgSerialized);
 			JSONParser parser = new JSONParser();
 			JSONObject jsonObject = (JSONObject) parser.parse(msgSerialized);
@@ -113,6 +112,18 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 
 	private URI whoIAm() {
 		return selfDescriptionConfiguration.getConnectorURI();
+	}
+
+	@Override
+	public boolean isClearingHouseAvailable() {
+		// TODO how to check if CH is available????
+		try {
+			restTemplate.getForEntity(configuration.getClearingHouseUrl(), String.class);
+		} catch (Exception e) {
+			logger.error("Error while making a request", e);
+			return false;
+		}
+		return true;
 	}
 
 }

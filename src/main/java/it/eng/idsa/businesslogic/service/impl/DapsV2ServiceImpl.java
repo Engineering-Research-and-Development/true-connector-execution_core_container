@@ -1,6 +1,7 @@
 package it.eng.idsa.businesslogic.service.impl;
 
 import java.io.IOException;
+import java.net.URL;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
@@ -12,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +37,8 @@ import okhttp3.Response;
  * @author Antonio Scatoloni and Gabriele De Luca
  */
 
-@ConditionalOnProperty(name = "application.dapsVersion", havingValue = "v2")
+//@ConditionalOnProperty(name = "application.dapsVersion", havingValue = "v2")
+@ConditionalOnExpression("'${application.isEnabledDapsInteraction}' == 'true' && '${application.dapsVersion}'=='v2'")
 @Service
 @Transactional
 public class DapsV2ServiceImpl implements DapsService {
@@ -52,6 +54,9 @@ public class DapsV2ServiceImpl implements DapsService {
 
 	@Value("${application.dapsUrl}")
 	private String dapsUrl;
+	
+	@Value("${application.dapsJWKSUrl}")
+	private URL dapsJWKSUrl;
 
 	@VisibleForTesting
 	String getJwTokenInternal() {
@@ -146,5 +151,20 @@ public class DapsV2ServiceImpl implements DapsService {
 			return null;
 		}
 		return token;
+	}
+
+	@Override
+	public boolean isDapsAvailable() {
+		Request request = new Request.Builder().url(dapsJWKSUrl).build();
+		try {
+			Response response =  client.newCall(request).execute();
+			if(response.isSuccessful()) {
+				return true;
+			}
+		} catch (IOException e) {
+			logger.error("Error while making call to {}", dapsUrl, e);
+			return false;
+		}
+		return false;
 	}
 }
