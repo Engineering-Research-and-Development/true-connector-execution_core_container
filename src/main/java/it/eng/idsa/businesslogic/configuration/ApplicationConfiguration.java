@@ -1,7 +1,7 @@
 package it.eng.idsa.businesslogic.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * 
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  *
  */
 
-@Component
+@Configuration
 @ConfigurationProperties("application")
 public class ApplicationConfiguration {
 
@@ -20,7 +20,6 @@ public class ApplicationConfiguration {
 	private String keystoreAliasName;
 	private String connectorUUID;
 	private String dapsJWKSUrl;
-	private String clearingHouseUrl;
 	private String uriSchema;
 	private String uriAuthority;
 	private String uriConnector;
@@ -85,14 +84,6 @@ public class ApplicationConfiguration {
 
 	public void setDapsJWKSUrl(String dapsJWKSUrl) {
 		this.dapsJWKSUrl = dapsJWKSUrl;
-	}
-
-	public String getClearingHouseUrl() {
-		return clearingHouseUrl;
-	}
-
-	public void setClearingHouseUrl(String clearingHouseUrl) {
-		this.clearingHouseUrl = clearingHouseUrl;
 	}
 
 	public String getUriSchema() {

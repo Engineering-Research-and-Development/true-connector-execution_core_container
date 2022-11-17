@@ -115,7 +115,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 		onException(ExceptionForProcessor.class, RuntimeException.class)
 			.handled(true)
 			.process(exceptionProcessorReceiver)
-			.process(registerTransactionToCHProcessor)
 			.process(sendDataToBusinessLogicProcessor);
 		
 		// Camel SSL - Endpoint: B communication http

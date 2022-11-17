@@ -8,7 +8,7 @@
 The ENG Execution Core Container, based on the IDS Base Connector, is the core component of an IDS Connector enabling:
 * the data exchange between connectors, using HTTPS, WS over HTTPS, IDSCP2 (beta)
 * interaction with the AISEC Fraunhofer DAPS Service for requiring and validating a token
-* communication with the ENG Clearing House for registering transactions
+* communication with the Clearing House for registering transactions
 
 ![Execution Core Container Architecture](doc/connector_schema_v1.1.PNG?raw=true "ENG Execution Core Container Architecture")
 
@@ -353,8 +353,6 @@ Clone projects from the following links and run mvn clean install
 [Multipart Message library](https://github.com/Engineering-Research-and-Development/true-connector-multipart_message_library)
 
 [WebSocket Message Streamer library](https://github.com/Engineering-Research-and-Development/market4.0-websocket_message_streamer)
-
-[Clearing house model](https://github.com/Engineering-Research-and-Development/market4.0-clearing_house/tree/infomodel_4.0.6)
 
 [Execution Core Container](https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container)
 

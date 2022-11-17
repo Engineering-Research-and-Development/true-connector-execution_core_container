@@ -4,16 +4,18 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+
 import org.apache.camel.Exchange;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.configuration.ClearingHouseConfiguration;
 import it.eng.idsa.businesslogic.service.ClearingHouseService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -21,11 +23,16 @@ import it.eng.idsa.multipart.util.UtilMessageService;
 
 public class RegisterTransactionToCHProcessorTest {
 	
-	@InjectMocks
 	private RegisterTransactionToCHProcessor processor;
 	
 	@Mock
-	private ClearingHouseService clearingHouseService;
+	private ClearingHouseConfiguration configuration;
+	
+	@Mock
+	private Optional<ClearingHouseService> clearingHouseService;
+	
+	@Mock
+	private ClearingHouseService chs;
 	
 	@Mock
 	private RejectionMessageService rejectionMessageService;
@@ -49,9 +56,11 @@ public class RegisterTransactionToCHProcessorTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
+		processor = new RegisterTransactionToCHProcessor(configuration, clearingHouseService, rejectionMessageService, false);
 		requestMessage = UtilMessageService.getArtifactRequestMessage();
 		when(exchange.getProperty("Original-Message-Header")).thenReturn(requestMessage);
 		payload = "PAYLOAD";
+		when(clearingHouseService.get()).thenReturn(chs);
 	}
 	
 	@Test
@@ -60,31 +69,31 @@ public class RegisterTransactionToCHProcessorTest {
 		
 		processor.process(exchange);
 		
-		verify(clearingHouseService, times(0)).registerTransaction(requestMessage, payload);
+		verify(clearingHouseService.get(), times(0)).registerTransaction(requestMessage, payload, requestMessage);
 	}
 	
 	@Test
 	public void clearingHouseInteractionSuccesfull() throws Exception {
 		ReflectionTestUtils.setField(processor, "isEnabledClearingHouse", true);
 		mockExchangeHeaderAndBody();
-		when(clearingHouseService.registerTransaction(requestMessage, payload)).thenReturn(true);
+		when(clearingHouseService.get().registerTransaction(requestMessage, payload, requestMessage)).thenReturn(true);
 		
 		processor.process(exchange);
 		
 		verify(rejectionMessageService, times(0)).sendRejectionMessage(requestMessage, RejectionReason.INTERNAL_RECIPIENT_ERROR);
-		verify(clearingHouseService).registerTransaction(requestMessage, payload);
+		verify(clearingHouseService.get()).registerTransaction(requestMessage, payload, requestMessage);
 	}
 	
 	@Test
 	public void clearingHouseInteractionFailed() throws Exception {
 		ReflectionTestUtils.setField(processor, "isEnabledClearingHouse", true);
 		mockExchangeHeaderAndBody();
-		when(clearingHouseService.registerTransaction(requestMessage, payload)).thenReturn(false);
+		when(clearingHouseService.get().registerTransaction(requestMessage, payload, requestMessage)).thenReturn(false);
 		
 		processor.process(exchange);
 		
 		verify(rejectionMessageService).sendRejectionMessage(requestMessage, RejectionReason.INTERNAL_RECIPIENT_ERROR);
-		verify(clearingHouseService).registerTransaction(requestMessage, payload);
+		verify(clearingHouseService.get()).registerTransaction(requestMessage, payload, requestMessage);
 	}
 	
 	

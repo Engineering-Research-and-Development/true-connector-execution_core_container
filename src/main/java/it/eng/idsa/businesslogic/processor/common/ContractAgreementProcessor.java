@@ -1,21 +1,20 @@
 package it.eng.idsa.businesslogic.processor.common;
 
-import de.fraunhofer.iais.eis.ContractAgreementMessage;
-import de.fraunhofer.iais.eis.Message;
-import de.fraunhofer.iais.eis.MessageProcessedNotificationMessage;
-import de.fraunhofer.iais.eis.RejectionReason;
-import it.eng.idsa.businesslogic.service.ClearingHouseService;
-import it.eng.idsa.businesslogic.service.RejectionMessageService;
-import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
-import it.eng.idsa.multipart.domain.MultipartMessage;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
+
+import de.fraunhofer.iais.eis.ContractAgreementMessage;
+import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.MessageProcessedNotificationMessage;
+import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
+import it.eng.idsa.multipart.domain.MultipartMessage;
 
 /**
  * Processor that handles ContractAgreementMessage and sends ContractAgreement
@@ -30,8 +29,6 @@ public class ContractAgreementProcessor implements Processor {
 
 	private static final Logger logger = LoggerFactory.getLogger(ContractAgreementProcessor.class);
 	private UsageControlService usageControlService;
-	@Autowired
-	private ClearingHouseService clearingHouseService;
 	private RejectionMessageService rejectionMessageService;
 	private Boolean isEnabledUsageControl;
 
@@ -49,12 +46,12 @@ public class ContractAgreementProcessor implements Processor {
 		String originalMessagePayload = "Original-Message-Payload";
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 
-		if (Boolean.TRUE.equals(!isEnabledUsageControl
+		if (!isEnabledUsageControl 
 				|| !(multipartMessage.getHeaderContent() instanceof MessageProcessedNotificationMessage)
-				|| null == exchange.getProperty(originalMessageHeader)
-				|| !(exchange.getProperty(originalMessageHeader) instanceof ContractAgreementMessage))
-				|| null == exchange.getProperty(originalMessagePayload)) {
-			logger.info("Policy upload interupted - IsEnabledUsageControl is {} or requirements not met", isEnabledUsageControl);
+				|| null == exchange.getProperty("Original-Message-Header")
+				|| !(exchange.getProperty("Original-Message-Header") instanceof ContractAgreementMessage)
+				|| null == exchange.getProperty("Original-Message-Payload")) {
+			logger.info("Policy upload interupted - IsEnabledUsegeControl is {} or requirements not met", isEnabledUsageControl);
 			return;
 		}
 		logger.info("Uploading policy...");
@@ -63,7 +60,6 @@ public class ContractAgreementProcessor implements Processor {
 
 		String response = null;
 		try {
-			clearingHouseService.createProcessIdAtClearingHouse(contractAgreementHeader, contractAgreement);
 			response = usageControlService.uploadPolicy(contractAgreement);
 		} catch (Exception e) {
 			logger.warn("Policy not uploaded - {}", e.getMessage());

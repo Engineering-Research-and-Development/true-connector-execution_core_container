@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -24,8 +22,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import it.eng.idsa.clearinghouse.model.Body;
-import it.eng.idsa.clearinghouse.model.NotificationContent;
+import it.eng.idsa.businesslogic.configuration.ClearingHouseConfiguration;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class HashFileServiceImplTest {
@@ -34,12 +31,7 @@ public class HashFileServiceImplTest {
 	private HashFileServiceImpl hashFileService;
 	
 	@Mock
-	private NotificationContent notificationContent;
-	
-	@Mock
-	private Body body;
-
-	private String clearingHouseHashDir;
+	private ClearingHouseConfiguration clearingHouseConfiguration;
 	
 	private String payload;
 	
@@ -48,11 +40,9 @@ public class HashFileServiceImplTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		clearingHouseHashDir = "./some/directory";
+		when(clearingHouseConfiguration.getHashDir()).thenReturn("./");
 		payload = "Some payload to hash";
 		hash = "fc56de6811d1";
-		ReflectionTestUtils.setField(hashFileService, "clearingHouseHashDir", clearingHouseHashDir);
-		when(notificationContent.getBody()).thenReturn(body);
 	}
 	
 	@AfterEach
@@ -75,36 +65,9 @@ public class HashFileServiceImplTest {
 		assertNull(hashedValue);
 	}
 	
-	@Test
-	public void recordHash() throws IOException {
-		ReflectionTestUtils.setField(hashFileService, "clearingHouseHashDir", "./");
-		hashFileService.recordHash(hash, payload, notificationContent);
-		
-		assertTrue(Files.exists(Path.of("./", hash)));
-	}
-	
-	@Test
-	public void recordHash_notificationContentNotJSON() {
-		hashFileService.recordHash(hash, payload, notificationContent);
-	}
-	
-	@Test
-	public void recordHash_noHashDir() {
-		ReflectionTestUtils.setField(hashFileService, "clearingHouseHashDir", null);
-		hashFileService.recordHash(hash, payload, notificationContent);
-		verify(notificationContent.getBody(), never()).setPayload(payload);
-	}
-	
-	@Test
-	public void recordHash_noHash() {
-		when(notificationContent.getBody()).thenReturn(body);
-		hashFileService.recordHash(null, payload, notificationContent);
-		verify(notificationContent.getBody(), never()).setPayload(payload);
-	}
 	
 	@Test
 	public void getContent() throws Exception {
-		ReflectionTestUtils.setField(hashFileService, "clearingHouseHashDir", "./");
 		// create file for testing
 		Path path = Path.of("./", hash);
 		if (Files.notExists(path))
@@ -120,7 +83,6 @@ public class HashFileServiceImplTest {
 	
 	@Test
 	public void getContent_noData() throws Exception {
-		ReflectionTestUtils.setField(hashFileService, "clearingHouseHashDir", "./");
 		// create file for testing
 		Path path = Path.of("./", hash);
 		if (Files.notExists(path))

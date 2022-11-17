@@ -134,14 +134,6 @@
 			</exclusions>
 		</dependency>
 
-		<!-- CLEARING HOUSE -->
-		<!-- Must use CH Model updated version in order to have successful CH call -->
-		<dependency>
-			<groupId>it.eng</groupId>
-			<artifactId>clearing-house-model</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
-		</dependency>
-
 		<!-- Camel -->
 		<dependency>
 			<groupId>org.apache.camel</groupId>
