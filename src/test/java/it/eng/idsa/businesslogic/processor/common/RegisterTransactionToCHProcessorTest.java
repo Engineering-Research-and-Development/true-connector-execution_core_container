@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.Message;
@@ -46,6 +47,9 @@ public class RegisterTransactionToCHProcessorTest {
 	@Mock
 	private MultipartMessage multipartMessage;
 	
+	@Mock
+	private ApplicationEventPublisher publisher;
+	
 	private Message requestMessage;
 	
 	private String payload;
@@ -56,7 +60,7 @@ public class RegisterTransactionToCHProcessorTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		processor = new RegisterTransactionToCHProcessor(configuration, clearingHouseService, rejectionMessageService, false);
+		processor = new RegisterTransactionToCHProcessor(configuration, clearingHouseService, rejectionMessageService, publisher, false);
 		requestMessage = UtilMessageService.getArtifactRequestMessage();
 		when(exchange.getProperty("Original-Message-Header")).thenReturn(requestMessage);
 		payload = "PAYLOAD";

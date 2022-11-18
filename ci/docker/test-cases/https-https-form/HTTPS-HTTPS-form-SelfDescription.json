@@ -128,7 +128,6 @@
 							"//http://w3id.org/engrd/connector/artifact/test\r",
 							"  pm.expect(pm.response.text()).to.include(\"ids:TextResource\");\r",
 							"  pm.expect(pm.response.text()).to.include(\"ids:ContractOffer\");\r",
-							"  pm.expect(pm.response.text()).to.include(\"ids:Constraint\");\r",
 							"  pm.expect(pm.response.text()).to.include(\"ids:TextRepresentation\");\r",
 							"  pm.expect(pm.response.text()).to.include(\"ids:Artifact\");\r",
 							"  });"

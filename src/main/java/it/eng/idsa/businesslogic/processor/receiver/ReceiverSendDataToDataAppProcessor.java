@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +16,14 @@ import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.audit.CamelAuditable;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.SendDataToBusinessLogicServiceImpl;
 import it.eng.idsa.businesslogic.util.RouterType;
+import it.eng.idsa.businesslogic.util.TrueConnectorConstants;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -60,11 +64,14 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 
 	@Autowired
 	private SendDataToBusinessLogicServiceImpl sendDataToBusinessLogicService;
-
+	
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
 	
 	@Override
+	@CamelAuditable(beforeEventType =  TrueConnectorEventType.CONNECTOR_SEND_DATAAPP,
+	successEventType = TrueConnectorEventType.CONNECTOR_RESPONSE, 
+	failureEventType = TrueConnectorEventType.EXCEPTION_SERVER_ERROR)
 	public void process(Exchange exchange) throws Exception {
 
 		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
@@ -102,7 +109,6 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 			sendDataToBusinessLogicService.checkResponse(message, response, configuration.getOpenDataAppReceiver());
 			// Handle response
 			handleResponse(exchange, message, response, configuration.getOpenDataAppReceiver());
-			
 		} finally {
 			if (response != null) {
 				response.close();
@@ -117,6 +123,10 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		logger.info("response received from the DataAPP=" + responseString);
 
 		Map<String, Object> headers = httpHeaderService.okHttpHeadersToMap(response.headers());
+		String correlationId = (String) exchange.getMessage().getHeader(TrueConnectorConstants.CORRELATION_ID);
+		if(StringUtils.isNotBlank(correlationId)) {
+			headers.put(TrueConnectorConstants.CORRELATION_ID, correlationId);
+		}
 		exchange.getMessage().setHeaders(headers);
 		
 		if (RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {

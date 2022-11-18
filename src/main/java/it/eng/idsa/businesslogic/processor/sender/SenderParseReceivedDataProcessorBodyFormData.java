@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.audit.CamelAuditable;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -39,6 +41,8 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 	private RejectionMessageService rejectionMessageService;
 
 	@Override
+	@CamelAuditable(successEventType = TrueConnectorEventType.CONNECTOR_REQUEST, 
+		failureEventType = TrueConnectorEventType.EXCEPTION_BAD_REQUEST)
 	public void process(Exchange exchange) throws Exception {
 
 		String header = null;
@@ -48,7 +52,6 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 		// Get from the input "exchange"
 		Map<String, Object> receivedDataHeader = exchange.getMessage().getHeaders();
 		logger.info("Received multipart/form request");
-
 		try {
 			// Create multipart message parts
 			if (receivedDataHeader.containsKey(MessagePart.HEADER)) {
@@ -64,7 +67,7 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 				if(receivedDataHeader.get(MessagePart.PAYLOAD) instanceof String) {
 					payload = (String) receivedDataHeader.get(MessagePart.PAYLOAD);
 				}
-			}else if (exchange.getMessage(AttachmentMessage.class) != null 
+			} else if (exchange.getMessage(AttachmentMessage.class) != null 
 					&& exchange.getMessage(AttachmentMessage.class).getAttachmentObject(MessagePart.PAYLOAD) != null) {
 				Attachment att1 = exchange.getMessage(AttachmentMessage.class).getAttachmentObject(MessagePart.PAYLOAD);
 				DataHandler dh1 = att1.getDataHandler();
@@ -79,7 +82,7 @@ public class SenderParseReceivedDataProcessorBodyFormData implements Processor {
 					.withPayloadHeader(payloadHeaders)
 					.withPayloadContent(payload)
 					.build();
-			
+
 			// Return exchange
 			exchange.getMessage().setHeaders(receivedDataHeader);
 			exchange.getMessage().setBody(multipartMessage);

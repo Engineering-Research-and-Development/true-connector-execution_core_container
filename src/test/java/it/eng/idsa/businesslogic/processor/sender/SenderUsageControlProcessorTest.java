@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.fraunhofer.iais.eis.Message;
@@ -46,7 +47,8 @@ public class SenderUsageControlProcessorTest {
 	private org.apache.camel.Message camelMessage;
 	@Mock
 	private MultipartMessage multipartMessage;
-	
+	@Mock
+	private ApplicationEventPublisher publisher;
 	private Map<String, Object> headers;
 	
 	private Message message;

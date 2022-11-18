@@ -13,6 +13,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.http.entity.ContentType;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -75,6 +76,7 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 	}
 	
 	@Test
+	@Disabled("Not valid anymore")
 	public void processHttpHeadersForwardTo_Null() throws Exception {
 		forwardTo = null;
 		mockExchangeGetHttpHeaders(exchange);

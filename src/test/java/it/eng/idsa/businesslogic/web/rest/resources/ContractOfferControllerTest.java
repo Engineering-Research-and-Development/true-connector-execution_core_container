@@ -3,13 +3,15 @@ package it.eng.idsa.businesslogic.web.rest.resources;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.any;
 
 import java.io.IOException;
 import java.net.URI;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,8 @@ public class ContractOfferControllerTest {
 	
 	@Mock
 	private ContractOfferService service;
+	@Mock
+	private HttpServletRequest request;
 	
 	private URI contractOfferURI = URI.create("contract.offer.uri");
 	private URI resourceURI = URI.create("resource.uri");
@@ -56,7 +60,7 @@ public class ContractOfferControllerTest {
 		ContractOffer co = new ContractOfferBuilder().build();
 		Serializer s = new Serializer();
 		
-		controller.addOrUpdateContractOffer(resourceURI, s.serialize(co));
+		controller.addOrUpdateContractOffer(resourceURI, s.serialize(co), request);
 		
 		verify(service).addContractOfferToResource(co, resourceURI);
 	}
@@ -64,7 +68,7 @@ public class ContractOfferControllerTest {
 	@Test
 	public void addOrUpdateContractOffer_invalid_json() throws IOException {
 		assertThrows(JsonException.class,
-				() -> controller.addOrUpdateContractOffer(resourceURI, "CONTRACT_OFFER"));
+				() -> controller.addOrUpdateContractOffer(resourceURI, "CONTRACT_OFFER", request));
 		
 		verify(service, times(0)).addContractOfferToResource(any(ContractOffer.class), any(URI.class));
 	}
@@ -73,7 +77,7 @@ public class ContractOfferControllerTest {
 	public void updateContractOffer() throws IOException {
 		ContractOffer co = new ContractOfferBuilder().build();
 		Serializer s = new Serializer();
-		controller.updateContractOffer(resourceURI, s.serialize(co));
+		controller.updateContractOffer(resourceURI, s.serialize(co), request);
 		
 		verify(service).updateContractOfferToResource(co, resourceURI);
 	}
@@ -81,14 +85,14 @@ public class ContractOfferControllerTest {
 	@Test
 	public void updateContractOffer_invalid_json() throws IOException {
 		assertThrows(JsonException.class,
-				() -> controller.updateContractOffer(resourceURI, "CONTRACT_OFFER"));
+				() -> controller.updateContractOffer(resourceURI, "CONTRACT_OFFER", request));
 		
 		verify(service, times(0)).addContractOfferToResource(any(ContractOffer.class), any(URI.class));
 	}
 	
 	@Test
 	public void deleteContractOffer() throws IOException {
-		controller.deleteContractOffer(contractOfferURI);
+		controller.deleteContractOffer(contractOfferURI, request);
 		
 		verify(service).deleteContractOfferService(contractOfferURI);
 	}

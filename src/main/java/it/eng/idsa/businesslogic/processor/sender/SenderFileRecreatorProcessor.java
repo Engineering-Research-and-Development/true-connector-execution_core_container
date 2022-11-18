@@ -9,6 +9,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.audit.CamelAuditable;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationA;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.FileRecreatorBeanServer;
 import it.eng.idsa.businesslogic.processor.receiver.websocket.server.HttpWebSocketMessagingLogicA;
@@ -38,6 +40,8 @@ public class SenderFileRecreatorProcessor implements Processor {
 	private RejectionMessageService rejectionMessageService;
 
 	@Override
+	@CamelAuditable(successEventType = TrueConnectorEventType.CONNECTOR_REQUEST, 
+	failureEventType = TrueConnectorEventType.EXCEPTION_BAD_REQUEST)
 	public void process(Exchange exchange) throws Exception {
 		
 		MultipartMessage multipartMessage = null;

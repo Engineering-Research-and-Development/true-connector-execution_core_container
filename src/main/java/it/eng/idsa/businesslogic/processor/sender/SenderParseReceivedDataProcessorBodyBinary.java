@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.audit.CamelAuditable;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -31,6 +33,8 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 	private RejectionMessageService rejectionMessageService;
 
 	@Override
+	@CamelAuditable(successEventType = TrueConnectorEventType.CONNECTOR_REQUEST, 
+		failureEventType = TrueConnectorEventType.EXCEPTION_BAD_REQUEST)
 	public void process(Exchange exchange) throws Exception {
 		logger.info("Received multipart/mixed request");
 		Map<String, Object> headerParts = new HashMap<String, Object>();
@@ -44,7 +48,6 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 			rejectionMessageService.sendRejectionMessage(null, RejectionReason.MALFORMED_MESSAGE);
 		}
 		logger.debug(receivedDataBodyBinary);
-
 		try {
 			MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(receivedDataBodyBinary);
 			// Create headers parts
@@ -53,7 +56,7 @@ public class SenderParseReceivedDataProcessorBodyBinary implements Processor {
 			
 			logger.debug("Header part {}", multipartMessage.getHeaderContentString());
 			logger.debug("Payload part {}", multipartMessage.getPayloadContent());
-			
+
 			// Return exchange
 			exchange.getMessage().setBody(multipartMessage);
 			exchange.getMessage().setHeaders(headerParts);

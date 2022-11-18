@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.audit.CamelAuditable;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.sender.websocket.client.MessageWebSocketOverHttpSender;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
@@ -45,6 +47,9 @@ public class ReceiverWebSocketSendDataToDataAppProcessor implements Processor {
     private boolean isEnabledUsageControl;
 
     @Override
+    @CamelAuditable(beforeEventType =  TrueConnectorEventType.CONNECTOR_SEND_DATAAPP,
+	successEventType = TrueConnectorEventType.CONNECTOR_RESPONSE, 
+	failureEventType = TrueConnectorEventType.EXCEPTION_SERVER_ERROR)
     public void process(Exchange exchange) throws Exception {
         MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 

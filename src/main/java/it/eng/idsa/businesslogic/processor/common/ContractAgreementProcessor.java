@@ -5,6 +5,7 @@ import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
@@ -12,8 +13,11 @@ import de.fraunhofer.iais.eis.ContractAgreementMessage;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.MessageProcessedNotificationMessage;
 import de.fraunhofer.iais.eis.RejectionReason;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
+import it.eng.idsa.businesslogic.util.TrueConnectorConstants;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
 /**
@@ -21,8 +25,9 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
  * (payload of MultipartMessage) to UsageControl DataApp</br>
  * This processor should be called before calling ClearingHouse registration
  * processor, in order to be compliant with IDS flow.
- *
+ * 
  * @author igor.balog
+ *
  */
 @Component
 public class ContractAgreementProcessor implements Processor {
@@ -31,20 +36,22 @@ public class ContractAgreementProcessor implements Processor {
 	private UsageControlService usageControlService;
 	private RejectionMessageService rejectionMessageService;
 	private Boolean isEnabledUsageControl;
+	private ApplicationEventPublisher publisher;
 
 	public ContractAgreementProcessor(@Nullable UsageControlService usageControlService,
-									  @Value("#{new Boolean('${application.isEnabledUsageControl}')}") Boolean isEnabledUsageControl,
-									  RejectionMessageService rejectionMessageService) {
+			@Value("#{new Boolean('${application.isEnabledUsageControl}')}") Boolean isEnabledUsageControl,
+			RejectionMessageService rejectionMessageService,
+			ApplicationEventPublisher publisher) {
 		this.usageControlService = usageControlService;
 		this.isEnabledUsageControl = isEnabledUsageControl;
 		this.rejectionMessageService = rejectionMessageService;
+		this.publisher = publisher;
 	}
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		String originalMessageHeader = "Original-Message-Header";
-		String originalMessagePayload = "Original-Message-Payload";
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
+		String correlationId = (String) exchange.getMessage().getHeader(TrueConnectorConstants.CORRELATION_ID);
 
 		if (!isEnabledUsageControl 
 				|| !(multipartMessage.getHeaderContent() instanceof MessageProcessedNotificationMessage)
@@ -55,15 +62,18 @@ public class ContractAgreementProcessor implements Processor {
 			return;
 		}
 		logger.info("Uploading policy...");
-		String contractAgreement = (String) exchange.getProperty(originalMessagePayload);
-		Message contractAgreementHeader = (Message) exchange.getProperty(originalMessageHeader);
-
+		String contractAgreement = (String) exchange.getProperty("Original-Message-Payload");
+		
 		String response = null;
 		try {
 			response = usageControlService.uploadPolicy(contractAgreement);
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_CONTRACT_AGREEMENT_SUCCESS, 
+					multipartMessage, correlationId));
 		} catch (Exception e) {
 			logger.warn("Policy not uploaded - {}", e.getMessage());
-			rejectionMessageService.sendRejectionMessage(contractAgreementHeader, RejectionReason.NOT_AUTHORIZED);
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_CONTRACT_AGREEMENT_FAILED, 
+					multipartMessage, correlationId));
+			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.NOT_AUTHORIZED);
 		}
 		logger.info("UsageControl DataApp response {}", response);
 	}

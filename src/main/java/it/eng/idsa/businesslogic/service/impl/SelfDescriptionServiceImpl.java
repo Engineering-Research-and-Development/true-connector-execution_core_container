@@ -3,9 +3,6 @@ package it.eng.idsa.businesslogic.service.impl;
 import java.io.IOException;
 import java.net.URI;
 import java.security.cert.CertificateEncodingException;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,19 +17,15 @@ import de.fraunhofer.iais.eis.Action;
 import de.fraunhofer.iais.eis.Artifact;
 import de.fraunhofer.iais.eis.ArtifactBuilder;
 import de.fraunhofer.iais.eis.BaseConnectorBuilder;
-import de.fraunhofer.iais.eis.BinaryOperator;
 import de.fraunhofer.iais.eis.Connector;
 import de.fraunhofer.iais.eis.ConnectorEndpointBuilder;
 import de.fraunhofer.iais.eis.ConnectorUnavailableMessageBuilder;
 import de.fraunhofer.iais.eis.ConnectorUpdateMessageBuilder;
-import de.fraunhofer.iais.eis.Constraint;
-import de.fraunhofer.iais.eis.ConstraintBuilder;
 import de.fraunhofer.iais.eis.ContentType;
 import de.fraunhofer.iais.eis.ContractOffer;
 import de.fraunhofer.iais.eis.ContractOfferBuilder;
 import de.fraunhofer.iais.eis.KeyType;
 import de.fraunhofer.iais.eis.Language;
-import de.fraunhofer.iais.eis.LeftOperand;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.Permission;
 import de.fraunhofer.iais.eis.PermissionBuilder;
@@ -49,7 +42,6 @@ import de.fraunhofer.iais.eis.SecurityProfile;
 import de.fraunhofer.iais.eis.TextRepresentationBuilder;
 import de.fraunhofer.iais.eis.TextResourceBuilder;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
-import de.fraunhofer.iais.eis.util.RdfResource;
 import de.fraunhofer.iais.eis.util.TypedLiteral;
 import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
@@ -214,15 +206,16 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	}
 	
 	private ContractOffer createContractOffer(URI target) {
+		//TODO uncomment this code when we upgrade infomodel; fix for compatibility with broker
+		/*		
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		OffsetDateTime dateTime = OffsetDateTime.now(ZoneOffset.UTC);
-		
 		Constraint before = new ConstraintBuilder()
 				._leftOperand_(LeftOperand.POLICY_EVALUATION_TIME)
 				._operator_(BinaryOperator.AFTER)
 				._rightOperand_(new RdfResource(dateTime.minusDays(7).format(formatter), 
 						URI.create("http://www.w3.org/2001/XMLSchema#dateTimeStamp")))
-//				._pipEndpoint_(URI.create("http://pip.endpoint.after"))
+				._pipEndpoint_(URI.create("http://pip.endpoint.after"))
 				.build();
 		
 		Constraint after = new ConstraintBuilder()
@@ -230,13 +223,13 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._operator_(BinaryOperator.BEFORE)
 				._rightOperand_(new RdfResource(dateTime.plusMonths(1).format(formatter), 
 						URI.create("http://www.w3.org/2001/XMLSchema#dateTimeStamp")))
-//				._pipEndpoint_(URI.create("http://pip.endpoint.before"))
+				._pipEndpoint_(URI.create("http://pip.endpoint.before"))
 				.build();
-		
+		*/
 		Permission permission2 = new PermissionBuilder()
 				._target_(target)
 				._action_(Util.asList(Action.USE))
-				._constraint_(Util.asList(before, after))
+//				._constraint_(Util.asList(before, after))
 				._title_(new TypedLiteral("Example Usage Policy"))
 				._description_(new TypedLiteral("provide-access"))
 				.build();
