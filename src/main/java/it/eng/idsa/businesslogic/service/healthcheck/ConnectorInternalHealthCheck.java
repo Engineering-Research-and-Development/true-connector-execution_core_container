@@ -25,19 +25,27 @@ public class ConnectorInternalHealthCheck {
 	
 	private CommunicationService communicationService;
 	private Optional<UsageControlService> usageControlService;
+	private AuditLogHealthCheck auditLogHealthService;
 	
 	public ConnectorInternalHealthCheck(
 			@Value("${application.openDataAppReceiverHealth}") String dataAppHealthURL,
 			CommunicationService communicationService,
-			Optional<UsageControlService> usageControlService) {
+			Optional<UsageControlService> usageControlService,
+			AuditLogHealthCheck auditLogHealthService) {
 		this.dataAppHealthURL = dataAppHealthURL;
 		this.communicationService = communicationService;
 		this.usageControlService = usageControlService;
+		this.auditLogHealthService = auditLogHealthService;
 	}
 
 	public boolean checkConnectorInternalHealth() {
 		logger.debug("Checking connector INTERNAL services");
-		boolean internalHealth = checkDataAppAvailability() && checkUsageControlAvailability();
+		boolean auditDiskSpace = auditLogHealthService.isAuditLogVolumeHealthy();
+		boolean dataAppAvailabiltity = checkDataAppAvailability();
+		boolean usageControlAvailability = checkUsageControlAvailability();
+		logger.info("Internal health check:\nAudit disk space - {}\nDataAppAvailabile - {}\nUsageControlAvailable - {}",
+				auditDiskSpace, dataAppAvailabiltity, usageControlAvailability);
+		boolean internalHealth = auditDiskSpace && dataAppAvailabiltity && usageControlAvailability;
 		logger.info("Connector INTERNAL health check is {}", internalHealth ? "HEALTHY" : "UNHEALTHY");
 		return internalHealth;
 	}
@@ -51,4 +59,5 @@ public class ConnectorInternalHealthCheck {
 		return usageControlService.map(UsageControlService::isUsageControlAvailable)
                 .orElse(true);
 	}
+	
 }

@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <include resource="org/springframework/boot/logging/logback/base.xml" />
+    <appender name="jsonConsoleAppender"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+	</appender>
+	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+		<file>/log/true_connector_audit_SENDER.log
+		</file>
+		<append>true</append>
+		<encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+	</appender>
+	<logger name="JSON" level="INFO">
+		<appender-ref ref="FILE" />
+	</logger>
     <logger name="org.springframework" level="ERROR"/>
     <logger name="it.eng.idsa.dataapp" level="INFO"/>
  </configuration>

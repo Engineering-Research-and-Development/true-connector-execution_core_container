@@ -32,7 +32,11 @@ public class ConnectorExternalHealthCheck {
 
 	public boolean checkConnectorExternalHealth() {
 		logger.debug("Checking if EXTERNAL services are available");
-		boolean externalHealth = checkDAPSAvailability() && checkClearingHouseAvailability();
+		boolean dapsAvailable = checkDAPSAvailability();
+		boolean chAvailable = checkClearingHouseAvailability();
+		logger.info("External health check:\nDAPSAvailabile - {}\nClearingHouseAvailable - {}",
+				dapsAvailable, chAvailable);
+		boolean externalHealth = dapsAvailable  && chAvailable;
 		logger.info("Connector EXTERNAL health check is {}", externalHealth ? "HEALTHY" : "UNHEALTHY");
 		return externalHealth;
 	}
