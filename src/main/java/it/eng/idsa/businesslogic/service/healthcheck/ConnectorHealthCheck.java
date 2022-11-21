@@ -16,6 +16,7 @@ public class ConnectorHealthCheck {
 				if (instance == null) {
 					// if instance is null, initialize
 					instance = new ConnectorHealthCheck();
+					instance.setConnectorHealth(Boolean.TRUE);
 				}
 			}
 		}

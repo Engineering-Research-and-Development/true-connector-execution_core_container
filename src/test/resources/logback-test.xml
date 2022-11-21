@@ -1,29 +1,30 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-	<include resource="org/springframework/boot/logging/logback/base.xml" />
-
-	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-		<encoder>
-			<pattern>%d{dd-MM-yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg %n</pattern>
-		</encoder>
-	</appender>
+  <appender name="jsonConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+  </appender>
+  
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{dd-MM-yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg %n</pattern>
+    </encoder>
+  </appender>
 
 	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
 		<file>true_connector_audit.log</file>
 		<append>true</append>
-		<encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+		<encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
 	</appender>
-
-	<logger name="JSON" level="INFO">
-		<appender-ref ref="FILE" />
-	</logger>
-
-	<logger name="it.eng.idsa.businesslogic" level="INFO" additivity="false">
-		<appender-ref ref="STDOUT" />
-	</logger>
-
-	<root level="INFO">
-		<appender-ref ref="STDOUT" />
-	</root>
-
+  
+  <logger name="JSON" level="INFO">
+<!--     <appender-ref ref="jsonConsoleAppender"/> -->
+    <appender-ref ref="FILE"/>
+  </logger>
+  
+   <logger name="it.eng.idsa.businesslogic" level="info" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+  
+  <root level="INFO">
+  	<appender-ref ref="STDOUT"/>
+  </root>
 </configuration>

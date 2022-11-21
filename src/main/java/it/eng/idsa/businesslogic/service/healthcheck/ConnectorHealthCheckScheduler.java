@@ -4,6 +4,7 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 
 @Service
+@ConditionalOnProperty(name="application.healthcheck.enabled", havingValue="true")
 public class ConnectorHealthCheckScheduler {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ConnectorHealthCheckScheduler.class);
@@ -34,7 +36,7 @@ public class ConnectorHealthCheckScheduler {
 //	}
 	
 	@PostConstruct
-	@Scheduled(cron = "${cron.expression}")
+	@Scheduled(cron = "${application.healthcheck.cron.expression}")
 	public void checkConnectorHealth() {
 		logger.info("Checking connector internal and external health!");
 		boolean internalHealthCheck = connectorInternalCheck.checkConnectorInternalHealth();
