@@ -15,6 +15,6 @@ public interface DapsService {
 	
 	boolean validateToken(String tokenValue);
 	
-	boolean isDapsAvailable();
+	boolean isDapsAvailable(String dapsHealthCheckEndpoint);
 	
 }

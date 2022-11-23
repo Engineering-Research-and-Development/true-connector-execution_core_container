@@ -4,14 +4,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 public class AuditLogHealthCheckTest {
 
 	public AuditLogHealthCheck auditLogCheck;
+	@Mock
+	private HealthCheckConfiguration healthCheckConfiguration;
 	
 	@BeforeEach
 	public void setup() {
-		auditLogCheck = new AuditLogHealthCheck();
+		MockitoAnnotations.initMocks(this);
+		auditLogCheck = new AuditLogHealthCheck(healthCheckConfiguration);
 	}
 	
 	@Test

@@ -14,9 +14,16 @@ import ch.qos.logback.core.FileAppender;
 
 @Service
 public class AuditLogHealthCheck {
-
-	private static final Logger logger = LoggerFactory.getLogger(AuditLogHealthCheck.class);
 	
+	private static final Logger logger = LoggerFactory.getLogger(AuditLogHealthCheck.class);
+
+	private HealthCheckConfiguration healthCheckConfiguration;
+	
+	public AuditLogHealthCheck(HealthCheckConfiguration healthCheckConfiguration) {
+		super();
+		this.healthCheckConfiguration = healthCheckConfiguration;
+	}
+
 	public boolean isAuditLogVolumeHealthy() {
 		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
 		Logger auditLogger = context.getLogger("JSON");
@@ -25,14 +32,15 @@ public class AuditLogHealthCheck {
 		if(path.isAbsolute()) { 
 			Path parentDir = path.getParent();
 			File volume = parentDir.toFile();
-			logger.debug(String.format("Total space: %.2f MB", (double) volume.getTotalSpace() / 1048576));
-			logger.debug(String.format("Free space: %.2f MB", (double) volume.getFreeSpace() / 1048576));
-			logger.debug(String.format("Usable space: %.2f MB", (double) volume.getUsableSpace() / 1048576));
-			if((double)(volume.getUsableSpace()) / volume.getTotalSpace() * 100 > 5) {
-				logger.info("Volume trashold of '{}' not reached", 5);
+			logger.info(String.format("Total space: %.2f MB", (double) volume.getTotalSpace() / 1048576));
+			logger.info(String.format("Free space: %.2f MB", (double) volume.getFreeSpace() / 1048576));
+			logger.info(String.format("Usable space: %.2f MB", (double) volume.getUsableSpace() / 1048576));
+			int auditTreshold = healthCheckConfiguration.getThreshold().getAudit();
+			if((double)(volume.getUsableSpace()) / volume.getTotalSpace() * 100 > auditTreshold) {
+				logger.info("Volume trashold of '{}' not reached", auditTreshold);
 				return true;
 			} else {
-				logger.warn("Volume trashold of '{}' reached - consider performing cleanup or backup on audit volume", 5);
+				logger.warn("Volume trashold of '{}' reached - consider performing cleanup or backup on audit volume", auditTreshold);
 				return false;
 			}
 		} else {

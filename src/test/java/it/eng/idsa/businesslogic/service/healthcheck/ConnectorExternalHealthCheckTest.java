@@ -23,17 +23,22 @@ public class ConnectorExternalHealthCheckTest {
 	private ClearingHouseService clearingHouseService;
 	@Mock
 	private DapsService dapsService;
+	@Mock
+	private HealthCheckConfiguration healthCheckConfiguration;
 	
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		externalHealthCheck = new ConnectorExternalHealthCheck(Optional.of(dapsService), Optional.of(clearingHouseService));
+		externalHealthCheck = new ConnectorExternalHealthCheck(Optional.of(dapsService), Optional.of(clearingHouseService), 
+				healthCheckConfiguration);
+		when(healthCheckConfiguration.getDaps()).thenReturn("daps");
+		when(healthCheckConfiguration.getClearinghouse()).thenReturn("clearinghouse");
 	}
 	
 	@Test
 	public void healthCheckTrue() {
-		when(dapsService.isDapsAvailable()).thenReturn(true);
-		when(clearingHouseService.isClearingHouseAvailable()).thenReturn(true);
+		when(dapsService.isDapsAvailable(healthCheckConfiguration.getDaps())).thenReturn(true);
+		when(clearingHouseService.isClearingHouseAvailable(healthCheckConfiguration.getClearinghouse())).thenReturn(true);
 
 		boolean result = externalHealthCheck.checkConnectorExternalHealth();
 		
@@ -42,8 +47,8 @@ public class ConnectorExternalHealthCheckTest {
 	
 	@Test
 	public void healthCheckFalse() {
-		when(dapsService.isDapsAvailable()).thenReturn(true);
-		when(clearingHouseService.isClearingHouseAvailable()).thenReturn(false);
+		when(dapsService.isDapsAvailable(healthCheckConfiguration.getDaps())).thenReturn(true);
+		when(clearingHouseService.isClearingHouseAvailable(healthCheckConfiguration.getClearinghouse())).thenReturn(false);
 
 		boolean result = externalHealthCheck.checkConnectorExternalHealth();
 		
@@ -52,7 +57,7 @@ public class ConnectorExternalHealthCheckTest {
 	
 	@Test
 	public void healthCheckFalseServicesDisabled() {
-		externalHealthCheck = new ConnectorExternalHealthCheck(Optional.empty(), Optional.empty());
+		externalHealthCheck = new ConnectorExternalHealthCheck(Optional.empty(), Optional.empty(), healthCheckConfiguration);
 
 		boolean result = externalHealthCheck.checkConnectorExternalHealth();
 		

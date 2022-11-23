@@ -115,10 +115,10 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	}
 
 	@Override
-	public boolean isClearingHouseAvailable() {
+	public boolean isClearingHouseAvailable(String clearingHouseHealthEndpoint) {
 		// TODO how to check if CH is available????
 		try {
-			restTemplate.getForEntity(configuration.getClearingHouseUrl(), String.class);
+			restTemplate.getForEntity(clearingHouseHealthEndpoint, String.class);
 		} catch (Exception e) {
 			logger.error("Error while making a request", e);
 			return false;

@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import it.eng.idsa.businesslogic.service.CommunicationService;
@@ -21,21 +20,20 @@ public class ConnectorInternalHealthCheck {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ConnectorInternalHealthCheck.class);
 	
-	private String dataAppHealthURL;
-	
 	private CommunicationService communicationService;
 	private Optional<UsageControlService> usageControlService;
 	private AuditLogHealthCheck auditLogHealthService;
+	private HealthCheckConfiguration healthCheckConfiguration;
 	
 	public ConnectorInternalHealthCheck(
-			@Value("${application.openDataAppReceiverHealth}") String dataAppHealthURL,
 			CommunicationService communicationService,
 			Optional<UsageControlService> usageControlService,
-			AuditLogHealthCheck auditLogHealthService) {
-		this.dataAppHealthURL = dataAppHealthURL;
+			AuditLogHealthCheck auditLogHealthService,
+			HealthCheckConfiguration healthCheckConfiguration) {
 		this.communicationService = communicationService;
 		this.usageControlService = usageControlService;
 		this.auditLogHealthService = auditLogHealthService;
+		this.healthCheckConfiguration = healthCheckConfiguration;
 	}
 
 	public boolean checkConnectorInternalHealth() {
@@ -51,12 +49,12 @@ public class ConnectorInternalHealthCheck {
 	}
 	
 	private boolean checkDataAppAvailability() {
-		String response = communicationService.getRequest(dataAppHealthURL);
+		String response = communicationService.getRequest(healthCheckConfiguration.getDataapp());
 		return response != null;
 	}
 	
 	private boolean checkUsageControlAvailability() {
-		return usageControlService.map(UsageControlService::isUsageControlAvailable)
+		return usageControlService.map(service -> service.isUsageControlAvailable(healthCheckConfiguration.getUsagecontrol()))
                 .orElse(true);
 	}
 	

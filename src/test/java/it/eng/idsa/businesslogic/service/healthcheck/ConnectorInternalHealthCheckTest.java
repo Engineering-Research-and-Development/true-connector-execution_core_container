@@ -20,27 +20,27 @@ public class ConnectorInternalHealthCheckTest {
 	@InjectMocks
 	private ConnectorInternalHealthCheck iternalHealthCheck;
 	
-	private String dataAppHealthURL = "http://dataapp/mock/health";
-	
 	@Mock
 	private CommunicationService communicationService;
 	@Mock
 	private UsageControlService usageControlService;
 	@Mock
 	private AuditLogHealthCheck auditLogHealthService;
+	@Mock
+	private HealthCheckConfiguration healthCheckConfiguration;
 	
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		iternalHealthCheck = new ConnectorInternalHealthCheck(dataAppHealthURL, communicationService, 
-				Optional.of(usageControlService), auditLogHealthService);
+		iternalHealthCheck = new ConnectorInternalHealthCheck(communicationService, 
+				Optional.of(usageControlService), auditLogHealthService, healthCheckConfiguration);
 	}
 	
 	@Test
 	public void internalHealthTrue() {
 		when(auditLogHealthService.isAuditLogVolumeHealthy()).thenReturn(true);
-		when(usageControlService.isUsageControlAvailable()).thenReturn(true);
-		when(communicationService.getRequest(dataAppHealthURL)).thenReturn("ABC");
+		when(usageControlService.isUsageControlAvailable(healthCheckConfiguration.getUsagecontrol())).thenReturn(true);
+		when(communicationService.getRequest(healthCheckConfiguration.getDataapp())).thenReturn("dataapp");
 		
 		boolean result = iternalHealthCheck.checkConnectorInternalHealth();
 		
@@ -49,11 +49,11 @@ public class ConnectorInternalHealthCheckTest {
 	
 	@Test
 	public void internalHealthTrueUCDisabled() {
-		iternalHealthCheck = new ConnectorInternalHealthCheck(dataAppHealthURL, communicationService, 
-				Optional.empty(), auditLogHealthService);
+		iternalHealthCheck = new ConnectorInternalHealthCheck(communicationService, 
+				Optional.empty(), auditLogHealthService, healthCheckConfiguration);
 		
 		when(auditLogHealthService.isAuditLogVolumeHealthy()).thenReturn(true);
-		when(communicationService.getRequest(dataAppHealthURL)).thenReturn("ABC");
+		when(communicationService.getRequest(healthCheckConfiguration.getDataapp())).thenReturn("ABC");
 		
 		boolean result = iternalHealthCheck.checkConnectorInternalHealth();
 		
@@ -63,8 +63,8 @@ public class ConnectorInternalHealthCheckTest {
 	@Test
 	public void internalHealthFalseDataApp() {
 		when(auditLogHealthService.isAuditLogVolumeHealthy()).thenReturn(true);
-		when(usageControlService.isUsageControlAvailable()).thenReturn(true);
-		when(communicationService.getRequest(dataAppHealthURL)).thenReturn(null);
+		when(usageControlService.isUsageControlAvailable(healthCheckConfiguration.getUsagecontrol())).thenReturn(true);
+		when(communicationService.getRequest(healthCheckConfiguration.getDataapp())).thenReturn(null);
 		
 		boolean result = iternalHealthCheck.checkConnectorInternalHealth();
 		
@@ -74,8 +74,8 @@ public class ConnectorInternalHealthCheckTest {
 	@Test
 	public void internalHealthFalseUC() {
 		when(auditLogHealthService.isAuditLogVolumeHealthy()).thenReturn(true);
-		when(usageControlService.isUsageControlAvailable()).thenReturn(false);
-		when(communicationService.getRequest(dataAppHealthURL)).thenReturn("ABC");
+		when(usageControlService.isUsageControlAvailable(healthCheckConfiguration.getUsagecontrol())).thenReturn(false);
+		when(communicationService.getRequest(healthCheckConfiguration.getDataapp())).thenReturn("ABC");
 		
 		boolean result = iternalHealthCheck.checkConnectorInternalHealth();
 		
@@ -85,8 +85,8 @@ public class ConnectorInternalHealthCheckTest {
 	@Test
 	public void internalHealthFalseAudit() {
 		when(auditLogHealthService.isAuditLogVolumeHealthy()).thenReturn(false);
-		when(usageControlService.isUsageControlAvailable()).thenReturn(true);
-		when(communicationService.getRequest(dataAppHealthURL)).thenReturn("ABC");
+		when(usageControlService.isUsageControlAvailable(healthCheckConfiguration.getUsagecontrol())).thenReturn(true);
+		when(communicationService.getRequest(healthCheckConfiguration.getDataapp())).thenReturn("ABC");
 		
 		boolean result = iternalHealthCheck.checkConnectorInternalHealth();
 		
@@ -96,8 +96,8 @@ public class ConnectorInternalHealthCheckTest {
 	@Test
 	public void internalHealthFalseAll() {
 		when(auditLogHealthService.isAuditLogVolumeHealthy()).thenReturn(false);
-		when(usageControlService.isUsageControlAvailable()).thenReturn(false);
-		when(communicationService.getRequest(dataAppHealthURL)).thenReturn(null);
+		when(usageControlService.isUsageControlAvailable(healthCheckConfiguration.getUsagecontrol())).thenReturn(false);
+		when(communicationService.getRequest(healthCheckConfiguration.getDataapp())).thenReturn(null);
 		
 		boolean result = iternalHealthCheck.checkConnectorInternalHealth();
 		

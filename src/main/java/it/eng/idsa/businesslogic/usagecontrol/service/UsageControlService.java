@@ -34,7 +34,8 @@ public interface UsageControlService {
 	
 	/**
 	 * Check the availability of the usage control
+	 * @param usageContolHealthEndpoint
 	 * @return
 	 */
-	boolean isUsageControlAvailable();
+	boolean isUsageControlAvailable(String usageContolHealthEndpoint);
 }

@@ -22,12 +22,15 @@ public class ConnectorExternalHealthCheck {
 
 	private Optional<ClearingHouseService> clearingHouseService;
 	private Optional<DapsService> dapsService;
+	private HealthCheckConfiguration healthCheckConfiguration;
 
 	public ConnectorExternalHealthCheck(Optional<DapsService> dapsService, 
-			Optional<ClearingHouseService> clearingHouseService) {
+			Optional<ClearingHouseService> clearingHouseService,
+			HealthCheckConfiguration healthCheckConfiguration) {
 		super();
 		this.dapsService = dapsService;
 		this.clearingHouseService = clearingHouseService;
+		this.healthCheckConfiguration = healthCheckConfiguration;
 	}
 
 	public boolean checkConnectorExternalHealth() {
@@ -42,10 +45,11 @@ public class ConnectorExternalHealthCheck {
 	}
 
 	private boolean checkDAPSAvailability() {
-		return dapsService.map(DapsService::isDapsAvailable).orElse(true);
+		return dapsService.map(service -> service.isDapsAvailable(healthCheckConfiguration.getDaps())).orElse(true);
 	}
 
 	private boolean checkClearingHouseAvailability() {
-		return clearingHouseService.map(ClearingHouseService::isClearingHouseAvailable).orElse(true);
+		return clearingHouseService.map(service -> service.isClearingHouseAvailable(healthCheckConfiguration.getClearinghouse()))
+				.orElse(true);
 	}
 }

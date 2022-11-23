@@ -237,8 +237,8 @@ public class DapsOrbiterServiceImpl implements DapsService {
 	}
 
 	@Override
-	public boolean isDapsAvailable() {
-		Request request = new Request.Builder().url(dapsJWKSUrl).build();
+	public boolean isDapsAvailable(String dapsHealthCheckEndpoint) {
+		Request request = new Request.Builder().url(dapsHealthCheckEndpoint).build();
 		try {
 			Response response =  client.newCall(request).execute();
 			if(response.isSuccessful()) {

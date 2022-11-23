@@ -66,7 +66,7 @@ Keeping the provided docker-compose will be:
 *  **http://{IP_ADDRESS}:8090/about/version**
 
 
-The sender DataApp should send a request using the following schema, specifing in the Forward-To header the destination connector URL:
+The sender DataApp should send a request using the following schema, specifying in the Forward-To header the destination connector URL:
 
 ## How to Exchange Data
 ### REST endpoints
@@ -355,6 +355,10 @@ To manage your Self Description Document please check following [link](doc/SELF_
 
 ### Audit logging
 Audit events logging can be configured following [this document](doc/AUDIT.md)
+
+### Connector health check
+
+Connector health check functionality can be found in [this document](doc/HEALTHCHECK.md)
 
 ## Developer guide section
 
