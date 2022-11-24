@@ -108,3 +108,27 @@ If Clearing House interaction is disabled - check will be evaluated as true.
 ### Events
 
 Upon successful health check evaluation, TRUEConnector will fire **CONNECTOR_EXTERNAL_HEALTHY** event, meaning *"Connector external state is healthy"*, and upon evaluating health check as false - **CONNECTOR_EXTERNAL_UNHEALTHY**, meaning *"Connector external state is unhealthy"*.
+
+## Resource monitor
+
+TRUEConnector has implemented resource (CPU and memory) monitor. It can be configured with following properties:
+
+```
+## Time in miliseconds
+application.healthcheck.resourcemanager.cron.fixedDelay=10000
+
+application.healthcheck.threshold.cpu=0.5
+application.healthcheck.threshold.memory=10.5
+```
+
+With current implementation, resource monitor will only log CPU and memory usage like:
+
+```
+i.e.i.b.s.h.SystemHealthCheckService - CPU usage: 0.10% - Memory usage: 1.40% out of 4060.0MB  
+i.e.i.b.s.h.SystemHealthCheckService - CPU usage: 0.10% - Memory usage: 1.48% out of 4060.0MB  
+i.e.i.b.s.h.SystemHealthCheckService - CPU usage: 0.10% - Memory usage: 1.55% out of 4060.0MB  
+i.e.i.b.s.h.SystemHealthCheckService - CPU usage: 0.10% - Memory usage: 1.62% out of 4060.0MB  
+
+```
+
+Depending on available CPU's and memory assigned to java process.
