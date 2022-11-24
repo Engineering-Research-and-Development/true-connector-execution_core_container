@@ -14,8 +14,6 @@ public class HealthCheckConfiguration {
 
 	private Threshold threshold;
 	
-	private Limit limit;
-
 	public static class Threshold {
 
 		private int audit;
@@ -42,24 +40,6 @@ public class HealthCheckConfiguration {
 			return memory;
 		}
 
-		public void setMemory(float memory) {
-			this.memory = memory;
-		}
-	}
-	
-	public static class Limit {
-		private float cpu;
-		private float memory;
-		
-		public float getCpu() {
-			return cpu;
-		}
-		public void setCpu(float cpu) {
-			this.cpu = cpu;
-		}
-		public float getMemory() {
-			return memory;
-		}
 		public void setMemory(float memory) {
 			this.memory = memory;
 		}
@@ -104,13 +84,4 @@ public class HealthCheckConfiguration {
 	public void setThreshold(Threshold threshold) {
 		this.threshold = threshold;
 	}
-
-	public Limit getLimit() {
-		return limit;
-	}
-
-	public void setLimit(Limit limit) {
-		this.limit = limit;
-	}
-	
 }

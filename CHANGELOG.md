@@ -15,14 +15,13 @@ All notable changes to this project will be documented in this file.
 ```
 application.healthcheck.enabled=false
 application.healthcheck.cron.expression=0 */5 * ? * *
+## Time in miliseconds
 application.healthcheck.resourcemanager.cron.fixedDelay=10000
-## Threshold in percentages - from max value
+## Threshold in percentages - from max volume size
 application.healthcheck.threshold.audit=5
 
 application.healthcheck.threshold.cpu=0.5
 application.healthcheck.threshold.memory=10.5
-application.healthcheck.limit.cpu=1.0
-application.healthcheck.limit.memory=40.5
 
 application.healthcheck.dataapp=
 application.healthcheck.usagecontrol

@@ -42,17 +42,16 @@ public class SystemHealthCheckService {
 		double percentageMemUsage = memoryHealthCheck();
 
 		double cpuThreshold = healthCheckConfiguration.getThreshold().getCpu();
-		double cpuLimit = healthCheckConfiguration.getLimit().getCpu();
-		if (percentageCPUUsage + cpuThreshold  >= cpuLimit ) {
+		if (percentageCPUUsage >= cpuThreshold) {
 			logger.warn("WARNING: CPU Usage is close to limit - CPU Usage {}%", decimalFormat.format(percentageCPUUsage));
 		}
 		double memThreshold = healthCheckConfiguration.getThreshold().getMemory();
-		double memLimit = healthCheckConfiguration.getLimit().getMemory();
-		if (percentageMemUsage + memThreshold  >= memLimit) {
+		if (percentageMemUsage >= memThreshold) {
 			logger.warn("WARNING: Memory Usage is close to limit - Memory Usage {}%", decimalFormat.format(percentageMemUsage));
 		}
 
-		logger.info("CPU usage: {}% - Memory usage: {}% out of {}MB ", decimalFormat.format(percentageCPUUsage), decimalFormat.format(percentageMemUsage), maxMem);
+		logger.info("CPU usage: {}% - Memory usage: {}% out of {}MB ", 
+				decimalFormat.format(percentageCPUUsage), decimalFormat.format(percentageMemUsage), maxMem);
 	}
 
 	public double memoryHealthCheck() {
