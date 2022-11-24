@@ -26,9 +26,9 @@ public class Application {
 	//HTTP port
 	@Value("${http.port}")
 	private int httpPort;
-	
-	public final static String QUEUE_INCOMING = "incoming";
-	public final static String QUEUE_OUTCOMING = "outcoming";
+
+	public static final String QUEUE_INCOMING = "incoming";
+	public static final String QUEUE_OUTCOMING = "outcoming";
 	
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
