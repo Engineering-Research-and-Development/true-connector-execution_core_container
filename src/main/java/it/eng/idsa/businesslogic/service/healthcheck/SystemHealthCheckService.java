@@ -1,17 +1,22 @@
-package it.eng.idsa.businesslogic.service;
+package it.eng.idsa.businesslogic.service.healthcheck;
 
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-
-import java.lang.management.*;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.OperatingSystemMXBean;
+import java.lang.management.RuntimeMXBean;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
 import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 
 @Service
 public class SystemHealthCheckService {
@@ -23,18 +28,10 @@ public class SystemHealthCheckService {
 	private final Map<Long, Long> threadInitialCPU = getThreadCPU();
 	private final Map<Long, Float> threadCPUUsage = new HashMap<>();
 
-	@Value("${application.healthcheck.threshold.cpu}")
-	private double cpuThreshold;
-	@Value("${application.healthcheck.threshold.memory}")
-	private double memThreshold;
-	@Value("${application.healthcheck.limit.cpu}")
-	private double cpuLimit;
-	@Value("${application.healthcheck.limit.memory}")
-	private double memLimit;
-
-
-	@Scheduled(fixedDelayString = "${application.healthcheck.cron.fixedDelay}")
-//	@Scheduled("$cron.timeDelay")
+	@Autowired
+	private HealthCheckConfiguration healthCheckConfiguration;
+	
+	@Scheduled(fixedDelayString = "${application.healthcheck.resourcemanager.cron.fixedDelay}")
 	public void systemHealthCheck() {
 		int MB = 1024 * 1024;
 		DecimalFormat decimalFormat = new DecimalFormat("0.00");
@@ -44,10 +41,14 @@ public class SystemHealthCheckService {
 		double percentageCPUUsage = cpuHealthCheck();
 		double percentageMemUsage = memoryHealthCheck();
 
-		if (percentageCPUUsage + cpuThreshold >= cpuLimit) {
+		double cpuThreshold = healthCheckConfiguration.getThreshold().getCpu();
+		double cpuLimit = healthCheckConfiguration.getLimit().getCpu();
+		if (percentageCPUUsage + cpuThreshold  >= cpuLimit ) {
 			logger.warn("WARNING: CPU Usage is close to limit - CPU Usage {}%", decimalFormat.format(percentageCPUUsage));
 		}
-		if (percentageMemUsage + memThreshold >= memLimit) {
+		double memThreshold = healthCheckConfiguration.getThreshold().getMemory();
+		double memLimit = healthCheckConfiguration.getLimit().getMemory();
+		if (percentageMemUsage + memThreshold  >= memLimit) {
 			logger.warn("WARNING: Memory Usage is close to limit - Memory Usage {}%", decimalFormat.format(percentageMemUsage));
 		}
 

@@ -13,10 +13,14 @@ public class HealthCheckConfiguration {
 	private String clearinghouse;
 
 	private Threshold threshold;
+	
+	private Limit limit;
 
 	public static class Threshold {
 
 		private int audit;
+		private float cpu;
+		private float memory;
 
 		public int getAudit() {
 			return audit;
@@ -24,6 +28,40 @@ public class HealthCheckConfiguration {
 
 		public void setAudit(int audit) {
 			this.audit = audit;
+		}
+
+		public float getCpu() {
+			return cpu;
+		}
+
+		public void setCpu(float cpu) {
+			this.cpu = cpu;
+		}
+
+		public float getMemory() {
+			return memory;
+		}
+
+		public void setMemory(float memory) {
+			this.memory = memory;
+		}
+	}
+	
+	public static class Limit {
+		private float cpu;
+		private float memory;
+		
+		public float getCpu() {
+			return cpu;
+		}
+		public void setCpu(float cpu) {
+			this.cpu = cpu;
+		}
+		public float getMemory() {
+			return memory;
+		}
+		public void setMemory(float memory) {
+			this.memory = memory;
 		}
 	}
 
@@ -65,6 +103,14 @@ public class HealthCheckConfiguration {
 
 	public void setThreshold(Threshold threshold) {
 		this.threshold = threshold;
+	}
+
+	public Limit getLimit() {
+		return limit;
+	}
+
+	public void setLimit(Limit limit) {
+		this.limit = limit;
 	}
 	
 }
