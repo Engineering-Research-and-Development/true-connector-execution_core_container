@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [0.1.24-SNAPSHOT] - 2022-11-24
+## [0.1.23-SNAPSHOT] - 2022-11-25
 
 ### Added
 
