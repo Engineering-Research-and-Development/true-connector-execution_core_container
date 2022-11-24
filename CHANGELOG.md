@@ -1,6 +1,25 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.24-SNAPSHOT] - 2022-10-31
+
+### Added
+
+ - Logic for checking internal and external "health" of the connector.
+ Internal health: dataApp and Usage Control app reachability, audit file volume usage
+ External health: DAPS and Clearing House reachability.
+ Note: UC dataApp version required is +v1.4
+ New properties needed for this logic:
+ 
+```
+application.healthcheck.enabled=false
+application.healthcheck.cron.expression=0 */5 * ? * *
+## Threshold in percentages - from max value
+application.healthcheck.threshold.audit=5
+application.healthcheck.dataapp=
+application.healthcheck.usagecontrol
+```
+
 ## [0.1.22-SNAPSHOT] - 2022-10-31
 
 ### Added

@@ -30,11 +30,6 @@ public class ConnectorHealthCheckScheduler {
 		this.publisher = publisher;
 	}
 	
-//	public void connectorHealthCheck() {
-//		logger.info("Updating connector health status");
-//		checkConnectorHealth();
-//	}
-	
 	@PostConstruct
 	@Scheduled(cron = "${application.healthcheck.cron.expression}")
 	public void checkConnectorHealth() {
