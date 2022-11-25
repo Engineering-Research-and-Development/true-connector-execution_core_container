@@ -9,14 +9,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +37,7 @@ import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.service.ClearingHouseService;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
+import it.eng.idsa.businesslogic.util.Helper;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -64,46 +63,38 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 
 	private SendDataToBusinessLogicService sendDataToBusinessLogicService;
 	
-	private Boolean isReceiver;
-	
 	private Serializer serializer;
 	
 	public ClearingHouseServiceImpl(ClearingHouseConfiguration configuration,
 			SelfDescriptionConfiguration selfDescriptionConfiguration,
 			DapsTokenProviderService dapsProvider,
-			SendDataToBusinessLogicService sendDataToBusinessLogicService,
-			@Value("${application.isReceiver}") Boolean isReceiver) {
+			SendDataToBusinessLogicService sendDataToBusinessLogicService) {
 		super();
 		this.configuration = configuration;
 		this.selfDescriptionConfiguration = selfDescriptionConfiguration;
 		this.dapsProvider = dapsProvider;
 		this.sendDataToBusinessLogicService = sendDataToBusinessLogicService;
-		this.isReceiver = isReceiver;
 		this.serializer = new Serializer();
 	}
+	
 
 	@Override
-	public boolean registerTransaction(Message correlatedMessage, String payload, Message originalMessage) {
+	public boolean registerTransaction(Message messageForLogging, String payload) {
 		boolean success = false;
 		Response response = null;
 		try {
 			logger.info("registerTransaction...");
 			String pid = null;
 			
-			// Create pid for Contract Agreement
-			if (correlatedMessage instanceof ContractAgreementMessage && isReceiver) {
-				pid = createProcessIdAtClearingHouse(correlatedMessage, payload, originalMessage);
-			}
-			
-			if (correlatedMessage instanceof ContractAgreementMessage && !isReceiver) {
+			if (messageForLogging instanceof ContractAgreementMessage) {
 				logger.info("Extracting pid from Contract agreement...");
 				ContractAgreement contractAgreement = serializer.deserialize(payload, ContractAgreement.class);
-				pid = uuidFromURI(contractAgreement.getId());
+				pid = Helper.getUUID(contractAgreement.getId());
 			}
 			
-			if (!(correlatedMessage instanceof ContractAgreementMessage) && correlatedMessage.getTransferContract() != null) {
+			if (!(messageForLogging instanceof ContractAgreementMessage) && messageForLogging.getTransferContract() != null) {
 				logger.info("Extracting pid from message...");
-				pid = uuidFromURI(correlatedMessage.getTransferContract());
+				pid = Helper.getUUID(messageForLogging.getTransferContract());
 			}
 			
 			if (pid == null) {
@@ -113,7 +104,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 
 			String endpoint = configuration.getBaseUrl() + configuration.getLogEndpoint() + pid;
 
-			MultipartMessage multipartMessage = buildMultipartMessageForLogging(correlatedMessage);
+			MultipartMessage multipartMessage = buildMultipartMessageForLogging(messageForLogging);
 			
 			logger.info("Sending Data to the Clearing House {} ...", endpoint);
 			response = sendDataToBusinessLogicService.sendMessageFormData(endpoint, multipartMessage, getBasicAuth());
@@ -142,16 +133,15 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		Map<String, Object> headers = new HashMap<>();
 		
 		if (StringUtils.isNotBlank(configuration.getUsername()) && StringUtils.isNotBlank(configuration.getPassword())) {
-			headers.put("Authorization",
-					Credentials.basic(configuration.getUsername(), configuration.getPassword()));
+			headers.put(HttpHeaders.AUTHORIZATION, Credentials.basic(configuration.getUsername(), configuration.getPassword()));
 		}
 		return headers;
 	}
 
-	private MultipartMessage buildMultipartMessageForLogging(Message correlatedMessage) throws IOException {
+	private MultipartMessage buildMultipartMessageForLogging(Message messageForLogging) throws IOException {
 		MultipartMessage multipartMessage = new MultipartMessageBuilder()
-				.withHeaderContent(buildLogMessage(correlatedMessage))
-				.withPayloadContent(MultipartMessageProcessor.serializeToJsonLD(correlatedMessage))
+				.withHeaderContent(buildLogMessage(messageForLogging))
+				.withPayloadContent(MultipartMessageProcessor.serializeToJsonLD(messageForLogging))
 				.build();
 		return multipartMessage;
 	}
@@ -169,17 +159,6 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			return fingerprint;
 		}
 
-
-	private String uuidFromURI(URI id) {
-		Pattern uuidPattern = Pattern.compile("[a-f0-9]{8}(?:-[a-f0-9]{4}){4}[a-f0-9]{8}");
-		Matcher matcher = uuidPattern.matcher(id.getPath());
-
-		List<String> matches = new ArrayList<>();
-		while (matcher.find()) {
-			matches.add(matcher.group(0));
-		}
-		return !matches.isEmpty() ? matches.get(matches.size() - 1) : null;
-	}
 
 	private RequestMessage buildRequestMessage(Message contractAgreement) {
 		return new RequestMessageBuilder()._modelVersion_(UtilMessageService.MODEL_VERSION)
@@ -199,21 +178,23 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 									  .build();
 	}
 
-	private MultipartMessage buildMultipartMessageForPIDCreation(RequestMessage processMessage, Message contractAgreement, Message originalMessage) {
+	private MultipartMessage buildMultipartMessageForPIDCreation(RequestMessage processMessage, Message contractAgreement, Message messageProcessedNotificationMessage) {
 		Map<String, String> payloadHeader = new HashMap<>();
 		payloadHeader.put("content-type", MediaType.APPLICATION_JSON_VALUE);
 		return new MultipartMessageBuilder().withHeaderContent(processMessage)
-											.withPayloadContent(ownersList(originalMessage))
+											.withPayloadContent(ownersList(contractAgreement, messageProcessedNotificationMessage))
 											.withPayloadHeader(payloadHeader)
 											.build();
 	}
 
-	private String ownersList(Message originalMessage) {
-		String fingerprint = getFingerprint(originalMessage.getSecurityToken().getTokenValue());
+	private String ownersList(Message contractAgreement, Message messageProcessedNotificationMessage) {
 
 		List<String> ownersList = new ArrayList<>();
-		ownersList.add(fingerprint);
-		ownersList.add(getFingerprint(dapsProvider.getDynamicAtributeToken().getTokenValue()));
+		
+		//consumer fingerprint
+		ownersList.add(getFingerprint(contractAgreement.getSecurityToken().getTokenValue()));
+		//provider fingerprint
+		ownersList.add(getFingerprint(messageProcessedNotificationMessage.getSecurityToken().getTokenValue()));
 		
 		Map<String, List<String>> owners = new HashMap<>();
 		ObjectMapper mapper = new ObjectMapper();
@@ -232,10 +213,13 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		return selfDescriptionConfiguration.getConnectorURI();
 	}
 	
-	private String createProcessIdAtClearingHouse(Message contractAgreementMessage, String payload, Message originalMessage) throws IOException {
+	@Override
+	public String createProcessIdAtClearingHouse(Message contractAgreementMessage, Message messageProcessedNotificationMessage, String payload) {
 		logger.info("Contract agreement detected, trying to create new ProcessID...");
+		Response response = null;
+		try {
 		ContractAgreement contractAgreement = serializer.deserialize(payload, ContractAgreement.class);
-		String pid = uuidFromURI(contractAgreement.getId());
+		String pid = Helper.getUUID(contractAgreement.getId());
 		if (pid == null) {
 			logger.error("Can not retrieve valid UUID from Contract Agreement @id");
 			return null;
@@ -243,10 +227,11 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		String endpoint = configuration.getBaseUrl() + configuration.getProcessEndpoint() + pid;
 
 		RequestMessage processMessage = buildRequestMessage(contractAgreementMessage);
-		MultipartMessage multipartMessage = buildMultipartMessageForPIDCreation(processMessage, contractAgreementMessage, originalMessage);
+		MultipartMessage multipartMessage = buildMultipartMessageForPIDCreation(processMessage, contractAgreementMessage, messageProcessedNotificationMessage);
 
-		try (Response response = sendDataToBusinessLogicService.sendMessageFormData(endpoint, multipartMessage,
-				getBasicAuth())){
+		response = sendDataToBusinessLogicService.sendMessageFormData(endpoint, multipartMessage,
+				getBasicAuth());
+				
 			if (response.code() != 201) {
 				logger.error("Clearing House didn't create a new log ProcessID - RejectionReason: {} {}\n{}",
 						response.code(), response.message(), response.body().string());
@@ -255,7 +240,14 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 				logger.info("Clearing House created a new log ProcessID: {}", pid);
 				return pid;
 			} 
-		} 
+		} catch (Exception e) {
+			logger.error("Clearing House didn't create a new log ProcessID - {}", e.getMessage());
+			return null;
+		} finally {
+			if (response != null) {
+				response.close();
+			}
+		}
 	}
 }
 

@@ -14,12 +14,14 @@ import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.ContractAgreementMessage;
 import de.fraunhofer.iais.eis.Message;
+import de.fraunhofer.iais.eis.MessageProcessedNotificationMessage;
 import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.configuration.ClearingHouseConfiguration;
 import it.eng.idsa.businesslogic.service.ClearingHouseService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
 /**
@@ -35,23 +37,31 @@ public class RegisterTransactionToCHProcessor implements Processor {
 
 	private Optional<ClearingHouseService> clearingHouseService;
 	
+	private Optional<UsageControlService> usageControlService;
+	
 	private RejectionMessageService rejectionMessageService;
 	
 	private ApplicationEventPublisher publisher;
 	
 	private boolean isEnabledClearingHouse;
 	
+	private Boolean isReceiver;
+	
 	public RegisterTransactionToCHProcessor(ClearingHouseConfiguration configuration,
-			Optional<ClearingHouseService> clearingHouseService, 
+			Optional<ClearingHouseService> clearingHouseService,
+			Optional<UsageControlService> usageControlService,
 			RejectionMessageService rejectionMessageService,
 			ApplicationEventPublisher publisher,
-			@Value("${application.isEnabledDapsInteraction}")boolean isEnabledDapsInteraction) {
+			@Value("${application.isEnabledDapsInteraction}")boolean isEnabledDapsInteraction,
+			@Value("${application.isReceiver}") Boolean isReceiver) {
 		super();
 		this.clearingHouseService = clearingHouseService;
+		this.usageControlService = usageControlService;
 		this.rejectionMessageService = rejectionMessageService;
 		this.publisher = publisher;
 		//checks if daps and clearing house are both true
-		this.isEnabledClearingHouse = (configuration.getIsEnabledClearingHouse() && isEnabledDapsInteraction) == true ? true : false;
+		this.isEnabledClearingHouse = configuration.getIsEnabledClearingHouse() && isEnabledDapsInteraction;
+		this.isReceiver = isReceiver;
 	}
 
 
@@ -64,25 +74,50 @@ public class RegisterTransactionToCHProcessor implements Processor {
 		
 		// Get "multipartMessageString" from the input "exchange"
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
-		if (!(multipartMessage.getHeaderContent() instanceof ContractAgreementMessage
-				|| multipartMessage.getHeaderContent() instanceof ArtifactRequestMessage
-				|| multipartMessage.getHeaderContent() instanceof ArtifactResponseMessage)) {
-            logger.info("Skipping clearing house - message is not ContractAgreementMessage, ArtifactRequestMessage, ArtifactResponseMessage");
-            return;
-        }
-		boolean registrationStatus = false;
 		Message originalMessage = (Message) exchange.getProperty("Original-Message-Header");
-		// Send data to CH
-		registrationStatus = clearingHouseService.get().registerTransaction(multipartMessage.getHeaderContent(), multipartMessage.getPayloadContent(), originalMessage);
-		if (registrationStatus) {
-			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_CLEARING_HOUSE_SUCCESS, multipartMessage));
-			logger.info("Clearing house registered successfully");
-		}else {
-			logger.info("Failed to register to clearing house");
-			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_CLEARING_HOUSE_FAILURE, multipartMessage));
-			rejectionMessageService.sendRejectionMessage(originalMessage, RejectionReason.INTERNAL_RECIPIENT_ERROR);
+		
+		boolean registrationSuccessfull = false;
+		
+		if (multipartMessage.getHeaderContent() instanceof ArtifactRequestMessage
+				|| multipartMessage.getHeaderContent() instanceof ArtifactResponseMessage) {
+			registrationSuccessfull = clearingHouseService.map(service -> service.registerTransaction(multipartMessage.getHeaderContent(), null)).orElse(false);
+			if (registrationSuccessfull) {
+				publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_CLEARING_HOUSE_SUCCESS, multipartMessage));
+				logger.info("Clearing house registered successfully");
+				return;
+			} else {
+				logger.info("Failed to register to clearing house");
+				publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_CLEARING_HOUSE_FAILURE, multipartMessage));
+				rejectionMessageService.sendRejectionMessage(originalMessage, RejectionReason.INTERNAL_RECIPIENT_ERROR);
+				return;
+			}
 		}
-		exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
-		exchange.getMessage().setBody(exchange.getMessage().getBody());
+		
+		if (multipartMessage.getHeaderContent() instanceof MessageProcessedNotificationMessage
+				&& originalMessage instanceof ContractAgreementMessage) {
+			//since this happens on response we need the payload(Contract Agreement) from the request
+			String contractAgreement = (String) exchange.getProperty("Original-Message-Payload");
+			if (isReceiver) {
+				String pid = clearingHouseService.map(service -> service.createProcessIdAtClearingHouse(originalMessage, multipartMessage.getHeaderContent(), contractAgreement)).orElse(null);
+				if (pid != null) {
+					registrationSuccessfull = clearingHouseService.map(service -> service.registerTransaction(originalMessage, contractAgreement)).orElse(false);
+				}
+			} else {
+				registrationSuccessfull = clearingHouseService.map(service -> service.registerTransaction(originalMessage, contractAgreement)).orElse(false);
+			}
+			if (!registrationSuccessfull) {
+				usageControlService.ifPresent(service -> service.rollbackPolicyUpload((contractAgreement)));
+			}
+			if (registrationSuccessfull) {
+				publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_CLEARING_HOUSE_SUCCESS, multipartMessage));
+				logger.info("Clearing house registered successfully");
+				return;
+			} else {
+				logger.info("Failed to register to clearing house");
+				publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_CLEARING_HOUSE_FAILURE, multipartMessage));
+				rejectionMessageService.sendRejectionMessage(originalMessage, RejectionReason.INTERNAL_RECIPIENT_ERROR);
+				return;
+			}
+		}
 	}
 }

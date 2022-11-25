@@ -193,4 +193,10 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
 		return obj;
 	}
 
+
+	@Override
+	public void rollbackPolicyUpload(String contractAgreement) {
+		// TODO Auto-generated method stub
+		
+	}
 }

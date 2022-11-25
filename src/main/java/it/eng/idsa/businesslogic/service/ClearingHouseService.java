@@ -12,8 +12,8 @@ import de.fraunhofer.iais.eis.Message;
  */
 public interface ClearingHouseService {
 
-	//ORBITER IMPLEMENTATION - DEPRECATED
-	//public boolean registerTransaction(Message message);
-	boolean registerTransaction(Message message, String payload, Message originalMessage);
+	boolean registerTransaction(Message message, String payload);
+
+	String createProcessIdAtClearingHouse(Message contractAgreementMessage, Message messageProcessedNotificationMessage, String payload);
 
 }

@@ -1,6 +1,9 @@
 package it.eng.idsa.businesslogic.usagecontrol.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -31,6 +34,7 @@ public class PlatoonUsageControlServiceImplTest {
 	public void init () {
 		MockitoAnnotations.initMocks(this);
 		ReflectionTestUtils.setField(platoonUsageControlServiceImpl, "platoonURL", platoonURL);
+		ReflectionTestUtils.setField(platoonUsageControlServiceImpl, "isEnabledUsageControl", true);
 	}
 	
 	@Test
@@ -88,7 +92,7 @@ public class PlatoonUsageControlServiceImplTest {
 	@Test
 	public void testUploadPolicy_Successfull() {
 		String payload = "validPolicy";
-		String ucUrl = platoonURL + "contractAgreement";
+		String ucUrl = platoonURL + "contractAgreement/";
 		
 		when(communicationService.sendDataAsJson(ucUrl.toString(), payload, "application/json;charset=UTF-8")).thenReturn("Policy uploaded");
 		
@@ -100,13 +104,27 @@ public class PlatoonUsageControlServiceImplTest {
 	@Test
 	public void testUploadPolicy_Failed() {
 		String payload = "invalidPolicy";
-		String ucUrl = platoonURL + "contractAgreement";
+		String ucUrl = platoonURL + "contractAgreement/";
 		
 		when(communicationService.sendDataAsJson(ucUrl.toString(), payload, "application/json;charset=UTF-8")).thenReturn("Policy not uploaded");
 		
 		String response = platoonUsageControlServiceImpl.uploadPolicy(payload);
 		
 		assertEquals("Policy not uploaded", response);
+	}
+	
+	@Test
+	public void testUploadPolicyRollbackSuccess() {
+		platoonUsageControlServiceImpl.rollbackPolicyUpload(UtilMessageService.getMessageAsString(UtilMessageService.getContractAgreement()));
+		
+		verify(communicationService).deleteRequest(any());
+	}
+	
+	@Test
+	public void testUploadPolicyRollbackFailed() {
+		platoonUsageControlServiceImpl.rollbackPolicyUpload(null);
+		
+		verify(communicationService, times(0)).deleteRequest(any());
 	}
 
 }
