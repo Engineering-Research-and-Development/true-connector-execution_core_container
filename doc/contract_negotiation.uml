@@ -1,0 +1,49 @@
+@startuml
+
+title Contract negotiation
+
+participant Consumer as C
+participant Provider as P
+
+== Description Request ==
+
+C -> P : Description Request Message
+P -> C : Description Response Message + Self Description
+
+== Contract Request ==
+
+C -> P : Contract Request Message + Contract Offer
+note over P
+  Here we are assuming that provider will not perform 
+  actual negotiation but accept offer.
+end note
+P -> C : Contract Agreement Message + Contract Agreement
+
+== Contract Agreement ==
+C -> P : ContractAgreementMessage\n + ContractAgreement
+note over P
+Received contract agreement is accepted by default.
+Persisting agreements is not implemented in DataApp
+end note
+P -> P : validate received ContractAgreement\nwith the one that was sent (DataApp)
+alt #LightBlue Contract agreement validated
+	P -> P : upload ContractAgreement to Usage Control
+	alt Successful upload to Usage control 
+		P -> P : register ContractAgreement to Clearing House
+		alt Successful registered transaction to Clearing House
+			P -> C : MessageProcesedNotificationMessage
+		else Failed to register to Clearing House
+			P -> P : rollback contract agreement
+			P -> C : Rejection message
+		end		
+	else Failed to upload to Usage Control
+		P -> C: Rejection message
+	end	
+	C -> C : check if MessageProcesedNotificationMessage and\noriginal message is ContractAgreementMessage
+	C -> C : upload ContractAgreement to Usage Control
+	C -> C : register ContractAgreement to Clearing House
+else #Pink Failed to validate Contract Agreement
+    P -> C: Rejection Message
+end
+
+@enduml
