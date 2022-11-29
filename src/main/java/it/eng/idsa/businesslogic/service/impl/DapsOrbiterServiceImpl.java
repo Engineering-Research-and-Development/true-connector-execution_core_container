@@ -1,6 +1,7 @@
 package it.eng.idsa.businesslogic.service.impl;
 
 import java.io.IOException;
+import java.net.URL;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
@@ -14,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +30,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import io.jsonwebtoken.JwtException;
 import it.eng.idsa.businesslogic.service.DapsService;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -45,7 +45,8 @@ import okhttp3.ResponseBody;
 /**
  * Service Implementation for managing DAPS.
  */
-@ConditionalOnProperty(name = "application.dapsVersion", havingValue = "orbiter")
+//@ConditionalOnProperty(name = "application.dapsVersion", havingValue = "orbiter")
+@ConditionalOnExpression("'${application.isEnabledDapsInteraction}' == 'true' && '${application.dapsVersion}'=='orbiter'")
 @Service
 @Transactional
 public class DapsOrbiterServiceImpl implements DapsService {
@@ -61,6 +62,8 @@ public class DapsOrbiterServiceImpl implements DapsService {
 	private String connectorUUID;
 	@Value("${application.daps.orbiter.password}")
 	private String dapsOrbiterPassword;
+	@Value("${application.dapsJWKSUrl}")
+	private URL dapsJWKSUrl;
 
 	@Autowired
 	private OkHttpClient client;
@@ -231,5 +234,20 @@ public class DapsOrbiterServiceImpl implements DapsService {
 			return null;
 		}
 		return token;
+	}
+
+	@Override
+	public boolean isDapsAvailable(String dapsHealthCheckEndpoint) {
+		Request request = new Request.Builder().url(dapsHealthCheckEndpoint).build();
+		try {
+			Response response =  client.newCall(request).execute();
+			if(response.isSuccessful()) {
+				return true;
+			}
+		} catch (IOException e) {
+			logger.error("Error while making call to {}", dapsUrl, e);
+			return false;
+		}
+		return false;
 	}
 }

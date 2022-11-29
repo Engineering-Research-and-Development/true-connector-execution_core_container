@@ -19,6 +19,7 @@ import it.eng.idsa.businesslogic.processor.common.ModifyPayloadProcessor;
 import it.eng.idsa.businesslogic.processor.common.OriginalMessageProcessor;
 import it.eng.idsa.businesslogic.processor.common.ProtocolValidationProcessor;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
+import it.eng.idsa.businesslogic.processor.common.ConnectorHealthCheckProcessor;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorSender;
@@ -107,6 +108,8 @@ public class CamelRouteSender extends RouteBuilder {
 	private ModifyPayloadProcessor modifyPayloadProcessor;
 	@Autowired
 	private DeModifyPayloadProcessor deModifyPayloadProcessor;
+	@Autowired
+	private ConnectorHealthCheckProcessor connectorHealthCheckProcessor;
 
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledDataAppWebSocket;
@@ -139,6 +142,7 @@ public class CamelRouteSender extends RouteBuilder {
 //		camelContext.setCaseInsensitiveHeaders(false);
 		
 		interceptFrom().process(correlationIDProcessor);
+		interceptFrom().process(connectorHealthCheckProcessor);
 		
 		//@formatter:off
 		onException(ExceptionForProcessor.class, RuntimeException.class)

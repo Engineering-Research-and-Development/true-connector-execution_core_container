@@ -5,12 +5,12 @@ import java.net.URI;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.fraunhofer.iais.eis.Action;
@@ -24,6 +24,7 @@ import de.fraunhofer.iais.eis.ConnectorUpdateMessageBuilder;
 import de.fraunhofer.iais.eis.ContentType;
 import de.fraunhofer.iais.eis.ContractOffer;
 import de.fraunhofer.iais.eis.ContractOfferBuilder;
+import de.fraunhofer.iais.eis.DynamicAttributeToken;
 import de.fraunhofer.iais.eis.KeyType;
 import de.fraunhofer.iais.eis.Language;
 import de.fraunhofer.iais.eis.Message;
@@ -62,17 +63,16 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SelfDescriptionServiceImpl.class);
 	
-	private DapsTokenProviderService dapsProvider;
+	private Optional<DapsTokenProviderService> dapsProvider;
 	private SelfDescriptionConfiguration selfDescriptionConfiguration;
 	private Connector connector;
 	private SelfDescriptionManager selfDescriptionManager;
 	private URI issuerConnectorURI;
     private KeystoreProvider keystoreProvider;
 
-	@Autowired
 	public SelfDescriptionServiceImpl(
 			SelfDescriptionConfiguration selfDescriptionConfiguration,	
-			DapsTokenProviderService dapsProvider,
+			Optional<DapsTokenProviderService> dapsProvider,
 			SelfDescriptionManager selfDescriptionManager,
 			KeystoreProvider keystoreProvider) {
 		this.selfDescriptionConfiguration = selfDescriptionConfiguration;
@@ -249,11 +249,10 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 			._issued_(DateUtil.now())
 			._issuerConnector_(issuerConnectorURI)
 			._modelVersion_(UtilMessageService.MODEL_VERSION)
-			._securityToken_(dapsProvider.getDynamicAtributeToken())
+			._securityToken_(getDynamicAtributeToken())
 			._affectedConnector_(connector.getId())
 			.build();
 	}
-
 
 	@Override
 	public Message getConnectorUpdateMessage() {
@@ -262,7 +261,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._issuerConnector_(issuerConnectorURI)
 				._issued_(DateUtil.now())
-				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._securityToken_(getDynamicAtributeToken())
 				._affectedConnector_(connector.getId())
 				.build();
 	}
@@ -277,7 +276,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._issuerConnector_(issuerConnectorURI)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
-				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._securityToken_(getDynamicAtributeToken())
 				._affectedConnector_(connector.getId())
 				.build();
 	}
@@ -289,7 +288,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._issuerConnector_(issuerConnectorURI)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
-				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._securityToken_(getDynamicAtributeToken())
 				._affectedConnector_(connector.getId())
 				.build();
 	}
@@ -301,10 +300,15 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._issuerConnector_(issuerConnectorURI)
 				._issued_(DateUtil.now())
-				._securityToken_(dapsProvider.getDynamicAtributeToken())
+				._securityToken_(getDynamicAtributeToken())
 				._queryLanguage_(QueryLanguage.SPARQL)
 				._queryScope_(QueryScope.ALL)
 				.build();
+	}
+
+	private DynamicAttributeToken getDynamicAtributeToken() {
+		return dapsProvider.map(DapsTokenProviderService::getDynamicAtributeToken)
+				.orElse(UtilMessageService.getDynamicAttributeToken());
 	}
 
 }

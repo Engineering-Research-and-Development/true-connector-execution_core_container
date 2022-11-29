@@ -21,12 +21,13 @@ import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.multipart.util.UtilMessageService;
 
+//@ConditionalOnExpression("'${application.isEnabledDapsInteraction}' == 'true'")
 @Service
 public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 
 	private static final Logger logger = LoggerFactory.getLogger(DapsTokenProviderServiceImpl.class);
 
-	@Autowired
+	@Autowired(required = false)
 	private DapsService dapsService;
 
 	private String cachedToken;

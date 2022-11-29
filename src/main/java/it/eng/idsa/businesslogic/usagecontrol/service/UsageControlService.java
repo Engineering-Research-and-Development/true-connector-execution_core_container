@@ -14,7 +14,7 @@ public interface UsageControlService {
 	 * @return
 	 * @throws Exception
 	 */
-	public String enforceUsageControl(URI contractAgreementUri, String payload) throws Exception;
+	String enforceUsageControl(URI contractAgreementUri, String payload) throws Exception;
 
 	/**
 	 * Used on the Usage Control provider side for creating Usage Control Object
@@ -22,7 +22,7 @@ public interface UsageControlService {
 	 * @param payloadContent
 	 * @return
 	 */
-	public String createUsageControlObject(ArtifactRequestMessage artifactRequestMessage,
+	String createUsageControlObject(ArtifactRequestMessage artifactRequestMessage,
 			ArtifactResponseMessage artifactResponseMessage, String payloadContent);
 
 	/**
@@ -30,5 +30,12 @@ public interface UsageControlService {
 	 * @param payloadContent
 	 * @return
 	 */
-	public String uploadPolicy(String payloadContent);
+	String uploadPolicy(String payloadContent);
+	
+	/**
+	 * Check the availability of the usage control
+	 * @param usageContolHealthEndpoint
+	 * @return
+	 */
+	boolean isUsageControlAvailable(String usageContolHealthEndpoint);
 }

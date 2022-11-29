@@ -33,7 +33,7 @@ public class ValidateTokenProcessor implements Processor {
 	@Value("${application.isEnabledDapsInteraction}")
     private boolean isEnabledDapsInteraction;
 	
-	@Autowired
+	@Autowired(required = false)
 	private DapsService dapsService;
 	
 	@Autowired
