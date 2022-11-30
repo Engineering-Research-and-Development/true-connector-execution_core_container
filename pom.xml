@@ -12,7 +12,7 @@
 	<groupId>it.eng.idsa</groupId>
 	<artifactId>market4.0-execution_core_container_business_logic
 	</artifactId>
-	<version>0.1.23-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>market4.0-execution_core_container_business_logic</name>
 	<description>Market4.0 execution core container Business Logic
 	</description>
@@ -174,7 +174,7 @@
 			<artifactId>camel-jetty-starter</artifactId>
 			<version>${camel.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-util</artifactId>

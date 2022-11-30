@@ -15,5 +15,6 @@ public interface ClearingHouseService {
 	boolean registerTransaction(Message message, String payload);
 
 	String createProcessIdAtClearingHouse(Message contractAgreementMessage, Message messageProcessedNotificationMessage, String payload);
-
+	
+	boolean isClearingHouseAvailable(String clearingHouseHealthEndpoint);
 }

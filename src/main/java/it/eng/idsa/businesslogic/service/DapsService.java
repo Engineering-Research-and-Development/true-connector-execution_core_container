@@ -11,7 +11,10 @@ package it.eng.idsa.businesslogic.service;
  */
 public interface DapsService {
 
-	public String getJwtToken();
+	String getJwtToken();
 	
-	public boolean validateToken(String tokenValue);
+	boolean validateToken(String tokenValue);
+	
+	boolean isDapsAvailable(String dapsHealthCheckEndpoint);
+	
 }

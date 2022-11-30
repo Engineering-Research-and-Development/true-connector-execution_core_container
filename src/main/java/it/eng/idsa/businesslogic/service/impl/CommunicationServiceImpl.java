@@ -66,4 +66,16 @@ public class CommunicationServiceImpl implements CommunicationService {
 		}
 	}
 
+	@Override
+	public String getRequest(String endpoint) {
+		ResponseEntity<String> result;
+		try {
+			result = restTemplate.getForEntity(endpoint, String.class);
+		} catch (Exception e) {
+			logger.error("Error while making a request", e);
+			return null;
+		}
+		return result.getBody();
+	}
+
 }

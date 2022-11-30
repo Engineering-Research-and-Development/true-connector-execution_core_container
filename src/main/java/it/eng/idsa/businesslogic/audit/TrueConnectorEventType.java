@@ -44,7 +44,12 @@ public enum TrueConnectorEventType {
 	CONNECTOR_BROKER_UPDATE("Connector update Broker registration"),
 	CONNECTOR_BROKER_PASSIVATE("Connector passivate connector on Broker"),
 	CONNECTOR_BROKER_DELETE("Connector delete connector from Broker"),
-	CONNECTOR_BROKER_QUERY("Connector query to Broker");
+	CONNECTOR_BROKER_QUERY("Connector query to Broker"),
+	// connector health check events
+	CONNECTOR_INTERNAL_HEALTHY("Connector internal state is healthy"),
+	CONNECTOR_INTERNAL_UNHEALTHY("Connector internal state is unhealthy"),
+	CONNECTOR_EXTERNAL_HEALTHY("Connector external state is healthy"),
+	CONNECTOR_EXTERNAL_UNHEALTHY("Connector external state is unhealthy");
 	
 	private final String text;
 

@@ -10,7 +10,7 @@
   </appender>
 
 	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
-		<file>true_connector_audit.log</file>
+		<file>true_connector_audit_SENDER.log</file>
 		<append>true</append>
 		<encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
 	</appender>

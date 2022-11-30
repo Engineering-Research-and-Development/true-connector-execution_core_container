@@ -81,4 +81,12 @@ public class PlatoonUsageControlServiceImpl implements UsageControlService {
 			communicationService.deleteRequest(platoonURL + policyUploadEndpoint + Helper.getUUID(ca.getId()));
 		}
 	}
+	
+	@Override
+	public boolean isUsageControlAvailable(String usageContolHealthEndpoint) {
+		if(isEnabledUsageControl) {
+			 return communicationService.getRequest(usageContolHealthEndpoint) != null ? true : false;
+		}
+		return true;
+	}
 }

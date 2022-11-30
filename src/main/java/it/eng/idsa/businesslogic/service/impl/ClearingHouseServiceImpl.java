@@ -17,6 +17,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
@@ -63,17 +64,21 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 
 	private SendDataToBusinessLogicService sendDataToBusinessLogicService;
 	
+	private RestTemplate restTemplate;
+	
 	private Serializer serializer;
 	
 	public ClearingHouseServiceImpl(ClearingHouseConfiguration configuration,
 			SelfDescriptionConfiguration selfDescriptionConfiguration,
 			DapsTokenProviderService dapsProvider,
-			SendDataToBusinessLogicService sendDataToBusinessLogicService) {
+			SendDataToBusinessLogicService sendDataToBusinessLogicService,
+			RestTemplate restTemplate) {
 		super();
 		this.configuration = configuration;
 		this.selfDescriptionConfiguration = selfDescriptionConfiguration;
 		this.dapsProvider = dapsProvider;
 		this.sendDataToBusinessLogicService = sendDataToBusinessLogicService;
+		this.restTemplate = restTemplate;
 		this.serializer = new Serializer();
 	}
 	
@@ -228,7 +233,6 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 
 		RequestMessage processMessage = buildRequestMessage(contractAgreementMessage);
 		MultipartMessage multipartMessage = buildMultipartMessageForPIDCreation(processMessage, contractAgreementMessage, messageProcessedNotificationMessage);
-
 		response = sendDataToBusinessLogicService.sendMessageFormData(endpoint, multipartMessage,
 				getBasicAuth());
 				
@@ -248,6 +252,18 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 				response.close();
 			}
 		}
+	}
+	
+	@Override
+	public boolean isClearingHouseAvailable(String clearingHouseHealthEndpoint) {
+		// TODO how to check if CH is available????
+		try {
+			restTemplate.getForEntity(clearingHouseHealthEndpoint, String.class);
+		} catch (Exception e) {
+			logger.error("Error while making a request", e);
+			return false;
+		}
+		return true;
 	}
 }
 
