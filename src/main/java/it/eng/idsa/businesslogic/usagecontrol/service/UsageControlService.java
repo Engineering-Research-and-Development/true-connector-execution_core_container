@@ -38,7 +38,7 @@ public interface UsageControlService {
 	 * @param contractAgreement
 	 * @throws IOException 
 	 */
-	void rollbackPolicyUpload(String contractAgreement);
+	void rollbackPolicyUpload(String contractAgreementUUID);
 	
 	/**
 	 * Check the availability of the usage control

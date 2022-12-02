@@ -13,7 +13,6 @@ public class ClearingHouseConfiguration {
 	private String baseUrl;
 	private String logEndpoint;
 	private String processEndpoint;
-	private String hashDir;
 	
 	public Boolean getIsEnabledClearingHouse() {
 		return isEnabledClearingHouse;
@@ -50,11 +49,5 @@ public class ClearingHouseConfiguration {
 	}
 	public void setProcessEndpoint(String processEndpoint) {
 		this.processEndpoint = processEndpoint;
-	}
-	public String getHashDir() {
-		return hashDir;
-	}
-	public void setHashDir(String hashDir) {
-		this.hashDir = hashDir;
 	}
 }

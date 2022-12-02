@@ -34,10 +34,8 @@ public class RegisterTransactionToCHProcessorTest {
 	@Mock
 	private ClearingHouseConfiguration configuration;
 	
-	@Mock
 	private Optional<ClearingHouseService> clearingHouseService;
 	
-	@Mock
 	private Optional<UsageControlService> usageControlService;
 	
 	@Mock
