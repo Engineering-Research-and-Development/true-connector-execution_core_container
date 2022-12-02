@@ -58,6 +58,64 @@ public class DapsV2ServiceImpl implements DapsService {
 	@Value("${application.dapsJWKSUrl}")
 	private URL dapsJWKSUrl;
 
+	@Override
+	public boolean validateToken(String tokenValue) {
+		boolean valid = false;
+		if(tokenValue==null) {
+			logger.error("Token is null");
+			return valid;
+		}
+		try {
+			DecodedJWT jwt = JWT.decode(tokenValue);
+			Algorithm algorithm = dapsUtilityProvider.provideAlgorithm(tokenValue);
+			algorithm.verify(jwt);
+			valid = true;
+			if (jwt.getExpiresAt().before(new Date())) {
+				valid = false;
+				logger.warn("Token expired");
+			}
+		} catch (SignatureVerificationException e) {
+			logger.info("Token did not verified, {}", e);
+		} catch (JWTDecodeException e) {
+			logger.error("Invalid token, {}", e);
+		}
+		return valid;
+	}
+
+	@Override
+	public String getJwtToken() {
+
+		token = getJwTokenInternal();
+
+		if (StringUtils.isNotBlank(token) && validateToken(token)) {
+			logger.info("Token is valid: " + token);
+		} else {
+			logger.info("Token is invalid");
+			return null;
+		}
+		return token;
+	}
+
+	@Override
+	public boolean isDapsAvailable(String dapsHealthCheckEndpoint) {
+		Request request = new Request.Builder().url(dapsHealthCheckEndpoint).build();
+		try {
+			Response response =  client.newCall(request).execute();
+			if(response.isSuccessful()) {
+				return true;
+			}
+		} catch (IOException e) {
+			logger.error("Error while making call to {}", dapsUrl, e);
+			return false;
+		}
+		return false;
+	}
+
+	@Override
+	public String getConnectorUUID() {
+		return dapsUtilityProvider.getConnectorUUID();
+	}
+	
 	@VisibleForTesting
 	String getJwTokenInternal() {
 
@@ -113,58 +171,5 @@ public class DapsV2ServiceImpl implements DapsService {
 			}
 		}
 		return token;
-	}
-
-	@Override
-	public boolean validateToken(String tokenValue) {
-		boolean valid = false;
-		if(tokenValue==null) {
-			logger.error("Token is null");
-			return valid;
-		}
-		try {
-			DecodedJWT jwt = JWT.decode(tokenValue);
-			Algorithm algorithm = dapsUtilityProvider.provideAlgorithm(tokenValue);
-			algorithm.verify(jwt);
-			valid = true;
-			if (jwt.getExpiresAt().before(new Date())) {
-				valid = false;
-				logger.warn("Token expired");
-			}
-		} catch (SignatureVerificationException e) {
-			logger.info("Token did not verified, {}", e);
-		} catch (JWTDecodeException e) {
-			logger.error("Invalid token, {}", e);
-		}
-		return valid;
-	}
-
-	@Override
-	public String getJwtToken() {
-
-		token = getJwTokenInternal();
-
-		if (StringUtils.isNotBlank(token) && validateToken(token)) {
-			logger.info("Token is valid: " + token);
-		} else {
-			logger.info("Token is invalid");
-			return null;
-		}
-		return token;
-	}
-
-	@Override
-	public boolean isDapsAvailable(String dapsHealthCheckEndpoint) {
-		Request request = new Request.Builder().url(dapsHealthCheckEndpoint).build();
-		try {
-			Response response =  client.newCall(request).execute();
-			if(response.isSuccessful()) {
-				return true;
-			}
-		} catch (IOException e) {
-			logger.error("Error while making call to {}", dapsUrl, e);
-			return false;
-		}
-		return false;
 	}
 }

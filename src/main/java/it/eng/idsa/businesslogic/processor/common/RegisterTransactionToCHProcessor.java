@@ -12,16 +12,19 @@ import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
+import de.fraunhofer.iais.eis.ContractAgreement;
 import de.fraunhofer.iais.eis.ContractAgreementMessage;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.MessageProcessedNotificationMessage;
 import de.fraunhofer.iais.eis.RejectionReason;
+import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.configuration.ClearingHouseConfiguration;
 import it.eng.idsa.businesslogic.service.ClearingHouseService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
+import it.eng.idsa.businesslogic.util.Helper;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 
 /**
@@ -97,16 +100,23 @@ public class RegisterTransactionToCHProcessor implements Processor {
 				&& originalMessage instanceof ContractAgreementMessage) {
 			//since this happens on response we need the payload(Contract Agreement) from the request
 			String contractAgreement = (String) exchange.getProperty("Original-Message-Payload");
+			ContractAgreement ca = null;
+			try {
+				ca = new Serializer().deserialize(contractAgreement, ContractAgreement.class);
+			} catch (Exception e) {
+				logger.error("No valid contract agreement - {}", e.getMessage());
+			}
+			String contractAgreementUUID = Helper.getUUID(ca.getId());
 			if (isReceiver) {
-				String pid = clearingHouseService.map(service -> service.createProcessIdAtClearingHouse(originalMessage, multipartMessage.getHeaderContent(), contractAgreement)).orElse(null);
+				String pid = clearingHouseService.map(service -> service.createProcessIdAtClearingHouse(originalMessage.getSecurityToken().getTokenValue(), contractAgreementUUID)).orElse(null);
 				if (pid != null) {
-					registrationSuccessfull = clearingHouseService.map(service -> service.registerTransaction(originalMessage, contractAgreement)).orElse(false);
+					registrationSuccessfull = clearingHouseService.map(service -> service.registerTransaction(originalMessage, contractAgreementUUID)).orElse(false);
 				}
 			} else {
-				registrationSuccessfull = clearingHouseService.map(service -> service.registerTransaction(originalMessage, contractAgreement)).orElse(false);
+				registrationSuccessfull = clearingHouseService.map(service -> service.registerTransaction(originalMessage, contractAgreementUUID)).orElse(false);
 			}
 			if (!registrationSuccessfull) {
-				usageControlService.ifPresent(service -> service.rollbackPolicyUpload((contractAgreement)));
+				usageControlService.ifPresent(service -> service.rollbackPolicyUpload(contractAgreementUUID));
 			}
 			if (registrationSuccessfull) {
 				publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_CLEARING_HOUSE_SUCCESS, multipartMessage));

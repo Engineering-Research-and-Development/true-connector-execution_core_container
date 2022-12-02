@@ -17,4 +17,6 @@ public interface DapsService {
 	
 	boolean isDapsAvailable(String dapsHealthCheckEndpoint);
 	
+	String getConnectorUUID();
+	
 }

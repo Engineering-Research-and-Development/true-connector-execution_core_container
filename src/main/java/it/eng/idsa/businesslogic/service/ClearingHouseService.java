@@ -12,9 +12,9 @@ import de.fraunhofer.iais.eis.Message;
  */
 public interface ClearingHouseService {
 
-	boolean registerTransaction(Message message, String payload);
-
-	String createProcessIdAtClearingHouse(Message contractAgreementMessage, Message messageProcessedNotificationMessage, String payload);
+	String createProcessIdAtClearingHouse(String senderToken, String contractAgreementUUID);
 	
+	boolean registerTransaction(Message message, String contractAgreementUUID);
+
 	boolean isClearingHouseAvailable(String clearingHouseHealthEndpoint);
 }

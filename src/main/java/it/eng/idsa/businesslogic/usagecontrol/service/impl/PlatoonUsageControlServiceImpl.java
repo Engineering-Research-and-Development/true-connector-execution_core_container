@@ -12,11 +12,8 @@ import org.springframework.stereotype.Service;
 
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
-import de.fraunhofer.iais.eis.ContractAgreement;
-import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.service.CommunicationService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
-import it.eng.idsa.businesslogic.util.Helper;
 
 @Service
 @ConditionalOnExpression("'${application.isEnabledUsageControl}' == 'true' && '${application.usageControlVersion}'=='platoon'")
@@ -69,16 +66,10 @@ public class PlatoonUsageControlServiceImpl implements UsageControlService {
 	}
 
 	@Override
-	public void rollbackPolicyUpload(String contractAgreement) {
-		ContractAgreement ca = null;
-		try {
-			ca = new Serializer().deserialize(contractAgreement, ContractAgreement.class);
-		} catch (Exception e) {
-			logger.error("Policy upload rollback interupted - {}", e.getMessage());
-		}
-		if(isEnabledUsageControl && ca != null) {
+	public void rollbackPolicyUpload(String contractAgreementUUID) {
+		if(isEnabledUsageControl) {
 			logger.info("Rolling back policy upload");
-			communicationService.deleteRequest(platoonURL + policyUploadEndpoint + Helper.getUUID(ca.getId()));
+			communicationService.deleteRequest(platoonURL + policyUploadEndpoint + contractAgreementUUID);
 		}
 	}
 	

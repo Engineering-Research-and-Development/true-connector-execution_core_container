@@ -14,7 +14,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -25,14 +27,12 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import de.fraunhofer.iais.eis.ContractAgreement;
 import de.fraunhofer.iais.eis.ContractAgreementMessage;
 import de.fraunhofer.iais.eis.LogMessage;
 import de.fraunhofer.iais.eis.LogMessageBuilder;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RequestMessage;
 import de.fraunhofer.iais.eis.RequestMessageBuilder;
-import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.configuration.ClearingHouseConfiguration;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.service.ClearingHouseService;
@@ -66,8 +66,6 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	
 	private RestTemplate restTemplate;
 	
-	private Serializer serializer;
-	
 	public ClearingHouseServiceImpl(ClearingHouseConfiguration configuration,
 			SelfDescriptionConfiguration selfDescriptionConfiguration,
 			DapsTokenProviderService dapsProvider,
@@ -79,12 +77,44 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		this.dapsProvider = dapsProvider;
 		this.sendDataToBusinessLogicService = sendDataToBusinessLogicService;
 		this.restTemplate = restTemplate;
-		this.serializer = new Serializer();
 	}
 	
+	@Override
+	public String createProcessIdAtClearingHouse(String senderToken, String contractAgreementUUID) {
+		logger.info("Contract agreement detected, trying to create new ProcessID...");
+		Response response = null;
+
+		if (contractAgreementUUID == null) {
+			logger.error("Can not retrieve valid UUID from Contract Agreement @id");
+			return null;
+		}
+		String endpoint = configuration.getBaseUrl() + configuration.getProcessEndpoint() + contractAgreementUUID;
+
+		RequestMessage processMessage = buildRequestMessage();
+		MultipartMessage multipartMessage = buildMultipartMessageForPIDCreation(processMessage, senderToken);
+		try {
+			response = sendDataToBusinessLogicService.sendMessageFormData(endpoint, multipartMessage, getBasicAuth());
+
+			if (response.code() != 201) {
+				logger.error("Clearing House didn't create a new log ProcessID - RejectionReason: {} {}\n{}",
+						response.code(), response.message(), response.body().string());
+				return null;
+			} else {
+				logger.info("Clearing House created a new log ProcessID: {}", contractAgreementUUID);
+				return contractAgreementUUID;
+			}
+		} catch (Exception e) {
+			logger.error("Clearing House didn't create a new log ProcessID - {}", e.getMessage());
+			return null;
+		} finally {
+			if (response != null) {
+				response.close();
+			}
+		}
+	}
 
 	@Override
-	public boolean registerTransaction(Message messageForLogging, String payload) {
+	public boolean registerTransaction(Message messageForLogging, String contractAgreementUUID) {
 		boolean success = false;
 		Response response = null;
 		try {
@@ -93,8 +123,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			
 			if (messageForLogging instanceof ContractAgreementMessage) {
 				logger.info("Extracting pid from Contract agreement...");
-				ContractAgreement contractAgreement = serializer.deserialize(payload, ContractAgreement.class);
-				pid = Helper.getUUID(contractAgreement.getId());
+				pid = contractAgreementUUID;
 			}
 			
 			if (!(messageForLogging instanceof ContractAgreementMessage) && messageForLogging.getTransferContract() != null) {
@@ -133,14 +162,31 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		}
 		return success;
 	}
-
-	private Map<String, Object> getBasicAuth() {
-		Map<String, Object> headers = new HashMap<>();
+	
+	
+	@Override
+	public boolean isClearingHouseAvailable(String clearingHouseHealthEndpoint) {
+		HttpEntity<String> entity = new HttpEntity<String>() {};
 		
 		if (StringUtils.isNotBlank(configuration.getUsername()) && StringUtils.isNotBlank(configuration.getPassword())) {
-			headers.put(HttpHeaders.AUTHORIZATION, Credentials.basic(configuration.getUsername(), configuration.getPassword()));
+			entity.getHeaders().set(HttpHeaders.AUTHORIZATION, Credentials.basic(configuration.getUsername(), configuration.getPassword()));
 		}
-		return headers;
+		
+		try {
+			restTemplate.exchange(clearingHouseHealthEndpoint, HttpMethod.GET, entity, String.class);
+		} catch (Exception e) {
+			logger.error("Error while making a request", e);
+			return false;
+		}
+		return true;
+	}
+
+	private Map<String, Object> getBasicAuth() {
+		Map<String, Object> map = new HashMap<>();
+		if (StringUtils.isNotBlank(configuration.getUsername()) && StringUtils.isNotBlank(configuration.getPassword())) {
+			map.put(HttpHeaders.AUTHORIZATION, Credentials.basic(configuration.getUsername(), configuration.getPassword()));
+		}
+		return map;
 	}
 
 	private MultipartMessage buildMultipartMessageForLogging(Message messageForLogging) throws IOException {
@@ -165,7 +211,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 		}
 
 
-	private RequestMessage buildRequestMessage(Message contractAgreement) {
+	private RequestMessage buildRequestMessage() {
 		return new RequestMessageBuilder()._modelVersion_(UtilMessageService.MODEL_VERSION)
 										  ._issuerConnector_(whoIAm())
 										  ._issued_(DateUtil.now())
@@ -174,6 +220,13 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 										  .build();
 	}
 
+	private MultipartMessage buildMultipartMessageForPIDCreation(RequestMessage requestMessage, String senderToken) {
+		return new MultipartMessageBuilder().withHeaderContent(requestMessage)
+				.withPayloadContent(ownersList(senderToken))
+				.withPayloadHeader(Map.of(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
+				.build();
+	}
+	
 	private LogMessage buildLogMessage(Message correlatedMessage) {
 		return new LogMessageBuilder()._modelVersion_(UtilMessageService.MODEL_VERSION)
 									  ._issuerConnector_(whoIAm())
@@ -183,23 +236,15 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 									  .build();
 	}
 
-	private MultipartMessage buildMultipartMessageForPIDCreation(RequestMessage processMessage, Message contractAgreement, Message messageProcessedNotificationMessage) {
-		Map<String, String> payloadHeader = new HashMap<>();
-		payloadHeader.put("content-type", MediaType.APPLICATION_JSON_VALUE);
-		return new MultipartMessageBuilder().withHeaderContent(processMessage)
-											.withPayloadContent(ownersList(contractAgreement, messageProcessedNotificationMessage))
-											.withPayloadHeader(payloadHeader)
-											.build();
-	}
 
-	private String ownersList(Message contractAgreement, Message messageProcessedNotificationMessage) {
+	private String ownersList(String senderToken) {
 
 		List<String> ownersList = new ArrayList<>();
 		
-		//consumer fingerprint
-		ownersList.add(getFingerprint(contractAgreement.getSecurityToken().getTokenValue()));
-		//provider fingerprint
-		ownersList.add(getFingerprint(messageProcessedNotificationMessage.getSecurityToken().getTokenValue()));
+		//sender fingerprint
+		ownersList.add(getFingerprint(senderToken));
+		//receiver fingerprint
+		ownersList.add(dapsProvider.getConnectorUUID());
 		
 		Map<String, List<String>> owners = new HashMap<>();
 		ObjectMapper mapper = new ObjectMapper();
@@ -216,54 +261,6 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 
 	private URI whoIAm() {
 		return selfDescriptionConfiguration.getConnectorURI();
-	}
-	
-	@Override
-	public String createProcessIdAtClearingHouse(Message contractAgreementMessage, Message messageProcessedNotificationMessage, String payload) {
-		logger.info("Contract agreement detected, trying to create new ProcessID...");
-		Response response = null;
-		try {
-		ContractAgreement contractAgreement = serializer.deserialize(payload, ContractAgreement.class);
-		String pid = Helper.getUUID(contractAgreement.getId());
-		if (pid == null) {
-			logger.error("Can not retrieve valid UUID from Contract Agreement @id");
-			return null;
-		}
-		String endpoint = configuration.getBaseUrl() + configuration.getProcessEndpoint() + pid;
-
-		RequestMessage processMessage = buildRequestMessage(contractAgreementMessage);
-		MultipartMessage multipartMessage = buildMultipartMessageForPIDCreation(processMessage, contractAgreementMessage, messageProcessedNotificationMessage);
-		response = sendDataToBusinessLogicService.sendMessageFormData(endpoint, multipartMessage,
-				getBasicAuth());
-				
-			if (response.code() != 201) {
-				logger.error("Clearing House didn't create a new log ProcessID - RejectionReason: {} {}\n{}",
-						response.code(), response.message(), response.body().string());
-				return null;
-			} else {
-				logger.info("Clearing House created a new log ProcessID: {}", pid);
-				return pid;
-			} 
-		} catch (Exception e) {
-			logger.error("Clearing House didn't create a new log ProcessID - {}", e.getMessage());
-			return null;
-		} finally {
-			if (response != null) {
-				response.close();
-			}
-		}
-	}
-	
-	@Override
-	public boolean isClearingHouseAvailable(String clearingHouseHealthEndpoint) {
-		// TODO how to check if CH is available????
-		try {
-			restTemplate.getForEntity(clearingHouseHealthEndpoint, String.class);
-		} catch (Exception e) {
-			logger.error("Error while making a request", e);
-			return false;
-		}
-		return true;
 	}
 }
 

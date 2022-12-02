@@ -15,6 +15,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import de.fraunhofer.iais.eis.ContractAgreement;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.MessageProcessedNotificationMessageBuilder;
 import de.fraunhofer.iais.eis.RejectionReason;
@@ -22,6 +23,7 @@ import it.eng.idsa.businesslogic.configuration.ClearingHouseConfiguration;
 import it.eng.idsa.businesslogic.service.ClearingHouseService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.usagecontrol.service.UsageControlService;
+import it.eng.idsa.businesslogic.util.Helper;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.util.UtilMessageService;
 
@@ -63,7 +65,7 @@ public class RegisterTransactionToCHProcessorTest {
 	
 	private Message contractAgreementMessage;
 	
-	private String contractAgreement;
+	private ContractAgreement contractAgreement;
 	
 	@BeforeEach
 	public void setup() {
@@ -73,7 +75,7 @@ public class RegisterTransactionToCHProcessorTest {
 		processor = new RegisterTransactionToCHProcessor(configuration, clearingHouseService, usageControlService, rejectionMessageService, publisher, false, false);
 		requestMessage = UtilMessageService.getArtifactRequestMessage();
 		contractAgreementMessage = UtilMessageService.getContractAgreementMessage();
-		contractAgreement  = UtilMessageService.getMessageAsString(UtilMessageService.getContractAgreement());
+		contractAgreement  = UtilMessageService.getContractAgreement();
 		ReflectionTestUtils.setField(processor, "isEnabledClearingHouse", true);
 		mockExchangeHeaderAndBody();
 	}
@@ -117,12 +119,12 @@ public class RegisterTransactionToCHProcessorTest {
 		when(chs.registerTransaction(any(), any())).thenReturn(true);
 		
 		when(exchange.getProperty("Original-Message-Header")).thenReturn(contractAgreementMessage);
-		when(exchange.getProperty("Original-Message-Payload")).thenReturn(contractAgreement);
+		when(exchange.getProperty("Original-Message-Payload")).thenReturn(UtilMessageService.getMessageAsString(contractAgreement));
 		
 		processor.process(exchange);
 		
 		verify(rejectionMessageService, times(0)).sendRejectionMessage(contractAgreementMessage, RejectionReason.INTERNAL_RECIPIENT_ERROR);
-		verify(clearingHouseService.get()).registerTransaction(contractAgreementMessage, contractAgreement);
+		verify(clearingHouseService.get()).registerTransaction(contractAgreementMessage, Helper.getUUID(contractAgreement.getId()));
 	}
 	
 	@Test
@@ -131,12 +133,12 @@ public class RegisterTransactionToCHProcessorTest {
 		when(chs.registerTransaction(any(), any())).thenReturn(false);
 		
 		when(exchange.getProperty("Original-Message-Header")).thenReturn(contractAgreementMessage);
-		when(exchange.getProperty("Original-Message-Payload")).thenReturn(contractAgreement);
+		when(exchange.getProperty("Original-Message-Payload")).thenReturn(UtilMessageService.getMessageAsString(contractAgreement));
 		
 		processor.process(exchange);
 		
 		verify(rejectionMessageService).sendRejectionMessage(contractAgreementMessage, RejectionReason.INTERNAL_RECIPIENT_ERROR);
-		verify(clearingHouseService.get()).registerTransaction(contractAgreementMessage, contractAgreement);
+		verify(clearingHouseService.get()).registerTransaction(contractAgreementMessage, Helper.getUUID(contractAgreement.getId()));
 	}
 	
 	@Test
@@ -144,16 +146,16 @@ public class RegisterTransactionToCHProcessorTest {
 		ReflectionTestUtils.setField(processor, "isReceiver", true);
 		when(multipartMessage.getHeaderContent()).thenReturn(getMessageProcessedNotificationMessage());
 		when(chs.registerTransaction(any(), any())).thenReturn(true);
-		when(chs.createProcessIdAtClearingHouse(any(), any(), any())).thenReturn("somePid");
+		when(chs.createProcessIdAtClearingHouse(any(), any())).thenReturn("somePid");
 		
 		when(exchange.getProperty("Original-Message-Header")).thenReturn(contractAgreementMessage);
-		when(exchange.getProperty("Original-Message-Payload")).thenReturn(contractAgreement);
+		when(exchange.getProperty("Original-Message-Payload")).thenReturn(UtilMessageService.getMessageAsString(contractAgreement));
 		
 		processor.process(exchange);
 		
 		verify(rejectionMessageService, times(0)).sendRejectionMessage(contractAgreementMessage, RejectionReason.INTERNAL_RECIPIENT_ERROR);
-		verify(clearingHouseService.get()).registerTransaction(contractAgreementMessage, contractAgreement);
-		verify(clearingHouseService.get()).createProcessIdAtClearingHouse(contractAgreementMessage, getMessageProcessedNotificationMessage(), contractAgreement);
+		verify(clearingHouseService.get()).registerTransaction(contractAgreementMessage, Helper.getUUID(contractAgreement.getId()));
+		verify(clearingHouseService.get()).createProcessIdAtClearingHouse(contractAgreementMessage.getSecurityToken().getTokenValue(), Helper.getUUID(contractAgreement.getId()));
 	}
 	
 	@Test
@@ -161,17 +163,17 @@ public class RegisterTransactionToCHProcessorTest {
 		ReflectionTestUtils.setField(processor, "isReceiver", true);
 		when(multipartMessage.getHeaderContent()).thenReturn(getMessageProcessedNotificationMessage());
 		when(chs.registerTransaction(any(), any())).thenReturn(true);
-		when(chs.createProcessIdAtClearingHouse(any(), any(), any())).thenReturn(null);
+		when(chs.createProcessIdAtClearingHouse(any(), any())).thenReturn(null);
 		
 		when(exchange.getProperty("Original-Message-Header")).thenReturn(contractAgreementMessage);
-		when(exchange.getProperty("Original-Message-Payload")).thenReturn(contractAgreement);
+		when(exchange.getProperty("Original-Message-Payload")).thenReturn(UtilMessageService.getMessageAsString(contractAgreement));
 		
 		processor.process(exchange);
 		
 		verify(rejectionMessageService).sendRejectionMessage(contractAgreementMessage, RejectionReason.INTERNAL_RECIPIENT_ERROR);
-		verify(clearingHouseService.get(), times(0)).registerTransaction(contractAgreementMessage, contractAgreement);
-		verify(clearingHouseService.get()).createProcessIdAtClearingHouse(contractAgreementMessage, getMessageProcessedNotificationMessage(), contractAgreement);
-		verify(usageControlService.get()).rollbackPolicyUpload(contractAgreement);
+		verify(clearingHouseService.get(), times(0)).registerTransaction(contractAgreementMessage, Helper.getUUID(contractAgreement.getId()));
+		verify(clearingHouseService.get()).createProcessIdAtClearingHouse(contractAgreementMessage.getSecurityToken().getTokenValue(), Helper.getUUID(contractAgreement.getId()));
+		verify(usageControlService.get()).rollbackPolicyUpload(Helper.getUUID(contractAgreement.getId()));
 	}
 	
 	

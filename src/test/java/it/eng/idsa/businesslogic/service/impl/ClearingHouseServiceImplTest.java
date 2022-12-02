@@ -20,14 +20,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import de.fraunhofer.iais.eis.ContractAgreement;
 import de.fraunhofer.iais.eis.LogMessageBuilder;
 import de.fraunhofer.iais.eis.Message;
-import de.fraunhofer.iais.eis.MessageProcessedNotificationMessageBuilder;
 import it.eng.idsa.businesslogic.configuration.ClearingHouseConfiguration;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
+import it.eng.idsa.businesslogic.util.Helper;
 import it.eng.idsa.multipart.util.DateUtil;
 import it.eng.idsa.multipart.util.UtilMessageService;
 import okhttp3.Response;
@@ -62,13 +63,13 @@ public class ClearingHouseServiceImplTest {
 	
 	private Message contractAgreementMessage;
 	
-	private String contractAgreement;
+	private ContractAgreement contractAgreement;
 	
 	@BeforeEach
 	public void init() {
 		MockitoAnnotations.initMocks(this);
 		contractAgreementMessage = UtilMessageService.getContractAgreementMessage();
-		contractAgreement  = UtilMessageService.getMessageAsString(UtilMessageService.getContractAgreement());
+		contractAgreement  = UtilMessageService.getContractAgreement();
 		requestMessage = UtilMessageService.getArtifactRequestMessageWithTransferContract(UtilMessageService.REQUESTED_ARTIFACT.toString(), "http://w3id.org/engrd/connector/examplecontract/fa17023f-3059-4b89-b3ae-c9cd4340ccd9");
 		mockEndpoint = "https://clearinghouse.com";
 		when(configuration.getBaseUrl()).thenReturn(mockEndpoint);
@@ -101,7 +102,7 @@ public class ClearingHouseServiceImplTest {
 	  public void testCreateProcessIdAtClearingHouseSuccess () throws UnsupportedEncodingException  {
 		  when(response.code()).thenReturn(201);
 		  when(sendDataToBusinessLogicService.sendMessageFormData(any(), any(), any())).thenReturn(response);
-		  assertNotNull(clearingHouseServiceImpl.createProcessIdAtClearingHouse(contractAgreementMessage, getMessageProcessedNotificationMessage(), contractAgreement));
+		  assertNotNull(clearingHouseServiceImpl.createProcessIdAtClearingHouse(contractAgreementMessage.getSecurityToken().getTokenValue(), Helper.getUUID(contractAgreement.getId())));
 	  }
 	  
 	  @Test
@@ -111,7 +112,7 @@ public class ClearingHouseServiceImplTest {
 		  when(response.body()).thenReturn(mock(ResponseBody.class));
 		  when(response.body().string()).thenReturn("failed");
 		  when(sendDataToBusinessLogicService.sendMessageFormData(any(), any(), any())).thenReturn(response);
-		  assertNull(clearingHouseServiceImpl.createProcessIdAtClearingHouse(contractAgreementMessage, getMessageProcessedNotificationMessage(), contractAgreement));
+		  assertNull(clearingHouseServiceImpl.createProcessIdAtClearingHouse(contractAgreementMessage.getSecurityToken().getTokenValue(), Helper.getUUID(contractAgreement.getId())));
 	  }
 	  
 	  @Test
@@ -121,14 +122,14 @@ public class ClearingHouseServiceImplTest {
 		  when(response.body()).thenReturn(mock(ResponseBody.class));
 		  when(response.body().string()).thenReturn("failed");
 		  when(sendDataToBusinessLogicService.sendMessageFormData(any(), any(), any())).thenReturn(response);
-		  assertNull(clearingHouseServiceImpl.createProcessIdAtClearingHouse(contractAgreementMessage, getMessageProcessedNotificationMessage(), null));
+		  assertNull(clearingHouseServiceImpl.createProcessIdAtClearingHouse(contractAgreementMessage.getSecurityToken().getTokenValue(), Helper.getUUID(contractAgreement.getId())));
 	  }
 	  
 	  @Test
 	  public void testRegisterContractAgreementSuccess() throws UnsupportedEncodingException  {
 		  when(response.code()).thenReturn(201);
 		  when(sendDataToBusinessLogicService.sendMessageFormData(any(), any(), any())).thenReturn(response);
-		  assertTrue(clearingHouseServiceImpl.registerTransaction(contractAgreementMessage, contractAgreement));
+		  assertTrue(clearingHouseServiceImpl.registerTransaction(contractAgreementMessage, Helper.getUUID(contractAgreement.getId())));
 	  }
 	  
 	  @Test
@@ -159,17 +160,4 @@ public class ClearingHouseServiceImplTest {
           .build();
 		  assertNotNull(logMessage);
 	  }
-	  
-	  
-	  private Message getMessageProcessedNotificationMessage() {
-			return new MessageProcessedNotificationMessageBuilder()
-					._senderAgent_(contractAgreementMessage.getSenderAgent())
-					._correlationMessage_(contractAgreementMessage.getCorrelationMessage())
-					._issuerConnector_(contractAgreementMessage.getIssuerConnector())
-					._securityToken_(contractAgreementMessage.getSecurityToken())
-					._issued_(contractAgreementMessage.getIssued())
-					._modelVersion_(contractAgreementMessage.getModelVersion())
-					.build();
-		}
-	  
 }

@@ -27,25 +27,26 @@ public class AuditLogHealthCheck {
 	public boolean isAuditLogVolumeHealthy() {
 		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
 		Logger auditLogger = context.getLogger("JSON");
-		FileAppender<ILoggingEvent> auditFileAppender = (FileAppender<ILoggingEvent>) ((ch.qos.logback.classic.Logger) auditLogger).iteratorForAppenders().next();
-		Path path = Paths.get(auditFileAppender.getFile());
-		if(path.isAbsolute()) { 
-			Path parentDir = path.getParent();
-			File volume = parentDir.toFile();
-			logger.info(String.format("Total space: %.2f MB", (double) volume.getTotalSpace() / 1048576));
-			logger.info(String.format("Free space: %.2f MB", (double) volume.getFreeSpace() / 1048576));
-			logger.info(String.format("Usable space: %.2f MB", (double) volume.getUsableSpace() / 1048576));
-			int auditTreshold = healthCheckConfiguration.getThreshold().getAudit();
-			if((double)(volume.getUsableSpace()) / volume.getTotalSpace() * 100 > auditTreshold) {
-				logger.info("Volume trashold of '{}' not reached", auditTreshold);
-				return true;
-			} else {
-				logger.warn("Volume trashold of '{}' reached - consider performing cleanup or backup on audit volume", auditTreshold);
-				return false;
-			}
-		} else {
-			logger.info("Path is relative");
-			return true;
-	    }
+		return true;
+//		FileAppender<ILoggingEvent> auditFileAppender = (FileAppender<ILoggingEvent>) ((ch.qos.logback.classic.Logger) auditLogger).iteratorForAppenders().next();
+//		Path path = Paths.get(auditFileAppender.getFile());
+//		if(path.isAbsolute()) { 
+//			Path parentDir = path.getParent();
+//			File volume = parentDir.toFile();
+//			logger.info(String.format("Total space: %.2f MB", (double) volume.getTotalSpace() / 1048576));
+//			logger.info(String.format("Free space: %.2f MB", (double) volume.getFreeSpace() / 1048576));
+//			logger.info(String.format("Usable space: %.2f MB", (double) volume.getUsableSpace() / 1048576));
+//			int auditTreshold = healthCheckConfiguration.getThreshold().getAudit();
+//			if((double)(volume.getUsableSpace()) / volume.getTotalSpace() * 100 > auditTreshold) {
+//				logger.info("Volume trashold of '{}' not reached", auditTreshold);
+//				return true;
+//			} else {
+//				logger.warn("Volume trashold of '{}' reached - consider performing cleanup or backup on audit volume", auditTreshold);
+//				return false;
+//			}
+//		} else {
+//			logger.info("Path is relative");
+//			return true;
+//	    }
 	}
 }

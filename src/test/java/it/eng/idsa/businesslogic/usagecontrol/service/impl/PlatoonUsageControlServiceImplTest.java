@@ -2,7 +2,6 @@ package it.eng.idsa.businesslogic.usagecontrol.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -119,12 +118,4 @@ public class PlatoonUsageControlServiceImplTest {
 		
 		verify(communicationService).deleteRequest(any());
 	}
-	
-	@Test
-	public void testUploadPolicyRollbackFailed() {
-		platoonUsageControlServiceImpl.rollbackPolicyUpload(null);
-		
-		verify(communicationService, times(0)).deleteRequest(any());
-	}
-
 }
