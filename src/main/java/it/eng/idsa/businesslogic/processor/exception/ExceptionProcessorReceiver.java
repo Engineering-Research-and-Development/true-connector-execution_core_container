@@ -2,6 +2,7 @@ package it.eng.idsa.businesslogic.processor.exception;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -24,7 +25,7 @@ public class ExceptionProcessorReceiver implements Processor {
 		
 		if (exception instanceof org.apache.camel.CamelAuthorizationException) {
 			exchange.getMessage().setBody("Access denied");
-			exchange.getMessage().setHeader(Exchange.HTTP_RESPONSE_CODE, 403);
+			exchange.getMessage().setHeader(Exchange.HTTP_RESPONSE_CODE, HttpStatus.UNAUTHORIZED.value());
 			exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 		} else {
 			String message = MultipartMessageProcessor.parseMultipartMessage(exception.getMessage()).getHeaderContentString();

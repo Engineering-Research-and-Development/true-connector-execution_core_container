@@ -19,10 +19,8 @@ public class TrueConnectorAuthorization implements Processor {
 	public void process(Exchange exchange) throws Exception {
 		 // get the username and password from the HTTP header
 		String authorization = exchange.getIn().getHeader("Authorization", String.class);
-		//TODO authorization can be null if not sent - handle this usecase
 		if(StringUtils.isBlank(authorization)) {
-			exchange.setProperty(Exchange.EXCEPTION_CAUGHT, new CamelAuthorizationException("Invalid credentials", exchange));
-			throw new ExceptionForProcessor("Invalid credentials");
+			throw new CamelAuthorizationException("Invalid credentials", exchange);
 		} else {
 		authorization = authorization.replace("Basic ", "");
         String userpass = new String(Base64.decodeBase64(authorization));
