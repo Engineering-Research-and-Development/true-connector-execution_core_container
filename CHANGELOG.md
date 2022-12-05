@@ -1,6 +1,30 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.2.0-SNAPSHOT] - 2022-12-02
+
+### Added
+ - New properties for Clearing House:
+ 
+ ```
+ ### Clearng-House
+application.clearinghouse.isEnabledClearingHouse=false
+application.clearinghouse.username=
+application.clearinghouse.password=
+application.clearinghouse.baseUrl=
+application.clearinghouse.logEndpoint=/messages/log/
+application.clearinghouse.processEndpoint=/process/
+```
+
+### Changed
+
+ - updated Clearing House logic now compliant with Frauenhofer CH
+ - header propagation was not properly done when sending Broker messages, thats fixed now
+ 
+### Removed
+
+ - ENG Clearing House dependency removed
+ 
 ## [0.1.23-SNAPSHOT] - 2022-11-25
 
 ### Added
@@ -24,8 +48,9 @@ application.healthcheck.threshold.cpu=0.5
 application.healthcheck.threshold.memory=10.5
 
 application.healthcheck.dataapp=
-application.healthcheck.usagecontrol
+application.healthcheck.usagecontrol=
 ```
+ 
 
 ## [0.1.22-SNAPSHOT] - 2022-10-31
 

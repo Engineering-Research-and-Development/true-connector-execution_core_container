@@ -250,4 +250,9 @@ public class DapsOrbiterServiceImpl implements DapsService {
 		}
 		return false;
 	}
+
+	@Override
+	public String getConnectorUUID() {
+		return null;
+	}
 }

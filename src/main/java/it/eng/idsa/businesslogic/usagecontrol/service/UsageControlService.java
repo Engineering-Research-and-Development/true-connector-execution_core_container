@@ -1,5 +1,6 @@
 package it.eng.idsa.businesslogic.usagecontrol.service;
 
+import java.io.IOException;
 import java.net.URI;
 
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
@@ -31,6 +32,13 @@ public interface UsageControlService {
 	 * @return
 	 */
 	String uploadPolicy(String payloadContent);
+
+	/**
+	 * Used to rollback policy upload if clearing house logging fails
+	 * @param contractAgreement
+	 * @throws IOException 
+	 */
+	void rollbackPolicyUpload(String contractAgreementUUID);
 	
 	/**
 	 * Check the availability of the usage control

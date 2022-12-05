@@ -13,5 +13,6 @@ public interface CommunicationService {
 	
 	String sendData(String endpoint, String data);
 	String sendDataAsJson(String endpoint, String data, String contentType);
+	void deleteRequest(String endpoint);
 	String getRequest(String url);
 }

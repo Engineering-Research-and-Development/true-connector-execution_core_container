@@ -196,6 +196,13 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
 		return obj;
 	}
 
+
+	@Override
+	public void rollbackPolicyUpload(String contractAgreementUUID) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	@Override
 	public boolean isUsageControlAvailable(String usageContolHealthEndpoint) {
 		if (isEnabledUsageControl) {
@@ -203,5 +210,4 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
 		}
 		return true;
 	}
-
 }

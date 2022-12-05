@@ -12,7 +12,7 @@
 	<groupId>it.eng.idsa</groupId>
 	<artifactId>market4.0-execution_core_container_business_logic
 	</artifactId>
-	<version>0.1.23-SNAPSHOT</version>
+	<version>0.2.0-SNAPSHOT</version>
 	<name>market4.0-execution_core_container_business_logic</name>
 	<description>Market4.0 execution core container Business Logic
 	</description>
@@ -136,14 +136,6 @@
 					<groupId>org.slf4j</groupId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-
-		<!-- CLEARING HOUSE -->
-		<!-- Must use CH Model updated version in order to have successful CH call -->
-		<dependency>
-			<groupId>it.eng</groupId>
-			<artifactId>clearing-house-model</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Camel -->

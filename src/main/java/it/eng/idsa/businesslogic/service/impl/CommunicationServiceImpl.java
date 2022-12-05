@@ -56,6 +56,15 @@ public class CommunicationServiceImpl implements CommunicationService {
 		
 		return result.getBody();
 	}
+	
+	@Override
+	public void deleteRequest(String endpoint) {
+		try {
+			restTemplate.delete(endpoint);
+		} catch (Exception e) {
+			logger.error("Error while making a delete request", e);
+		}
+	}
 
 	@Override
 	public String getRequest(String endpoint) {
