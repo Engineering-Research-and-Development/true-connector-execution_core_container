@@ -18,7 +18,7 @@ public class LoginAttemptService {
 
 	public LoginAttemptService(@Value("${application.user.lock.duration}") int lockDuration,
 			@Value("${application.user.lock.unit}") String lockUnit,
-			@Value("${spring.security.user.maxattempts:5}") int maxAttempts) {
+			@Value("${application.user.lock.maxattempts:5}") int maxAttempts) {
 		super();
 		attemptsCache = CacheBuilder.newBuilder().expireAfterWrite(lockDuration, TimeUnit.valueOf(lockUnit))
 				.build(new CacheLoader<String, Integer>() {

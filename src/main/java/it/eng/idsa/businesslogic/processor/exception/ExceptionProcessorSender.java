@@ -43,50 +43,54 @@ public class ExceptionProcessorSender implements Processor {
 
 	@Value("${application.openDataAppReceiverRouter}")
 	private String openDataAppReceiverRouter;
-	
+
 	@Autowired
 	private HeaderCleaner headerCleaner;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
-
 		Exception exception = (Exception) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
-//		String message = multipartMessageService.getHeaderContentString(exception.getMessage());
-		String message = MultipartMessageProcessor.parseMultipartMessage(exception.getMessage()).getHeaderContentString();
 
-		MultipartMessage multipartMessage = new MultipartMessageBuilder()
-				.withHeaderContent(message)
-				.build();
-
-		if (RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
-			// need to empty body here because it will contain response message received
-			exchange.getMessage().setBody(null);
-			exchange.getMessage().setHeaders(headerService.messageToHeaders(multipartMessage.getHeaderContent()));
+		if (exception instanceof org.apache.camel.CamelAuthorizationException) {
+			exchange.getMessage().setBody("Access denied");
+			exchange.getMessage().setHeader(Exchange.HTTP_RESPONSE_CODE, 403);
+			exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 		} else {
-			String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);
-			headerCleaner.removeTechnicalHeaders(exchange.getMessage().getHeaders());
-			String contentType = null;
+			String message = MultipartMessageProcessor.parseMultipartMessage(exception.getMessage())
+					.getHeaderContentString();
+			MultipartMessage multipartMessage = new MultipartMessageBuilder().withHeaderContent(message).build();
 
-			if (isEnabledDataAppWebSocket) {
-				ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration
-						.responseMessageBufferWebSocket();
-				responseMessageServerBean.add(multipartMessageString.getBytes());
-			}
-
-			if (RouterType.MULTIPART_MIX.equals(openDataAppReceiverRouter)) {
-				exchange.getMessage().setBody(multipartMessageString);
-				Optional<String> boundary = MultipartMessageProcessor
-						.getMessageBoundaryFromMessage(multipartMessageString);
-				contentType = "multipart/mixed; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
-				exchange.getMessage().setHeader("Content-Type", contentType);
+			if (RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
+				// need to empty body here because it will contain response message received
+				exchange.getMessage().setBody(null);
+				exchange.getMessage().setHeaders(headerService.messageToHeaders(multipartMessage.getHeaderContent()));
 			} else {
-				HttpEntity resultEntity = null;
+				String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage,
+						false, Boolean.TRUE);
+				headerCleaner.removeTechnicalHeaders(exchange.getMessage().getHeaders());
+				String contentType = null;
 
-				resultEntity = multipartMessageService.createMultipartMessage(message, null, null,
-						ContentType.MULTIPART_FORM_DATA);
-				contentType = resultEntity.getContentType().getValue();
-				exchange.getMessage().setBody(resultEntity.getContent().readAllBytes());
-				exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, contentType);
+				if (isEnabledDataAppWebSocket) {
+					ResponseMessageBufferBean responseMessageServerBean = webSocketServerConfiguration
+							.responseMessageBufferWebSocket();
+					responseMessageServerBean.add(multipartMessageString.getBytes());
+				}
+
+				if (RouterType.MULTIPART_MIX.equals(openDataAppReceiverRouter)) {
+					exchange.getMessage().setBody(multipartMessageString);
+					Optional<String> boundary = MultipartMessageProcessor
+							.getMessageBoundaryFromMessage(multipartMessageString);
+					contentType = "multipart/mixed; boundary=" + boundary.orElse("---aaa") + ";charset=UTF-8";
+					exchange.getMessage().setHeader("Content-Type", contentType);
+				} else {
+					HttpEntity resultEntity = null;
+
+					resultEntity = multipartMessageService.createMultipartMessage(message, null, null,
+							ContentType.MULTIPART_FORM_DATA);
+					contentType = resultEntity.getContentType().getValue();
+					exchange.getMessage().setBody(resultEntity.getContent().readAllBytes());
+					exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, contentType);
+				}
 			}
 		}
 	}

@@ -17,6 +17,7 @@ import it.eng.idsa.businesslogic.processor.common.MapMultipartToIDSCP2;
 import it.eng.idsa.businesslogic.processor.common.ModifyPayloadProcessor;
 import it.eng.idsa.businesslogic.processor.common.OriginalMessageProcessor;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
+import it.eng.idsa.businesslogic.processor.common.TrueConnectorAuthorization;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
@@ -90,6 +91,9 @@ public class CamelRouteReceiver extends RouteBuilder {
 	
 	@Autowired
 	private OriginalMessageProcessor originalMessageProcessor;
+	
+	@Autowired
+	private TrueConnectorAuthorization trueConnectorAuthorization;
 
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
@@ -110,6 +114,8 @@ public class CamelRouteReceiver extends RouteBuilder {
 		camelContext.getShutdownStrategy().setLogInflightExchangesOnTimeout(false);
 		camelContext.getShutdownStrategy().setTimeout(3);
 //		camelContext.setCaseInsensitiveHeaders(false);
+		
+		interceptFrom().process(trueConnectorAuthorization);
 
 		//@formatter:off
 		onException(ExceptionForProcessor.class, RuntimeException.class)
@@ -123,6 +129,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 			logger.info("REST Configuration");
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/data")
 				.routeId("data")
+				.policy("adminPolicy")
 				.process(connectorRequestProcessor)
 				.process(originalMessageProcessor)
 				.process(deModifyPayloadProcessor)

@@ -14,37 +14,28 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
+import it.eng.idsa.businesslogic.configuration.CamelSecurityConfiguration;
 
 @Service
-public class InMemoryUserCrudService implements UserDetailsService {
+@DependsOn({"encoder"})
+public class InMemoryUserCrudService implements TrueConnectorUserDetailsService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(InMemoryUserCrudService.class);
 	
 	@Autowired
 	private ApplicationEventPublisher publisher;
-	
-	/**
-	 * Username defined in application.properties.
-	 */
-	@Value("${spring.security.user.name}")
-	private String username;
-
-	/**
-	 * Password defined in application.properties.
-	 */
-	@Value("${spring.security.user.password}")
-	private String password;
-
+	@Autowired
+	private UserConfiguration userConfiguration;
 	@Autowired
 	private LoginAttemptService loginAttemptService;
 	@Autowired
@@ -56,7 +47,11 @@ public class InMemoryUserCrudService implements UserDetailsService {
 
 	@PostConstruct
 	public void setup() {
-		users.put(username, new User(UUID.randomUUID().toString(), username, password));
+		users.put(userConfiguration.getApiUser().getUsername(), new User(UUID.randomUUID().toString(), 
+				userConfiguration.getApiUser().getUsername(), userConfiguration.getApiUser().getPassword(), "ADMIN"));
+		users.put(userConfiguration.getConnectorUser().getUsername(), new User(UUID.randomUUID().toString(), 
+				userConfiguration.getConnectorUser().getUsername(), userConfiguration.getConnectorUser().getPassword(), 
+				CamelSecurityConfiguration.CONNECTOR));
 	}
 	
 	@Override
@@ -69,6 +64,12 @@ public class InMemoryUserCrudService implements UserDetailsService {
 		}
 		return findByUsername(username).orElse(null);
 	}
+	
+	@Override
+	public UserDetails loadCamelUserByUsername(String username) {
+		return findByUsername(username)
+				.orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
+	}
 
 	public User save(User user) {
 		return users.put(user.getId(), user);
@@ -78,12 +79,7 @@ public class InMemoryUserCrudService implements UserDetailsService {
 		return ofNullable(users.get(id));
 	}
 
-	public Optional<User> findByUsername(String username) {
-		String ip = getClientIP();
-		if (loginAttemptService.isBlocked(ip)) {
-			logger.info("User '{}' is blocked", username);
-			throw new RuntimeException("blocked");
-		}
+	private Optional<User> findByUsername(String username) {
 		return users.values().stream().filter(u -> Objects.equals(username, u.getUsername())).findFirst();
 	}
 

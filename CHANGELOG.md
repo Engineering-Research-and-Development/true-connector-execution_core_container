@@ -1,6 +1,30 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## []
+
+### Added
+
+ - properties that will differentiate 2 users:
+  Self Description API user, with ADMIN role; used to manipulate Self Description API
+  Connector user, with CONNECTOR role; used to authenticate and authorize IDS message interaction with Connector (B-endpoint)
+ - Camel Policy, used to authenticate camel routes
+ 
+```
+#API management credentials
+application.user.api.username=admin
+application.user.api.password=$2a$10$MQ5grDaIqDpBjMlG78PFduv.AMRe9cs0CNm/V4cgUubrqdGTFCH3m
+application.user.connector.username=connector
+application.user.connector.password=$2a$10$MQ5grDaIqDpBjMlG78PFduv.AMRe9cs0CNm/V4cgUubrqdGTFCH3m
+#number of consecutive failed attempts
+application.user.lock.maxattempts=5
+# duration for how long user will be locked
+application.user.lock.duration=30
+# time unit used for locking user, possible values are: SECONDS,MINUTES,HOURS,DAYS
+application.user.lock.unit=MINUTES
+```
+
+
 ## [0.1.22-SNAPSHOT] - 2022-10-31
 
 ### Added

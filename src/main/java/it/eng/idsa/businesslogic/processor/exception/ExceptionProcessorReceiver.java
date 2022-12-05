@@ -21,12 +21,18 @@ public class ExceptionProcessorReceiver implements Processor {
 	public void process(Exchange exchange) throws Exception {
 		
 		Exception exception = (Exception) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
-		String message = MultipartMessageProcessor.parseMultipartMessage(exception.getMessage()).getHeaderContentString();
 		
-		MultipartMessage multipartMessage = new MultipartMessageBuilder()
-    			.withHeaderContent(message)
-    			.build();
-		
-		exchange.getMessage().setBody(multipartMessage);
+		if (exception instanceof org.apache.camel.CamelAuthorizationException) {
+			exchange.getMessage().setBody("Access denied");
+			exchange.getMessage().setHeader(Exchange.HTTP_RESPONSE_CODE, 403);
+			exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+		} else {
+			String message = MultipartMessageProcessor.parseMultipartMessage(exception.getMessage()).getHeaderContentString();
+			
+			MultipartMessage multipartMessage = new MultipartMessageBuilder()
+					.withHeaderContent(message)
+					.build();
+			exchange.getMessage().setBody(multipartMessage);
+		}
 	}
 }
