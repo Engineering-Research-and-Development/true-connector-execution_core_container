@@ -1,7 +1,6 @@
 package it.eng.idsa.businesslogic.web.rest;
 
 import io.swagger.v3.oas.annotations.Hidden;
-import it.eng.idsa.businesslogic.service.HashFileService;
 import it.eng.idsa.businesslogic.service.impl.PasswordValidatorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -21,22 +20,13 @@ import java.util.stream.Collectors;
 @EnableAutoConfiguration
 @RequestMapping({"/notification"})
 @Hidden
-public class HashResource {
-
-    @Autowired
-    private HashFileService hashService;
+public class PasswordController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     private PasswordValidatorService passwordValidatorService;
-
-    @GetMapping("/content/{hash}")
-    @ResponseBody
-    public String getPayload(@PathVariable String hash) throws Exception {
-        return hashService.getContent(hash);
-    }
 
     @GetMapping("/password/{password}")
     @ResponseBody
