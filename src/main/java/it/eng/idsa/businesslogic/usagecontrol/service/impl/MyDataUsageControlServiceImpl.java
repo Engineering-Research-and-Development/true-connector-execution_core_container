@@ -50,6 +50,9 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
 	private String usageControlDataAppURL;
 	
 	private String policyEndpoint = "policy/usage/odrl";
+	
+	@Value("${application.isEnabledUsageControl}") 
+	private boolean isEnabledUsageControl;
 
 	private Gson gson;
 
@@ -193,4 +196,18 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
 		return obj;
 	}
 
+
+	@Override
+	public void rollbackPolicyUpload(String contractAgreementUUID) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public boolean isUsageControlAvailable(String usageContolHealthEndpoint) {
+		if (isEnabledUsageControl) {
+			return communicationService.getRequest(usageContolHealthEndpoint) != null ? true : false;
+		}
+		return true;
+	}
 }

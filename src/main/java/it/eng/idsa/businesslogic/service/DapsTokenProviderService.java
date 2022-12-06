@@ -12,4 +12,6 @@ public interface DapsTokenProviderService {
 	 * @return
 	 */
 	DynamicAttributeToken getDynamicAtributeToken();
+
+	String getConnectorUUID();
 }

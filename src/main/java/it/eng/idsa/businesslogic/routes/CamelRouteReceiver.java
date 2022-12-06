@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import it.eng.idsa.businesslogic.processor.common.ConnectorHealthCheckProcessor;
 import it.eng.idsa.businesslogic.processor.common.ContractAgreementProcessor;
 import it.eng.idsa.businesslogic.processor.common.DeModifyPayloadProcessor;
 import it.eng.idsa.businesslogic.processor.common.GetTokenFromDapsProcessor;
@@ -90,6 +91,9 @@ public class CamelRouteReceiver extends RouteBuilder {
 	
 	@Autowired
 	private OriginalMessageProcessor originalMessageProcessor;
+	
+	@Autowired
+	private ConnectorHealthCheckProcessor connectorHealthCheckProcessor;
 
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
@@ -111,11 +115,12 @@ public class CamelRouteReceiver extends RouteBuilder {
 		camelContext.getShutdownStrategy().setTimeout(3);
 //		camelContext.setCaseInsensitiveHeaders(false);
 
+		interceptFrom().process(connectorHealthCheckProcessor);
+		
 		//@formatter:off
 		onException(ExceptionForProcessor.class, RuntimeException.class)
 			.handled(true)
 			.process(exceptionProcessorReceiver)
-			.process(registerTransactionToCHProcessor)
 			.process(sendDataToBusinessLogicProcessor);
 		
 		// Camel SSL - Endpoint: B communication http
@@ -141,7 +146,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 				.process(getTokenFromDapsProcessor)
 				.process(contractAgreementProcessor)
 				.process(receiverUsageControlProcessor)
-                .process(registerTransactionToCHProcessor)
+				.process(registerTransactionToCHProcessor)
                 .process(modifyPayloadProcessor)
 				.process(sendDataToBusinessLogicProcessor)
 				.removeHeaders("Camel*");
@@ -156,7 +161,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 				.process(connectorRequestProcessor)
 				.process(originalMessageProcessor)
 				.process(validateTokenProcessor)
-				.process(contractAgreementProcessor)
                 .process(registerTransactionToCHProcessor)
 				// Send to the Endpoint: F
                 .choice()
@@ -167,8 +171,9 @@ public class CamelRouteReceiver extends RouteBuilder {
 						.process(sendDataToDataAppProcessor)
 				.end()
 				.process(getTokenFromDapsProcessor)
+				.process(contractAgreementProcessor)
 				.process(receiverUsageControlProcessor)
-                .process(registerTransactionToCHProcessor)
+				.process(registerTransactionToCHProcessor)
 				.process(sendDataToBusinessLogicProcessor);
 			//@formatter:on
 		}
@@ -181,12 +186,12 @@ public class CamelRouteReceiver extends RouteBuilder {
 					.log("### IDSCP2 SERVER RECEIVER: Detected Message")
 					.process(mapIDSCP2toMultipart)
 					.process(originalMessageProcessor)
-					.process(contractAgreementProcessor)
 					.process(registerTransactionToCHProcessor)
 					// Send to the Endpoint: F
 					.process(sendDataToDataAppProcessor)
-					.process(registerTransactionToCHProcessor)
+					.process(contractAgreementProcessor)
 					.process(receiverUsageControlProcessor)
+					.process(registerTransactionToCHProcessor)
 					.process(mapMultipartToIDSCP2);
 		}
 
@@ -200,10 +205,10 @@ public class CamelRouteReceiver extends RouteBuilder {
 					.log("### IDSCP2 SERVER RECEIVER: Detected Message")
 					.process(mapIDSCP2toMultipart)
 					.process(originalMessageProcessor)
-					.process(contractAgreementProcessor)
 					.process(registerTransactionToCHProcessor)
 					// Send to the Endpoint: F
 					.process(sendDataToDataAppProcessorOverWS)
+					.process(contractAgreementProcessor)
 					.process(receiverUsageControlProcessor)
 					.process(registerTransactionToCHProcessor)
 					.process(mapMultipartToIDSCP2);

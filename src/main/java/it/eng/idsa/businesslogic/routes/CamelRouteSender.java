@@ -19,6 +19,7 @@ import it.eng.idsa.businesslogic.processor.common.ModifyPayloadProcessor;
 import it.eng.idsa.businesslogic.processor.common.OriginalMessageProcessor;
 import it.eng.idsa.businesslogic.processor.common.ProtocolValidationProcessor;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
+import it.eng.idsa.businesslogic.processor.common.ConnectorHealthCheckProcessor;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorSender;
@@ -107,6 +108,8 @@ public class CamelRouteSender extends RouteBuilder {
 	private ModifyPayloadProcessor modifyPayloadProcessor;
 	@Autowired
 	private DeModifyPayloadProcessor deModifyPayloadProcessor;
+	@Autowired
+	private ConnectorHealthCheckProcessor connectorHealthCheckProcessor;
 
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledDataAppWebSocket;
@@ -139,6 +142,7 @@ public class CamelRouteSender extends RouteBuilder {
 //		camelContext.setCaseInsensitiveHeaders(false);
 		
 		interceptFrom().process(correlationIDProcessor);
+		interceptFrom().process(connectorHealthCheckProcessor);
 		
 		//@formatter:off
 		onException(ExceptionForProcessor.class, RuntimeException.class)
@@ -210,9 +214,9 @@ public class CamelRouteSender extends RouteBuilder {
 		        .process(sendDataToBusinessLogicProcessor)
 		        .process(deModifyPayloadProcessor)
 		        .process(validateTokenProcessor)
-		        .process(registerTransactionToCHProcessor)
 		        .process(contractAgreementProcessor)
 		        .process(senderUsageControlProcessor)
+		        .process(registerTransactionToCHProcessor)
 		        .process(modifyPayloadProcessor)
 		        .process(sendResponseToDataAppProcessor)
 				.removeHeaders("Camel*");
@@ -252,14 +256,14 @@ public class CamelRouteSender extends RouteBuilder {
             	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
             	.process(originalMessageProcessor)
             	.process(protocolValidationProcessor)
-            	.process(contractAgreementProcessor)
             	.process(registerTransactionToCHProcessor)
             	.process(mapMultipartToIDSCP2)
             	.toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&transportSslContextParameters=#sslContext&dapsSslContextParameters=#sslContext")
         		.log("### CLIENT RECEIVER: Detected Message")
         		.process(mapIDSCP2toMultipart)
-                .process(registerTransactionToCHProcessor)
+                .process(contractAgreementProcessor)
                 .process(senderUsageControlProcessor)
+                .process(registerTransactionToCHProcessor)
                 .process(sendResponseToDataAppProcessor)
                 .removeHeader("idscp2-header");
 			}
@@ -279,14 +283,14 @@ public class CamelRouteSender extends RouteBuilder {
 	            .process(fileRecreatorProcessor)
 	            .process(originalMessageProcessor)
 				.process(protocolValidationProcessor)
-				.process(contractAgreementProcessor)
 	            .process(registerTransactionToCHProcessor)		                
 	            .process(mapMultipartToIDSCP2)
 	            .toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&sslContextParameters=#sslContext")
 	            .log("### CLIENT RECEIVER: Detected Message")
 	        	.process(mapIDSCP2toMultipart)
-		        .process(registerTransactionToCHProcessor)
+		        .process(contractAgreementProcessor)
 		        .process(senderUsageControlProcessor)
+		        .process(registerTransactionToCHProcessor)
 				.process(sendResponseToDataAppProcessor);	                	
     	    }
 		
@@ -300,14 +304,14 @@ public class CamelRouteSender extends RouteBuilder {
 				.process(fileRecreatorProcessor)
 				.process(originalMessageProcessor)
 				.process(protocolValidationProcessor)
-				.process(contractAgreementProcessor)
 				.process(getTokenFromDapsProcessor)
                 .process(registerTransactionToCHProcessor)
 				// Send data to Endpoint B
 				.process(sendDataToBusinessLogicProcessor)
 				.process(validateTokenProcessor)
-                .process(registerTransactionToCHProcessor)
+                .process(contractAgreementProcessor)
                 .process(senderUsageControlProcessor)
+                .process(registerTransactionToCHProcessor)
 				.process(sendResponseToDataAppProcessor);
 		}
 	}

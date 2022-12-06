@@ -1,11 +1,15 @@
 package it.eng.idsa.businesslogic.service.impl;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.List;
 
@@ -15,28 +19,25 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
+import de.fraunhofer.iais.eis.ContractAgreement;
 import de.fraunhofer.iais.eis.LogMessageBuilder;
 import de.fraunhofer.iais.eis.Message;
-import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import it.eng.idsa.businesslogic.configuration.ClearingHouseConfiguration;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
-import it.eng.idsa.businesslogic.service.HashFileService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
+import it.eng.idsa.businesslogic.util.Helper;
 import it.eng.idsa.multipart.util.DateUtil;
 import it.eng.idsa.multipart.util.UtilMessageService;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class ClearingHouseServiceImplTest {
 	
 	@InjectMocks
 	private ClearingHouseServiceImpl clearingHouseServiceImpl;
-	
-	private String payload;
-	
-	@Mock
-	private HashFileService hashService;
 	
 	@Mock
 	private DapsTokenProviderService dapsProvider;
@@ -45,40 +46,100 @@ public class ClearingHouseServiceImplTest {
 	private SelfDescriptionConfiguration selfDescriptionConfiguration;
 	
 	@Mock
-	private RestTemplate restTemplate;
-	
-	@Mock
-	private ApplicationConfiguration configuration;
+	private ClearingHouseConfiguration configuration;
 	
 	@Mock
 	private RejectionMessageService rejectionMessageService;
 	
-	String mockEndpoint;
+	@Mock
+	private SendDataToBusinessLogicService sendDataToBusinessLogicService;
 	
-	Message message;
+	@Mock
+	private Response response;
+	
+	private String mockEndpoint;
+	
+	private Message requestMessage;
+	
+	private Message contractAgreementMessage;
+	
+	private ContractAgreement contractAgreement;
 	
 	@BeforeEach
 	public void init() {
 		MockitoAnnotations.initMocks(this);
-		message = UtilMessageService.getArtifactResponseMessage();
-		payload = "{\"foo\":\"bar\"}";
+		contractAgreementMessage = UtilMessageService.getContractAgreementMessage();
+		contractAgreement  = UtilMessageService.getContractAgreement();
+		requestMessage = UtilMessageService.getArtifactRequestMessageWithTransferContract(UtilMessageService.REQUESTED_ARTIFACT.toString(), "http://w3id.org/engrd/connector/examplecontract/fa17023f-3059-4b89-b3ae-c9cd4340ccd9");
 		mockEndpoint = "https://clearinghouse.com";
-		when(hashService.hash(payload)).thenReturn("ABC");
-		when(configuration.getClearingHouseUrl()).thenReturn(mockEndpoint);
-		when(restTemplate.postForObject(any(String.class), any(), any())).thenReturn(null);
+		when(configuration.getBaseUrl()).thenReturn(mockEndpoint);
 		when(dapsProvider.getDynamicAtributeToken()).thenReturn(UtilMessageService.getDynamicAttributeToken());
 		when(selfDescriptionConfiguration.getConnectorURI()).thenReturn(URI.create("http://auto-generated"));
 	}
 	
+//	  @Test
+//	  public void testPIDCreationFail () {
+//		  assertNull(clearingHouseServiceImpl.createProcessIdAtClearingHouse(contractAgreementMessage, getMessageProcessedNotificationMessage(), contractAgreement));
+//	  }
+	  
 	  @Test
-	  public void testRegisterTransactionFail () {
-		  when(restTemplate.postForObject(any(String.class), any(), any())).thenThrow(new RestClientException("Service offline"));
-		  assertFalse(clearingHouseServiceImpl.registerTransaction(message, payload));
+	  public void testRegisterArtifactMessageFail () throws UnsupportedEncodingException {
+		  when(response.code()).thenReturn(404);
+		  when(sendDataToBusinessLogicService.sendMessageFormData(any(), any(), any())).thenReturn(response);
+		  assertFalse(clearingHouseServiceImpl.registerTransaction(requestMessage, null));
 	  }
 	  
 	  @Test
-	  public void testRegisterTransactionSuccess ()  {
-		 assertTrue(clearingHouseServiceImpl.registerTransaction(message, payload));
+	  public void testRegisterArtifactMessageSuccess () throws UnsupportedEncodingException{
+		  when(configuration.getUsername()).thenReturn("username");
+		  when(configuration.getPassword()).thenReturn("password");
+		  when(response.code()).thenReturn(201);
+		  when(sendDataToBusinessLogicService.sendMessageFormData(any(), any(), any())).thenReturn(response);
+		  assertTrue(clearingHouseServiceImpl.registerTransaction(requestMessage, null));
+	  }
+	  
+	  @Test
+	  public void testCreateProcessIdAtClearingHouseSuccess () throws UnsupportedEncodingException  {
+		  when(response.code()).thenReturn(201);
+		  when(sendDataToBusinessLogicService.sendMessageFormData(any(), any(), any())).thenReturn(response);
+		  assertNotNull(clearingHouseServiceImpl.createProcessIdAtClearingHouse(contractAgreementMessage.getSecurityToken().getTokenValue(), Helper.getUUID(contractAgreement.getId())));
+	  }
+	  
+	  @Test
+	  public void testCreateProcessIdAtClearingHouseFail () throws IOException  {
+		  when(response.code()).thenReturn(404);
+		  when(response.message()).thenReturn("failed");
+		  when(response.body()).thenReturn(mock(ResponseBody.class));
+		  when(response.body().string()).thenReturn("failed");
+		  when(sendDataToBusinessLogicService.sendMessageFormData(any(), any(), any())).thenReturn(response);
+		  assertNull(clearingHouseServiceImpl.createProcessIdAtClearingHouse(contractAgreementMessage.getSecurityToken().getTokenValue(), Helper.getUUID(contractAgreement.getId())));
+	  }
+	  
+	  @Test
+	  public void testCreateProcessIdAtClearingHouseNoAgreement () throws IOException  {
+		  when(response.code()).thenReturn(404);
+		  when(response.message()).thenReturn("failed");
+		  when(response.body()).thenReturn(mock(ResponseBody.class));
+		  when(response.body().string()).thenReturn("failed");
+		  when(sendDataToBusinessLogicService.sendMessageFormData(any(), any(), any())).thenReturn(response);
+		  assertNull(clearingHouseServiceImpl.createProcessIdAtClearingHouse(contractAgreementMessage.getSecurityToken().getTokenValue(), Helper.getUUID(contractAgreement.getId())));
+	  }
+	  
+	  @Test
+	  public void testRegisterContractAgreementSuccess() throws UnsupportedEncodingException  {
+		  when(response.code()).thenReturn(201);
+		  when(sendDataToBusinessLogicService.sendMessageFormData(any(), any(), any())).thenReturn(response);
+		  assertTrue(clearingHouseServiceImpl.registerTransaction(contractAgreementMessage, Helper.getUUID(contractAgreement.getId())));
+	  }
+	  
+	  @Test
+	  public void testRegisterContractAgreementFail() throws IOException  {
+		  when(response.code()).thenReturn(404);
+		  when(response.message()).thenReturn("failed");
+		  when(response.body()).thenReturn(mock(ResponseBody.class));
+		  when(response.body().string()).thenReturn("failed");
+		  when(sendDataToBusinessLogicService.sendMessageFormData(any(), any(), any())).thenReturn(response);
+		  assertFalse(clearingHouseServiceImpl.registerTransaction(contractAgreementMessage, null));
 	  }
 	  
 	  @Test
@@ -99,5 +160,4 @@ public class ClearingHouseServiceImplTest {
           .build();
 		  assertNotNull(logMessage);
 	  }
-	  
 }

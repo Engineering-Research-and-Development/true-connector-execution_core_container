@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.2.6.RELEASE</version>
-        <relativePath/> <!-- lookup parent from repository -->
-    </parent>
-    <groupId>it.eng.idsa</groupId>
-    <artifactId>market4.0-execution_core_container_business_logic
-    </artifactId>
-    <version>0.1.22-SNAPSHOT</version>
-    <name>market4.0-execution_core_container_business_logic</name>
-    <description>Market4.0 execution core container Business Logic
-    </description>
-    <properties>
-        <project.java.version>11</project.java.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <start-class>it.eng.idsa.businesslogic.Application</start-class>
-        <camel.version>3.18.0</camel.version>
-        <tomcat.version>9.0.24</tomcat.version>
-        <information.model.version>4.1.1</information.model.version>
-        <application.basedir>${basedir}</application.basedir>
-        <multipart.message.processor.version>1.0.14-SNAPSHOT</multipart.message.processor.version>
-        <idscp2.libraries.version>0.5.2</idscp2.libraries.version>
-        <jacoco.version>0.8.8</jacoco.version>
-    </properties>
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.6.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>it.eng.idsa</groupId>
+	<artifactId>market4.0-execution_core_container_business_logic
+	</artifactId>
+	<version>0.2.0-SNAPSHOT</version>
+	<name>market4.0-execution_core_container_business_logic</name>
+	<description>Market4.0 execution core container Business Logic
+	</description>
+	<properties>
+		<project.java.version>11</project.java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<start-class>it.eng.idsa.businesslogic.Application</start-class>
+		<camel.version>3.18.0</camel.version>
+		<tomcat.version>9.0.24</tomcat.version>
+		<information.model.version>4.1.1</information.model.version>
+		<application.basedir>${basedir}</application.basedir>
+		<multipart.message.processor.version>1.0.14-SNAPSHOT</multipart.message.processor.version>
+		<idscp2.libraries.version>0.5.2</idscp2.libraries.version>
+		<jacoco.version>0.8.8</jacoco.version>
+	</properties>
 
     <repositories>
         <repository>
@@ -123,94 +123,86 @@
             <version>${information.model.version}</version>
         </dependency>
 
-        <!-- it.eng.idsa -->
-        <dependency>
-            <groupId>it.eng.idsa</groupId>
-            <artifactId>multipart-message-processor</artifactId>
-            <version>${multipart.message.processor.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>logback-classic</artifactId>
-                    <groupId>ch.qos.logback</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>slf4j-simple</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+		<!-- it.eng.idsa -->
+		<dependency>
+			<groupId>it.eng.idsa</groupId>
+			<artifactId>multipart-message-processor</artifactId>
+			<version>${multipart.message.processor.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>logback-classic</artifactId>
+					<groupId>ch.qos.logback</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>slf4j-simple</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
-        <!-- CLEARING HOUSE -->
-        <!-- Must use CH Model updated version in order to have successful CH call -->
-        <dependency>
-            <groupId>it.eng</groupId>
-            <artifactId>clearing-house-model</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
-        </dependency>
+		<!-- Camel -->
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-core</artifactId>
+			<version>${camel.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-servlet-starter</artifactId>
+			<version>${camel.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-jackson-starter</artifactId>
+			<version>${camel.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-swagger-java-starter</artifactId>
+			<version>${camel.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-spring-boot-starter</artifactId>
+			<version>${camel.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-http</artifactId>
+			<version>${camel.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-jetty-starter</artifactId>
+			<version>${camel.version}</version>
+		</dependency>
 
-        <!-- Camel -->
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-core</artifactId>
-            <version>${camel.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel.springboot</groupId>
-            <artifactId>camel-servlet-starter</artifactId>
-            <version>${camel.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel.springboot</groupId>
-            <artifactId>camel-jackson-starter</artifactId>
-            <version>${camel.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel.springboot</groupId>
-            <artifactId>camel-swagger-java-starter</artifactId>
-            <version>${camel.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel.springboot</groupId>
-            <artifactId>camel-spring-boot-starter</artifactId>
-            <version>${camel.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-http</artifactId>
-            <version>${camel.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel.springboot</groupId>
-            <artifactId>camel-jetty-starter</artifactId>
-            <version>${camel.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-util</artifactId>
-            <version>${camel.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel.springboot</groupId>
-            <artifactId>camel-websocket-starter</artifactId>
-            <version>${camel.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-jms</artifactId>
-            <version>${camel.version}</version>
-        </dependency>
-        <!-- Use for Camel Interceptor Ucapp classes -->
-        <dependency>
-            <groupId>com.squareup.retrofit2</groupId>
-            <artifactId>retrofit</artifactId>
-            <version>2.7.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.squareup.retrofit2</groupId>
-            <artifactId>converter-gson</artifactId>
-            <version>2.7.1</version>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-util</artifactId>
+			<version>${camel.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-websocket-starter</artifactId>
+			<version>${camel.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-jms</artifactId>
+			<version>${camel.version}</version>
+		</dependency>
+		<!-- Use for Camel Interceptor Ucapp classes -->
+		<dependency>
+			<groupId>com.squareup.retrofit2</groupId>
+			<artifactId>retrofit</artifactId>
+			<version>2.7.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.retrofit2</groupId>
+			<artifactId>converter-gson</artifactId>
+			<version>2.7.1</version>
+		</dependency>
 
         <!-- IDSCP -->
         <dependency>
@@ -414,7 +406,6 @@
             <artifactId>passay</artifactId>
             <version>1.6.2</version>
         </dependency>
-
 
     </dependencies>
 

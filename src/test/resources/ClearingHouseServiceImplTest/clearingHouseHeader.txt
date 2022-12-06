@@ -1,9 +1,0 @@
-{
-  "@type" : "ids:ArtifactResponseMessage",
-  "correlationMessage" : "http://industrialdataspace.org/connectorUnavailableMessage/1a421b8c-3407-44a8-aeb9-253f145c869a",
-  "transferContract" : "https://mdm-connector.ids.isst.fraunhofer.de/examplecontract/bab-bayern-sample/",
-  "issued" : "2019-05-27T13:09:42.306Z",
-  "modelVersion" : "1.0.2-SNAPSHOT",
-  "issuerConnector" : "http://iais.fraunhofer.de/ids/mdm-connector",
-  "@id" : "https://w3id.org/idsa/autogen/artifactResponseMessage/eb3ab487-dfb0-4d18-b39a-585514dd044f"
-}

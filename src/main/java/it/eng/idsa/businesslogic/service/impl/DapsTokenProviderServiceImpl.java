@@ -21,12 +21,13 @@ import it.eng.idsa.businesslogic.service.DapsService;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.multipart.util.UtilMessageService;
 
+//@ConditionalOnExpression("'${application.isEnabledDapsInteraction}' == 'true'")
 @Service
 public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 
 	private static final Logger logger = LoggerFactory.getLogger(DapsTokenProviderServiceImpl.class);
 
-	@Autowired
+	@Autowired(required = false)
 	private DapsService dapsService;
 
 	private String cachedToken;
@@ -72,6 +73,18 @@ public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 		}
 	}
 	
+	@Override
+	public DynamicAttributeToken getDynamicAtributeToken() {
+		return new DynamicAttributeTokenBuilder()
+				._tokenFormat_(TokenFormat.JWT)
+				._tokenValue_(this.provideToken())
+				.build();	
+	}
+	
+	@Override
+	public String getConnectorUUID () {
+		return dapsService.getConnectorUUID();
+	}
 	
 	@EventListener(ApplicationReadyEvent.class)
 	public void fetchTokenOnStartup() {
@@ -79,13 +92,5 @@ public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 			logger.info("Fetching DAT token on startup");
 			provideToken();
 		}
-	}
-
-	@Override
-	public DynamicAttributeToken getDynamicAtributeToken() {
-		return new DynamicAttributeTokenBuilder()
-				._tokenFormat_(TokenFormat.JWT)
-				._tokenValue_(this.provideToken())
-				.build();	
 	}
 }

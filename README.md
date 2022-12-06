@@ -8,7 +8,7 @@
 The ENG Execution Core Container, based on the IDS Base Connector, is the core component of an IDS Connector enabling:
 * the data exchange between connectors, using HTTPS, WS over HTTPS, IDSCP2 (beta)
 * interaction with the AISEC Fraunhofer DAPS Service for requiring and validating a token
-* communication with the ENG Clearing House for registering transactions
+* communication with the Fraunhofer Clearing House for registering transactions
 
 ![Execution Core Container Architecture](doc/connector_schema_v1.1.PNG?raw=true "ENG Execution Core Container Architecture")
 
@@ -66,7 +66,7 @@ Keeping the provided docker-compose will be:
 *  **http://{IP_ADDRESS}:8090/about/version**
 
 
-The sender DataApp should send a request using the following schema, specifing in the Forward-To header the destination connector URL:
+The sender DataApp should send a request using the following schema, specifying in the Forward-To header the destination connector URL:
 
 ## How to Exchange Data
 ### REST endpoints
@@ -356,6 +356,10 @@ To manage your Self Description Document please check following [link](doc/SELF_
 ### Audit logging
 Audit events logging can be configured following [this document](doc/AUDIT.md)
 
+### Connector health check
+
+Connector health check functionality can be found in [this document](doc/HEALTHCHECK.md)
+
 ## Developer guide section
 
 ### How to build Execution Core Container
@@ -364,8 +368,6 @@ Clone projects from the following links and run mvn clean install
 [Multipart Message library](https://github.com/Engineering-Research-and-Development/true-connector-multipart_message_library)
 
 [WebSocket Message Streamer library](https://github.com/Engineering-Research-and-Development/market4.0-websocket_message_streamer)
-
-[Clearing house model](https://github.com/Engineering-Research-and-Development/market4.0-clearing_house/tree/infomodel_4.0.6)
 
 [Execution Core Container](https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container)
 

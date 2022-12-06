@@ -112,6 +112,9 @@ public class KeystoreProvider {
 				logger.info("**********************************************************************");
 				logger.info("DAPS Interaction disabled. KeyStore and/or trustStore not loaded");
 				logger.info("**********************************************************************");
+				logger.info("**********************************************************************");
+				logger.info("Clearing house Interaction also disabled because of DAPS.");
+				logger.info("**********************************************************************");
 			}
 		}
 	}

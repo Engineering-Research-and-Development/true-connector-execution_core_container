@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -63,7 +64,7 @@ public class SelfDescriptionServiceImplTest {
 		when(configuration.getSenderAgent()).thenReturn(senderAgent);
 		when(keystoreProvider.getCertificate()).thenReturn(cert);
 		when(selfDescriptionManager.getValidConnector(any(Connector.class))).thenReturn(SelfDescriptionUtil.getBaseConnector());
-		selfDefinitionService = new SelfDescriptionServiceImpl(configuration, dapsProvider, selfDescriptionManager, keystoreProvider);
+		selfDefinitionService = new SelfDescriptionServiceImpl(configuration, Optional.ofNullable(dapsProvider), selfDescriptionManager, keystoreProvider);
 		selfDefinitionService.initConnector();
 	}
 
