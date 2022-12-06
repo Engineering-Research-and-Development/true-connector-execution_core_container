@@ -120,8 +120,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 		camelContext.getShutdownStrategy().setTimeout(3);
 //		camelContext.setCaseInsensitiveHeaders(false);
 		
-		interceptFrom().process(trueConnectorAuthorization);
-		
 		interceptFrom().process(connectorHealthCheckProcessor);
 
 		onException(CamelAuthorizationException.class)
@@ -139,6 +137,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 			logger.info("REST Configuration");
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/data")
 				.routeId("data")
+				.process(trueConnectorAuthorization)
 				.policy("adminPolicy")
 				.process(connectorRequestProcessor)
 				.process(originalMessageProcessor)

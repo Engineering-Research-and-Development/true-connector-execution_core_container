@@ -24,21 +24,6 @@
 						}
 					],
 					"request": {
-						"auth": {
-							"type": "basic",
-							"basic": [
-								{
-									"key": "password",
-									"value": "password",
-									"type": "string"
-								},
-								{
-									"key": "username",
-									"value": "connector",
-									"type": "string"
-								}
-							]
-						},
 						"method": "POST",
 						"header": [],
 						"body": {

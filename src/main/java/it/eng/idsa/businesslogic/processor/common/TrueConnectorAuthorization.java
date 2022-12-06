@@ -7,19 +7,22 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 
-import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
-
 @Component
 public class TrueConnectorAuthorization implements Processor {
+
+	private static final Logger logger = LoggerFactory.getLogger(TrueConnectorAuthorization.class);
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		 // get the username and password from the HTTP header
 		String authorization = exchange.getIn().getHeader("Authorization", String.class);
 		if(StringUtils.isBlank(authorization)) {
+			logger.info("Authorization header not present!!!");
 			throw new CamelAuthorizationException("Invalid credentials", exchange);
 		} else {
 		authorization = authorization.replace("Basic ", "");
