@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -109,8 +110,8 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 
 		logger.info("Forwarding Message: Body: form-data");
 
-		String ctPayload = multipartMessage.getPayloadHeader().get("content-type") == null ? 
-				MediaType.TEXT_PLAIN.toString() : multipartMessage.getPayloadHeader().get("content-type");
+		String ctPayload = multipartMessage.getPayloadHeader().get(HttpHeaders.CONTENT_TYPE) == null ? 
+				MediaType.TEXT_PLAIN.toString() : multipartMessage.getPayloadHeader().get(HttpHeaders.CONTENT_TYPE);
 		Headers headers = fillHeaders(headerParts);
 		RequestBody body = okHttpClient.createMultipartFormRequest(multipartMessage, ctPayload);
 

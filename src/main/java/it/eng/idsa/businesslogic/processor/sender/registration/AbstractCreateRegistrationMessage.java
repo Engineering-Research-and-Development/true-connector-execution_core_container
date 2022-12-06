@@ -1,7 +1,6 @@
 package it.eng.idsa.businesslogic.processor.sender.registration;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
@@ -9,6 +8,7 @@ import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
 import de.fraunhofer.iais.eis.Message;
@@ -27,7 +27,6 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		Map<String, Object> headersParts = new HashMap<String, Object>();
 		// Get from the input "exchange"
 		Map<String, Object> receivedDataHeader = exchange.getMessage().getHeaders();
 		exchange.getMessage().getBody(MultipartMessage.class);
@@ -43,6 +42,7 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 			multipartMessage = new MultipartMessageBuilder()
 					.withHeaderContent(connectorAvailable)
 					.withPayloadContent(connector)
+					.withPayloadHeader(Map.of(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.toString()))
 					.build();
 		}else {
 			multipartMessage = new MultipartMessageBuilder()
@@ -50,13 +50,7 @@ public abstract class AbstractCreateRegistrationMessage implements Processor {
 					.build();
 		}
 		
-		String forwardTo = (String) receivedDataHeader.get("Forward-To");
-		headersParts.put("Forward-To", forwardTo);
-		headersParts.put("Payload-Content-Type", MediaType.APPLICATION_JSON.toString());
-		headersParts.put(TrueConnectorConstants.CORRELATION_ID, receivedDataHeader.get(TrueConnectorConstants.CORRELATION_ID));
-		
 		// Return exchange
-		exchange.getMessage().setHeaders(headersParts);
 		exchange.getMessage().setBody(multipartMessage);
 		publishEvent(multipartMessage, (String) receivedDataHeader.get(TrueConnectorConstants.CORRELATION_ID));
 	}

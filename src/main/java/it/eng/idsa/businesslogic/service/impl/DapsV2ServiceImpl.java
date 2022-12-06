@@ -1,6 +1,7 @@
 package it.eng.idsa.businesslogic.service.impl;
 
 import java.io.IOException;
+import java.net.URL;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
@@ -12,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +37,8 @@ import okhttp3.Response;
  * @author Antonio Scatoloni and Gabriele De Luca
  */
 
-@ConditionalOnProperty(name = "application.dapsVersion", havingValue = "v2")
+//@ConditionalOnProperty(name = "application.dapsVersion", havingValue = "v2")
+@ConditionalOnExpression("'${application.isEnabledDapsInteraction}' == 'true' && '${application.dapsVersion}'=='v2'")
 @Service
 @Transactional
 public class DapsV2ServiceImpl implements DapsService {
@@ -52,7 +54,68 @@ public class DapsV2ServiceImpl implements DapsService {
 
 	@Value("${application.dapsUrl}")
 	private String dapsUrl;
+	
+	@Value("${application.dapsJWKSUrl}")
+	private URL dapsJWKSUrl;
 
+	@Override
+	public boolean validateToken(String tokenValue) {
+		boolean valid = false;
+		if(tokenValue==null) {
+			logger.error("Token is null");
+			return valid;
+		}
+		try {
+			DecodedJWT jwt = JWT.decode(tokenValue);
+			Algorithm algorithm = dapsUtilityProvider.provideAlgorithm(tokenValue);
+			algorithm.verify(jwt);
+			valid = true;
+			if (jwt.getExpiresAt().before(new Date())) {
+				valid = false;
+				logger.warn("Token expired");
+			}
+		} catch (SignatureVerificationException e) {
+			logger.info("Token did not verified, {}", e);
+		} catch (JWTDecodeException e) {
+			logger.error("Invalid token, {}", e);
+		}
+		return valid;
+	}
+
+	@Override
+	public String getJwtToken() {
+
+		token = getJwTokenInternal();
+
+		if (StringUtils.isNotBlank(token) && validateToken(token)) {
+			logger.info("Token is valid: " + token);
+		} else {
+			logger.info("Token is invalid");
+			return null;
+		}
+		return token;
+	}
+
+	@Override
+	public boolean isDapsAvailable(String dapsHealthCheckEndpoint) {
+		Request request = new Request.Builder().url(dapsHealthCheckEndpoint).build();
+		try {
+			Response response =  client.newCall(request).execute();
+			if(response.isSuccessful()) {
+				return true;
+			}
+		} catch (IOException e) {
+			logger.error("Error while making call to {}", dapsUrl, e);
+			return false;
+		}
+		return false;
+	}
+
+	@Override
+	public String getConnectorUUID() {
+		return dapsUtilityProvider.getConnectorUUID();
+	}
+	
 	@VisibleForTesting
 	String getJwTokenInternal() {
 
@@ -106,44 +169,6 @@ public class DapsV2ServiceImpl implements DapsService {
 			if (jwtResponse != null) {
 				jwtResponse.close();
 			}
-		}
-		return token;
-	}
-
-	@Override
-	public boolean validateToken(String tokenValue) {
-		boolean valid = false;
-		if(tokenValue==null) {
-			logger.error("Token is null");
-			return valid;
-		}
-		try {
-			DecodedJWT jwt = JWT.decode(tokenValue);
-			Algorithm algorithm = dapsUtilityProvider.provideAlgorithm(tokenValue);
-			algorithm.verify(jwt);
-			valid = true;
-			if (jwt.getExpiresAt().before(new Date())) {
-				valid = false;
-				logger.warn("Token expired");
-			}
-		} catch (SignatureVerificationException e) {
-			logger.info("Token did not verified, {}", e);
-		} catch (JWTDecodeException e) {
-			logger.error("Invalid token, {}", e);
-		}
-		return valid;
-	}
-
-	@Override
-	public String getJwtToken() {
-
-		token = getJwTokenInternal();
-
-		if (StringUtils.isNotBlank(token) && validateToken(token)) {
-			logger.info("Token is valid: " + token);
-		} else {
-			logger.info("Token is invalid");
-			return null;
 		}
 		return token;
 	}

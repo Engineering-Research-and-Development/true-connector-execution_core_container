@@ -4,18 +4,17 @@ import de.fraunhofer.iais.eis.Message;
 
 
 /**
- * 
  * @author Milan Karajovic and Gabriele De Luca
- *
  */
 
 /**
  * Service Interface for managing Clearing House.
  */
 public interface ClearingHouseService {
-	//ORBITER IMPLEMENTATION - DEPRECATED
-	//public boolean registerTransaction(Message message);
-	public boolean registerTransaction(Message message, String payload);
 
+	String createProcessIdAtClearingHouse(String senderToken, String contractAgreementUUID);
+	
+	boolean registerTransaction(Message message, String contractAgreementUUID);
 
+	boolean isClearingHouseAvailable(String clearingHouseHealthEndpoint);
 }

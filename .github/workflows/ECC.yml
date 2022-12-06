@@ -35,9 +35,6 @@ jobs:
       - name: Run Cloning and Creating Docker Container from Data-App repo
         run: ./ci/dataApp.sh
         
-      - name: Run Downloading and installing Clearing-House Model
-        run: ./ci/ch.sh
-        
       - name: Run Creating Docker Container for ECCs
         run: ./ci/ecc.sh
       

@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## []
+## [0.2.1-SNAPSHOT] - 2022-12-07
 
 ### Added
 
@@ -24,6 +24,29 @@ application.user.lock.duration=30
 application.user.lock.unit=MINUTES
 ```
 
+## [0.2.0-SNAPSHOT] - 2022-12-02
+
+### Added
+ - New properties for Clearing House:
+ 
+ ```
+ ### Clearng-House
+application.clearinghouse.isEnabledClearingHouse=false
+application.clearinghouse.username=
+application.clearinghouse.password=
+application.clearinghouse.baseUrl=
+application.clearinghouse.logEndpoint=/messages/log/
+application.clearinghouse.processEndpoint=/process/
+```
+
+### Changed
+
+ - updated Clearing House logic now compliant with Frauenhofer CH
+ - header propagation was not properly done when sending Broker messages, thats fixed now
+ 
+### Removed
+
+ - ENG Clearing House dependency removed
 
 ## [0.1.22-SNAPSHOT] - 2022-10-31
 

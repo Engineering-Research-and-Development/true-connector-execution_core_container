@@ -31,10 +31,6 @@ public class SenderCreateQueryBrokerMessageProcessor implements Processor {
 				.withPayloadContent(payload)
 				.build();
 		
-		
-		String forwardTo = (String) exchange.getMessage().getHeader("Forward-To");
-		
-		exchange.getMessage().setHeader("Forward-To", forwardTo);
 		exchange.getMessage().setBody(multipartMessage);
 	}
 
