@@ -1,6 +1,26 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.2.1-SNAPSHOT] - 2022-12-02
+
+### Added
+- New properties for Password Validator:
+
+```
+## Password Validator
+application.password.validator.minLength=
+application.password.validator.maxLength=
+application.password.validator.isEnabledWhitespaceRule=
+application.password.validator.minUpperCase=
+application.password.validator.minLowerCase=
+application.password.validator.minDigit=
+application.password.validator.minSpecial=
+```
+
+### Changed
+
+- added a Password Validator to verify that the password meets the desired criteria
+
 ## [0.2.0-SNAPSHOT] - 2022-12-02
 
 ### Added
