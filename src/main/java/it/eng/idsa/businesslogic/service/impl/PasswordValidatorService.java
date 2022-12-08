@@ -43,7 +43,7 @@ public class PasswordValidatorService {
 		return errors;
 	}
 
-	public List<Rule> getRules() {
+	private List<Rule> getRules() {
 		return passwordConfig.getRules();
 	}
 
