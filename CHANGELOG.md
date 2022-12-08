@@ -10,7 +10,6 @@ All notable changes to this project will be documented in this file.
 ## Password Validator
 application.password.validator.minLength=8
 application.password.validator.maxLength=16
-application.password.validator.isEnabledWhitespaceRule=true
 application.password.validator.minUpperCase=1
 application.password.validator.minLowerCase=1
 application.password.validator.minDigit=1

@@ -21,7 +21,6 @@ class PasswordValidatorServiceTest {
 		passwordConfig = new PasswordConfig();
 		passwordConfig.setMinLength(8);
 		passwordConfig.setMaxLength(16);
-		passwordConfig.setEnabledWhitespaceRule(true);
 		passwordConfig.setMinUpperCase(1);
 		passwordConfig.setMinLowerCase(1);
 		passwordConfig.setMinDigit(1);

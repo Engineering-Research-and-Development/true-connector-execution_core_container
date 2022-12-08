@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.passay.PasswordData;
 import org.passay.PasswordValidator;
-import org.passay.Rule;
 import org.passay.RuleResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +27,7 @@ public class PasswordValidatorService {
 			logger.error("Password is null");
 			return List.of("Password can not be null");
 		}
-		List<Rule> rules = getRules();
-
-		PasswordValidator passwordValidator = new PasswordValidator(rules);
+		PasswordValidator passwordValidator = new PasswordValidator(passwordConfig.getRules());
 		RuleResult ruleResult = passwordValidator.validate(new PasswordData(password));
 
 		if (ruleResult.isValid()) {
@@ -42,9 +39,4 @@ public class PasswordValidatorService {
 		logger.warn("Invalid Password: {}", errors);
 		return errors;
 	}
-
-	private List<Rule> getRules() {
-		return passwordConfig.getRules();
-	}
-
 }

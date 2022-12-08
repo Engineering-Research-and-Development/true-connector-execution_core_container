@@ -1,13 +1,18 @@
 package it.eng.idsa.businesslogic.configuration;
 
-import org.passay.*;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.Min;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.passay.CharacterRule;
+import org.passay.EnglishCharacterData;
+import org.passay.LengthRule;
+import org.passay.Rule;
+import org.passay.WhitespaceRule;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConfigurationProperties(prefix ="application.password.validator")
@@ -17,7 +22,6 @@ public class PasswordConfig {
 	private int minLength;
 	@Min(1)
 	private int maxLength;
-	private boolean enabledWhitespaceRule;
 	private int minUpperCase;
 	private int minLowerCase;
 
@@ -27,32 +31,30 @@ public class PasswordConfig {
 	@PostConstruct
 	public void configure() {
 		if (minLength > 0) {
-			//Rule 1: Password length should be in between 8 and 16 characters
+			// Rule 1: Password length should be in between 8 and 16 characters
 			rules.add(new LengthRule(minLength, maxLength));
 		}
 
-		if (enabledWhitespaceRule) {
-			//Rule 2: No whitespace allowed
-			rules.add(new WhitespaceRule());
-		}
+		// Rule 2: Whitespace rule always active
+		rules.add(new WhitespaceRule());
 
 		if (minUpperCase > 0) {
-			//Rule 3.a: At least one Upper-case character
+			// Rule 3.a: At least one Upper-case character
 			rules.add(new CharacterRule(EnglishCharacterData.UpperCase, minUpperCase));
 		}
 
 		if (minLowerCase > 0) {
-			//Rule 3.b: At least one Lower-case character
+			// Rule 3.b: At least one Lower-case character
 			rules.add(new CharacterRule(EnglishCharacterData.LowerCase, minLowerCase));
 		}
 
 		if (minDigit > 0) {
-			//Rule 3.c: At least one digit
+			// Rule 3.c: At least one digit
 			rules.add(new CharacterRule(EnglishCharacterData.Digit, minDigit));
 		}
 
 		if (minSpecial > 0) {
-			//Rule 3.d: At least one special character
+			// Rule 3.d: At least one special character
 			rules.add(new CharacterRule(EnglishCharacterData.Special, minSpecial));
 		}
 	}
@@ -79,14 +81,6 @@ public class PasswordConfig {
 
 	public void setMaxLength(int maxLength) {
 		this.maxLength = maxLength;
-	}
-
-	public boolean isEnabledWhitespaceRule() {
-		return enabledWhitespaceRule;
-	}
-
-	public void setEnabledWhitespaceRule(boolean enabledWhitespaceRule) {
-		this.enabledWhitespaceRule = enabledWhitespaceRule;
 	}
 
 	public int getMinUpperCase() {
