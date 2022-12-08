@@ -1,28 +1,19 @@
 package it.eng.idsa.businesslogic.service.impl;
 
-import it.eng.idsa.businesslogic.configuration.PasswordConfig;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Spy;
-import org.passay.Rule;
-import org.springframework.boot.test.context.SpringBootTest;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-@SpringBootTest
+import it.eng.idsa.businesslogic.configuration.PasswordConfig;
+
 class PasswordValidatorServiceTest {
 
-	@Mock
 	private PasswordConfig passwordConfig;
 
-	@Spy
-	@InjectMocks
 	private PasswordValidatorService passwordValidatorService;
 
 	@BeforeEach
@@ -37,9 +28,7 @@ class PasswordValidatorServiceTest {
 		passwordConfig.setMinSpecial(1);
 		passwordConfig.configure();
 
-		List<Rule> rules = passwordConfig.getRules();
-
-		when(passwordValidatorService.getRules()).thenReturn(rules);
+		passwordValidatorService = new PasswordValidatorService(passwordConfig);
 	}
 
 	@Test
@@ -108,6 +97,14 @@ class PasswordValidatorServiceTest {
 
 		String expected = "Password must contain " + passwordConfig.getMinSpecial() + " or more special characters.";
 		assertEquals(expected, list.get(0));
+	}
+	
+	@Test
+	void validatePasswordNullTest() {
+		List<String> list = passwordValidatorService.validate(null);
+		assertEquals(1, list.size());
+
+		assertEquals("Password can not be null", list.get(0));
 	}
 
 }

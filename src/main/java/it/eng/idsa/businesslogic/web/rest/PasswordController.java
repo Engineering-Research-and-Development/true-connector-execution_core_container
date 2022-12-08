@@ -1,24 +1,25 @@
 package it.eng.idsa.businesslogic.web.rest;
 
-import io.swagger.v3.oas.annotations.Hidden;
-import it.eng.idsa.businesslogic.service.impl.PasswordValidatorService;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import io.swagger.v3.oas.annotations.Hidden;
+import it.eng.idsa.businesslogic.service.impl.PasswordValidatorService;
 
 /**
  * @author Antonio Scatoloni on 22/04/2020
  **/
 
 @RestController
-@EnableAutoConfiguration
-@RequestMapping({"/notification"})
 @Hidden
 public class PasswordController {
 
@@ -28,7 +29,7 @@ public class PasswordController {
     @Autowired
     private PasswordValidatorService passwordValidatorService;
 
-    @GetMapping("/password/{password}")
+    @GetMapping("/api/password/{password}")
     @ResponseBody
     public ResponseEntity<Object> getPassword(@PathVariable String password) {
         String response;

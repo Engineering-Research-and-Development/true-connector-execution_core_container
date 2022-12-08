@@ -1,6 +1,8 @@
 package it.eng.idsa.businesslogic.service.impl;
 
-import it.eng.idsa.businesslogic.configuration.PasswordConfig;
+import java.util.Collections;
+import java.util.List;
+
 import org.passay.PasswordData;
 import org.passay.PasswordValidator;
 import org.passay.Rule;
@@ -9,8 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
+import it.eng.idsa.businesslogic.configuration.PasswordConfig;
 
 @Service
 public class PasswordValidatorService {
@@ -23,6 +24,10 @@ public class PasswordValidatorService {
 	}
 
 	public List<String> validate(String password) {
+		if (password == null) {
+			logger.error("Password is null");
+			return List.of("Password can not be null");
+		}
 		List<Rule> rules = getRules();
 
 		PasswordValidator passwordValidator = new PasswordValidator(rules);
