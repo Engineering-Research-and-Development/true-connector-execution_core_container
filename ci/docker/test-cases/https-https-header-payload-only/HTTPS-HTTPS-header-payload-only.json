@@ -1,12 +1,12 @@
 {
 	"info": {
 		"_postman_id": "5a268edd-5fef-49fd-8b5d-63b182dc3f2b",
-		"name": "GHA",
+		"name": "GHA HTTPS-HTTPS-header payload only",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 				{
-					"name": "HTTPS-HTTPS-header",
+					"name": "HTTPS-HTTPS-header payload only",
 					"event": [
 						{
 							"listen": "test",

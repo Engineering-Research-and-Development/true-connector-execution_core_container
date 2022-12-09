@@ -8,6 +8,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.WebSocketServerConfigurationA;
@@ -53,7 +54,7 @@ public class ExceptionProcessorSender implements Processor {
 
 		if (exception instanceof org.apache.camel.CamelAuthorizationException) {
 			exchange.getMessage().setBody("Access denied");
-			exchange.getMessage().setHeader(Exchange.HTTP_RESPONSE_CODE, 403);
+			exchange.getMessage().setHeader(Exchange.HTTP_RESPONSE_CODE, HttpStatus.UNAUTHORIZED);
 			exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 		} else {
 			String message = MultipartMessageProcessor.parseMultipartMessage(exception.getMessage())

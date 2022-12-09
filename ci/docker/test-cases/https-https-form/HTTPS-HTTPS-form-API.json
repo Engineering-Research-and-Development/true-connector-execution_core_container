@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "7126c48d-1325-4b3e-aa86-0ce8508f5bdf",
-		"name": "GHA-SD",
+		"_postman_id": "a534312a-9026-4cca-8003-7dc954eb06c7",
+		"name": "GHA API Tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -298,6 +298,124 @@
 						"api",
 						"representation",
 						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-form-Password-valid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8090/api/password/Test1234!",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"password",
+						"Test1234!"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-form-Password-invalid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"  pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8090/api/password/abc",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"password",
+						"abc"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-form-Password-unathorized Copy",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8090/password/Test1234!",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"password",
+						"Test1234!"
 					]
 				}
 			},

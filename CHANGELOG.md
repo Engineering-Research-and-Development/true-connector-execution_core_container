@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [0.2.1-SNAPSHOT] - 2022-12-07
+## [0.2.2-SNAPSHOT] - 2022-12-07
 
 ### Added
 
@@ -23,6 +23,23 @@ application.user.lock.duration=30
 # time unit used for locking user, possible values are: SECONDS,MINUTES,HOURS,DAYS
 application.user.lock.unit=MINUTES
 ```
+
+## [0.2.1-SNAPSHOT] - 2022-12-08
+
+### Added
+- New properties for Password Validator:
+
+```
+## Password Validator
+application.password.validator.minLength=8
+application.password.validator.maxLength=16
+application.password.validator.minUpperCase=1
+application.password.validator.minLowerCase=1
+application.password.validator.minDigit=1
+application.password.validator.minSpecial=1
+```
+
+- added a Password Validator to verify that the password meets the desired criteria
 
 ## [0.2.0-SNAPSHOT] - 2022-12-02
 
@@ -126,7 +143,7 @@ application.clearinghouse.processEndpoint=/process/
  - new property, *application.usageControlVersion*, which is used to configure which UC dataApp to use, platoon or mydata
 
 ### Changed
- - refined logic for modify/de-modify payload, now only for ArifactResponseMessage
+ - refined logic for modify/de-modify payload, now only for ArtifactResponseMessage
  - updated logic for Receiver, send response, HttpEntity instead String representation of multipart/form-data
  - reverted change for DAPS jwks URL, compatibility with Omejdn (not using default jwks URL)
  - added public key in Self Description document
@@ -147,7 +164,7 @@ application.clearinghouse.processEndpoint=/process/
  
 ### Changed
  - New version of Multipart Message Library
- - Modified self description document to use dateTimeStamp instead dateTime, compatibility with standard 
+ - Modified self-description document to use dateTimeStamp instead dateTime, compatibility with standard 
 
 ## [0.1.11-SNAPSHOT] - 2022-02-21
  
@@ -226,7 +243,7 @@ application.clearinghouse.processEndpoint=/process/
 ## [0.0.27-SNAPSHOT] - 2021-08-02
 
 ### Changed
- - updated the Daps interaction: in case of disabled Daps interaction is no more needed to define keystore, trustore and the related properties
+ - updated the Daps interaction: in case of disabled Daps interaction is no more needed to define keystore, truststore and the related properties
  - disabled fetch token on start up in case of Daps interaction disabled
 
 ## [0.0.26-SNAPSHOT] - 2021-07-30

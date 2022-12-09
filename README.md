@@ -49,7 +49,7 @@ Furthermore, just for testing it will expose (http and https):
 Encode plain text password (used to get new hashed password for SelfDescription API). This endpoint is password protected, so you will have to use default credentials to get new password, using this endpoint, and then replace default password.
 
 ```
-/notification/password/{password}
+/api/password/{password}
 ```
 
 ## Configuration
