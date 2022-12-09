@@ -1,6 +1,23 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.2.1-SNAPSHOT] - 2022-12-08
+
+### Added
+- New properties for Password Validator:
+
+```
+## Password Validator
+application.password.validator.minLength=8
+application.password.validator.maxLength=16
+application.password.validator.minUpperCase=1
+application.password.validator.minLowerCase=1
+application.password.validator.minDigit=1
+application.password.validator.minSpecial=1
+```
+
+- added a Password Validator to verify that the password meets the desired criteria
+
 ## [0.2.0-SNAPSHOT] - 2022-12-02
 
 ### Added
@@ -18,8 +35,8 @@ application.clearinghouse.processEndpoint=/process/
 
 ### Changed
 
- - updated Clearing House logic now compliant with Frauenhofer CH
- - header propagation was not properly done when sending Broker messages, thats fixed now
+ - updated Clearing House logic now compliant with Fraunhofer CH
+ - header propagation was not properly done when sending Broker messages, that's fixed now
  
 ### Removed
 
@@ -130,7 +147,7 @@ application.healthcheck.usagecontrol=
  - new property, *application.usageControlVersion*, which is used to configure which UC dataApp to use, platoon or mydata
 
 ### Changed
- - refined logic for modify/de-modify payload, now only for ArifactResponseMessage
+ - refined logic for modify/de-modify payload, now only for ArtifactResponseMessage
  - updated logic for Receiver, send response, HttpEntity instead String representation of multipart/form-data
  - reverted change for DAPS jwks URL, compatibility with Omejdn (not using default jwks URL)
  - added public key in Self Description document
@@ -151,7 +168,7 @@ application.healthcheck.usagecontrol=
  
 ### Changed
  - New version of Multipart Message Library
- - Modified self description document to use dateTimeStamp instead dateTime, compatibility with standard 
+ - Modified self-description document to use dateTimeStamp instead dateTime, compatibility with standard 
 
 ## [0.1.11-SNAPSHOT] - 2022-02-21
  
@@ -230,7 +247,7 @@ application.healthcheck.usagecontrol=
 ## [0.0.27-SNAPSHOT] - 2021-08-02
 
 ### Changed
- - updated the Daps interaction: in case of disabled Daps interaction is no more needed to define keystore, trustore and the related properties
+ - updated the Daps interaction: in case of disabled Daps interaction is no more needed to define keystore, truststore and the related properties
  - disabled fetch token on start up in case of Daps interaction disabled
 
 ## [0.0.26-SNAPSHOT] - 2021-07-30
