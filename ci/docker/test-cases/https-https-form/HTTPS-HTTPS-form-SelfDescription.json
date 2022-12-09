@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "5a084beb-b85b-4af0-b1fa-97edc84a444c",
+		"_postman_id": "7126c48d-1325-4b3e-aa86-0ce8508f5bdf",
 		"name": "GHA-SD",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -76,6 +76,54 @@
 			"response": []
 		},
 		{
+			"name": "HTTPS-HTTPS-form-SelfDescription-Unathorized",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"pm.response.to.be.unauthorized;\r",
+							"\r",
+							"pm.test(\"unauthorized\", function () {\r",
+							"  // ids:ContractOffer\r",
+							"  pm.expect(pm.response.text()).to.include(\"Unauthorized\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "fizz",
+						"value": "buzz"
+					},
+					{
+						"key": "Content-Type",
+						"value": "text/plain"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:8090/",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "HTTPS-HTTPS-form-ContractOffer",
 			"event": [
 				{
@@ -83,7 +131,12 @@
 					"script": {
 						"exec": [
 							"var jsonData = pm.response.json();\r",
-							"pm.response.to.be.ok;"
+							"pm.response.to.be.ok;\r",
+							"\r",
+							"pm.test(\"ContractOffer\", function () {\r",
+							"  // ids:ContractOffer\r",
+							"  pm.expect(jsonData[\"@type\"]) === \"ids:ContractOffer\";\r",
+							"});"
 						],
 						"type": "text/javascript"
 					}
@@ -249,6 +302,24 @@
 				}
 			},
 			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "resourceCatalog",
+			"value": ""
+		},
+		{
+			"key": "offeredResource",
+			"value": ""
+		},
+		{
+			"key": "contractOffer",
+			"value": ""
+		},
+		{
+			"key": "representation",
+			"value": ""
 		}
 	]
 }
