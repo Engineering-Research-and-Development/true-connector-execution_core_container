@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "a534312a-9026-4cca-8003-7dc954eb06c7",
+		"_postman_id": "ae4ad2c7-119b-4817-b8fe-3c499852bd5f",
 		"name": "GHA API Tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -310,7 +310,7 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 200\", function () {\r",
+							"pm.test(\"Password valid\", function () {\r",
 							"  pm.response.to.have.status(200);\r",
 							"});"
 						],
@@ -359,7 +359,7 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 400\", function () {\r",
+							"pm.test(\"Password failed validation\", function () {\r",
 							"  pm.response.to.have.status(400);\r",
 							"});"
 						],
@@ -402,7 +402,20 @@
 			"response": []
 		},
 		{
-			"name": "HTTPS-HTTPS-form-Password-unathorized Copy",
+			"name": "HTTPS-HTTPS-form-Password-unathorized",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Password change unauthorized\", function () {\r",
+							"  pm.response.to.have.status(401);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
