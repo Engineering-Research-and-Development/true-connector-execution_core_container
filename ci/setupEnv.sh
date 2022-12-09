@@ -19,4 +19,6 @@ echo "docker-compose correctly installed"
 
 sudo docker system prune --volumes -f
 
+mkdir -p $HOME/.m2
+
 cp -f ./ci/.m2/settings/settings.xml  $HOME/.m2
