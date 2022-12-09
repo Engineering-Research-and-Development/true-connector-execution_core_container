@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "9ff21389-b866-4c9b-bb4b-7f5443af8797",
+		"_postman_id": "e64dacbd-bbfa-49c6-b701-4101645319cc",
 		"name": "GHA HTTPS-HTTPS-form",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -138,10 +138,8 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 200\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
-							"});\r",
-							"pm.test(\"Rejection message\", function () {\r",
+							"pm.test(\"Unauthorized\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
 							"    pm.expect(pm.response.text()).to.include(\"NOT_AUTHORIZED\");\r",
 							"});"
 						],
