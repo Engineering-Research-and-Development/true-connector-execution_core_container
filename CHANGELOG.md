@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [0.2.2-SNAPSHOT] - 2022-12-07
+## [0.2.2-SNAPSHOT] - 2022-12-12
 
 ### Added
 
@@ -24,6 +24,13 @@ application.user.lock.duration=30
 application.user.lock.unit=MINUTES
 ```
 
+### Changed
+ - Refactor GitHub Actions tests
+ - using ids-comm dependency from Frauenhofer repository
+ 
+### Removed
+ - local maven dependencies
+
 ## [0.2.1-SNAPSHOT] - 2022-12-08
 
 ### Added
@@ -41,10 +48,10 @@ application.password.validator.minSpecial=1
 
 - added a Password Validator to verify that the password meets the desired criteria
 
+
+
 ## [0.2.0-SNAPSHOT] - 2022-12-02
 
-### Added
- - New properties for Clearing House:
  
  ```
  ### Clearng-House

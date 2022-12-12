@@ -382,11 +382,3 @@ Clone projects from the following links and run mvn clean install
 [WebSocket Message Streamer library](https://github.com/Engineering-Research-and-Development/market4.0-websocket_message_streamer)
 
 [Execution Core Container](https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container)
-
-There is one more dependency that needs to be added to local maven repository. It can be located in 
-
-```
-ci\.m2\repository\de\fraunhofer\aisec\ids\ids-comm\1.1.0\
-
-```
- Copy following folder you your local .m2 repository folder.
