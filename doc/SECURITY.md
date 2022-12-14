@@ -29,7 +29,7 @@ application.user.api.password=$2a$10$MQ5grDaIqDpBjMlG78PFduv.AMRe9cs0CNm/V4cgUub
 
 ```
 
-Further more, there is lock mechanism in place, that will lock user (requests originating from same IP) it there are several consecutive requests with failed authorization. This logic can be configured, and following properties can be used for that purpose:
+Further more, there is a lock mechanism in place, that will lock user (requests originating from same IP) if there are several consecutive requests with failed authorization. This logic can be configured, and following properties can be used for that purpose:
 
 ```
 #number of consecutive failed attempts
@@ -42,7 +42,7 @@ application.user.lock.unit=MINUTES
 
 ## Connector user
 
-This user is used to authorize request on:
+This user is used to authorize requests on:
 
 ```
 /data

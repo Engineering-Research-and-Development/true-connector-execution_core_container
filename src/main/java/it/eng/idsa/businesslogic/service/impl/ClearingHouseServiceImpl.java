@@ -166,7 +166,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	
 	@Override
 	public boolean isClearingHouseAvailable(String clearingHouseHealthEndpoint) {
-		HttpEntity<String> entity = new HttpEntity<String>() {};
+		HttpEntity<String> entity = new HttpEntity<>() {};
 		
 		if (StringUtils.isNotBlank(configuration.getUsername()) && StringUtils.isNotBlank(configuration.getPassword())) {
 			entity.getHeaders().set(HttpHeaders.AUTHORIZATION, Credentials.basic(configuration.getUsername(), configuration.getPassword()));
