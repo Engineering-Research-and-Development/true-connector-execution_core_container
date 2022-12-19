@@ -60,7 +60,7 @@ jobs:
       - name: Stop docker container HTTPS-HTTPS-mixed
         run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed/.env down -v
 
-#### HTTPS-HTTPS-mixed-payload-only        
+#### HTTPS-HTTPS-mixed-contract-negotiation       
       - name: Run docker container HTTPS-HTTPS-mixed-contract-negotiation
         run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed-contract-negotiation/.env up -d
         

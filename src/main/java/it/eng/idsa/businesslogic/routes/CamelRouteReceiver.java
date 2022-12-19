@@ -125,9 +125,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 		onException(CamelAuthorizationException.class)
 			.handled(true)
 			.process(exceptionProcessorReceiver);
-		
-		interceptFrom().process(connectorHealthCheckProcessor);
-		
+			
 		//@formatter:off
 		onException(ExceptionForProcessor.class, RuntimeException.class)
 			.handled(true)

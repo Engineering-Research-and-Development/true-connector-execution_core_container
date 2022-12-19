@@ -1,10 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [0.2.2-SNAPSHOT] - 2022-12-12
+## [0.2.2-SNAPSHOT] - 2022-12-19
 
 ### Added
 
+ - added GitHub Actions tests for contract negotiation
  - properties that will differentiate 2 users:
   Self Description API user, with ADMIN role; used to manipulate Self Description API
   Connector user, with CONNECTOR role; used to authenticate and authorize IDS message interaction with Connector (B-endpoint)
@@ -29,6 +30,7 @@ application.user.lock.unit=MINUTES
  - using ids-comm dependency from Frauenhofer repository
  
 ### Removed
+ - removed GitHub Actions tests for payload only
  - local maven dependencies
 
 ## [0.2.1-SNAPSHOT] - 2022-12-08

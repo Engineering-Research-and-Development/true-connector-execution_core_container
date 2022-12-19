@@ -178,6 +178,7 @@ public class CamelRouteSender extends RouteBuilder {
 			
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/internal/sd")
 				.routeId("internalSelfDescription")
+				.log("Requesting internal Self Description document")
 				.process(selfDescriptionProcessor);
 			
 			from("direct:registrationProcess")
