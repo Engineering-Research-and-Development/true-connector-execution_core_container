@@ -17,12 +17,14 @@ public class User implements UserDetails {
 	String id;
 	String username;
 	String password;
+	String role;
 
-	User(final String id, final String username, final String password) {
+	User(final String id, final String username, final String password, String role) {
 		super();
 		this.id = requireNonNull(id);
 		this.username = requireNonNull(username);
 		this.password = requireNonNull(password);
+		this.role = role;
 	}
 	
 	public String getId() {
@@ -32,7 +34,7 @@ public class User implements UserDetails {
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
         return authorities;
 	}
 

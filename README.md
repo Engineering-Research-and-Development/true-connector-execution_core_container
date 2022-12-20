@@ -33,6 +33,8 @@ Finally, run the application:
 The Execution Core Container will use two ports (http and https) as described by the Docker Compose File.
 It will expose the following endpoints (both over https):
 
+Following endpoints are open for all (credentials are not required), since in real scenario, they will be accessible only from dataApp:
+
 ```
 /incoming-data-app/multipartMessageBodyBinary to receive data (MultiPartMessage) with binary body from Data App (the A endpoint in the above picture)
 /incoming-data-app/multipartMessageBodyFormData to receive data (MultiPartMessage) with form-data body from Data App (the A endpoint in the above picture)
@@ -40,17 +42,21 @@ It will expose the following endpoints (both over https):
 /data to receive data (IDS Message) from a sender connector (the B endpoint in the above picture)
 ```
 
+while 'B-endpoint' is public, and exposed in outside world, so it will require credentials
+
+```
+/data
+```
+
+More information about security and user credentials can be found in this [link](doc/SECURITY.md)
+
+
 Furthermore, just for testing it will expose (http and https):
 
 ```
-/about/version returns business logic version 
+/about/version
 ```
-
-Encode plain text password (used to get new hashed password for SelfDescription API). This endpoint is password protected, so you will have to use default credentials to get new password, using this endpoint, and then replace default password.
-
-```
-/api/password/{password}
-```
+returns business logic version.
 
 ## Configuration
 The ECC supports three different way to exchange data:
@@ -75,7 +81,8 @@ The sender DataApp should send a request using the following schema, specifying 
 ```
 curl --location --request POST 'https://{IPADDRESS}:{A_ENDPOINT_PUBLIC_PORT}/incoming-data-app/multipartMessageBodyBinary' \
 --header 'Content-Type: multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6' \
---header 'Forward-To: {RECEIVER_IP_ADDRESS}:{B_ENDPOINT_PUBLIC_PORT}/data' 
+--header 'Forward-To: {RECEIVER_IP_ADDRESS}:{B_ENDPOINT_PUBLIC_PORT}/data' \
+--header 'Authorization: Basic Y29ubmVjdG9yOnBhc3N3b3Jk' \
 --data-raw ' --CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6
 Content-Disposition: form-data; name="header"
 Content-Type: application/json; charset=UTF-8
@@ -136,7 +143,8 @@ Keeping the provided configuration:
 ```
 curl --location --request POST 'https://localhost:8887/incoming-data-app/multipartMessageBodyBinary' \
 --header 'Content-Type: multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6' \
---header 'Forward-To: https://localhost:8889/data' 
+--header 'Forward-To: https://localhost:8889/data' \
+--header 'Authorization: Basic Y29ubmVjdG9yOnBhc3N3b3Jk' \
 --data-raw ' --CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6
 Content-Disposition: form-data; name="header"
 Content-Type: application/json; charset=UTF-8
@@ -197,6 +205,7 @@ Content-Length: 50
 curl --location --request POST 'https://{IPADDRESS}:{A_ENDPOINT_PUBLIC_PORT}/incoming-data-app/multipartMessageBodyFormData' \
 --header 'Content-Type: multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6' \
 --header 'Forward-To: {RECEIVER_IP_ADDRESS}:{B_ENDPOINT_PUBLIC_PORT}/data' \
+--header 'Authorization: Basic Y29ubmVjdG9yOnBhc3N3b3Jk' \
 --form 'header="{
   \"@context\" : {
     \"ids\" : \"https://w3id.org/idsa/core/\",
@@ -248,6 +257,7 @@ Keeping the provided configuration:
 curl --location --request POST 'https://localhost:8887/incoming-data-app/multipartMessageBodyFormData' \
 --header 'Content-Type: multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6' \
 --header 'Forward-To: https://localhost:8889/data' \
+--header 'Authorization: Basic Y29ubmVjdG9yOnBhc3N3b3Jk' \
 --form 'header="{
   \"@context\" : {
     \"ids\" : \"https://w3id.org/idsa/core/\",
@@ -296,6 +306,7 @@ curl --location --request POST 'https://localhost:8887/incoming-data-app/multipa
 curl --location --request POST 'https://{IPADDRESS}:{A_ENDPOINT_PUBLIC_PORT}/incoming-data-app/multipartMessageHttpHeader' \
 --header 'Content-Type: text/plain' \
 --header 'Forward-To: {RECEIVER_IP_ADDRESS}:8889/data' \
+--header 'Authorization: Basic Y29ubmVjdG9yOnBhc3N3b3Jk' \
 --header 'IDS-Messagetype: ids:ArtifactRequestMessage' \
 --header 'IDS-Id: https://w3id.org/idsa/autogen/artifactResponseMessage/eb3ab487-dfb0-4d18-b39a-585514dd044f' \
 --header 'IDS-Issued: 2021-11-24T13:09:42.306Z' \
@@ -321,6 +332,7 @@ curl --location --request POST 'https://localhost:8887/incoming-data-app/multipa
 --header 'Content-Type: text/plain' \
 --header 'Forward-To: https//localhost:8889/data' \
 --header 'IDS-Messagetype: ids:ArtifactRequestMessage' \
+--header 'Authorization: Basic Y29ubmVjdG9yOnBhc3N3b3Jk' \
 --header 'IDS-Id: https://w3id.org/idsa/autogen/artifactResponseMessage/eb3ab487-dfb0-4d18-b39a-585514dd044f' \
 --header 'IDS-Issued: 2021-11-24T13:09:42.306Z' \
 --header 'IDS-IssuerConnector: http://w3id.org/engrd/connector/' \
@@ -370,11 +382,3 @@ Clone projects from the following links and run mvn clean install
 [WebSocket Message Streamer library](https://github.com/Engineering-Research-and-Development/market4.0-websocket_message_streamer)
 
 [Execution Core Container](https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container)
-
-There is one more dependency that needs to be added to local maven repository. It can be located in 
-
-```
-ci\.m2\repository\de\fraunhofer\aisec\ids\ids-comm\1.1.0\
-
-```
- Copy following folder you your local .m2 repository folder.

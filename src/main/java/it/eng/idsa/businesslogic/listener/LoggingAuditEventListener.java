@@ -93,11 +93,13 @@ public class LoggingAuditEventListener {
 			MDC.put("event.principal", event.getAuthentication().getName());
 			MDC.put("event.type", TrueConnectorEventType.USER_AUTHORIZATION_SUCCESS.name());
 		}
-		FilterInvocation filterInvocation = (FilterInvocation) abstractEvent.getSource();
-		MDC.put("source.requestUrl", filterInvocation.getRequestUrl());
-		MDC.put("connectorRole", isConnectorReceiver());
-		// and other checks for other subclasses
-		LOGGER.info("An AuthorizationFailureEvent was received: {}", keyValue("event", abstractEvent.getSource()));
+		if(abstractEvent.getSource() instanceof FilterInvocation) {
+			FilterInvocation filterInvocation = (FilterInvocation) abstractEvent.getSource();
+			MDC.put("source.requestUrl", filterInvocation.getRequestUrl());
+			MDC.put("connectorRole", isConnectorReceiver());
+			// and other checks for other subclasses
+			LOGGER.info("An AuthorizationFailureEvent was received: {}", keyValue("event", abstractEvent.getSource()));
+		} 
 
 		if (backup != null) {
 			MDC.setContextMap(backup);

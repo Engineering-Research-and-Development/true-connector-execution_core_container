@@ -1,57 +1,309 @@
 {
 	"info": {
-		"_postman_id": "5a268edd-5fef-49fd-8b5d-63b182dc3f2b",
-		"name": "GHA",
+		"_postman_id": "3c9a80ad-ef6e-4b18-8b43-7c5e25d9e5a8",
+		"name": "GHA HTTPS-HTTPS-header",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
+		{
+			"name": "HTTPS-HTTPS-header",
+			"event": [
 				{
-					"name": "HTTPS-HTTPS-header",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"pm.test(\"Body matches string\", function () {\r",
-									"    pm.expect(pm.response.text()).to.include(\"{\\\"firstName\\\":\\\"John\\\",\\\"lastName\\\":\\\"Doe\\\",\\\"address\\\":\\\"591  Franklin Street, Pennsylvania\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "fizz",
-								"value": "buzz"
-							},
-							{
-								"key": "Content-Type",
-								"value": "text/plain"
-							}
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Body matches string\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"{\\\"firstName\\\":\\\"John\\\",\\\"lastName\\\":\\\"Doe\\\",\\\"address\\\":\\\"591  Franklin Street, Pennsylvania\");\r",
+							"});"
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"multipart\": \"http-header\",\r\n    \"Forward-To\": \"https://ecc-provider:8889/data\",\r\n    \"messageType\": \"ArtifactRequestMessage\" ,\r\n    \"requestedArtifact\": \"http://w3id.org/engrd/connector/artifact/1\" ,\r\n     \"payload\" : {\r\n\t\t\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"\r\n\t\t}\r\n}"
-						},
-						"url": {
-							"raw": "https://localhost:8085/proxy",
-							"protocol": "https",
-							"host": [
-								"localhost"
-							],
-							"port": "8085",
-							"path": [
-								"proxy"
-							]
-						}
-					},
-					"response": []
+						"type": "text/javascript"
+					}
 				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "connector",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "fizz",
+						"value": "buzz"
+					},
+					{
+						"key": "Content-Type",
+						"value": "text/plain"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"multipart\": \"http-header\",\r\n    \"Forward-To\": \"https://ecc-provider:8889/data\",\r\n    \"messageType\": \"ArtifactRequestMessage\" ,\r\n    \"requestedArtifact\": \"http://w3id.org/engrd/connector/artifact/1\" ,\r\n     \"payload\" : {\r\n\t\t\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"\r\n\t\t}\r\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8085/proxy",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8085",
+					"path": [
+						"proxy"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-header unauthorized no auth",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Unauthorized\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
+							"    pm.expect(pm.response.text()).to.include(\"NOT_AUTHORIZED\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "fizz",
+						"value": "buzz"
+					},
+					{
+						"key": "Content-Type",
+						"value": "text/plain"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"multipart\": \"http-header\",\r\n    \"Forward-To\": \"https://ecc-provider:8889/data\",\r\n    \"messageType\": \"ArtifactRequestMessage\" ,\r\n    \"requestedArtifact\": \"http://w3id.org/engrd/connector/artifact/1\" ,\r\n     \"payload\" : {\r\n\t\t\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"\r\n\t\t}\r\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8085/proxy",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8085",
+					"path": [
+						"proxy"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-header unauthorized API user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Unauthorized\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
+							"    pm.expect(pm.response.text()).to.include(\"NOT_AUTHORIZED\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "fizz",
+						"value": "buzz"
+					},
+					{
+						"key": "Content-Type",
+						"value": "text/plain"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"multipart\": \"http-header\",\r\n    \"Forward-To\": \"https://ecc-provider:8889/data\",\r\n    \"messageType\": \"ArtifactRequestMessage\" ,\r\n    \"requestedArtifact\": \"http://w3id.org/engrd/connector/artifact/1\" ,\r\n     \"payload\" : {\r\n\t\t\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"\r\n\t\t}\r\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8085/proxy",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8085",
+					"path": [
+						"proxy"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-header unauthorized any user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Unauthorized\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
+							"    pm.expect(pm.response.text()).to.include(\"NOT_AUTHORIZED\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "pass",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "user",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "fizz",
+						"value": "buzz"
+					},
+					{
+						"key": "Content-Type",
+						"value": "text/plain"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"multipart\": \"http-header\",\r\n    \"Forward-To\": \"https://ecc-provider:8889/data\",\r\n    \"messageType\": \"ArtifactRequestMessage\" ,\r\n    \"requestedArtifact\": \"http://w3id.org/engrd/connector/artifact/1\" ,\r\n     \"payload\" : {\r\n\t\t\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"\r\n\t\t}\r\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8085/proxy",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8085",
+					"path": [
+						"proxy"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-header payload only",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Body matches string\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"to express his own views, as young people are fond of doing.\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "connector",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "fizz",
+						"value": "buzz"
+					},
+					{
+						"key": "Content-Type",
+						"value": "text/plain"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"multipart\": \"http-header\",\r\n    \"Forward-To\": \"https://ecc-provider:8889/data\",\r\n    \"messageType\": \"ArtifactRequestMessage\" ,\r\n    \"requestedArtifact\": \"http://w3id.org/engrd/connector/artifact/big\" ,\r\n     \"payload\" : {\r\n\t\t\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"\r\n\t\t}\r\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8085/proxy",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8085",
+					"path": [
+						"proxy"
+					]
+				}
+			},
+			"response": []
+		}
 	]
 }

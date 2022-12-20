@@ -1,4 +1,4 @@
-version: '2.2'
+version: '3.1'
 services:
   ecc-provider: 
     image: rdlabengpa/execution_core_container_bl:latest
@@ -53,6 +53,8 @@ services:
        - KEY_PASSWORD=${KEY_PASSWORD}
        - KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
        - ALIAS=${ALIAS}
+       - ECC_HOSTNAME=ecc-provider
+       - ECC_PORT=8887
        - TZ=Europe/Rome 
        - ISSUER_CONNECTOR_URI=${PROVIDER_ISSUER_CONNECTOR_URI}    
        - EXTRACT_PAYLOAD_FROM_RESPONSE=${EXTRACT_PAYLOAD_FROM_RESPONSE} 
@@ -117,6 +119,8 @@ services:
        - KEY_PASSWORD=${KEY_PASSWORD}
        - KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
        - ALIAS=${ALIAS}
+       - ECC_HOSTNAME=ecc-consumer
+       - ECC_PORT=8887
        - TZ=Europe/Rome
        - ISSUER_CONNECTOR_URI=${CONSUMER_ISSUER_CONNECTOR_URI}
        - EXTRACT_PAYLOAD_FROM_RESPONSE=${EXTRACT_PAYLOAD_FROM_RESPONSE} 

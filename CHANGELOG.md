@@ -1,6 +1,38 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.2.2-SNAPSHOT] - 2022-12-19
+
+### Added
+
+ - added GitHub Actions tests for contract negotiation
+ - properties that will differentiate 2 users:
+  Self Description API user, with ADMIN role; used to manipulate Self Description API
+  Connector user, with CONNECTOR role; used to authenticate and authorize IDS message interaction with Connector (B-endpoint)
+ - Camel Policy, used to authenticate camel routes
+ 
+```
+#API management credentials
+application.user.api.username=admin
+application.user.api.password=$2a$10$MQ5grDaIqDpBjMlG78PFduv.AMRe9cs0CNm/V4cgUubrqdGTFCH3m
+application.user.connector.username=connector
+application.user.connector.password=$2a$10$MQ5grDaIqDpBjMlG78PFduv.AMRe9cs0CNm/V4cgUubrqdGTFCH3m
+#number of consecutive failed attempts
+application.user.lock.maxattempts=5
+# duration for how long user will be locked
+application.user.lock.duration=30
+# time unit used for locking user, possible values are: SECONDS,MINUTES,HOURS,DAYS
+application.user.lock.unit=MINUTES
+```
+
+### Changed
+ - Refactor GitHub Actions tests
+ - using ids-comm dependency from Frauenhofer repository
+ 
+### Removed
+ - removed GitHub Actions tests for payload only
+ - local maven dependencies
+
 ## [0.2.1-SNAPSHOT] - 2022-12-08
 
 ### Added
@@ -18,10 +50,10 @@ application.password.validator.minSpecial=1
 
 - added a Password Validator to verify that the password meets the desired criteria
 
+
+
 ## [0.2.0-SNAPSHOT] - 2022-12-02
 
-### Added
- - New properties for Clearing House:
  
  ```
  ### Clearng-House
@@ -35,39 +67,12 @@ application.clearinghouse.processEndpoint=/process/
 
 ### Changed
 
- - updated Clearing House logic now compliant with Fraunhofer CH
- - header propagation was not properly done when sending Broker messages, that's fixed now
+ - updated Clearing House logic now compliant with Frauenhofer CH
+ - header propagation was not properly done when sending Broker messages, thats fixed now
  
 ### Removed
 
  - ENG Clearing House dependency removed
- 
-## [0.1.23-SNAPSHOT] - 2022-11-25
-
-### Added
-
- - Resource manager for calculating CPU and memory usage
- - Logic for checking internal and external "health" of the connector.
- Internal health: dataApp and Usage Control app reachability, audit file volume usage
- External health: DAPS and Clearing House reachability.
- Note: UC dataApp version required is +v1.4
- New properties needed for this logic:
- 
-```
-application.healthcheck.enabled=false
-application.healthcheck.cron.expression=0 */5 * ? * *
-## Time in miliseconds
-application.healthcheck.resourcemanager.cron.fixedDelay=10000
-## Threshold in percentages - from max volume size
-application.healthcheck.threshold.audit=5
-
-application.healthcheck.threshold.cpu=0.5
-application.healthcheck.threshold.memory=10.5
-
-application.healthcheck.dataapp=
-application.healthcheck.usagecontrol=
-```
- 
 
 ## [0.1.22-SNAPSHOT] - 2022-10-31
 

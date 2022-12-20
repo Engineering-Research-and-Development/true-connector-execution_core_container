@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
@@ -158,8 +159,13 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 			int statusCode = response.code();
 			logger.debug("Response {}", response);
 			logger.info("status code of the response message is: " + statusCode);
-			if (statusCode >= 300) {
-				if (statusCode == 404) {
+			if (HttpStatus.MULTIPLE_CHOICES.value() <= statusCode) {
+				if (HttpStatus.UNAUTHORIZED.value() == statusCode) {
+					logger.info("...communication error - bad forwardTo URL " + forwardTo);
+					rejectionMessageService
+							.sendRejectionMessage(messageForRejection, RejectionReason.NOT_AUTHORIZED);
+				}
+				if (HttpStatus.NOT_FOUND.value() == 404) {
 					logger.info("...communication error - bad forwardTo URL " + forwardTo);
 					rejectionMessageService
 							.sendRejectionMessage(messageForRejection, RejectionReason.BAD_PARAMETERS);

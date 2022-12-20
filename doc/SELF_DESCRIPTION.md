@@ -22,8 +22,8 @@ All endpoints after /api/** are protected and you will have to provide credentia
 Credentials are located in property file, and for now, there is only one user:
 
 ```
-spring.security.user.name=admin
-spring.security.user.password=encoded_password
+application.user.api.username=admin
+application.user.api.password=encoded_password
 
 ```
 

@@ -37,7 +37,7 @@ public class InMemoryUserCrudServiceTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		user = new User(UUID.randomUUID().toString(), "testUsername", "testPassword");
+		user = new User(UUID.randomUUID().toString(), "testUsername", "testPassword", "ADMIN");
 	}
 	
 	@Test
@@ -79,8 +79,8 @@ public class InMemoryUserCrudServiceTest {
 		
 		when(loginAttemptService.isBlocked(any(String.class))).thenReturn(false);
 		
-		Optional<User> findUser = userService.findByUsername(user.getUsername());
-		assertNotNull(findUser.get());
+		UserDetails userDetails = userService.loadUserByUsername(user.getUsername());
+		assertNotNull(userDetails);
 	}
 	
 	@Test

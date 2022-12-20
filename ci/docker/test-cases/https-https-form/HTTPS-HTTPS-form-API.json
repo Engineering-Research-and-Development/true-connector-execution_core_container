@@ -1,0 +1,572 @@
+{
+	"info": {
+		"_postman_id": "45a93749-3ed0-49f7-a378-264671ac269d",
+		"name": "GHA API Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "HTTPS-HTTPS-form-SelfDescription",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"pm.response.to.be.ok;\r",
+							"\r",
+							"pm.test(\"Self Description\", function () {\r",
+							"  // catalog\r",
+							"  pm.expect(jsonData[\"ids:resourceCatalog\"][0][\"@id\"]).to.exist;\r",
+							"  pm.collectionVariables.set(\"resourceCatalog\", jsonData[\"ids:resourceCatalog\"][0][\"@id\"])  \r",
+							"  // resource\r",
+							"  pm.expect(jsonData[\"ids:resourceCatalog\"][0][\"ids:offeredResource\"][0][\"@id\"]).to.exist;\r",
+							"  pm.collectionVariables.set(\"offeredResource\", jsonData[\"ids:resourceCatalog\"][0][\"ids:offeredResource\"][0][\"@id\"])\r",
+							"  // contractOffer\r",
+							"  pm.expect(jsonData[\"ids:resourceCatalog\"][0][\"ids:offeredResource\"][0][\"ids:contractOffer\"][0][\"@id\"]).to.exist;\r",
+							"  pm.collectionVariables.set(\"contractOffer\", jsonData[\"ids:resourceCatalog\"][0][\"ids:offeredResource\"][0][\"ids:contractOffer\"][0][\"@id\"])\r",
+							"  // representation\r",
+							"  pm.expect(jsonData[\"ids:resourceCatalog\"][0][\"ids:offeredResource\"][0][\"ids:representation\"][0][\"@id\"]).to.exist;\r",
+							"  pm.collectionVariables.set(\"representation\", jsonData[\"ids:resourceCatalog\"][0][\"ids:offeredResource\"][0][\"ids:representation\"][0][\"@id\"])\r",
+							"  });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "fizz",
+						"value": "buzz"
+					},
+					{
+						"key": "Content-Type",
+						"value": "text/plain"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:8090/",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-form-SelfDescription Connector user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Forbidden - connector user\", function () {\r",
+							"  pm.response.to.have.status(403);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "connector",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "fizz",
+						"value": "buzz"
+					},
+					{
+						"key": "Content-Type",
+						"value": "text/plain"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:8090/",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-form-SelfDescription-Unathorized no auth",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"pm.response.to.be.unauthorized;\r",
+							"\r",
+							"pm.test(\"unauthorized\", function () {\r",
+							"  // ids:ContractOffer\r",
+							"  pm.expect(pm.response.text()).to.include(\"Unauthorized\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "fizz",
+						"value": "buzz"
+					},
+					{
+						"key": "Content-Type",
+						"value": "text/plain"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:8090/",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-form-SelfDescription-Unathorized any user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Unauthorized\", function () {\r",
+							"  pm.response.to.be.unauthorized;\r",
+							"  pm.expect(pm.response.text()).to.include(\"Unauthorized\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "pass",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "user",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "fizz",
+						"value": "buzz"
+					},
+					{
+						"key": "Content-Type",
+						"value": "text/plain"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:8090/",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-form-ContractOffer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"pm.response.to.be.ok;\r",
+							"\r",
+							"pm.test(\"ContractOffer\", function () {\r",
+							"  // ids:ContractOffer\r",
+							"  pm.expect(jsonData[\"@type\"]) === \"ids:ContractOffer\";\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "contractOffer",
+						"value": "{{contractOffer}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:8090/api/contractOffer/",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"contractOffer",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-form-OfferedResource",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"pm.response.to.be.ok;\r",
+							"\r",
+							"pm.test(\"Offered resource\", function () {\r",
+							"//http://w3id.org/engrd/connector/artifact/test\r",
+							"  pm.expect(pm.response.text()).to.include(\"ids:TextResource\");\r",
+							"  pm.expect(pm.response.text()).to.include(\"ids:ContractOffer\");\r",
+							"  pm.expect(pm.response.text()).to.include(\"ids:TextRepresentation\");\r",
+							"  pm.expect(pm.response.text()).to.include(\"ids:Artifact\");\r",
+							"  });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "resource",
+						"value": "{{offeredResource}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:8090/api/offeredResource/",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"offeredResource",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-form-Representation",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"pm.response.to.be.ok;\r",
+							"\r",
+							"pm.test(\"Representation\", function () {\r",
+							"//http://w3id.org/engrd/connector/artifact/test\r",
+							"  pm.expect(pm.response.text()).to.include(\"ids:TextRepresentation\");\r",
+							"  });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "representation",
+						"value": "{{representation}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:8090/api/representation/",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"representation",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-form-Password-valid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Password valid\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8090/api/password/Test1234!",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"password",
+						"Test1234!"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-form-Password-invalid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Password failed validation\", function () {\r",
+							"  pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8090/api/password/abc",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"password",
+						"abc"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-form-Password-unathorized",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Password change unauthorized\", function () {\r",
+							"  pm.response.to.have.status(401);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8090/password/Test1234!",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"password",
+						"Test1234!"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "resourceCatalog",
+			"value": ""
+		},
+		{
+			"key": "offeredResource",
+			"value": ""
+		},
+		{
+			"key": "contractOffer",
+			"value": ""
+		},
+		{
+			"key": "representation",
+			"value": ""
+		}
+	]
+}

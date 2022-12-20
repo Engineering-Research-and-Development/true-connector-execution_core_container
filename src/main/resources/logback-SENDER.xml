@@ -20,7 +20,7 @@
     <appender-ref ref="FILE"/>
   </logger>
   
-   <logger name="it.eng.idsa.businesslogic" level="info" additivity="false">
+   <logger name="it.eng.idsa" level="info" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
   

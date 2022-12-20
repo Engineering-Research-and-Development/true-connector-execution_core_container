@@ -19,6 +19,7 @@ import it.eng.idsa.businesslogic.processor.common.ModifyPayloadProcessor;
 import it.eng.idsa.businesslogic.processor.common.OriginalMessageProcessor;
 import it.eng.idsa.businesslogic.processor.common.ProtocolValidationProcessor;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
+import it.eng.idsa.businesslogic.processor.common.SelfDescriptionProcessor;
 import it.eng.idsa.businesslogic.processor.common.ConnectorHealthCheckProcessor;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
@@ -131,6 +132,9 @@ public class CamelRouteSender extends RouteBuilder {
 
 	@Autowired
 	private CorrelationIDProcessor correlationIDProcessor;
+	
+	@Autowired
+	private SelfDescriptionProcessor selfDescriptionProcessor;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -171,6 +175,11 @@ public class CamelRouteSender extends RouteBuilder {
 				.routeId("selfRegistration/query")
 				.process(createBrokerQueryMessageSender)
 				.to("direct:registrationProcess");
+			
+			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/internal/sd")
+				.routeId("internalSelfDescription")
+				.log("Requesting internal Self Description document")
+				.process(selfDescriptionProcessor);
 			
 			from("direct:registrationProcess")
 				.routeId("registrationProcess")

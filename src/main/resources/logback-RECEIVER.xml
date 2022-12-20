@@ -20,6 +20,10 @@
     <appender-ref ref="FILE"/>
   </logger>
   
+   <logger name="it.eng.idsa" level="info" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+  
   <root level="INFO">
   	<appender-ref ref="STDOUT"/>
   </root>
