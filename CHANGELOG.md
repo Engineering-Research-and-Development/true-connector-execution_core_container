@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.2.2-SNAPSHOT] - 2022-12-22
+
+### Notes
+
+ - version remains the same since nothing is done to the code
+
+### Changed
+
+ - GitHub Actions now uses the develop Data App image from Docker Hub (rdlabengpa/ids_be_data_app:develop) instead of building it to speed up the process
+
 ## [0.2.2-SNAPSHOT] - 2022-12-19
 
 ### Added
