@@ -4,7 +4,7 @@ on: push
 
 jobs:
 
-  ECC workflow 2:
+  ECC-workflow-2:
 
     runs-on: ubuntu-latest
     env:
