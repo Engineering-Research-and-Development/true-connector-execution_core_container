@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{secrets.GH_TOKEN}}
       GH_PACKAGE_REPO_PASSWORD: ${{secrets.GH_PACKAGE_REPO_PASSWORD}}
       
     steps:
