@@ -18,12 +18,24 @@ jobs:
   test-mixed:
     needs: build
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{secrets.GH_TOKEN}}
+      GH_PACKAGE_REPO_PASSWORD: ${{secrets.GH_PACKAGE_REPO_PASSWORD}}
     steps:
+      - name: Git Checkout
+        uses: actions/checkout@v3
+    
       - name: Run test-mixed
         run: ./ci/test-mixed.sh
   test-form:
     needs: build
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{secrets.GH_TOKEN}}
+      GH_PACKAGE_REPO_PASSWORD: ${{secrets.GH_PACKAGE_REPO_PASSWORD}}
     steps:
+      - name: Git Checkout
+        uses: actions/checkout@v3
+        
       - name: Run test-form
         run: ./ci/test-form.sh
