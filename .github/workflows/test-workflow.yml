@@ -1,0 +1,21 @@
+name: ECC
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: ./setup_server.sh
+  test-mixed:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run test-mixed
+        run: ./ci/test-mixed.sh
+  test-form:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run test-form
+        run: ./ci/test-form.sh
