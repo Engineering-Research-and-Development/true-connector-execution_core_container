@@ -5,6 +5,10 @@ on: push
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{secrets.GH_TOKEN}}
+      GH_PACKAGE_REPO_PASSWORD: ${{secrets.GH_PACKAGE_REPO_PASSWORD}}
+      
     steps:
       - name: Git Checkout
         uses: actions/checkout@v3
