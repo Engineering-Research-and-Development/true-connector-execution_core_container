@@ -6,7 +6,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - run: ./setup_server.sh
+      - name: Build
+        run: ./ci/build.sh
   test-mixed:
     needs: build
     runs-on: ubuntu-latest
