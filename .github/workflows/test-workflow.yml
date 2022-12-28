@@ -30,6 +30,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     env:
+      GH_TOKEN: ${{secrets.GH_TOKEN}}
       DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
       SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
     steps:
@@ -83,6 +84,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     env:
+      GH_TOKEN: ${{secrets.GH_TOKEN}}
       DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
       SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
     steps:
