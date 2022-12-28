@@ -364,7 +364,7 @@ jobs:
       - name: Stop docker container
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-ws/.env down -v
         
-   wss-idscp2:
+  wss-idscp2:
     needs: build
     runs-on: ubuntu-latest
     env:
