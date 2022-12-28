@@ -26,7 +26,7 @@ jobs:
       - name: Run Creating Docker Image from ECC repo
         run: ./ci/deploy.sh
         
-  HTTPS-HTTPS-mixed:
+  https-https-mixed:
     needs: build
     runs-on: ubuntu-latest
     env:
@@ -59,7 +59,7 @@ jobs:
       - name: Stop docker container HTTPS-HTTPS-mixed
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed/.env down -v
 
-  HTTPS-HTTPS-mixed-contract-negotiation:
+  https-https-mixed-contract-negotiation:
     needs: build
     runs-on: ubuntu-latest
     env:
@@ -92,7 +92,7 @@ jobs:
       - name: Stop docker container HTTPS-HTTPS-mixed-contract-negotiation
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed-contract-negotiation/.env down -v
 
-  HTTPS-HTTPS-form:
+  https-https-form:
     needs: build
     runs-on: ubuntu-latest
     env:
@@ -133,7 +133,7 @@ jobs:
       - name: Stop docker container HTTPS-HTTPS-form
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form/.env down -v
         
-  HTTPS-HTTPS-form-contract-negotiation:
+  https-https-form-contract-negotiation:
     needs: build
     runs-on: ubuntu-latest
     env:
@@ -166,7 +166,7 @@ jobs:
       - name: Stop docker container HTTPS-HTTPS-form-contract-negotiation
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form-contract-negotiation/.env down -v
         
-  HTTPS-HTTPS-header:
+  https-https-header:
     needs: build
     runs-on: ubuntu-latest
     env:
@@ -181,7 +181,7 @@ jobs:
         run: ./ci/setupEnv.sh     
         
       - name: Run docker container HTTPS-HTTPS-header
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header/.env up -d
         
       - name: Wait for container starting
         run: sleep 120 
@@ -197,9 +197,9 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
       
       - name: Stop docker container HTTPS-HTTPS-header
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header/.envdown -v
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header/.env down -v
         
-  HTTPS-HTTPS-header-contract-negotiation:
+  https-https-header-contract-negotiation:
     needs: build
     runs-on: ubuntu-latest
     env:
@@ -214,7 +214,7 @@ jobs:
         run: ./ci/setupEnv.sh     
        
       - name: Run docker container HTTPS-HTTPS-header-contract-negotiation
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header-contract-negotiation/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header-contract-negotiation/.env up -d
         
       - name: Wait for container starting
         run: sleep 120 
@@ -230,9 +230,9 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container HTTPS-HTTPS-header-contract-negotiation
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header-contract-negotiation/.envdown -v  
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header-contract-negotiation/.env down -v  
 
-  HTTPS-IDSCP2-mixed:
+  https-idscp2-mixed:
     needs: build
     runs-on: ubuntu-latest
     env:
@@ -247,7 +247,7 @@ jobs:
         run: ./ci/setupEnv.sh 
 
       - name: Run docker container HTTPS-IDSCP2-mixed
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env up -d
         
       - name: Wait for container starting
         run: sleep 120 
@@ -263,9 +263,9 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env down -v
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env down -v
   
-  HTTPS-IDSCP2-form:
+  https-idscp2-form:
     needs: build
     runs-on: ubuntu-latest
     env:
@@ -280,7 +280,7 @@ jobs:
         run: ./ci/setupEnv.sh 
         
       - name: Run docker container HTTPS-IDSCP2-form
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-form/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-form/.env up -d
         
       - name: Wait for container starting
         run: sleep 120 
@@ -296,9 +296,9 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-form/.env down -v
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-form/.env down -v
         
-  HTTPS-IDSCP2-header:
+  https-idscp2-header:
     needs: build
     runs-on: ubuntu-latest
     env:
@@ -313,7 +313,7 @@ jobs:
         run: ./ci/setupEnv.sh 
         
       - name: Run docker container HTTPS-IDSCP2-header
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-header/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-header/.env up -d
         
       - name: Wait for container starting
         run: sleep 120 
@@ -329,9 +329,9 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-header/.env down -v
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-header/.env down -v
         
-  WSS-WSS:
+  wss-wss:
     needs: build
     runs-on: ubuntu-latest
     env:
@@ -346,7 +346,7 @@ jobs:
         run: ./ci/setupEnv.sh  
         
       - name: Run docker container WSS-WSS
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/ws-ws/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-ws/.env up -d
         
       - name: Wait for container starting
         run: sleep 120 
@@ -362,9 +362,9 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/ws-ws/.env down -v
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-ws/.env down -v
         
-   WSS-IDSCP2:
+   wss-idscp2:
     needs: build
     runs-on: ubuntu-latest
     env:
@@ -379,7 +379,7 @@ jobs:
         run: ./ci/setupEnv.sh 
         
       - name: Run docker container WSS-IDSCP2
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/ws-idscp2/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-idscp2/.env up -d
         
       - name: Wait for container starting
         run: sleep 120 
@@ -395,4 +395,4 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/ws-idscp2/.env down -v    
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-idscp2/.env down -v    
