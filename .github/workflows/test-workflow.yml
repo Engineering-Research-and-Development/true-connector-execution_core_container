@@ -44,7 +44,7 @@ jobs:
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed/.env up -d
         
       - name: Wait for container starting
-        run: sleep 30
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -77,7 +77,7 @@ jobs:
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed-contract-negotiation/.env up -d
         
       - name: Wait for container starting
-        run: sleep 30
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -110,7 +110,7 @@ jobs:
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form/.env up -d
         
       - name: Wait for container starting
-        run: sleep 30
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -151,7 +151,7 @@ jobs:
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form-contract-negotiation/.env up -d
 
       - name: Wait for container starting
-        run: sleep 30
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -184,7 +184,7 @@ jobs:
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header/.env up -d
         
       - name: Wait for container starting
-        run: sleep 30
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -217,7 +217,7 @@ jobs:
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header-contract-negotiation/.env up -d
         
       - name: Wait for container starting
-        run: sleep 30
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -250,7 +250,7 @@ jobs:
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env up -d
         
       - name: Wait for container starting
-        run: sleep 30
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -283,7 +283,7 @@ jobs:
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-form/.env up -d
         
       - name: Wait for container starting
-        run: sleep 30
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -316,7 +316,7 @@ jobs:
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-header/.env up -d
         
       - name: Wait for container starting
-        run: sleep 30
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -349,7 +349,7 @@ jobs:
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-ws/.env up -d
         
       - name: Wait for container starting
-        run: sleep 30
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -382,7 +382,7 @@ jobs:
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-idscp2/.env up -d
         
       - name: Wait for container starting
-        run: sleep 30
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
