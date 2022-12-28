@@ -19,6 +19,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
+          
+      - name: Run env setup
+        run: ./ci/setupEnv.sh
            
       - name: Build with Maven
         run: mvn clean package
