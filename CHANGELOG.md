@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [0.2.2-SNAPSHOT] - 2022-12-22
+## [0.2.2-SNAPSHOT] - 2022-12-29
 
 ### Notes
 
@@ -10,6 +10,11 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
  - GitHub Actions now uses the develop Data App image from Docker Hub (rdlabengpa/ids_be_data_app:develop) instead of building it to speed up the process
+ - GitHub Actions tests now split to work in parallel
+ 
+### Added
+
+ - added GHA tests.md document with brief explanation about the GitHub Actions tests
 
 ## [0.2.2-SNAPSHOT] - 2022-12-19
 
