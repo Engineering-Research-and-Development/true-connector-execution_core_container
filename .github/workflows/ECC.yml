@@ -3,49 +3,48 @@ name: ECC
 on: push
 
 jobs:
-
   build:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_PACKAGE_REPO_PASSWORD: ${{ secrets.GH_PACKAGE_REPO_PASSWORD }}
+      DOCKER_USER: ${{secrets.DOCKER_USER}}
+      DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
 
+    steps:
+    
+      - uses: actions/checkout@v3
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+           
+      - name: Build with Maven
+        run: mvn clean package
+      
+      - name: Run Creating Docker Image from ECC repo
+        run: ./ci/deploy.sh
+        
+  https-https-mixed:
+    needs: build
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{secrets.GH_TOKEN}}
       DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
       SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
-      DOCKER_USER: ${{secrets.DOCKER_USER}}
-      DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-      GH_PACKAGE_REPO_PASSWORD: ${{secrets.GH_PACKAGE_REPO_PASSWORD}}
-
     steps:
-      
       - name: Git Checkout
-        uses: actions/checkout@v2
-      
+        uses: actions/checkout@v3
+        
       - name: Run env setup
         run: ./ci/setupEnv.sh
-# If you need to use other branch than master for MMP and WSS, uncomment following lines
-# and make modifications in 2 .sh scripts to checkout specific branch
-# Once MMP and WSS are merged to master, make sure to comment 2 sections
-
-#      - name: Run multipart message lib
-#        run: ./ci/mmLib.sh
-        
-#      - name: Run websocket-message-streamer-lib
-#        run: ./ci/wmsLib.sh
-        
-      - name: Run Cloning and Creating Docker Container from Data-App repo
-        run: ./ci/dataApp.sh
-        
-      - name: Run Creating Docker Container for ECCs
-        run: ./ci/ecc.sh
-      
-      - name: Docker images
-        run:  docker images
-#### HTTPS-HTTPS-mixed         
+          
       - name: Run docker container HTTPS-HTTPS-mixed
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed/.env up -d
         
       - name: Wait for container starting
-        run: sleep 120 
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -58,14 +57,27 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container HTTPS-HTTPS-mixed
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed/.env down -v
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed/.env down -v
 
-#### HTTPS-HTTPS-mixed-contract-negotiation       
+  https-https-mixed-contract-negotiation:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{secrets.GH_TOKEN}}
+      DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
+      SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v3
+        
+      - name: Run env setup
+        run: ./ci/setupEnv.sh
+    
       - name: Run docker container HTTPS-HTTPS-mixed-contract-negotiation
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed-contract-negotiation/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed-contract-negotiation/.env up -d
         
       - name: Wait for container starting
-        run: sleep 120 
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -78,14 +90,27 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container HTTPS-HTTPS-mixed-contract-negotiation
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed-contract-negotiation/.env down -v
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed-contract-negotiation/.env down -v
 
-#### HTTPS-HTTPS-form        
+  https-https-form:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{secrets.GH_TOKEN}}
+      DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
+      SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v3
+        
+      - name: Run env setup
+        run: ./ci/setupEnv.sh
+             
       - name: Run docker container HTTPS-HTTPS-form
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form/.env up -d
         
       - name: Wait for container starting
-        run: sleep 120 
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -106,14 +131,27 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container HTTPS-HTTPS-form
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form/.env down -v
-
-#### HTTPS-HTTPS-form-contract-negotiation        
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form/.env down -v
+        
+  https-https-form-contract-negotiation:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{secrets.GH_TOKEN}}
+      DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
+      SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v3
+        
+      - name: Run env setup
+        run: ./ci/setupEnv.sh
+    
       - name: Run docker container HTTPS-HTTPS-form-contract-negotiation
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form-contract-negotiation/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form-contract-negotiation/.env up -d
 
       - name: Wait for container starting
-        run: sleep 120 
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -126,14 +164,27 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container HTTPS-HTTPS-form-contract-negotiation
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form-contract-negotiation/.env down -v
- 
-#### HTTPS-HTTPS-header 
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form-contract-negotiation/.env down -v
+        
+  https-https-header:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{secrets.GH_TOKEN}}
+      DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
+      SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v3
+        
+      - name: Run env setup
+        run: ./ci/setupEnv.sh     
+        
       - name: Run docker container HTTPS-HTTPS-header
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header/.env up -d
         
       - name: Wait for container starting
-        run: sleep 120 
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -146,14 +197,27 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
       
       - name: Stop docker container HTTPS-HTTPS-header
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header/.envdown -v
- 
-#### HTTPS-HTTPS-header-contract-negotiation 
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header/.env down -v
+        
+  https-https-header-contract-negotiation:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{secrets.GH_TOKEN}}
+      DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
+      SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v3
+        
+      - name: Run env setup
+        run: ./ci/setupEnv.sh     
+       
       - name: Run docker container HTTPS-HTTPS-header-contract-negotiation
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header-contract-negotiation/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header-contract-negotiation/.env up -d
         
       - name: Wait for container starting
-        run: sleep 120 
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -166,14 +230,27 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container HTTPS-HTTPS-header-contract-negotiation
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header-contract-negotiation/.envdown -v
- 
-#### HTTPS-IDSCP2-mixed  
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header-contract-negotiation/.env down -v  
+
+  https-idscp2-mixed:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{secrets.GH_TOKEN}}
+      DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
+      SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v3
+        
+      - name: Run env setup
+        run: ./ci/setupEnv.sh 
+
       - name: Run docker container HTTPS-IDSCP2-mixed
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env up -d
         
       - name: Wait for container starting
-        run: sleep 120 
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -186,14 +263,27 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env down -v
-
-#### HTTPS-IDSCP2-form        
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env down -v
+  
+  https-idscp2-form:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{secrets.GH_TOKEN}}
+      DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
+      SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v3
+        
+      - name: Run env setup
+        run: ./ci/setupEnv.sh 
+        
       - name: Run docker container HTTPS-IDSCP2-form
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-form/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-form/.env up -d
         
       - name: Wait for container starting
-        run: sleep 120 
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -206,14 +296,27 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-form/.env down -v
-
-#### HTTPS-IDSCP2-header       
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-form/.env down -v
+        
+  https-idscp2-header:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{secrets.GH_TOKEN}}
+      DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
+      SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v3
+        
+      - name: Run env setup
+        run: ./ci/setupEnv.sh 
+        
       - name: Run docker container HTTPS-IDSCP2-header
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-header/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-header/.env up -d
         
       - name: Wait for container starting
-        run: sleep 120 
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -226,14 +329,27 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-header/.env down -v
- 
-#### WSS-WSS 
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-header/.env down -v
+        
+  wss-wss:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{secrets.GH_TOKEN}}
+      DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
+      SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v3
+        
+      - name: Run env setup
+        run: ./ci/setupEnv.sh  
+        
       - name: Run docker container WSS-WSS
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/ws-ws/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-ws/.env up -d
         
       - name: Wait for container starting
-        run: sleep 120 
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -246,14 +362,27 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/ws-ws/.env down -v
- 
-#### WSS-IDSCP2 
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-ws/.env down -v
+        
+  wss-idscp2:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{secrets.GH_TOKEN}}
+      DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
+      SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v3
+        
+      - name: Run env setup
+        run: ./ci/setupEnv.sh 
+        
       - name: Run docker container WSS-IDSCP2
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/ws-idscp2/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-idscp2/.env up -d
         
       - name: Wait for container starting
-        run: sleep 120 
+        run: sleep 45
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -266,9 +395,4 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container
-        run: docker-compose -f ./ci/docker/test-cases/docker-compose.yml --env-file ./ci/docker/test-cases/ws-idscp2/.env down -v
-        
-      - name: Run deploy
-        run: ./ci/deploy.sh
-
-      
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-idscp2/.env down -v    
