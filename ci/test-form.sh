@@ -1,1 +1,0 @@
-echo "Starting test-form..."
