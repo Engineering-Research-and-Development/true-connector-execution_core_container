@@ -2,10 +2,15 @@
 
 # FROM openjdk:12-jdk-oraclelinux7
 # FROM openjdk:11.0.7-jre
-FROM openjdk:11.0.15-jre
+# changed giaisg FROM openjdk:11.0.15-jre
+FROM openjdk:21-ea-3-jdk-slim
 
 # Add Maintainer Info
 LABEL maintainer="gabriele.deluca@eng.it"
+
+RUN  apt-get update \
+  && apt-get install -y wget \
+  && rm -rf /var/lib/apt/lists/*
 
 # Add a volume pointing to /tmp
 #VOLUME /tmp
