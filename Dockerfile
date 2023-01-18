@@ -1,11 +1,15 @@
 # Start with a base image containing Java runtime
 
-FROM eclipse-temurin:11-alpine
+#FROM eclipse-temurin:11-alpine
+FROM eclipse-temurin:11
 
 # Add Maintainer Info
 LABEL maintainer="gabriele.deluca@eng.it"
 
-RUN apk add --no-cache wget
+#RUN apk add --no-cache wget
+RUN  apt-get update \
+  && apt-get install -y wget \
+  && rm -rf /var/lib/apt/lists/
 
 # Make port 8443 available to the world outside this container
 EXPOSE 8449
