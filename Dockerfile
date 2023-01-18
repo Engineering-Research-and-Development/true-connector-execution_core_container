@@ -1,37 +1,32 @@
 # Start with a base image containing Java runtime
 
-# FROM openjdk:12-jdk-oraclelinux7
-# FROM openjdk:11.0.7-jre
-# changed giaisg FROM openjdk:11.0.15-jre
-FROM openjdk:21-ea-3-jdk-slim
+FROM eclipse-temurin:11-alpine
 
 # Add Maintainer Info
 LABEL maintainer="gabriele.deluca@eng.it"
 
-RUN  apt-get update \
-  && apt-get install -y wget \
-  && rm -rf /var/lib/apt/lists/*
-
-# Add a volume pointing to /tmp
-#VOLUME /tmp
+RUN apk add --no-cache wget
 
 # Make port 8443 available to the world outside this container
 EXPOSE 8449
 
+RUN mkdir /home/nobody
+WORKDIR /home/nobody
+
 # The application's jar file
-# ARG JAR_FILE=target/*.jar
-COPY target/dependency-jars /run/dependency-jars
+COPY target/dependency-jars /home/nobody/dependency-jars
 
 # Add the application's jar to the container
-# ADD ${JAR_FILE} market4.0-execution_core_container_business_logic.jar
-ADD target/application.jar /run/application.jar
+ADD target/application.jar /home/nobody/application.jar
+
+RUN chown -R nobody:nobody /home/nobody
+
+USER 65534
 
 # Run the jar file
-# ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-cp", "application.jar:/config/", "org.springframework.boot.loader.JarLauncher"]
-ENTRYPOINT java -jar run/application.jar
+ENTRYPOINT java -jar /home/nobody/application.jar
 
 #Healthy Status
 HEALTHCHECK --interval=5s --retries=3 --timeout=10s \
 
-#CMD curl http://localhost:8081/about/version || exit 1
-CMD wget -O /dev/null http://localhost:8081/about/version || exit 1
+CMD wget -O /dev/null http://localhost:8081/about/version  || exit 1
