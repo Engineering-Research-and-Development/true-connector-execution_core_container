@@ -23,9 +23,9 @@ COPY target/dependency-jars /home/nobody/dependency-jars
 # Add the application's jar to the container
 ADD target/application.jar /home/nobody/application.jar
 
-RUN chown -R nobody:nobody /home/nobody
+#RUN chown -R nobody:nobody /home/nobody
 
-USER 65534
+#USER 65534
 
 # Run the jar file
 ENTRYPOINT java -jar /home/nobody/application.jar
