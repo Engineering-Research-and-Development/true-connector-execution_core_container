@@ -1,7 +1,6 @@
 # Start with a base image containing Java runtime
 
-#FROM eclipse-temurin:11-alpine
-FROM eclipse-temurin:11
+FROM ibm-semeru-runtimes:open-11-jre
 
 # Add Maintainer Info
 LABEL maintainer="gabriele.deluca@eng.it"
@@ -15,6 +14,7 @@ RUN  apt-get update \
 EXPOSE 8449
 
 RUN mkdir /home/nobody
+RUN mkdir /var/log/ecc
 WORKDIR /home/nobody
 
 # The application's jar file
@@ -23,9 +23,10 @@ COPY target/dependency-jars /home/nobody/dependency-jars
 # Add the application's jar to the container
 ADD target/application.jar /home/nobody/application.jar
 
-#RUN chown -R nobody:nobody /home/nobody
+RUN chown -R nobody:nogroup /home/nobody
+RUN chown -R nobody:nogroup /var/log/ecc
 
-#USER 65534
+USER 65534
 
 # Run the jar file
 ENTRYPOINT java -jar /home/nobody/application.jar
