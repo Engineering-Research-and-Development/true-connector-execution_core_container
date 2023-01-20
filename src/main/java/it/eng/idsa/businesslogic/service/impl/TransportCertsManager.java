@@ -76,8 +76,10 @@ public class TransportCertsManager {
 		aliases.forEach(a -> {
 			try {
 				X509Certificate x509Cert = (X509Certificate) trustManagerKeyStore.getCertificate(a);
-				x509Cert.getSubjectAlternativeNames().stream()
-						.forEach(san -> transportCerts.put((String) san.get(1), getCertificateDigest(x509Cert)));
+				if(x509Cert.getSubjectAlternativeNames() != null) {
+					x509Cert.getSubjectAlternativeNames().stream()
+					.forEach(san -> transportCerts.put((String) san.get(1), getCertificateDigest(x509Cert)));
+				}
 			} catch (KeyStoreException | CertificateParsingException e) {
 				logger.error("Error while calculating TransportCertsSha256", e);
 			}
