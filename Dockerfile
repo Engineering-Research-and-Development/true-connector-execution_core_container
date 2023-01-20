@@ -13,15 +13,15 @@ RUN  apt-get update \
 # Make port 8443 available to the world outside this container
 EXPOSE 8449
 
-RUN mkdir /home/nobody
+RUN mkdir -p /home/nobody/app
 RUN mkdir /var/log/ecc
 WORKDIR /home/nobody
 
 # The application's jar file
-COPY target/dependency-jars /home/nobody/dependency-jars
+COPY target/dependency-jars /home/nobody/app/dependency-jars
 
 # Add the application's jar to the container
-ADD target/application.jar /home/nobody/application.jar
+ADD target/application.jar /home/nobody/app/application.jar
 
 RUN chown -R nobody:nogroup /home/nobody
 RUN chown -R nobody:nogroup /var/log/ecc
@@ -29,7 +29,7 @@ RUN chown -R nobody:nogroup /var/log/ecc
 USER 65534
 
 # Run the jar file
-ENTRYPOINT java -jar /home/nobody/application.jar
+ENTRYPOINT java -jar /home/nobody/app/application.jar
 
 #Healthy Status
 HEALTHCHECK --interval=5s --retries=3 --timeout=10s \
