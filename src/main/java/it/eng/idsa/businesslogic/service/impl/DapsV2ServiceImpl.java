@@ -1,6 +1,7 @@
 package it.eng.idsa.businesslogic.service.impl;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -9,6 +10,7 @@ import java.security.cert.CertificateException;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,7 @@ import com.google.common.annotations.VisibleForTesting;
 
 import it.eng.idsa.businesslogic.service.DapsService;
 import okhttp3.FormBody;
+import okhttp3.FormBody.Builder;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -37,7 +40,6 @@ import okhttp3.Response;
  * @author Antonio Scatoloni and Gabriele De Luca
  */
 
-//@ConditionalOnProperty(name = "application.dapsVersion", havingValue = "v2")
 @ConditionalOnExpression("'${application.isEnabledDapsInteraction}' == 'true' && '${application.dapsVersion}'=='v2'")
 @Service
 @Transactional
@@ -49,6 +51,8 @@ public class DapsV2ServiceImpl implements DapsService {
 	
 	@Autowired
 	private DapsUtilityProvider dapsUtilityProvider;
+	@Autowired
+	private TransportCertsManager transportCertsManager;
 
 	private String token = null;
 
@@ -57,31 +61,10 @@ public class DapsV2ServiceImpl implements DapsService {
 	
 	@Value("${application.dapsJWKSUrl}")
 	private URL dapsJWKSUrl;
-
-	@Override
-	public boolean validateToken(String tokenValue) {
-		boolean valid = false;
-		if(tokenValue==null) {
-			logger.error("Token is null");
-			return valid;
-		}
-		try {
-			DecodedJWT jwt = JWT.decode(tokenValue);
-			Algorithm algorithm = dapsUtilityProvider.provideAlgorithm(tokenValue);
-			algorithm.verify(jwt);
-			valid = true;
-			if (jwt.getExpiresAt().before(new Date())) {
-				valid = false;
-				logger.warn("Token expired");
-			}
-		} catch (SignatureVerificationException e) {
-			logger.info("Token did not verified, {}", e);
-		} catch (JWTDecodeException e) {
-			logger.error("Invalid token, {}", e);
-		}
-		return valid;
-	}
-
+	
+	@Value("${application.extendedTokenValidation}")
+	private boolean extendedTokenValidation;
+	
 	@Override
 	public String getJwtToken() {
 
@@ -94,6 +77,61 @@ public class DapsV2ServiceImpl implements DapsService {
 			return null;
 		}
 		return token;
+	}
+
+	@Override
+	public boolean validateToken(String tokenValue) {
+		boolean valid = false;
+		if (tokenValue == null) {
+			logger.error("Token is null");
+			return valid;
+		}
+		try {
+			DecodedJWT jwt = JWT.decode(tokenValue);
+			Algorithm algorithm = dapsUtilityProvider.provideAlgorithm(tokenValue);
+			algorithm.verify(jwt);
+			valid = true;
+			if (jwt.getExpiresAt().before(new Date())) {
+				valid = false;
+				logger.warn("Token expired");
+			}
+			if(extendedTokenValidation) {
+				if(!extendedTokenValidation(jwt)) {
+					valid = false;
+				}
+			}
+		} catch (SignatureVerificationException e) {
+			logger.info("Token did not verified, {}", e);
+		} catch (JWTDecodeException e) {
+			logger.error("Invalid token, {}", e);
+		}
+		return valid;
+	}
+
+	private boolean extendedTokenValidation(DecodedJWT jwt) {
+		String referringConnector = jwt.getClaim("referringConnector").asString();
+		URI uri = URI.create(referringConnector);
+		String connectorId = uri.getHost();
+
+		boolean isValid = false;
+		
+		String transportCertsSha256 = jwt.getClaim("transportCertsSha256").asString();
+		if(transportCertsSha256 != null) {
+			logger.info("Single transportCertsSha256");
+			isValid = transportCertsManager.isTransportCertsValid(connectorId, transportCertsSha256);
+		} else {
+			logger.info("Multiple transportCertsSha256");
+			String[] transportCerts = jwt.getClaim("transportCertsSha256").asArray(String.class);
+			for (String transportCert : transportCerts) {
+				if(transportCertsManager.isTransportCertsValid(connectorId, transportCert)) {
+					isValid = true;
+					transportCertsSha256 = transportCert;
+					break;
+				}
+			}
+		}
+		logger.info("TransportCertsSha256 '{}' for connector '{}' validated as {}", transportCertsSha256, connectorId, isValid);
+		return isValid;
 	}
 
 	@Override
@@ -127,13 +165,18 @@ public class DapsV2ServiceImpl implements DapsService {
 			logger.info("Request token: " + jws);
 
 			// build form body to embed client assertion into post request
-			RequestBody formBody = new FormBody.Builder()
+			Builder formBodyBuilder = new FormBody.Builder()
 					.add("grant_type", "client_credentials")
 					.add("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
 					.add("client_assertion", jws)
-					.add("scope", "idsc:IDS_CONNECTOR_ATTRIBUTES_ALL")
-					.build();
+					.add("scope", "idsc:IDS_CONNECTOR_ATTRIBUTES_ALL");
+			
+			if(extendedTokenValidation) { 
+				String certsShaClaim = createCertsShaClaim();
+				formBodyBuilder.add("claims", certsShaClaim);
+			}
 
+			RequestBody formBody = formBodyBuilder.build();
 			Request request = new Request.Builder()
 					.url(dapsUrl)
 					.post(formBody)
@@ -171,5 +214,21 @@ public class DapsV2ServiceImpl implements DapsService {
 			}
 		}
 		return token;
+	}
+
+	private String createCertsShaClaim() {
+//		{
+//		    "access_token": {
+//		        "transportCertsSha256": {
+//		            "value": ["ksjdhvs87h3w4fjhsf87hkjvs", "qz47djs87h3w4fjhsf87hg57d"]
+//		        }
+//		    }
+//		}
+//		JSONArray jsonArray = new JSONArray();
+//		jsonArray.put("IGOR");
+//		jsonArray.put(transportCertsManager.getConnectorTransportCetsSHa());
+		return new JSONObject()
+	        .put("access_token", new JSONObject().put("transportCertsSha256", new JSONObject().put("value", transportCertsManager.getConnectorTransportCetsSHa())))
+	        .toString();
 	}
 }
