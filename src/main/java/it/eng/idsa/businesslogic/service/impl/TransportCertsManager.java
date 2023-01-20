@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.MessageDigest;
@@ -34,8 +33,8 @@ public class TransportCertsManager {
 	private Map<String, String> transportCerts;
 	private String connectorTransportCertSha;
 
-	public TransportCertsManager(@Value("${server.ssl.key-store}") String sslKeystore,
-			@Value("${server.ssl.key-store-password}") String sslPassword,
+	public TransportCertsManager(@Value("${application.ssl.key-store.name}") String sslKeystore,
+			@Value("${application.ssl.key-store-password}") String sslPassword,
 			@Value("${server.ssl.key-alias}") String sslAlias,
 			@Value("${application.targetDirectory}") Path targetDirectory,
 			@Value("${application.trustStoreName}") String trustStoreName,
@@ -50,7 +49,7 @@ public class TransportCertsManager {
 				trustManagerKeyStore = KeyStore.getInstance("JKS");
 				trustManagerKeyStore.load(jksTrustStoreInputStream, trustStorePwd.toCharArray());
 				populateTransportCertsSha256(trustManagerKeyStore);
-				this.connectorTransportCertSha = getConnectorTransportCertSha256(sslKeystore, sslPassword, sslAlias);
+				this.connectorTransportCertSha = getConnectorTransportCertSha256(targetDirectory, sslKeystore, sslPassword, sslAlias);
 			} else {
 				logger.info("Truststore not configured, cannot calculate TransportCertsSha256");
 			}
@@ -95,21 +94,20 @@ public class TransportCertsManager {
 		try {
 			byte[] bytes = MessageDigest.getInstance("SHA-256").digest(cert.getEncoded());
 			digest = Hex.encodeHexString(bytes).toLowerCase();
-		} catch (CertificateEncodingException | NoSuchAlgorithmException e) {
+		} catch (NullPointerException | CertificateEncodingException | NoSuchAlgorithmException e) {
 			logger.error("Error while trying to load certificate", e);
 		}
 		return digest;
 	}
 
-	private String getConnectorTransportCertSha256(String sslKeystore, String sslPassword, String sslAlias) {
-		return getCertificateDigest(getCertificateTLS(sslKeystore, sslPassword, sslAlias));
+	private String getConnectorTransportCertSha256(Path targetDirectory, String sslKeystore, String sslPassword, String sslAlias) {
+		return getCertificateDigest(getCertificateTLS(targetDirectory, sslKeystore, sslPassword, sslAlias));
 	}
 
-	private X509Certificate getCertificateTLS(String sslKeystore, String sslPassword, String sslAlias) {
-		Path path = Paths.get(sslKeystore);
+	private X509Certificate getCertificateTLS(Path targetDirectory, String sslKeystore, String sslPassword, String sslAlias) {
 		KeyStore keystore;
 		try {
-			InputStream jksKeyStoreInputStream = Files.newInputStream(path);
+			InputStream jksKeyStoreInputStream = Files.newInputStream(targetDirectory.resolve(sslKeystore));
 			keystore = KeyStore.getInstance("JKS");
 			keystore.load(jksKeyStoreInputStream, sslPassword.toCharArray());
 			return (X509Certificate) keystore.getCertificate(sslAlias);

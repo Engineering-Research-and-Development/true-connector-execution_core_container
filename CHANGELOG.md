@@ -1,6 +1,19 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.2.3-SNAPSHOT] - 2023-01-23
+
+### Added
+
+ - When requesting DAPS token, transportCertsSha256 from server public key will be sent
+ - Logic for checking TransportCertsSha256 hash value from jwToken
+ - readme file TRANSPORTCERTSSHA256.md with explanation
+ - new property for enabling/disabling new logic for extended token validation 
+ 
+ ```
+ application.extendedTokenValidation=false
+ ```
+
 ## [0.2.2-SNAPSHOT] - 2022-12-29
 
 ### Notes
