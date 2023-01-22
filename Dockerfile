@@ -26,7 +26,7 @@ ADD target/application.jar /home/nobody/app/application.jar
 RUN chown -R nobody:nogroup /home/nobody
 RUN chown -R nobody:nogroup /var/log/ecc
 
-USER 65534
+# USER 65534
 
 # Run the jar file
 ENTRYPOINT java -jar /home/nobody/app/application.jar
