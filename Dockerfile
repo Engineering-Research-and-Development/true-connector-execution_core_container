@@ -1,6 +1,6 @@
 # Start with a base image containing Java runtime
-
-FROM ibm-semeru-runtimes:open-11-jre
+#FROM ibm-semeru-runtimes:open-11-jre
+FROM openjdk:21-ea-3-jdk-slim
 
 # Add Maintainer Info
 LABEL maintainer="gabriele.deluca@eng.it"
