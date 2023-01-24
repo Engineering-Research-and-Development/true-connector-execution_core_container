@@ -4,6 +4,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
+import java.util.Collections;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -20,6 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import it.eng.idsa.businesslogic.service.impl.KeystoreProvider;
+import okhttp3.ConnectionSpec;
 import okhttp3.OkHttpClient;
 import okhttp3.internal.tls.OkHostnameVerifier;
 
@@ -43,8 +45,8 @@ public class OkHttpClientConfiguration {
 		OkHttpClient client;
 		TrustManager[] trustManagers = null;
 		SSLSocketFactory sslSocketFactory;
-		
 		HostnameVerifier hostnameVerifier;
+
 		if(disableSslVerification) {
 			logger.info("Disabling SSL Validation");
 			hostnameVerifier = new NoopHostnameVerifier();
@@ -58,6 +60,7 @@ public class OkHttpClientConfiguration {
 		}
 		//@formatter:off
 		client = new OkHttpClient.Builder()
+				.connectionSpecs(Collections.singletonList(ConnectionSpec.MODERN_TLS))
 				.connectTimeout(60, TimeUnit.SECONDS)
 		        .writeTimeout(60, TimeUnit.SECONDS)
 		        .readTimeout(60, TimeUnit.SECONDS)
@@ -90,10 +93,12 @@ public class OkHttpClientConfiguration {
 		return trustAllCerts;
 	}
 	
-	private SSLSocketFactory sslSocketFactory(final TrustManager[] trustAllCerts)
+	private SSLSocketFactory sslSocketFactory(final TrustManager[] trustManagers)
 			throws NoSuchAlgorithmException, KeyManagementException {
-		final SSLContext sslContext = SSLContext.getInstance("TLS");
-		sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+		final SSLContext sslContext = SSLContext.getInstance("TLSv1.3");
+		sslContext.init(keystoreProvider.getKeystoreFactory().getKeyManagers(), 
+				trustManagers, 
+				new java.security.SecureRandom());
 		// Create an ssl socket factory with our all-trusting manager
 		final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 		return sslSocketFactory;
