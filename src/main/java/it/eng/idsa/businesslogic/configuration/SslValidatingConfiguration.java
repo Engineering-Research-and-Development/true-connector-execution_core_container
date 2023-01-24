@@ -48,7 +48,8 @@ public class SslValidatingConfiguration {
 	 */
 	private void setTrustStore() throws NoSuchAlgorithmException, KeyManagementException {
 		logger.info("Setting up truststore");
-		SSLContext sslCtx = SSLContext.getInstance("TLS");
+		SSLContext sslCtx = SSLContext.getInstance("TLSv1.3");
+//		SSLContext sslCtx = SSLContext.getInstance("TLS");
 		sslCtx.init(keystoreProvider.getKeystoreFactory().getKeyManagers(), 
 				keystoreProvider.getTrustManagerFactory().getTrustManagers(), 
 				new java.security.SecureRandom());
