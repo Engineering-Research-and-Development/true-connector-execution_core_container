@@ -60,7 +60,6 @@ public class OkHttpClientConfiguration {
 		}
 		//@formatter:off
 		client = new OkHttpClient.Builder()
-				.connectionSpecs(Collections.singletonList(ConnectionSpec.MODERN_TLS))
 				.connectTimeout(60, TimeUnit.SECONDS)
 		        .writeTimeout(60, TimeUnit.SECONDS)
 		        .readTimeout(60, TimeUnit.SECONDS)
@@ -93,13 +92,10 @@ public class OkHttpClientConfiguration {
 		return trustAllCerts;
 	}
 	
-	private SSLSocketFactory sslSocketFactory(final TrustManager[] trustManager)
+	private SSLSocketFactory sslSocketFactory(final TrustManager[] trustAllCerts)
 			throws NoSuchAlgorithmException, KeyManagementException {
-		final SSLContext sslContext = SSLContext.getInstance("TLSv1.3");
-		sslContext.init(
-				keystoreProvider.getKeystoreFactory().getKeyManagers(), 
-				trustManager, 
-				new java.security.SecureRandom());
+		final SSLContext sslContext = SSLContext.getInstance("TLS");
+		sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
 		// Create an ssl socket factory with our all-trusting manager
 		final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 		return sslSocketFactory;
