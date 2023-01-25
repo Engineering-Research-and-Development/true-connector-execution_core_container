@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.3-SNAPSHOT] - 2023-01-23
 
+### Changed
+
+ - camel version from 3.18.0 to 3.19.0 (The default TLS protocol is changed from TLSv1.2 to TLSv1.3 in Camel JSSE support)
+
 ### Added
 
  - When requesting DAPS token, transportCertsSha256 from server public key will be sent
