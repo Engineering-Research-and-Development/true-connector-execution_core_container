@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
  - camel version from 3.18.0 to 3.19.0 (The default TLS protocol is changed from TLSv1.2 to TLSv1.3 in Camel JSSE support)
+ - Multipart message library upgrade from 1.0.14-SNAPSHOT to 1.0.15-SNAPSHOT (memory cleaner in MMP)
 
 ### Added
 

@@ -24,7 +24,7 @@
 		<tomcat.version>9.0.24</tomcat.version>
 		<information.model.version>4.1.1</information.model.version>
 		<application.basedir>${basedir}</application.basedir>
-		<multipart.message.processor.version>1.0.14-SNAPSHOT</multipart.message.processor.version>
+		<multipart.message.processor.version>1.0.15-SNAPSHOT</multipart.message.processor.version>
 		<idscp2.libraries.version>0.5.2</idscp2.libraries.version>
 		<jacoco.version>0.8.8</jacoco.version>
 	</properties>
