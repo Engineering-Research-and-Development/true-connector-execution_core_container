@@ -91,7 +91,7 @@ public class TransportCertsManager {
 		}
 	}
 
-	private String getCertificateDigest(Certificate cert) {
+	public String getCertificateDigest(Certificate cert) {
 		String digest = null;
 		try {
 			byte[] bytes = MessageDigest.getInstance("SHA-256").digest(cert.getEncoded());

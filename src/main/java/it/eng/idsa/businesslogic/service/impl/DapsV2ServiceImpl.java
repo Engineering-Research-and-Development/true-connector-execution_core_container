@@ -10,6 +10,7 @@ import java.security.cert.CertificateException;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -224,11 +225,12 @@ public class DapsV2ServiceImpl implements DapsService {
 //		        }
 //		    }
 //		}
-//		JSONArray jsonArray = new JSONArray();
-//		jsonArray.put("IGOR");
-//		jsonArray.put(transportCertsManager.getConnectorTransportCetsSHa());
+		JSONArray transportCertsJsonArray = new JSONArray();
+		transportCertsJsonArray.put(transportCertsManager.getCertificateDigest(dapsUtilityProvider.getCertificate()));
+		transportCertsJsonArray.put(transportCertsManager.getConnectorTransportCetsSHa());
+		
 		return new JSONObject()
-	        .put("access_token", new JSONObject().put("transportCertsSha256", new JSONObject().put("value", transportCertsManager.getConnectorTransportCetsSHa())))
+	        .put("access_token", new JSONObject().put("transportCertsSha256", new JSONObject().put("value", transportCertsJsonArray)))
 	        .toString();
 	}
 }
