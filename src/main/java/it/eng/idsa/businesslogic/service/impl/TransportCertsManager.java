@@ -25,6 +25,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+/**
+ * Reads certificate from truststore, </br>
+ * calculates SHA256 using MessageDigest.getInstance("SHA-256").digest(cert.getEncoded())</br>
+ * creates map with certificate SubjectAlternativeName and calculated SHA256</br>
+ * 
+ * Map is later used to verify if jwt.transportCertSha256 matches with the one from truststore
+ * 
+ * @author igor.balog
+ *
+ */
 @Component
 public class TransportCertsManager {
 
@@ -48,7 +58,7 @@ public class TransportCertsManager {
 				jksTrustStoreInputStream = Files.newInputStream(targetDirectory.resolve(trustStoreName));
 				trustManagerKeyStore = KeyStore.getInstance("JKS");
 				trustManagerKeyStore.load(jksTrustStoreInputStream, trustStorePwd.toCharArray());
-				populateTransportCertsSha256(trustManagerKeyStore);
+				populateTransportCertsSha(trustManagerKeyStore);
 				this.connectorTransportCertSha = getConnectorTransportCertSha256(targetDirectory, sslKeystore, sslPassword, sslAlias);
 			} else {
 				logger.info("Truststore not configured, cannot calculate TransportCertsSha256");
@@ -60,16 +70,16 @@ public class TransportCertsManager {
 		}
 	}
 
-	public String getConnectorTransportCetsSHa() {
+	public String getConnectorTransportCertsSha() {
 		return this.connectorTransportCertSha;
 	}
 
-	public boolean isTransportCertsValid(String connectorId, String transportCert) {
+	public boolean isTransportCertValid(String connectorId, String transportCert) {
 		logger.info("Validating transportCertSha256 '{}' for connector with id {}", transportCert, connectorId);
 		return transportCert.equals(transportCerts.get(connectorId));
 	}
 
-	private void populateTransportCertsSha256(KeyStore trustManagerKeyStore) throws KeyStoreException {
+	private void populateTransportCertsSha(KeyStore trustManagerKeyStore) throws KeyStoreException {
 		logger.info("Calculating TransportCertsSha256 from configured truststore");
 		transportCerts = new HashMap<>();
 		List<String> aliases = Collections.list(trustManagerKeyStore.aliases());

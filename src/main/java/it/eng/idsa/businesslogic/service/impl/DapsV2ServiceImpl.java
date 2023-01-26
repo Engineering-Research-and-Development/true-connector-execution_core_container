@@ -119,12 +119,12 @@ public class DapsV2ServiceImpl implements DapsService {
 		String transportCertsSha256 = jwt.getClaim("transportCertsSha256").asString();
 		if(transportCertsSha256 != null) {
 			logger.info("Single transportCertsSha256");
-			isValid = transportCertsManager.isTransportCertsValid(connectorId, transportCertsSha256);
+			isValid = transportCertsManager.isTransportCertValid(connectorId, transportCertsSha256);
 		} else {
 			logger.info("Multiple transportCertsSha256");
 			String[] transportCerts = jwt.getClaim("transportCertsSha256").asArray(String.class);
 			for (String transportCert : transportCerts) {
-				if(transportCertsManager.isTransportCertsValid(connectorId, transportCert)) {
+				if(transportCertsManager.isTransportCertValid(connectorId, transportCert)) {
 					isValid = true;
 					transportCertsSha256 = transportCert;
 					break;
@@ -218,16 +218,9 @@ public class DapsV2ServiceImpl implements DapsService {
 	}
 
 	private String createCertsShaClaim() {
-//		{
-//		    "access_token": {
-//		        "transportCertsSha256": {
-//		            "value": ["ksjdhvs87h3w4fjhsf87hkjvs", "qz47djs87h3w4fjhsf87hg57d"]
-//		        }
-//		    }
-//		}
 		JSONArray transportCertsJsonArray = new JSONArray();
 		transportCertsJsonArray.put(transportCertsManager.getCertificateDigest(dapsUtilityProvider.getCertificate()));
-		transportCertsJsonArray.put(transportCertsManager.getConnectorTransportCetsSHa());
+		transportCertsJsonArray.put(transportCertsManager.getConnectorTransportCertsSha());
 		
 		return new JSONObject()
 	        .put("access_token", new JSONObject().put("transportCertsSha256", new JSONObject().put("value", transportCertsJsonArray)))
