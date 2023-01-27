@@ -32,15 +32,12 @@ payload:
 ```
 
 ## Prerequisite 
-For extended token validation is that **public keys from connector itself and other connectors MUST be loaded into truststore.** Reason for this is that TRUEConnector will:
+For extended token validation is that **public keys from connector itself and other connectors MUST be loaded into truststore.** Reason for this is that TRUEConnector will, during startup:
  - load all certificates from truststore
- - generate hash from certificate, using following logic:
- 
- ```
-byte[] bytes = MessageDigest.getInstance("SHA-256").digest(cert.getEncoded());
-digest = Hex.encodeHexString(bytes).toLowerCase();
-```
+ - generate hash from certificate, using *MessageDigest* class.
  - use certificate's SubjectAlternativeName and populate map with SAN and hash. This map will later be used to perform extended jwToken validation.
+ 
+From our example, TLS certificate should be for DNS domain with name *ecc-consumer.demo*, and when hash is calculated from certificate, it should be a3cd813e1510ca64a9da\**\**. Those 2 values will be put in map, like key-pair (ecc-consumer.demo, a3cd813e1510ca64a9da\**\**), that will be used in verify token phase.
  
 ## Validate jwToken
 
@@ -48,18 +45,24 @@ Once jwToken is received, either from DAPS or from other connector, it will be v
 
  - not expired
  - signature
- - transportCertsSha256 claim (extended validation)
+ - transportCertsSha256 claim (extended validation - optional)
  
-First two checks are mandatory while third one can be switched on or off, depending on property:
-
+First two checks are mandatory while third one can be switched on or off, depending on property;
+(setting this property to false should be used only in development purposes):
+ 
 ```
 application.extendedTokenValidation=true
 ```
+
  
 Extended validation will do the following:
- - get *referringConnector* claim
- - get *transportCertsSha256*
+ - get *referringConnector* claim (in our example - "http://ecc-consumer.demo")
+ - get *transportCertsSha256* (in our example - "a3cd813e1510ca64a9da****")
  - check if map contains same hash value for referringConnector
+ 
+ In our example, map should contain key-pair like following (populated in startup phase):
+ 
+ (ecc-consumer.demo, a3cd813e1510ca64a9da****)
  
  If this evaluates as true, token is valid, otherwise, token is not valid.
  
