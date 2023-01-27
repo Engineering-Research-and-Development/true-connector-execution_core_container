@@ -3,7 +3,6 @@ package it.eng.idsa.businesslogic.configuration;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
@@ -22,7 +21,6 @@ import org.springframework.context.annotation.Configuration;
 
 import it.eng.idsa.businesslogic.service.impl.KeystoreProvider;
 import okhttp3.ConnectionSpec;
-import okhttp3.OkHttpClient;
 import okhttp3.internal.tls.OkHostnameVerifier;
 
 @Configuration
