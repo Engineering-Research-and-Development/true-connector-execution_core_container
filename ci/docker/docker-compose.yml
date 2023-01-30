@@ -40,6 +40,7 @@ services:
     volumes:
        - ./ecc_resources_provider:/config
        - ./ecc_cert:/cert
+       - ecc_provider_log:/var/log/ecc
     extra_hosts:
       - "ecc-provider:127.0.0.1"
 
@@ -106,6 +107,7 @@ services:
     volumes:
       - ./ecc_resources_consumer:/config
       - ./ecc_cert:/cert
+      - ecc_consumer_log:/var/log/ecc
     extra_hosts:
       - "ecc-consumer:127.0.0.1"
 
@@ -132,3 +134,8 @@ services:
       - ./be-dataapp_resources:/config
       - ./be-dataapp_data_sender:/data
       - ./ecc_cert:/cert
+      
+volumes:
+  ecc_provider_log : {}
+  ecc_consumer_log : {}
+ 
