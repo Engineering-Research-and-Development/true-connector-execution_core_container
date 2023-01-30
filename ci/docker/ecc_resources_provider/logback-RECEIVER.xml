@@ -9,8 +9,9 @@
     </encoder>
   </appender>
 
+	<property name="LOG_DIR" value="/var/log/ecc" />
 	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
-		<file>true_connector_audit_RECEIVER.log</file>
+		<file>${LOG_DIR}/true_connector_audit_RECEIVER.log</file>
 		<append>true</append>
 		<encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
 	</appender>
