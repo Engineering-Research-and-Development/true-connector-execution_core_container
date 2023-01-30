@@ -70,8 +70,8 @@ services:
     image: rdlabengpa/ids_uc_data_app_platoon:v1.3
     environment:
       - TZ=Europe/Rome
-    ports:
-      - "8085:8085"
+    expose:
+      - "8085"
     volumes:
       - ./uc-dataapp_resources_provider:/etc
       - uc_provider_data:/data
@@ -137,7 +137,7 @@ services:
        - EXTRACT_PAYLOAD_FROM_RESPONSE=${EXTRACT_PAYLOAD_FROM_RESPONSE} 
        
     ports:
-      - "8084:8083"
+      - "8085:8083"
       - "9001:9000"
     volumes:
       - ./be-dataapp_resources:/config
@@ -148,8 +148,8 @@ services:
     image: rdlabengpa/ids_uc_data_app_platoon:v1.3
     environment:
       - TZ=Europe/Rome
-    ports:
-      - "8088:8085"
+    expose:
+      - "8085"
     volumes:
       - ./uc-dataapp_resources_consumer:/etc
       - uc_consumer_data:/data
