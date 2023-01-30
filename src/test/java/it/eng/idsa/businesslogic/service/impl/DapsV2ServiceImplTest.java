@@ -49,6 +49,8 @@ public class DapsV2ServiceImplTest {
 	@Mock
     private DapsUtilityProvider dapsUtilityProvider;
 	@Mock
+	private TransportCertsManager transportCertsManager;
+	@Mock
 	private OkHttpClient client;
 	@Mock
 	private Call call;
@@ -59,6 +61,7 @@ public class DapsV2ServiceImplTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		when(dapsUtilityProvider.getDapsV2Jws()).thenReturn(jws);
+		when(transportCertsManager.getConnectorTransportCertsSha()).thenReturn("TOKEN_HASHED_VALUE");
 		ReflectionTestUtils.setField(dapsV2Service, "dapsUrl", dapsUrl);
 	}
 	
