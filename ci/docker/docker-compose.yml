@@ -3,7 +3,7 @@ services:
   ecc-provider: 
     image: rdlabengpa/ids_execution_core_container:develop
     ports:
-      - "${PROVIDER_PORT}:${INTERNAL_REST_PORT}"  #Port for exposing HTTP endpoints 
+      - "${PROVIDER_PORT}:${INTERNAL_REST_PORT}"  #Port for exposing HTTP endpoints
       - 8889:8889  #Exposed port for receiving data from another connector (REST)
       - 8086:8086  #Exposed port for receiving data from another connector (WS)
     depends_on:
@@ -66,10 +66,21 @@ services:
       - ./be-dataapp_data_receiver:/data
       - ./ecc_cert:/cert
 
+  uc-dataapp-provider:
+    image: rdlabengpa/ids_uc_data_app_platoon:v1.3
+    environment:
+      - TZ=Europe/Rome
+    ports:
+      - "8085:8085"
+    volumes:
+      - ./uc-dataapp_resources_provider:/etc
+      - uc_provider_data:/data
+
+
   ecc-consumer: 
     image: rdlabengpa/ids_execution_core_container:develop
     ports:
-      - "${CONSUMER_PORT}:${INTERNAL_REST_PORT}"  #Port for exposing HTTP endpoints 
+      - "${CONSUMER_PORT}:${INTERNAL_REST_PORT}"  #Port for exposing HTTP endpoints
       - 8890:8889  #Exposed port for receiving data from another connector (REST)
       - 8087:8086  #Exposed port for receiving data from another connector (WS)
     depends_on:
@@ -126,9 +137,23 @@ services:
        - EXTRACT_PAYLOAD_FROM_RESPONSE=${EXTRACT_PAYLOAD_FROM_RESPONSE} 
        
     ports:
-      - "8085:8083"
+      - "8084:8083"
       - "9001:9000"
     volumes:
       - ./be-dataapp_resources:/config
       - ./be-dataapp_data_sender:/data
       - ./ecc_cert:/cert
+
+  uc-dataapp-consumer:
+    image: rdlabengpa/ids_uc_data_app_platoon:v1.3
+    environment:
+      - TZ=Europe/Rome
+    ports:
+      - "8088:8085"
+    volumes:
+      - ./uc-dataapp_resources_consumer:/etc
+      - uc_consumer_data:/data
+
+volumes:
+  uc_provider_data:
+  uc_consumer_data:
