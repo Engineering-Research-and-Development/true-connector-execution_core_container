@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   ecc-provider: 
-    image: rdlabengpa/execution_core_container_bl:latest
+    image: rdlabengpa/ids_execution_core_container:develop
     ports:
       - "${PROVIDER_PORT}:${INTERNAL_REST_PORT}"  #Port for exposing HTTP endpoints 
       - 8889:8889  #Exposed port for receiving data from another connector (REST)
@@ -38,13 +38,14 @@ services:
        - TRUSTORE_PASSWORD=${TRUSTORE_PASSWORD}
        - TZ=Europe/Rome                
     volumes:
-       - ./../ecc_resources_provider:/config
-       - ./../ecc_cert:/cert
+       - ./ecc_resources_provider:/config
+       - ./ecc_cert:/cert
+       - ecc_provider_log:/var/log/ecc
     extra_hosts:
       - "ecc-provider:127.0.0.1"
 
   be-dataapp-provider:
-    image: rdlabengpa/ids_be_data_app:latest
+    image: rdlabengpa/ids_be_data_app:develop
     environment:
        - "SPRING_PROFILES_ACTIVE=docker"  
        - DATA_APP_MULTIPART=${PROVIDER_MULTIPART_EDGE}
@@ -62,12 +63,12 @@ services:
       - "8083:8083"
       - "9000:9000"
     volumes:
-      - ./../be-dataapp_resources:/config
-      - ./../be-dataapp_data_receiver:/data
-      - ./../ecc_cert:/cert
+      - ./be-dataapp_resources:/config
+      - ./be-dataapp_data_receiver:/data
+      - ./ecc_cert:/cert
 
   ecc-consumer: 
-    image: rdlabengpa/execution_core_container_bl:latest
+    image: rdlabengpa/ids_execution_core_container:develop
     ports:
       - "${CONSUMER_PORT}:${INTERNAL_REST_PORT}"  #Port for exposing HTTP endpoints 
       - 8890:8889  #Exposed port for receiving data from another connector (REST)
@@ -104,13 +105,14 @@ services:
        - TRUSTORE_PASSWORD=${TRUSTORE_PASSWORD}
        - TZ=Europe/Rome                
     volumes:
-      - ./../ecc_resources_consumer:/config
-      - ./../ecc_cert:/cert
+      - ./ecc_resources_consumer:/config
+      - ./ecc_cert:/cert
+      - ecc_consumer_log:/var/log/ecc
     extra_hosts:
       - "ecc-consumer:127.0.0.1"
 
   be-dataapp-consumer:
-    image:  rdlabengpa/ids_be_data_app:latest
+    image:  rdlabengpa/ids_be_data_app:develop
     environment:
        - "SPRING_PROFILES_ACTIVE=docker"  
        - DATA_APP_MULTIPART=${CONSUMER_MULTIPART_EDGE}
@@ -129,6 +131,11 @@ services:
       - "8085:8083"
       - "9001:9000"
     volumes:
-      - ./../be-dataapp_resources:/config
-      - ./../be-dataapp_data_sender:/data
-      - ./../ecc_cert:/cert
+      - ./be-dataapp_resources:/config
+      - ./be-dataapp_data_sender:/data
+      - ./ecc_cert:/cert
+      
+volumes:
+  ecc_provider_log : {}
+  ecc_consumer_log : {}
+ 

@@ -3,6 +3,7 @@ package it.eng.idsa.businesslogic.service.impl;
 import java.net.URL;
 import java.nio.file.Path;
 import java.security.PublicKey;
+import java.security.cert.Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
@@ -74,6 +75,10 @@ public class DapsUtilityProvider {
 			logger.error("Token creation error: {}", exception.getMessage());
 		}
 		return jws;
+	}
+	
+	public Certificate getCertificate() {
+		return keystoreProvider.getCertificate();
 	}
 	
 	public PublicKey getPublicKey() {

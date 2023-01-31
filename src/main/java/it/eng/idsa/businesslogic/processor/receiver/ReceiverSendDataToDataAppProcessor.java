@@ -130,7 +130,6 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 		exchange.getMessage().setHeaders(headers);
 		
 		if (RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
-			exchange.getMessage().setBody(responseString);
 			message = httpHeaderService.headersToMessage(headers);
 			
 			Map<String, String> headerHeaderContentType = new HashMap<>();

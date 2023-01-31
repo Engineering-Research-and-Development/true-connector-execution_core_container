@@ -1,6 +1,39 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.2.3-SNAPSHOT] - 2023-01-23
+
+### Changed
+
+ - camel version from 3.18.0 to 3.19.0 (The default TLS protocol is changed from TLSv1.2 to TLSv1.3 in Camel JSSE support)
+ - Multipart message library upgrade from 1.0.14-SNAPSHOT to 1.0.15-SNAPSHOT (memory cleaner in MMP)
+
+### Added
+
+ - When requesting DAPS token, transportCertsSha256 from server public key will be sent
+ - Logic for checking TransportCertsSha256 hash value from jwToken
+ - readme file TRANSPORTCERTSSHA256.md with explanation
+ - new property for enabling/disabling new logic for extended token validation 
+ 
+ ```
+ application.extendedTokenValidation=false
+ ```
+
+## [0.2.2-SNAPSHOT] - 2022-12-29
+
+### Notes
+
+ - version remains the same since nothing is done to the code
+
+### Changed
+
+ - GitHub Actions now uses the develop Data App image from Docker Hub (rdlabengpa/ids_be_data_app:develop) instead of building it to speed up the process
+ - GitHub Actions tests now split to work in parallel
+ 
+### Added
+
+ - added GHA tests.md document with brief explanation about the GitHub Actions tests
+
 ## [0.2.2-SNAPSHOT] - 2022-12-19
 
 ### Added
