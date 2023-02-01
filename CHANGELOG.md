@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
  - Multipart message library upgrade from 1.0.14-SNAPSHOT to 1.0.15-SNAPSHOT (memory cleaner in MMP)
  - Switch to base docker image eclipse-temurin:11-jre-alpine
  - Fix in messageToHeaders method in HttpHeaderServiceImpl
+ 
 ### Added
 
  - When requesting DAPS token, transportCertsSha256 from server public key will be sent
