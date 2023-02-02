@@ -77,7 +77,7 @@ jobs:
         run: docker-compose -f ./ci/docker/docker-compose-uc.yml --env-file ./ci/docker/test-cases/https-https-mixed-contract-negotiation/.env up -d
         
       - name: Wait for container starting
-        run: sleep 45
+        run: sleep 70
         
       - name: Check if the container is up and running
         run: docker ps -a 
@@ -151,7 +151,7 @@ jobs:
         run: docker-compose -f ./ci/docker/docker-compose-uc.yml --env-file ./ci/docker/test-cases/https-https-form-contract-negotiation/.env up -d
 
       - name: Wait for container starting
-        run: sleep 45
+        run: sleep 70
         
       - name: Check if the container is up and running
         run: docker ps -a 
