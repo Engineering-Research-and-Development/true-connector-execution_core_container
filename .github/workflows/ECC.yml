@@ -74,7 +74,7 @@ jobs:
         run: ./ci/setupEnv.sh
     
       - name: Run docker container HTTPS-HTTPS-mixed-contract-negotiation
-        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed-contract-negotiation/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose-uc.yml --env-file ./ci/docker/test-cases/https-https-mixed-contract-negotiation/.env up -d
         
       - name: Wait for container starting
         run: sleep 45
@@ -90,7 +90,7 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container HTTPS-HTTPS-mixed-contract-negotiation
-        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed-contract-negotiation/.env down -v
+        run: docker-compose -f ./ci/docker/docker-compose-uc.yml --env-file ./ci/docker/test-cases/https-https-mixed-contract-negotiation/.env down -v
 
   https-https-form:
     needs: build
@@ -148,7 +148,7 @@ jobs:
         run: ./ci/setupEnv.sh
     
       - name: Run docker container HTTPS-HTTPS-form-contract-negotiation
-        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form-contract-negotiation/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose-uc.yml --env-file ./ci/docker/test-cases/https-https-form-contract-negotiation/.env up -d
 
       - name: Wait for container starting
         run: sleep 45
@@ -164,7 +164,7 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container HTTPS-HTTPS-form-contract-negotiation
-        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form-contract-negotiation/.env down -v
+        run: docker-compose -f ./ci/docker/docker-compose-uc.yml --env-file ./ci/docker/test-cases/https-https-form-contract-negotiation/.env down -v
         
   https-https-header:
     needs: build
@@ -214,7 +214,7 @@ jobs:
         run: ./ci/setupEnv.sh     
        
       - name: Run docker container HTTPS-HTTPS-header-contract-negotiation
-        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header-contract-negotiation/.env up -d
+        run: docker-compose -f ./ci/docker/docker-compose-uc.yml --env-file ./ci/docker/test-cases/https-https-header-contract-negotiation/.env up -d
         
       - name: Wait for container starting
         run: sleep 45
@@ -230,7 +230,7 @@ jobs:
         uses: jwalton/gh-docker-logs@v1
         
       - name: Stop docker container HTTPS-HTTPS-header-contract-negotiation
-        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header-contract-negotiation/.env down -v  
+        run: docker-compose -f ./ci/docker/docker-compose-uc.yml --env-file ./ci/docker/test-cases/https-https-header-contract-negotiation/.env down -v
 
   https-idscp2-mixed:
     needs: build
