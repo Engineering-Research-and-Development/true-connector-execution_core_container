@@ -104,7 +104,7 @@ public class ReceiverSendDataToDataAppProcessorTest {
 	}
 	
 	@Test
-	public void processHttpHeadermSuccess() throws Exception {
+	public void processHttpHeaderSuccess() throws Exception {
 		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", "http-header", String.class);
 		RequestBody mixRequestBody = RequestResponseUtil.createRequestBody("PAYLOAD");
 		var multipartMessage = MultipartMessageUtil.getMultipartMessage();
