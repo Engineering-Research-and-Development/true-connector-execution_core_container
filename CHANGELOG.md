@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.3.0-SNAPSHOT] - 2023-02-09
+
+ - Support for DataApp message handler (http-header flow)
+ - Requested for for this ECC version requires 0.2.0-SNAPSHOT+ version of DataApp
+
 ## [0.2.3-SNAPSHOT] - 2023-01-23
 
 ### Changed
