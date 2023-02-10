@@ -66,7 +66,7 @@ services:
       - ./be-dataapp_resources:/config
       - ./be-dataapp_data_receiver:/home/nobody/data
       - ./ecc_cert:/cert
-
+    
   ecc-consumer: 
     image: rdlabengpa/ids_execution_core_container:develop
     ports:
@@ -126,16 +126,17 @@ services:
        - TZ=Europe/Rome
        - ISSUER_CONNECTOR_URI=${CONSUMER_ISSUER_CONNECTOR_URI}
        - EXTRACT_PAYLOAD_FROM_RESPONSE=${EXTRACT_PAYLOAD_FROM_RESPONSE} 
-       
     ports:
       - "8085:8083"
       - "9001:9000"
     volumes:
       - ./be-dataapp_resources:/config
-      - ./be-dataapp_data_sender:/home/nobody/data
+      - be-dataapp_data_sender:/home/nobody/data
       - ./ecc_cert:/cert
       
 volumes:
   ecc_provider_log : {}
   ecc_consumer_log : {}
+  be-dataapp_data_sender : {}
+  
  
