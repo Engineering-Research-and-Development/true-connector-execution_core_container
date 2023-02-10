@@ -1,6 +1,6 @@
 version: '3.1'
 services:
-  ecc-provider: 
+  ecc-provider:
     image: rdlabengpa/ids_execution_core_container:develop
     ports:
       - "${PROVIDER_PORT}:${INTERNAL_REST_PORT}"  #Port for exposing HTTP endpoints
@@ -39,9 +39,9 @@ services:
       - TRUSTORE_PASSWORD=${TRUSTORE_PASSWORD}
       - TZ=Europe/Rome
     volumes:
-       - ./ecc_resources_provider:/config
-       - ./ecc_cert:/cert
-       - ecc_provider_log:/var/log/ecc
+      - ./ecc_resources_provider:/config
+      - ./ecc_cert:/cert
+      - ecc_provider_log:/var/log/ecc
     extra_hosts:
       - "ecc-provider:127.0.0.1"
 
@@ -68,7 +68,7 @@ services:
       - ./be-dataapp_data_receiver:/home/nobody/data
       - ./ecc_cert:/cert
 
-  ecc-consumer: 
+  ecc-consumer:
     image: rdlabengpa/ids_execution_core_container:develop
     ports:
       - "${CONSUMER_PORT}:${INTERNAL_REST_PORT}"  #Port for exposing HTTP endpoints
@@ -114,20 +114,20 @@ services:
       - "ecc-consumer:127.0.0.1"
 
   be-dataapp-consumer:
-    image:  rdlabengpa/ids_be_data_app:develop
+    image: rdlabengpa/ids_be_data_app:develop
     environment:
-       - "SPRING_PROFILES_ACTIVE=docker"  
-       - DATA_APP_MULTIPART=${CONSUMER_MULTIPART_EDGE}
-       - SERVER_SSL_ENABLED=${SERVER_SSL_ENABLED}
-       - KEYSTORE_NAME=${KEYSTORE_NAME}
-       - KEY_PASSWORD=${KEY_PASSWORD}
-       - KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
-       - ALIAS=${ALIAS}
-       - ECC_HOSTNAME=ecc-consumer
-       - ECC_PORT=8887
-       - TZ=Europe/Rome
-       - ISSUER_CONNECTOR_URI=${CONSUMER_ISSUER_CONNECTOR_URI}
-       - EXTRACT_PAYLOAD_FROM_RESPONSE=${EXTRACT_PAYLOAD_FROM_RESPONSE}
+      - "SPRING_PROFILES_ACTIVE=docker"
+      - DATA_APP_MULTIPART=${CONSUMER_MULTIPART_EDGE}
+      - SERVER_SSL_ENABLED=${SERVER_SSL_ENABLED}
+      - KEYSTORE_NAME=${KEYSTORE_NAME}
+      - KEY_PASSWORD=${KEY_PASSWORD}
+      - KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
+      - ALIAS=${ALIAS}
+      - ECC_HOSTNAME=ecc-consumer
+      - ECC_PORT=8887
+      - TZ=Europe/Rome
+      - ISSUER_CONNECTOR_URI=${CONSUMER_ISSUER_CONNECTOR_URI}
+      - EXTRACT_PAYLOAD_FROM_RESPONSE=${EXTRACT_PAYLOAD_FROM_RESPONSE}
     ports:
       - "8085:8083"
       - "9001:9000"
@@ -137,7 +137,6 @@ services:
       - ./ecc_cert:/cert
 
 volumes:
-  ecc_provider_log : {}
-  ecc_consumer_log : {}
-  be-dataapp_data_sender : {}
-
+  ecc_provider_log: { }
+  ecc_consumer_log: { }
+  be-dataapp_data_sender: { }

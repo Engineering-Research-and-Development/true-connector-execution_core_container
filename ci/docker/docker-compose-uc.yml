@@ -41,6 +41,7 @@ services:
     volumes:
       - ./ecc_resources_provider:/config
       - ./ecc_cert:/cert
+      - ecc_provider_log:/var/log/ecc
     extra_hosts:
       - "ecc-provider:127.0.0.1"
 
@@ -64,7 +65,7 @@ services:
       - "9000:9000"
     volumes:
       - ./be-dataapp_resources:/config
-      - ./be-dataapp_data_receiver:/data
+      - ./be-dataapp_data_receiver:/home/nobody/data
       - ./ecc_cert:/cert
 
   uc-dataapp-provider:
@@ -119,6 +120,7 @@ services:
     volumes:
       - ./ecc_resources_consumer:/config
       - ./ecc_cert:/cert
+      - ecc_consumer_log:/var/log/ecc
     extra_hosts:
       - "ecc-consumer:127.0.0.1"
 
@@ -137,13 +139,12 @@ services:
       - TZ=Europe/Rome
       - ISSUER_CONNECTOR_URI=${CONSUMER_ISSUER_CONNECTOR_URI}
       - EXTRACT_PAYLOAD_FROM_RESPONSE=${EXTRACT_PAYLOAD_FROM_RESPONSE}
-
     ports:
       - "8085:8083"
       - "9001:9000"
     volumes:
       - ./be-dataapp_resources:/config
-      - ./be-dataapp_data_sender:/data
+      - be-dataapp_data_sender:/home/nobody/data
       - ./ecc_cert:/cert
 
   uc-dataapp-consumer:
@@ -157,5 +158,6 @@ services:
       - uc_consumer_data:/data
 
 volumes:
-  uc_provider_data:
-  uc_consumer_data:
+  ecc_provider_log: { }
+  ecc_consumer_log: { }
+  be-dataapp_data_sender: { }
