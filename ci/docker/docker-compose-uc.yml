@@ -144,7 +144,7 @@ services:
       - "9001:9000"
     volumes:
       - ./be-dataapp_resources:/config
-      - be-dataapp_data_sender:/home/nobody/data
+      - ./be-dataapp_data_sender:/data
       - ./ecc_cert:/cert
 
   uc-dataapp-consumer:
@@ -161,3 +161,5 @@ volumes:
   ecc_provider_log: { }
   ecc_consumer_log: { }
   be-dataapp_data_sender: { }
+  uc_provider_data:
+  uc_consumer_data:
