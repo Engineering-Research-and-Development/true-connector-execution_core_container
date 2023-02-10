@@ -27,27 +27,27 @@ import okhttp3.internal.tls.OkHostnameVerifier;
 
 @Configuration
 public class OkHttpClientConfiguration {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(OkHttpClientConfiguration.class);
-	
+
 	@Value("#{new Boolean('${application.disableSslVerification:false}')}")
 	private boolean disableSslVerification;
-	
+
 	@Autowired
 	private KeystoreProvider keystoreProvider;
-	
+
 	@Bean
 	public OkHttpClient getClient() throws KeyManagementException, NoSuchAlgorithmException {
 		return createHttpClient();
 	}
-	
+
 	private OkHttpClient createHttpClient() throws KeyManagementException, NoSuchAlgorithmException {
 		OkHttpClient client;
 		TrustManager[] trustManagers = null;
 		SSLSocketFactory sslSocketFactory;
 		HostnameVerifier hostnameVerifier;
 
-		if(disableSslVerification) {
+		if (disableSslVerification) {
 			logger.info("Disabling SSL Validation");
 			hostnameVerifier = new NoopHostnameVerifier();
 			trustManagers = createTrustCertificates();
@@ -70,35 +70,31 @@ public class OkHttpClientConfiguration {
 		//@formatter:on
 		return client;
 	}
-	
+
 	private TrustManager[] createTrustCertificates() {
-		final TrustManager[] trustAllCerts = new TrustManager[]{
-		        new X509TrustManager() {
-		            @Override
-		            public void checkClientTrusted(java.security.cert.X509Certificate[] chain,
-		                                           String authType) throws CertificateException {
-		            }
+		final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+			@Override
+			public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType)
+					throws CertificateException {
+			}
 
-		            @Override
-		            public void checkServerTrusted(java.security.cert.X509Certificate[] chain,
-		                                           String authType) throws CertificateException {
-		            }
+			@Override
+			public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType)
+					throws CertificateException {
+			}
 
-		            @Override
-		            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-		                return new java.security.cert.X509Certificate[0];
-		            }
-		        }
-		};
+			@Override
+			public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+				return new java.security.cert.X509Certificate[0];
+			}
+		} };
 		return trustAllCerts;
 	}
-	
+
 	private SSLSocketFactory sslSocketFactory(final TrustManager[] trustManagers)
 			throws NoSuchAlgorithmException, KeyManagementException {
 		final SSLContext sslContext = SSLContext.getInstance("TLSv1.3");
-		sslContext.init(keystoreProvider.getKeystoreFactory().getKeyManagers(), 
-				trustManagers, 
-				new java.security.SecureRandom());
+		sslContext.init(null, trustManagers, new java.security.SecureRandom());
 		// Create an ssl socket factory with our all-trusting manager
 		final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 		return sslSocketFactory;
