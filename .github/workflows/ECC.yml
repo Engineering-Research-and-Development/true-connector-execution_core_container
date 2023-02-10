@@ -12,20 +12,20 @@ jobs:
       DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
 
     steps:
-    
+
       - uses: actions/checkout@v3
       - name: Set up JDK 11
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '11'
-           
+
       - name: Build with Maven
         run: mvn clean package
-      
+
       - name: Run Creating Docker Image from ECC repo
         run: ./ci/deploy.sh
-        
+
   https-https-mixed:
     needs: build
     runs-on: ubuntu-latest
@@ -36,26 +36,26 @@ jobs:
     steps:
       - name: Git Checkout
         uses: actions/checkout@v3
-        
+
       - name: Run env setup
         run: ./ci/setupEnv.sh
-          
+
       - name: Run docker container HTTPS-HTTPS-mixed
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed/.env up -d
-        
+
       - name: Wait for container starting
-        run: sleep 45
-        
+        run: sleep 70
+
       - name: Check if the container is up and running
-        run: docker ps -a 
-   
+        run: docker ps -a
+
       - name: Run Test HTTPS-HTTPS-mixed
         run: newman run ./ci/docker/test-cases/https-https-mixed/HTTPS-HTTPS-mixed.json --timeout-request 120000 --insecure --bail --verbose
-        
+
       - name: Dump docker HTTPS-HTTPS-mixed
         if: failure()
         uses: jwalton/gh-docker-logs@v1
-        
+
       - name: Stop docker container HTTPS-HTTPS-mixed
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-mixed/.env down -v
 
@@ -69,26 +69,26 @@ jobs:
     steps:
       - name: Git Checkout
         uses: actions/checkout@v3
-        
+
       - name: Run env setup
         run: ./ci/setupEnv.sh
-    
+
       - name: Run docker container HTTPS-HTTPS-mixed-contract-negotiation
         run: docker-compose -f ./ci/docker/docker-compose-uc.yml --env-file ./ci/docker/test-cases/https-https-mixed-contract-negotiation/.env up -d
-        
+
       - name: Wait for container starting
         run: sleep 70
-        
+
       - name: Check if the container is up and running
-        run: docker ps -a 
-      
+        run: docker ps -a
+
       - name: Run Test HTTPS-HTTPS-mixed-contract-negotiation
         run: newman run ./ci/docker/test-cases/https-https-mixed-contract-negotiation/HTTPS-HTTPS-mixed-contract-negotiation.json --timeout-request 120000 --insecure --bail --verbose
-        
+
       - name: Dump docker HTTPS-HTTPS-mixed-contract-negotiation
         if: failure()
         uses: jwalton/gh-docker-logs@v1
-        
+
       - name: Stop docker container HTTPS-HTTPS-mixed-contract-negotiation
         run: docker-compose -f ./ci/docker/docker-compose-uc.yml --env-file ./ci/docker/test-cases/https-https-mixed-contract-negotiation/.env down -v
 
@@ -102,37 +102,37 @@ jobs:
     steps:
       - name: Git Checkout
         uses: actions/checkout@v3
-        
+
       - name: Run env setup
         run: ./ci/setupEnv.sh
-             
+
       - name: Run docker container HTTPS-HTTPS-form
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form/.env up -d
-        
+
       - name: Wait for container starting
-        run: sleep 45
-        
+        run: sleep 70
+
       - name: Check if the container is up and running
-        run: docker ps -a 
-      
+        run: docker ps -a
+
       - name: Run Test HTTPS-HTTPS-form
         run: newman run ./ci/docker/test-cases/https-https-form/HTTPS-HTTPS-form.json --timeout-request 120000 --insecure --bail --verbose
-      
+
       - name: Dump docker HTTPS-HTTPS-form
         if: failure()
         uses: jwalton/gh-docker-logs@v1
 
-#### HTTPS-HTTPS-form-API        
+      #### HTTPS-HTTPS-form-API
       - name: Run Test HTTPS-HTTPS-form-API
         run: newman run ./ci/docker/test-cases/https-https-form/HTTPS-HTTPS-form-API.json --timeout-request 120000 --insecure --bail --verbose
-      
+
       - name: Dump docker HTTPS-HTTPS-form-API.json
         if: failure()
         uses: jwalton/gh-docker-logs@v1
-        
+
       - name: Stop docker container HTTPS-HTTPS-form
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-form/.env down -v
-        
+
   https-https-form-contract-negotiation:
     needs: build
     runs-on: ubuntu-latest
@@ -143,29 +143,29 @@ jobs:
     steps:
       - name: Git Checkout
         uses: actions/checkout@v3
-        
+
       - name: Run env setup
         run: ./ci/setupEnv.sh
-    
+
       - name: Run docker container HTTPS-HTTPS-form-contract-negotiation
         run: docker-compose -f ./ci/docker/docker-compose-uc.yml --env-file ./ci/docker/test-cases/https-https-form-contract-negotiation/.env up -d
 
       - name: Wait for container starting
         run: sleep 70
-        
+
       - name: Check if the container is up and running
-        run: docker ps -a 
-      
+        run: docker ps -a
+
       - name: Run Test HTTPS-HTTPS-form-contract-negotiation
         run: newman run ./ci/docker/test-cases/https-https-form-contract-negotiation/HTTPS-HTTPS-form-contract-negotiation.json --timeout-request 120000 --insecure --bail --verbose
-      
+
       - name: Dump docker HTTPS-HTTPS-form-contract-negotiation
         if: failure()
         uses: jwalton/gh-docker-logs@v1
-        
+
       - name: Stop docker container HTTPS-HTTPS-form-contract-negotiation
         run: docker-compose -f ./ci/docker/docker-compose-uc.yml --env-file ./ci/docker/test-cases/https-https-form-contract-negotiation/.env down -v
-        
+
   https-https-header:
     needs: build
     runs-on: ubuntu-latest
@@ -176,29 +176,29 @@ jobs:
     steps:
       - name: Git Checkout
         uses: actions/checkout@v3
-        
+
       - name: Run env setup
-        run: ./ci/setupEnv.sh     
-        
+        run: ./ci/setupEnv.sh
+
       - name: Run docker container HTTPS-HTTPS-header
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header/.env up -d
-        
+
       - name: Wait for container starting
-        run: sleep 45
-        
+        run: sleep 70
+
       - name: Check if the container is up and running
-        run: docker ps -a 
-      
+        run: docker ps -a
+
       - name: Run Test HTTPS-HTTPS-header
         run: newman run ./ci/docker/test-cases/https-https-header/HTTPS-HTTPS-header.json --timeout-request 120000 --insecure --bail --verbose
-        
+
       - name: Dump docker HTTPS-HTTPS-header
         if: failure()
         uses: jwalton/gh-docker-logs@v1
-      
+
       - name: Stop docker container HTTPS-HTTPS-header
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-https-header/.env down -v
-        
+
   https-https-header-contract-negotiation:
     needs: build
     runs-on: ubuntu-latest
@@ -209,26 +209,26 @@ jobs:
     steps:
       - name: Git Checkout
         uses: actions/checkout@v3
-        
+
       - name: Run env setup
-        run: ./ci/setupEnv.sh     
-       
+        run: ./ci/setupEnv.sh
+
       - name: Run docker container HTTPS-HTTPS-header-contract-negotiation
         run: docker-compose -f ./ci/docker/docker-compose-uc.yml --env-file ./ci/docker/test-cases/https-https-header-contract-negotiation/.env up -d
-        
+
       - name: Wait for container starting
         run: sleep 70
-        
+
       - name: Check if the container is up and running
-        run: docker ps -a 
-      
+        run: docker ps -a
+
       - name: Run Test HTTPS-HTTPS-header-contract-negotiation
         run: newman run ./ci/docker/test-cases/https-https-header-contract-negotiation/HTTPS-HTTPS-header-contract-negotiation.json --timeout-request 120000 --insecure --bail --verbose
-        
+
       - name: Dump docker HTTPS-HTTPS-header-contract-negotiation
         if: failure()
         uses: jwalton/gh-docker-logs@v1
-        
+
       - name: Stop docker container HTTPS-HTTPS-header-contract-negotiation
         run: docker-compose -f ./ci/docker/docker-compose-uc.yml --env-file ./ci/docker/test-cases/https-https-header-contract-negotiation/.env down -v
 
@@ -242,26 +242,26 @@ jobs:
     steps:
       - name: Git Checkout
         uses: actions/checkout@v3
-        
+
       - name: Run env setup
-        run: ./ci/setupEnv.sh 
+        run: ./ci/setupEnv.sh
 
       - name: Run docker container HTTPS-IDSCP2-mixed
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env up -d
-        
+
       - name: Wait for container starting
-        run: sleep 45
-        
+        run: sleep 70
+
       - name: Check if the container is up and running
-        run: docker ps -a 
- 
+        run: docker ps -a
+
       - name: Run Test HTTPS-IDSCP2-mixed
         run: newman run ./ci/docker/test-cases/https-idscp2-mixed/HTTPS-IDSCP2-mixed.json --timeout-request 120000 --insecure --bail --verbose
-        
+
       - name: Dump docker HTTPS-IDSCP2-mixed
         if: failure()
         uses: jwalton/gh-docker-logs@v1
-        
+
       - name: Stop docker container
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env down -v
   
@@ -275,29 +275,29 @@ jobs:
     steps:
       - name: Git Checkout
         uses: actions/checkout@v3
-        
+
       - name: Run env setup
-        run: ./ci/setupEnv.sh 
-        
+        run: ./ci/setupEnv.sh
+
       - name: Run docker container HTTPS-IDSCP2-form
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-form/.env up -d
-        
+
       - name: Wait for container starting
-        run: sleep 45
-        
+        run: sleep 70
+
       - name: Check if the container is up and running
-        run: docker ps -a 
-      
+        run: docker ps -a
+
       - name: Run Test HTTPS-IDSCP2-form
         run: newman run ./ci/docker/test-cases/https-idscp2-form/HTTPS-IDSCP2-form.json --timeout-request 120000 --insecure --bail --verbose
-        
+
       - name: Dump docker HTTPS-IDSCP2-form
         if: failure()
         uses: jwalton/gh-docker-logs@v1
-        
+
       - name: Stop docker container
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-form/.env down -v
-        
+
   https-idscp2-header:
     needs: build
     runs-on: ubuntu-latest
@@ -308,29 +308,29 @@ jobs:
     steps:
       - name: Git Checkout
         uses: actions/checkout@v3
-        
+
       - name: Run env setup
-        run: ./ci/setupEnv.sh 
-        
+        run: ./ci/setupEnv.sh
+
       - name: Run docker container HTTPS-IDSCP2-header
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-header/.env up -d
-        
+
       - name: Wait for container starting
-        run: sleep 45
-        
+        run: sleep 70
+
       - name: Check if the container is up and running
-        run: docker ps -a 
-      
+        run: docker ps -a
+
       - name: Run Test HTTPS-IDSCP2-header
         run: newman run ./ci/docker/test-cases/https-idscp2-header/HTTPS-IDSCP2-header.json --timeout-request 120000 --insecure --bail --verbose
-        
+
       - name: Dump docker HTTPS-IDSCP2-header
         if: failure()
         uses: jwalton/gh-docker-logs@v1
-        
+
       - name: Stop docker container
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-header/.env down -v
-        
+
   wss-wss:
     needs: build
     runs-on: ubuntu-latest
@@ -341,29 +341,29 @@ jobs:
     steps:
       - name: Git Checkout
         uses: actions/checkout@v3
-        
+
       - name: Run env setup
-        run: ./ci/setupEnv.sh  
-        
+        run: ./ci/setupEnv.sh
+
       - name: Run docker container WSS-WSS
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-ws/.env up -d
-        
+
       - name: Wait for container starting
-        run: sleep 45
-        
+        run: sleep 70
+
       - name: Check if the container is up and running
-        run: docker ps -a 
-      
+        run: docker ps -a
+
       - name: Run Test WSS-WSS
         run: newman run ./ci/docker/test-cases/ws-ws/WS-WS.json --timeout-request 120000 --insecure --bail --verbose
-        
+
       - name: Dump docker WSS-WSS
         if: failure()
         uses: jwalton/gh-docker-logs@v1
-        
+
       - name: Stop docker container
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-ws/.env down -v
-        
+
   wss-idscp2:
     needs: build
     runs-on: ubuntu-latest
@@ -374,25 +374,25 @@ jobs:
     steps:
       - name: Git Checkout
         uses: actions/checkout@v3
-        
+
       - name: Run env setup
-        run: ./ci/setupEnv.sh 
-        
+        run: ./ci/setupEnv.sh
+
       - name: Run docker container WSS-IDSCP2
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-idscp2/.env up -d
-        
+
       - name: Wait for container starting
-        run: sleep 45
-        
+        run: sleep 70
+
       - name: Check if the container is up and running
-        run: docker ps -a 
-      
+        run: docker ps -a
+
       - name: Run Test WSS-IDSCP2
         run: newman run ./ci/docker/test-cases/ws-idscp2/WS-IDSCP2.json --timeout-request 120000 --insecure --bail --verbose
-        
+
       - name: Dump docker WSS-IDSCP2
         if: failure()
         uses: jwalton/gh-docker-logs@v1
-        
+
       - name: Stop docker container
-        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-idscp2/.env down -v    
+        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-idscp2/.env down -v
