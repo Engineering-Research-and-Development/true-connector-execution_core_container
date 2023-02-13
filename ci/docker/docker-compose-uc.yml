@@ -8,6 +8,9 @@ services:
       - 8086:8086  #Exposed port for receiving data from another connector (WS)
     depends_on:
       - be-dataapp-provider
+    networks:
+      - provider
+      - consumer
     environment:
       - "SPRING_PROFILES_ACTIVE=docker"
       - DATA_APP_ENDPOINT=${PROVIDER_DATA_APP_ENDPOINT}      #Data APP enpoint for consuming received data
@@ -45,8 +48,22 @@ services:
     extra_hosts:
       - "ecc-provider:127.0.0.1"
 
+  uc-dataapp-provider:
+    image: rdlabengpa/ids_uc_data_app_platoon:v1.3
+    networks:
+      - provider
+    environment:
+      - TZ=Europe/Rome
+    expose:
+      - "8180"
+    volumes:
+      - ./uc-dataapp_resources_provider:/etc
+      - uc_provider_data:/data
+
   be-dataapp-provider:
     image: rdlabengpa/ids_be_data_app:develop
+    networks:
+      - provider
     environment:
       - "SPRING_PROFILES_ACTIVE=docker"
       - DATA_APP_MULTIPART=${PROVIDER_MULTIPART_EDGE}
@@ -68,15 +85,6 @@ services:
       - ./be-dataapp_data_receiver:/home/nobody/data
       - ./ecc_cert:/cert
 
-  uc-dataapp-provider:
-    image: rdlabengpa/ids_uc_data_app_platoon:v1.3
-    environment:
-      - TZ=Europe/Rome
-    expose:
-      - "8280"
-    volumes:
-      - ./uc-dataapp_resources_provider:/etc
-      - uc_provider_data:/data
 
 
   ecc-consumer:
@@ -87,6 +95,9 @@ services:
       - 8087:8086  #Exposed port for receiving data from another connector (WS)
     depends_on:
       - be-dataapp-consumer
+    networks:
+      - provider
+      - consumer
     environment:
       - "SPRING_PROFILES_ACTIVE=docker"
       - DATA_APP_ENDPOINT=${CONSUMER_DATA_APP_ENDPOINT}    #Data APP enpoint for consuming received data
@@ -124,8 +135,22 @@ services:
     extra_hosts:
       - "ecc-consumer:127.0.0.1"
 
+  uc-dataapp-consumer:
+    image: rdlabengpa/ids_uc_data_app_platoon:v1.3
+    networks:
+      - consumer
+    environment:
+      - TZ=Europe/Rome
+    expose:
+      - "8280"
+    volumes:
+      - ./uc-dataapp_resources_consumer:/etc
+      - uc_consumer_data:/data
+
   be-dataapp-consumer:
     image: rdlabengpa/ids_be_data_app:develop
+    networks:
+      - consumer
     environment:
       - "SPRING_PROFILES_ACTIVE=docker"
       - DATA_APP_MULTIPART=${CONSUMER_MULTIPART_EDGE}
@@ -147,19 +172,13 @@ services:
       - ./be-dataapp_data_sender:/data
       - ./ecc_cert:/cert
 
-  uc-dataapp-consumer:
-    image: rdlabengpa/ids_uc_data_app_platoon:v1.3
-    environment:
-      - TZ=Europe/Rome
-    expose:
-      - "8180"
-    volumes:
-      - ./uc-dataapp_resources_consumer:/etc
-      - uc_consumer_data:/data
+networks:
+  consumer: { }
+  provider: { }
 
 volumes:
   ecc_provider_log: { }
   ecc_consumer_log: { }
+  uc_provider_data: { }
+  uc_consumer_data: { }
   be-dataapp_data_sender: { }
-  uc_provider_data:
-  uc_consumer_data:
