@@ -8,6 +8,9 @@ services:
       - 8086:8086  #Exposed port for receiving data from another connector (WS)
     depends_on:
       - be-dataapp-provider
+    networks:
+      - provider
+      - consumer
     environment:
       - "SPRING_PROFILES_ACTIVE=docker"
       - DATA_APP_ENDPOINT=${PROVIDER_DATA_APP_ENDPOINT}      #Data APP enpoint for consuming received data
@@ -47,6 +50,8 @@ services:
 
   be-dataapp-provider:
     image: rdlabengpa/ids_be_data_app:develop
+    networks:
+      - provider
     environment:
       - "SPRING_PROFILES_ACTIVE=docker"
       - DATA_APP_MULTIPART=${PROVIDER_MULTIPART_EDGE}
@@ -76,6 +81,9 @@ services:
       - 8087:8086  #Exposed port for receiving data from another connector (WS)
     depends_on:
       - be-dataapp-consumer
+    networks:
+      - provider
+      - consumer
     environment:
       - "SPRING_PROFILES_ACTIVE=docker"
       - DATA_APP_ENDPOINT=${CONSUMER_DATA_APP_ENDPOINT}    #Data APP enpoint for consuming received data
@@ -115,6 +123,8 @@ services:
 
   be-dataapp-consumer:
     image: rdlabengpa/ids_be_data_app:develop
+    networks:
+      - consumer
     environment:
       - "SPRING_PROFILES_ACTIVE=docker"
       - DATA_APP_MULTIPART=${CONSUMER_MULTIPART_EDGE}
@@ -133,10 +143,16 @@ services:
       - "9001:9000"
     volumes:
       - ./be-dataapp_resources:/config
-      - be-dataapp_data_sender:/home/nobody/data
+      - ./be-dataapp_data_sender:/home/nobody/data
       - ./ecc_cert:/cert
+
+networks:
+  consumer: { }
+  provider: { }
 
 volumes:
   ecc_provider_log: { }
   ecc_consumer_log: { }
+  uc_provider_data: { }
+  uc_consumer_data: { }
   be-dataapp_data_sender: { }

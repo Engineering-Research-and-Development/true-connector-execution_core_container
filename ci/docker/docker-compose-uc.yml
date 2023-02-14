@@ -85,8 +85,6 @@ services:
       - ./be-dataapp_data_receiver:/home/nobody/data
       - ./ecc_cert:/cert
 
-
-
   ecc-consumer:
     image: rdlabengpa/ids_execution_core_container:develop
     ports:
