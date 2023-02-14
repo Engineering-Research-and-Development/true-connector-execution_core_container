@@ -13,9 +13,9 @@ services:
       - consumer
     environment:
       - "SPRING_PROFILES_ACTIVE=docker"
-      - DATA_APP_ENDPOINT=${PROVIDER_DATA_APP_ENDPOINT}      #Data APP enpoint for consuming received data
+      - DATA_APP_ENDPOINT=${PROVIDER_DATA_APP_ENDPOINT}               #Data APP enpoint for consuming received data
       - DATA_APP_HEALTH_ENDPOINT=${PROVIDER_DATA_APP_HEALTH_ENDPOINT}
-      - MULTIPART_EDGE=${PROVIDER_MULTIPART_EDGE}                      #Data APP endpoint multipart/mixed content type
+      - MULTIPART_EDGE=${PROVIDER_MULTIPART_EDGE}                     #Data APP endpoint multipart/mixed content type
       - MULTIPART_ECC=${MULTIPART_ECC}
       - REST_ENABLE_HTTPS=${REST_ENABLE_HTTPS}
       - IDSCP2=${IDSCP2}
@@ -44,7 +44,7 @@ services:
     volumes:
       - ./ecc_resources_provider:/config
       - ./ecc_cert:/cert
-      - ecc_provider_log:/var/log/ecc
+      - ./ecc_provider_log:/var/log/ecc
     extra_hosts:
       - "ecc-provider:127.0.0.1"
 
@@ -58,7 +58,7 @@ services:
       - "8180"
     volumes:
       - ./uc-dataapp_resources_provider:/etc
-      - uc_provider_data:/data
+      - ./uc_provider_data:/data
 
   be-dataapp-provider:
     image: rdlabengpa/ids_be_data_app:develop
@@ -98,9 +98,9 @@ services:
       - consumer
     environment:
       - "SPRING_PROFILES_ACTIVE=docker"
-      - DATA_APP_ENDPOINT=${CONSUMER_DATA_APP_ENDPOINT}    #Data APP enpoint for consuming received data
+      - DATA_APP_ENDPOINT=${CONSUMER_DATA_APP_ENDPOINT}               #Data APP enpoint for consuming received data
       - DATA_APP_HEALTH_ENDPOINT=${CONSUMER_DATA_APP_HEALTH_ENDPOINT}
-      - MULTIPART_EDGE=${CONSUMER_MULTIPART_EDGE}          #Data APP endpoint multipart/mixed content type
+      - MULTIPART_EDGE=${CONSUMER_MULTIPART_EDGE}                     #Data APP endpoint multipart/mixed content type
       - MULTIPART_ECC=${MULTIPART_ECC}
       - REST_ENABLE_HTTPS=${REST_ENABLE_HTTPS}
       - IDSCP2=${IDSCP2}
@@ -129,7 +129,7 @@ services:
     volumes:
       - ./ecc_resources_consumer:/config
       - ./ecc_cert:/cert
-      - ecc_consumer_log:/var/log/ecc
+      - ./ecc_consumer_log:/var/log/ecc
     extra_hosts:
       - "ecc-consumer:127.0.0.1"
 
@@ -143,7 +143,7 @@ services:
       - "8280"
     volumes:
       - ./uc-dataapp_resources_consumer:/etc
-      - uc_consumer_data:/data
+      - ./uc_consumer_data:/data
 
   be-dataapp-consumer:
     image: rdlabengpa/ids_be_data_app:develop
@@ -167,7 +167,7 @@ services:
       - "9001:9000"
     volumes:
       - ./be-dataapp_resources:/config
-      - ./be-dataapp_data_sender:/data
+      - ./be-dataapp_data_sender:/home/nobody/data
       - ./ecc_cert:/cert
 
 networks:
