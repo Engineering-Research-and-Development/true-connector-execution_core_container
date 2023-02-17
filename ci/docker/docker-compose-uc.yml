@@ -44,7 +44,7 @@ services:
     volumes:
       - ./ecc_resources_provider:/config
       - ./ecc_cert:/cert
-      - ./ecc_provider_log:/var/log/ecc
+      - ecc_provider_log:/var/log/ecc
     extra_hosts:
       - "ecc-provider:127.0.0.1"
 
@@ -129,7 +129,7 @@ services:
     volumes:
       - ./ecc_resources_consumer:/config
       - ./ecc_cert:/cert
-      - ./ecc_consumer_log:/var/log/ecc
+      - ecc_consumer_log:/var/log/ecc
     extra_hosts:
       - "ecc-consumer:127.0.0.1"
 
@@ -167,7 +167,7 @@ services:
       - "9001:9000"
     volumes:
       - ./be-dataapp_resources:/config
-      - ./be-dataapp_data_sender:/home/nobody/data
+      - be-dataapp_data_sender:/home/nobody/data
       - ./ecc_cert:/cert
 
 networks:
