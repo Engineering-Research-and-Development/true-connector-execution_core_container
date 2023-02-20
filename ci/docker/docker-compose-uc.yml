@@ -48,6 +48,18 @@ services:
     extra_hosts:
       - "ecc-provider:127.0.0.1"
 
+  uc-dataapp-provider:
+    image: rdlabengpa/ids_uc_data_app_platoon:v1.3
+    networks:
+      - provider
+    environment:
+      - TZ=Europe/Rome
+    expose:
+      - "8180"
+    volumes:
+      - ./uc-dataapp_resources_provider:/etc
+      - ./uc_provider_data:/data
+
   be-dataapp-provider:
     image: rdlabengpa/ids_be_data_app:develop
     networks:
@@ -120,6 +132,18 @@ services:
       - ecc_consumer_log:/var/log/ecc
     extra_hosts:
       - "ecc-consumer:127.0.0.1"
+
+  uc-dataapp-consumer:
+    image: rdlabengpa/ids_uc_data_app_platoon:v1.3
+    networks:
+      - consumer
+    environment:
+      - TZ=Europe/Rome
+    expose:
+      - "8280"
+    volumes:
+      - ./uc-dataapp_resources_consumer:/etc
+      - ./uc_consumer_data:/data
 
   be-dataapp-consumer:
     image: rdlabengpa/ids_be_data_app:develop
