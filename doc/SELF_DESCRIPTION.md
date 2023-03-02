@@ -43,7 +43,7 @@ application.user.lock.unit=MINUTES
 
 In order to get the Self Description you can send a request on /api/selfDescription which returns the Self Description document as-is, to get a valid Self Description document please use the / request which removes all properties that are not properly filled.
 
-The response should be something like this:
+The response should be like following:
 
 ```
 {

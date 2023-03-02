@@ -17,8 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.JsonSyntaxException;
-
 import de.fraunhofer.iais.eis.BaseConnectorImpl;
 import de.fraunhofer.iais.eis.Connector;
 import de.fraunhofer.iais.eis.ContractOffer;
@@ -48,11 +46,11 @@ public class SelfDescriptionManager {
 	 */
 	
 	/**
-	 * Adds resource to Offered resources in Resource Catalog with resourceCatalogId if Resource does not exists</br>
+	 * Adds resource to Offered resources in Resource Catalog with resourceCatalogId if Resource does not exists\n
 	 * Otherwise throws BadRequestException
-	 * @param connector
-	 * @param resourceCatalogId
-	 * @param resource
+	 * @param connector Base Connector
+	 * @param resourceCatalogId Catalog Id where to add OfferedResource
+	 * @param resource Resource to add
 	 * @return new connector instance
 	 */
 	public Connector addOfferedResource(Connector connector, URI resourceCatalogId, Resource resource) {
@@ -74,9 +72,9 @@ public class SelfDescriptionManager {
 
 	/**
 	 * Update resource for giver resource catalog
-	 * @param connector
-	 * @param resourceCatalogId
-	 * @param resource
+	 * @param connector Base Connector
+	 * @param resourceCatalogId Catalog Id where to update OfferedResource
+	 * @param resource Resource for update
 	 * @return updated connector
 	 */
 	public Connector updateOfferedResource(Connector connector, URI resourceCatalogId, Resource resource) {
@@ -100,8 +98,8 @@ public class SelfDescriptionManager {
 
 	/**
 	 * Remove resource from any Resource Catalogs
-	 * @param connector
-	 * @param resourceId
+	 * @param connector Base Connector
+	 * @param resourceId OfferedResource Id for deletion
 	 * @return new connector instance
 	 */
 	public Connector deleteOfferedResource(Connector connector, URI resourceId) {
@@ -120,9 +118,9 @@ public class SelfDescriptionManager {
 	
 	/**
 	 * Find offered resource from all catalogs
-	 * @param connector
-	 * @param resourceId
-	 * @return
+	 * @param connector Base Connector
+	 * @param resourceId Id of the Offered Resource
+	 * @return Offered Resource
 	 */
 	public Resource getOfferedResource(Connector connector, URI resourceId) {
 		
@@ -156,9 +154,10 @@ public class SelfDescriptionManager {
 	 */
 	
 	/**
-	 * Return representation with provided id
-	 * @param representationId
-	 * @return
+	 * SelfDescriptionManager
+	 * @param connector Base Connector
+	 * @param representationId  ID of the representation
+	 * @return Representation
 	 */
 	public Representation getRepresentation(Connector connector, URI representationId) {
 		Optional<Representation> representation = Optional.ofNullable(connector.getResourceCatalog().stream()
@@ -175,10 +174,10 @@ public class SelfDescriptionManager {
 	
 	/**
 	 * Add or update representation for resource
-	 * @param connector
-	 * @param representation
-	 * @param resourceId
-	 * @return
+	 * @param connector Base Connector
+	 * @param representation Representation for adding
+	 * @param resourceId Id of the resource where to add representation
+	 * @return updated Base Connector
 	 */
 	public Connector addRepresentationToResource(Connector connector, Representation representation, URI resourceId) {
 		Resource resource = getOfferedResource(connector, resourceId);
@@ -199,10 +198,10 @@ public class SelfDescriptionManager {
 	
 	/**
 	 * Update representation for given resource
-	 * @param connector
-	 * @param representation
-	 * @param resourceId
-	 * @return
+	 * @param connector Base Connector
+	 * @param representation Updated Representation
+	 * @param resourceId Id of the resource where to update representation
+	 * @return updated Base Connector
 	 */
 	public Connector updateRepresentationToResource(Connector connector, Representation representation, URI resourceId) {
 		Resource resource = getOfferedResource(connector, resourceId);
@@ -224,9 +223,9 @@ public class SelfDescriptionManager {
 
 	/**
 	 * Remove representation from resource
-	 * @param connector
-	 * @param representationId
-	 * @return
+	 * @param connector Base Connector
+	 * @param representationId Representation Id for deletion
+	 * @return updated Base Connector
 	 */
 	public Connector removeRepresentationFromResource(Connector connector, URI representationId) {
 		for(ResourceCatalog resourceCatalog : connector.getResourceCatalog()) {
@@ -243,9 +242,9 @@ public class SelfDescriptionManager {
 	 */
 	
 	/**
-	 * 
-	 * @param contractOfferId
-	 * @return
+	 * Get Contract offer with Id
+	 * @param contractOfferId id of the Contract Offer
+	 * @return Contract Offer
 	 */
 	public ContractOffer getContractOffer(URI contractOfferId) {
 		BaseConnectorImpl connector = (BaseConnectorImpl) SelfDescription.getInstance().getConnector();
@@ -265,12 +264,10 @@ public class SelfDescriptionManager {
 	
 	/**
 	 * Add or update contract offer to resource
-	 * @param connector
-	 * @param contractOffer
-	 * @param resourceId
-	 * @return
-	 * @throws JsonSyntaxException
-	 * @throws IOException
+	 * @param connector Base Connector
+	 * @param contractOffer Contract Offer for add
+	 * @param resourceId Id of the resource where to add Contract offer
+	 * @return updated Base Connector
 	 */
 	public Connector addContractOfferToResource(Connector connector, ContractOffer contractOffer, URI resourceId)  {
 		Resource resource = getOfferedResource(connector, resourceId);
@@ -292,10 +289,10 @@ public class SelfDescriptionManager {
 	
 	/**
 	 * Updating contract offer for representation 
-	 * @param connector
-	 * @param contractOffer
-	 * @param resourceId
-	 * @return
+	 * @param connector Base Connector
+	 * @param contractOffer Updated COntract Offer
+	 * @param resourceId  Id of the resource where to update Contract offer
+	 * @return updated Base Connector
 	 */
 	public Connector updateContractOfferToResource(Connector connector, ContractOffer contractOffer, URI resourceId)  {
 		Resource resource = getOfferedResource(connector, resourceId);
@@ -318,9 +315,9 @@ public class SelfDescriptionManager {
 	
 	/**
 	 * Remove contract offer from resource
-	 * @param connector
-	 * @param contractOfferId
-	 * @return
+	 * @param connector Base Connector
+	 * @param contractOfferId Contract Offer id for deletion
+	 * @return updated Base Connector
 	 */
 	public Connector removeContractOfferFromResource(Connector connector, URI contractOfferId)  {
 		for(ResourceCatalog resourceCatalog : connector.getResourceCatalog()) {
@@ -332,10 +329,10 @@ public class SelfDescriptionManager {
 	}
 	
 	/**
-	 * Return only offered resources that have: 
-	 * </br>at least one representation with at least one artifact and </br>at least one contract offer
-	 * @param connector
-	 * @return
+	 * Return only offered resources that have:\n
+	 * at least one representation with at least one artifact and at least one contract offer
+	 * @param connector Base Connector
+	 * @return valid Base Connector 
 	 */
 	public Connector getValidConnector(Connector connector) {
 		ListIterator<? extends ResourceCatalog> litr = null;

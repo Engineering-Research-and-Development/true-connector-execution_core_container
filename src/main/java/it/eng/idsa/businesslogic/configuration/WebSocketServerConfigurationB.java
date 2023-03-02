@@ -32,7 +32,7 @@ public class WebSocketServerConfigurationB implements WebSocketServerConfigurati
 
     /**
      * @author Antonio Scatoloni
-     * @return
+     * @return HttpWebSocketServerBean
      */
 
     @Override
@@ -48,7 +48,7 @@ public class WebSocketServerConfigurationB implements WebSocketServerConfigurati
 
     /**
      * @author Antonio Scatoloni
-     * @return
+     * @return HttpWebSocketMessagingLogicB
      */
 
     @Bean(name="messagingLogicB")

@@ -61,8 +61,8 @@ public class EventTypeHandler {
 	/**
 	 * Returns true if event should be logged.
 	 * 
-	 * @param eventType
-	 * @return boolean
+	 * @param eventTypes array of event types
+	 * @return boolean contains or not event
 	 */
 	public boolean shouldAuditEvent(TrueConnectorEventType... eventTypes) {
 		return CollectionUtils.containsAny(configuredEvents, CollectionUtils.arrayToList(eventTypes));

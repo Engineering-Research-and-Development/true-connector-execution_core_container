@@ -22,7 +22,7 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
 
 /**
  * Processor that handles ContractAgreementMessage and sends ContractAgreement
- * (payload of MultipartMessage) to UsageControl DataApp</br>
+ * (payload of MultipartMessage) to UsageControl DataApp\n
  * This processor should be called before calling ClearingHouse registration
  * processor, in order to be compliant with IDS flow.
  * 

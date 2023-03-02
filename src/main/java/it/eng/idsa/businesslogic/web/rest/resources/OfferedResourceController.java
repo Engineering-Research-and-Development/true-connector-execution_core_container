@@ -61,7 +61,7 @@ public class OfferedResourceController {
 	}
 	
 	
-	@Operation(tags = "Offered resource controller", summary = "Add new or update existing resource")
+	@Operation(tags = "Offered resource controller", summary = "Add new resource")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })

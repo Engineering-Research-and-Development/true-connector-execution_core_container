@@ -13,37 +13,37 @@ public interface SelfDescriptionService {
 	
 	/**
 	 * Returns String representation of BaseConnector class instance
-	 * @return
+	 * @return String representation
 	 */
     String getConnectorSelfDescription();
     
     /**
-     * Create String instance of {@link de.fraunhofer.iais.eis.ConnectorAvailableMessage}
-     * @return
+     * Create String instance of {@link de.fraunhofer.iais.eis.ConnectorUpdateMessage}
+     * @return IDS ConnectorUpdateMessage
      */
     Message getConnectorAvailbilityMessage();
     
     /**
      * Create String instance of {@link de.fraunhofer.iais.eis.ConnectorUpdateMessage}
-     * @return
+     * @return ConnectorUpdateMessage
      */
     Message getConnectorUpdateMessage();
     
     /**
      * Create String instance of {@link de.fraunhofer.iais.eis.ConnectorUnavailableMessage}
-     * @return
+     * @return ConnectorUnavailableMessage
      */
     Message getConnectorUnavailableMessage();
     
     /**
-     * Create String instance of {@link de.fraunhofer.iais.eis.ConnectorInactiveMessage}
-     * @return
+     * Create String instance of {@link de.fraunhofer.iais.eis.ConnectorUnavailableMessage}
+     * @return IDS ConnectorUnavailableMessage
      */
     Message getConnectorInactiveMessage();
     
     /**
-     * 
-     * @return
+     * Create String instance of {@link de.fraunhofer.iais.eis.QueryMessage}
+     * @return IDS QueryMessage
      */
     Message getConnectorQueryMessage();
 }

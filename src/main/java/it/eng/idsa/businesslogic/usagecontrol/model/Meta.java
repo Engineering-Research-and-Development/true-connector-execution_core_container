@@ -55,10 +55,10 @@ public class Meta {
     }
 
     /**
-     * 
-     * @param assigner
-     * @param assignee
-     * @param targetArtifact
+     * Constructor
+     * @param assigner Assigner URI
+     * @param assignee Assignee URI
+     * @param targetArtifact TargetArtifact
      */
     public Meta(URI assigner, URI assignee, TargetArtifact targetArtifact) {
         super();
@@ -72,7 +72,7 @@ public class Meta {
      * <p>
      * An explanation about the purpose of this instance.
      * (Required)
-     * 
+     * @return URI assigner
      */
     public URI getAssigner() {
         return assigner;
@@ -83,7 +83,7 @@ public class Meta {
      * <p>
      * An explanation about the purpose of this instance.
      * (Required)
-     * 
+     * @param assigner Assigner URI
      */
     public void setAssigner(URI assigner) {
         this.assigner = assigner;
@@ -94,7 +94,7 @@ public class Meta {
      * <p>
      * An explanation about the purpose of this instance.
      * (Required)
-     * 
+     * @return assignee Assignee
      */
     public URI getAssignee() {
         return assignee;
@@ -105,7 +105,7 @@ public class Meta {
      * <p>
      * An explanation about the purpose of this instance.
      * (Required)
-     * 
+     * @param assignee Assignee URI
      */
     public void setAssignee(URI assignee) {
         this.assignee = assignee;
@@ -116,7 +116,7 @@ public class Meta {
      * <p>
      * Contains Timestamp and ArtefactId
      * (Required)
-     * 
+     * @return TargetArtifact object
      */
     public TargetArtifact getTargetArtifact() {
         return targetArtifact;
@@ -127,7 +127,7 @@ public class Meta {
      * <p>
      * Contains Timestamp and ArtefactId
      * (Required)
-     * 
+     * @param targetArtifact Target Artifact
      */
     public void setTargetArtifact(TargetArtifact targetArtifact) {
         this.targetArtifact = targetArtifact;
