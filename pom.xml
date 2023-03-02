@@ -24,7 +24,7 @@
 		<tomcat.version>9.0.24</tomcat.version>
 		<information.model.version>4.1.1</information.model.version>
 		<application.basedir>${basedir}</application.basedir>
-		<multipart.message.processor.version>1.0.15-SNAPSHOT</multipart.message.processor.version>
+		<multipart.message.processor.version>1.0.16</multipart.message.processor.version>
 		<idscp2.libraries.version>0.5.2</idscp2.libraries.version>
 		<jacoco.version>0.8.8</jacoco.version>
 	</properties>
@@ -48,6 +48,21 @@
             </snapshots>
         </repository>
     </repositories>
+    
+     <distributionManagement>
+	    <repository>
+	      <id>github</id>
+	      <name>GitHub Packages</name>
+	       <url>https://maven.pkg.github.com/Engineering-Research-and-Development/true-connector-execution_core_container</url>
+	    </repository>
+  	</distributionManagement>
+  	
+  	<scm>
+		<connection>scm:git:git://github.com/Engineering-Research-and-Development/true-connector-execution_core_container.git</connection>
+		<developerConnection>scm:git:git@github.com:Engineering-Research-and-Development/true-connector-execution_core_container.git</developerConnection>
+		<url>https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container.git</url>
+		<tag>HEAD</tag>
+	</scm>
 
     <dependencies>
         <dependency>
