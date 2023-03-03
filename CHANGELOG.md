@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 
  - Support for DataApp message handler (http-header flow)
  - Requested for for this ECC version requires 0.2.0-SNAPSHOT+ version of DataApp
+ - Support for GitHub Workflow (release process, docker image signing)
 
 ## [0.2.3-SNAPSHOT] - 2023-01-23
 
