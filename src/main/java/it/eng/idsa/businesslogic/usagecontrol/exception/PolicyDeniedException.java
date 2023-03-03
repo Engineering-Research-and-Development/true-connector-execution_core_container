@@ -8,9 +8,6 @@ import org.springframework.lang.Nullable;
 import retrofit2.Response;
 
 public class PolicyDeniedException extends RuntimeException {
-	  /**
-	 * 
-	 */
 	private static final long serialVersionUID = 16974908248124628L;
 
 	private static String getMessage(Response<?> response) {
@@ -33,18 +30,25 @@ public class PolicyDeniedException extends RuntimeException {
 		    this.response = response;
 		  }
 
-		  /** HTTP status code. */
+		  /**
+		   * HTTP status code
+		   * @return status code
+		   */
 		  public int code() {
 		    return code;
 		  }
 
-		  /** HTTP status message. */
+		  /**
+		   * HTTP status message
+		   * @return Message
+		   */
 		  public String message() {
 		    return message;
 		  }
 
 		  /**
 		   * The full HTTP response. This may be null if the exception was serialized.
+		   * @return Response
 		   */
 		  public @Nullable Response<?> response() {
 		    return response;

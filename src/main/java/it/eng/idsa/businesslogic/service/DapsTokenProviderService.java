@@ -7,11 +7,15 @@ public interface DapsTokenProviderService {
 	String provideToken();
 	
 	/**
-	 * Provide DynamiAttributeToken</br>
+	 * Provide DynamiAttributeToken\n
 	 * Internally, calls provide token.
-	 * @return
+	 * @return DynamicAttributeToken
 	 */
 	DynamicAttributeToken getDynamicAtributeToken();
 
+	/**
+	 * Get Connector UUID
+	 * @return Connector UUID
+	 */
 	String getConnectorUUID();
 }

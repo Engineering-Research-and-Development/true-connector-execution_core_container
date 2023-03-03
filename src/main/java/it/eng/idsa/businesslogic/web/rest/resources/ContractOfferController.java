@@ -62,7 +62,7 @@ public class ContractOfferController {
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(service.getContractOffer(contractOffer)));
 	}
 	
-	@Operation(tags = "Contract offer controller", summary = "Add new or update existing contract offer")
+	@Operation(tags = "Contract offer controller", summary = "Add new contract offer")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })

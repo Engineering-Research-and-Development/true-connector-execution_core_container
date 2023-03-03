@@ -23,7 +23,7 @@ public class TrueConnectorEvent extends AuditApplicationEvent {
 	
 	/**
 	 * Uses default principal - connector
-	 * @param type
+	 * @param type TrueConnectorEventType
 	 * @param multipartMessage - logs information from multipartMessage to event
 	 */
 	public TrueConnectorEvent(TrueConnectorEventType type, MultipartMessage multipartMessage) {
@@ -32,9 +32,9 @@ public class TrueConnectorEvent extends AuditApplicationEvent {
 	
 	/**
 	 * TrueConnector event with correlationId
-	 * @param type
-	 * @param multipartMessage
-	 * @param correlationId
+	 * @param type TrueConnectorEventType
+	 * @param multipartMessage - logs information from multipartMessage to event
+	 * @param correlationId correlation Id
 	 */
 	public TrueConnectorEvent(TrueConnectorEventType type, MultipartMessage multipartMessage, String correlationId) {
 		super("connector", type.name(), detailsMultipartMessage(multipartMessage, correlationId));
@@ -42,18 +42,18 @@ public class TrueConnectorEvent extends AuditApplicationEvent {
 	
 	/**
 	 * Default TrueConnector event
-	 * @param principal
-	 * @param type
-	 * @param data
+	 * @param principal Principal of the user
+	 * @param type TrueConnectorEventType
+	 * @param data Data for logging
 	 */
 	public TrueConnectorEvent(String principal, TrueConnectorEventType type, Map<String, Object> data) {
 		super(principal, type.name(), data);
 	}
 	
 	/**
-	 * TrueConnectorEvent with request and type</br>
-	 * @param request
-	 * @param type
+	 * TrueConnectorEvent with request and type\n
+	 * @param request Http Request
+	 * @param type TrueConnectorEventType
 	 */
 	public TrueConnectorEvent(HttpServletRequest request, TrueConnectorEventType type) {
 		super(principal(request), type.name(), details(request, null));
@@ -61,9 +61,9 @@ public class TrueConnectorEvent extends AuditApplicationEvent {
 	
 	/**
 	 * TrueConnectorEvent with request, type and correlationId
-	 * @param request
-	 * @param type
-	 * @param correlationId
+	 * @param request Http Request
+	 * @param type TrueConnectorEventType
+	 * @param correlationId correlation id
 	 */
 	public TrueConnectorEvent(HttpServletRequest request, TrueConnectorEventType type, String correlationId) {
 		super(principal(request), type.name(), details(request, correlationId));

@@ -45,9 +45,9 @@ public class UsageControlObject {
     }
 
     /**
-     * 
-     * @param payload
-     * @param meta
+     * Constructor
+     * @param meta Meta part
+     * @param payload payload part
      */
     public UsageControlObject(Meta meta, JsonElement payload) {
         super();
@@ -60,7 +60,7 @@ public class UsageControlObject {
      * <p>
      * An explanation about the purpose of this instance.
      * (Required)
-     * 
+     * @return Meta part
      */
     public Meta getMeta() {
         return meta;
@@ -71,7 +71,7 @@ public class UsageControlObject {
      * <p>
      * An explanation about the purpose of this instance.
      * (Required)
-     * 
+     * @param meta Meta
      */
     public void setMeta(Meta meta) {
         this.meta = meta;
@@ -82,6 +82,7 @@ public class UsageControlObject {
      * <p>
      * This is the Placeholder for the Data it must be an Json Element
      * (Required)
+     * @return JsonElement representation of payload
      * 
      */
     public JsonElement getPayload() {
@@ -93,6 +94,7 @@ public class UsageControlObject {
      * <p>
      * This is the Placeholder for the Data it must be an Json Element
      * (Required)
+     * @param payload JsonElement representation of payload
      * 
      */
     public void setPayload(JsonElement payload) {
@@ -117,10 +119,10 @@ public class UsageControlObject {
     }
 
     /**
-     * returns the payload as the specific Class if poosible
-     * @param <T>
-     * @param clazz
-     * @return
+     * returns the payload as the specific Class if possible
+     * @param <T> Typed class
+     * @param clazz Clazz
+     * @return Typed class
      */
     public <T> T getPayload(Class<T> clazz) {
     	final Gson gson = new Gson();

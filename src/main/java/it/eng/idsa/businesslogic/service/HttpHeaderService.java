@@ -9,15 +9,15 @@ public interface HttpHeaderService {
 	
 	/**
 	 * Convert IDS Message to map of headers needed in http-header flow
-	 * @param message
-	 * @return
+	 * @param message IDS message
+	 * @return Map of key value pairs of converted message
 	 */
 	Map<String, Object> messageToHeaders(Message message);
 	
 	/**
 	 * Convert http-headers to IDS Message
-	 * @param headers
-	 * @return
+	 * @param headers Map of key value pairs of "header" message
+	 * @return IDS message
 	 */
 	Message headersToMessage(Map<String, Object> headers);
 	
@@ -25,8 +25,8 @@ public interface HttpHeaderService {
 	
 	/**
 	 * Convert OkHttpHeader to map needed for converting headers to Message
-	 * @param headers
-	 * @return
+	 * @param headers OkHttp headers
+	 * @return Map of key value pairs of converted message
 	 */
 	Map<String, Object> okHttpHeadersToMap(Headers headers);
 	

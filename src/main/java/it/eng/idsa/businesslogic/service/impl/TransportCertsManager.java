@@ -26,9 +26,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * Reads certificate from truststore, </br>
- * calculates SHA256 using MessageDigest.getInstance("SHA-256").digest(cert.getEncoded())</br>
- * creates map with certificate SubjectAlternativeName and calculated SHA256</br>
+ * Reads certificate from truststore, \n
+ * calculates SHA256 using MessageDigest.getInstance("SHA-256").digest(cert.getEncoded())\n
+ * creates map with certificate SubjectAlternativeName and calculated SHA256\n
  * 
  * Map is later used to verify if jwt.transportCertSha256 matches with the one from truststore
  * 

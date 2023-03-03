@@ -1,6 +1,10 @@
-name: ECC
+name: Build Ecc and run GH Action
 
-on: push
+on:
+  push:
+    branches: [ "feature/*", "hotfix/*", "develop", "master"]
+# pull_request:
+#   branches: [ "develop" ]
 
 jobs:
   build:

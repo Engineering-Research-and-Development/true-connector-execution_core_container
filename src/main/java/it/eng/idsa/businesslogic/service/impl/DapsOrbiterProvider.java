@@ -41,9 +41,9 @@ public class DapsOrbiterProvider {
 
 	/**
 	 * Reads Orbiter private key from file, removes header and footer and creates java PrivateKey object
-	 * @return
-	 * @throws IOException
-	 * @throws GeneralSecurityException
+	 * @return PrivateKey
+	 * @throws IOException ioException
+	 * @throws GeneralSecurityException GeneralSecurityException
 	 */
 	private PrivateKey getOrbiterPrivateKey() throws IOException, GeneralSecurityException {
 		InputStream orbiterPrivateKeyInputStream = null;
@@ -64,10 +64,10 @@ public class DapsOrbiterProvider {
 	}
 	
 	/**
-	 * Provide jws from Orbiter </br>
-	 * @return
-	 * @throws IOException
-	 * @throws GeneralSecurityException
+	 * Provide jws from Orbiter
+	 * @return jws representation of Json Web Token 
+	 * @throws IOException ioException 
+	 * @throws GeneralSecurityException GeneralSecurityException
 	 */
 	public String provideJWS() throws IOException, GeneralSecurityException  {
 		Date expiryDate = Date.from(Instant.now().plusSeconds(86400));

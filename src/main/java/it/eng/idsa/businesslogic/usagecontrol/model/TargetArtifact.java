@@ -50,9 +50,9 @@ public class TargetArtifact {
    }
 
    /**
-    * 
-    * @param id
-    * @param creationDate
+    * Constructor
+    * @param creationDate creation date
+    * @param id Id as URI
     */
    public TargetArtifact(ZonedDateTime creationDate, URI id) {
        super();
@@ -65,7 +65,7 @@ public class TargetArtifact {
     * <p>
     * An explanation about the purpose of this instance.
     * (Required)
-    * 
+    * @return ZonedDateTime
     */
    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
    public ZonedDateTime getCreationDate() {
@@ -77,7 +77,7 @@ public class TargetArtifact {
     * <p>
     * An explanation about the purpose of this instance.
     * (Required)
-    * 
+    * @param creationDate Ceation Date to set
     */
    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
    public void setCreationDate(ZonedDateTime creationDate) {
@@ -89,7 +89,7 @@ public class TargetArtifact {
     * <p>
     * An explanation about the purpose of this instance.
     * (Required)
-    * 
+    * @return URI returns Id
     */
    @JsonProperty("@id")
    public URI getId() {
@@ -101,7 +101,7 @@ public class TargetArtifact {
     * <p>
     * An explanation about the purpose of this instance.
     * (Required)
-    * 
+    * @param id URI
     */
    @JsonProperty("@id")
    public void setId(URI id) {
