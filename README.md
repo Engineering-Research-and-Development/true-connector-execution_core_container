@@ -382,3 +382,72 @@ Clone projects from the following links and run mvn clean install
 [WebSocket Message Streamer library](https://github.com/Engineering-Research-and-Development/market4.0-websocket_message_streamer)
 
 [Execution Core Container](https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container)
+
+### GitHub Workflow
+
+This repository implements following branch management:
+
+![diagram](doc/workflow//github_actions_workflow.drawio.png?raw=true "GitHub Workflow diagram")
+
+and has several GitHub action files to support such functionality. Those files are located in:
+
+*.github\workflows\*  
+
+#### feature_hotfix.yml
+
+Used when code is pushed to branch prefixed with feature/ or hotfix/
+
+Customize GHA to fit your needs. For now, just run mvn clean package
+
+#### develop.yml
+
+Executed when code is pushed to develop branch.
+
+#### maven_release.yml
+
+Manual trigger of the GHA.</br>
+Perform mvn release:prepare and mvn release:perform.
+
+Input parameters:</br>
+release version</br>
+next development version</br>
+tag version
+
+#### docker-publish.yml
+
+Manual trigger of the GHA.</br>
+Build docker image, and push it to dockerhub.</br>
+Sign with cosign.
+
+Input parameters:<br/>
+versionName<br/>
+tagMessage
+
+#### snyk.yml
+
+Manual trigger of the GHA.
+
+Execute snyk code analysis for security vulnerabilities.
+
+### Issue management
+
+Create issue in Issue tab in GitHub repo, before starting to work on new functionality. It would be nice to provide task breakdown, with estimation. Try not to have activities that are longer than 8 hours. If such activity is present in task breakdown, please split this activity in 2 or more sub activities, trying that new sub activities are not bigger than 8 hours.
+
+Example could be like following:
+
+~~Implement new ServiceA - 16h~~</br>
+Implement method A in ServiceA 4h</br>
+Implement method B in ServiceA 3h</br>
+Implement method C in ServiceA 7h</br>
+Implement method D in ServiceA 2h</br>
+Write unit tests for ServiceA - 6 hours</br>
+Update documentation - 2 hours</br>
+
+
+### Working on new feature
+
+If you need to work on new feature, be sure first to pull changes from origin, and create new branch, following the naming convetion from develop branch.
+
+### Creating Pull Request
+
+When creating pull request, double check if PR will merge to develop branch and not master. If this is not the case, change destination branch to be develop.
