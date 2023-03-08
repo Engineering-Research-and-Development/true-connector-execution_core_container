@@ -49,7 +49,7 @@ services:
       - "ecc-provider:127.0.0.1"
 
   uc-dataapp-provider:
-    image: igorbalogeng/ids_uc_data_app_platoon:v1.4
+    image: rdlabengpa/ids_uc_data_app_platoon:v1.5
     networks:
       - provider
     environment:
@@ -134,7 +134,7 @@ services:
       - "ecc-consumer:127.0.0.1"
 
   uc-dataapp-consumer:
-    image: igorbalogeng/ids_uc_data_app_platoon:v1.4
+    image: rdlabengpa/ids_uc_data_app_platoon:v1.5
     networks:
       - consumer
     environment:
