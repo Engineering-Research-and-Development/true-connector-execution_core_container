@@ -322,9 +322,8 @@ public class CamelRouteSender extends RouteBuilder {
                 .process(senderUsageControlProcessor)
                 .process(registerTransactionToCHProcessor)
 				.process(sendResponseToDataAppProcessor);
-			
-			int test = configuration.getWssSelfDescriptionPort();
-			from("jetty://https4://0.0.0.0:" +  test + "/internal/sd")
+						
+			from("jetty://https4://0.0.0.0:" +  configuration.getWssSelfDescriptionPort() + "/internal/sd")
 			.routeId("internalSelfDescription")
 			.log("Requesting internal Self Description document")
 			.process(selfDescriptionProcessor);
