@@ -1,48 +1,48 @@
 {
 	"info": {
-		"_postman_id": "9c082b64-9816-4182-819f-1daf058b36c3",
+		"_postman_id": "264f1b7b-e7d0-4eaf-9c22-02b003393290",
 		"name": "GHA WSS-WSS",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-					"name": "WSS-WSS",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"pm.test(\"Body matches string\", function () {\r",
-									"    pm.expect(pm.response.text()).to.include(\"{​​\\\"message\\\":\\\"File \\'test1.csv\\' created successfully\\\"}\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"multipart\": \"wss\",\r\n    \"Forward-To-Internal\": \"wss://ecc-consumer:8887\",\r\n\t\"Forward-To\": \"wss://ecc-provider:8086\",\r\n    \"requestedArtifact\" : \"http://w3id.org/engrd/connector/artifact/test1.csv\"\r\n}"
-						},
-						"url": {
-							"raw": "https://localhost:8085/proxy",
-							"protocol": "https",
-							"host": [
-								"localhost"
-							],
-							"port": "8085",
-							"path": [
-								"proxy"
-							]
-						}
-					},
-					"response": []
+			"name": "WSS-WSS",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Body matches string\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"{​​\\\"message\\\":\\\"File \\'test1.csv\\' created successfully\\\"}\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
 				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"multipart\": \"wss\",\r\n    \"Forward-To-Internal\": \"wss://ecc-consumer:8887\",\r\n\t\"Forward-To\": \"wss://ecc-provider:8086\",\r\n    \"requestedArtifact\" : \"http://w3id.org/engrd/connector/artifact/test1.csv\"\r\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8085/proxy",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8085",
+					"path": [
+						"proxy"
+					]
+				}
+			},
+			"response": []
+		}
 	]
 }
