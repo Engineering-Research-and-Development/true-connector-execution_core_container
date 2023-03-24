@@ -24,6 +24,7 @@ import de.fraunhofer.iais.eis.ConnectorUpdateMessageBuilder;
 import de.fraunhofer.iais.eis.ContentType;
 import de.fraunhofer.iais.eis.ContractOffer;
 import de.fraunhofer.iais.eis.ContractOfferBuilder;
+import de.fraunhofer.iais.eis.DataResourceBuilder;
 import de.fraunhofer.iais.eis.DynamicAttributeToken;
 import de.fraunhofer.iais.eis.KeyType;
 import de.fraunhofer.iais.eis.Language;
@@ -156,6 +157,8 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	private java.util.List<ResourceCatalog> getCatalog() {
 		URI defaultTarget = URI.create("http://w3id.org/engrd/connector/artifact/1");
 		URI bigResource = URI.create("http://w3id.org/engrd/connector/artifact/big");
+		URI csvResource = URI.create("http://w3id.org/engrd/connector/artifact/test1.csv");
+
 		Artifact defaultArtifact = new ArtifactBuilder(defaultTarget)
 			._creationDate_(DateUtil.now())
 			.build();
@@ -189,10 +192,24 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._representation_(Util.asList(getTextRepresentation(bigArtifact)))
 				.build();
 		
+		Resource offeredResourceCsv = (new DataResourceBuilder())
+				._title_(Util.asList(new TypedLiteral("CSV resource")))
+				._description_(Util.asList(new TypedLiteral("Used to verify wss flow")))
+				._contentType_(ContentType.SCHEMA_DEFINITION)
+				._keyword_(Util.asList(new TypedLiteral("Engineering Ingegneria Informatica SpA"),
+						new TypedLiteral("TRUEConnector")))
+				._version_("1.0.0")._language_(Util.asList(Language.EN, Language.IT))
+				._modified_(DateUtil.now())
+				._created_(DateUtil.now())
+				._contractOffer_(Util.asList(createContractOffer(csvResource)))
+				._representation_(Util.asList(getTextRepresentation(bigArtifact)))
+				.build();
+		
 		List<ResourceCatalog> catalogList = new ArrayList<>();
 		ArrayList<Resource> offeredResources = new ArrayList<>();
 		offeredResources.add(offeredResource);
 		offeredResources.add(offeredResourceBig);
+		offeredResources.add(offeredResourceCsv);
 		catalogList.add(new ResourceCatalogBuilder()._offeredResource_(offeredResources).build());
 		return catalogList;
 	}
