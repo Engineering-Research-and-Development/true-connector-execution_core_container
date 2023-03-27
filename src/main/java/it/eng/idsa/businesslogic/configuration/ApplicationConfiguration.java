@@ -27,7 +27,6 @@ public class ApplicationConfiguration {
 	private String openDataAppReceiver;
 	private String camelReceiverPort;
 	private String camelSenderPort;
-	private int wssSelfDescriptionPort;
 	private int wssServerPort;
 
 	private String basedir;
@@ -46,10 +45,6 @@ public class ApplicationConfiguration {
 
 	public int getWssSelfDescriptionPort() {
 		return getWssServerPort() + 100;
-	}
-
-	public void setWssSelfDescriptionPort(int wssServerPort) {
-		this.wssSelfDescriptionPort = wssServerPort;
 	}
 
 	public int getWssServerPort() {
