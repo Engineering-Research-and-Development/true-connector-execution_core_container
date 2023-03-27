@@ -166,6 +166,10 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._creationDate_(DateUtil.now())
 				.build();
 		
+		Artifact csvArtifact = new ArtifactBuilder(csvResource)
+				._creationDate_(DateUtil.now())
+				.build();
+		
 		Resource offeredResource = (new TextResourceBuilder())
 				._title_(Util.asList(new TypedLiteral("Default resource")))
 				._description_(Util.asList(new TypedLiteral("Default resource description")))
@@ -202,7 +206,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._modified_(DateUtil.now())
 				._created_(DateUtil.now())
 				._contractOffer_(Util.asList(createContractOffer(csvResource)))
-				._representation_(Util.asList(getTextRepresentation(bigArtifact)))
+				._representation_(Util.asList(getTextRepresentation(csvArtifact)))
 				.build();
 		
 		List<ResourceCatalog> catalogList = new ArrayList<>();
