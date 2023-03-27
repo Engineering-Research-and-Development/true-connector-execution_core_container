@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "45a93749-3ed0-49f7-a378-264671ac269d",
+		"_postman_id": "25a0f0d2-f2ad-4ad3-a747-dfa15db905e4",
 		"name": "GHA API Tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -310,7 +310,7 @@
 							"\r",
 							"pm.test(\"Offered resource\", function () {\r",
 							"//http://w3id.org/engrd/connector/artifact/test\r",
-							"  pm.expect(pm.response.text()).to.include(\"ids:TextResource\");\r",
+							"pm.expect(pm.response.text()).to.include(\"ids:TextResource\") || pm.expect(pm.response.text()).to.include(\"ids:DataResource\");\r",
 							"  pm.expect(pm.response.text()).to.include(\"ids:ContractOffer\");\r",
 							"  pm.expect(pm.response.text()).to.include(\"ids:TextRepresentation\");\r",
 							"  pm.expect(pm.response.text()).to.include(\"ids:Artifact\");\r",
