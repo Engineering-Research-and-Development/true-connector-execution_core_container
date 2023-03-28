@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "45a93749-3ed0-49f7-a378-264671ac269d",
-		"name": "GHA API Tests",
+		"_postman_id": "30afc366-975c-4e68-8c3c-67afd9e937a3",
+		"name": "GHA API Tests Copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -309,12 +309,16 @@
 							"pm.response.to.be.ok;\r",
 							"\r",
 							"pm.test(\"Offered resource\", function () {\r",
-							"//http://w3id.org/engrd/connector/artifact/test\r",
-							"  pm.expect(pm.response.text()).to.include(\"ids:TextResource\");\r",
+							"  //http://w3id.org/engrd/connector/artifact/test\r",
+							"  var messageTypes = [\"ids:TextResource\", \"ids:DataResource\"];\r",
+							"  const hasAnyExpectedMessageType = messageTypes.some((messageType) =>\r",
+							"    pm.response.text().includes(messageType)\r",
+							"  );\r",
+							"  pm.expect(hasAnyExpectedMessageType).to.be.true;\r",
 							"  pm.expect(pm.response.text()).to.include(\"ids:ContractOffer\");\r",
 							"  pm.expect(pm.response.text()).to.include(\"ids:TextRepresentation\");\r",
 							"  pm.expect(pm.response.text()).to.include(\"ids:Artifact\");\r",
-							"  });"
+							"});"
 						],
 						"type": "text/javascript"
 					}
