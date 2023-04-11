@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
+import it.eng.idsa.businesslogic.processor.common.ConnectorHealthCheckProcessor;
 import it.eng.idsa.businesslogic.processor.common.ContractAgreementProcessor;
 import it.eng.idsa.businesslogic.processor.common.CorrelationIDProcessor;
 import it.eng.idsa.businesslogic.processor.common.DeModifyPayloadProcessor;
@@ -20,7 +21,6 @@ import it.eng.idsa.businesslogic.processor.common.OriginalMessageProcessor;
 import it.eng.idsa.businesslogic.processor.common.ProtocolValidationProcessor;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
 import it.eng.idsa.businesslogic.processor.common.SelfDescriptionProcessor;
-import it.eng.idsa.businesslogic.processor.common.ConnectorHealthCheckProcessor;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorSender;
@@ -68,7 +68,7 @@ public class CamelRouteSender extends RouteBuilder {
 
 	@Autowired
 	private RegisterTransactionToCHProcessor registerTransactionToCHProcessor;
-	
+
 	@Autowired
 	private ContractAgreementProcessor contractAgreementProcessor;
 
@@ -104,7 +104,7 @@ public class CamelRouteSender extends RouteBuilder {
 	private MapMultipartToIDSCP2 mapMultipartToIDSCP2;
 	@Autowired
 	private MapIDSCP2toMultipart mapIDSCP2toMultipart;
-	
+
 	@Autowired
 	private ModifyPayloadProcessor modifyPayloadProcessor;
 	@Autowired
@@ -123,16 +123,16 @@ public class CamelRouteSender extends RouteBuilder {
 
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
-	
+
 	@Autowired
 	private ProtocolValidationProcessor protocolValidationProcessor;
-	
+
 	@Autowired
 	private OriginalMessageProcessor originalMessageProcessor;
 
 	@Autowired
 	private CorrelationIDProcessor correlationIDProcessor;
-	
+
 	@Autowired
 	private SelfDescriptionProcessor selfDescriptionProcessor;
 
@@ -144,10 +144,10 @@ public class CamelRouteSender extends RouteBuilder {
 		camelContext.getShutdownStrategy().setLogInflightExchangesOnTimeout(false);
 		camelContext.getShutdownStrategy().setTimeout(3);
 //		camelContext.setCaseInsensitiveHeaders(false);
-		
+
 		interceptFrom().process(correlationIDProcessor);
 		interceptFrom().process(connectorHealthCheckProcessor);
-		
+
 		//@formatter:off
 		onException(ExceptionForProcessor.class, RuntimeException.class)
 			.handled(true)
@@ -322,6 +322,11 @@ public class CamelRouteSender extends RouteBuilder {
                 .process(senderUsageControlProcessor)
                 .process(registerTransactionToCHProcessor)
 				.process(sendResponseToDataAppProcessor);
+						
+			from("jetty://https4://0.0.0.0:" +  configuration.getWssSelfDescriptionPort() + "/internal/sd")
+			.routeId("internalSelfDescription")
+			.log("Requesting internal Self Description document")
+			.process(selfDescriptionProcessor);
 		}
 	}
 }

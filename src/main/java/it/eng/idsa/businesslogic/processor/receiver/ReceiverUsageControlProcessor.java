@@ -1,7 +1,5 @@
 package it.eng.idsa.businesslogic.processor.receiver;
 
-import java.util.Map;
-
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.slf4j.Logger;
@@ -56,9 +54,8 @@ public class ReceiverUsageControlProcessor implements Processor {
             return;
         }
         
-		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
-		requestMessage = (Message) headerParts.get("Original-Message-Header");
+		requestMessage = (Message) exchange.getProperty("Original-Message-Header");
 		responseMessage = multipartMessage.getHeaderContent();
 		String correlationId = (String) exchange.getMessage().getHeader(TrueConnectorConstants.CORRELATION_ID);
 		
@@ -75,7 +72,6 @@ public class ReceiverUsageControlProcessor implements Processor {
 			String payloadToEnforce = usageControlService.createUsageControlObject(artifactRequestMessage, artifactResponseMessage,
 			        multipartMessage.getPayloadContent());
 			
-			logger.info("from: " + exchange.getFromEndpoint());
 			logger.debug("Message Body: " + payloadToEnforce);
 			
 			MultipartMessage reponseMultipartMessage = new MultipartMessageBuilder()
