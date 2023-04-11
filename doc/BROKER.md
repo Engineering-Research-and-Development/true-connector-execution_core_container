@@ -23,7 +23,7 @@ Example of ConnectorUpdateMessage:
   },
   "@type" : "ids:ConnectorUpdateMessage",
   "@id" : "https://w3id.org/idsa/autogen/connectorUpdateMessage/6d875403-cfea-4aad-979c-3515c2e71967",
-  "ids:modelVersion" : "4.0.0",
+  "ids:modelVersion" : "4.2.7",
   "ids:issued" : {
     "@value" : "2021-03-09T12:59:36.780+01:00",
     "@type" : "http://www.w3.org/2001/XMLSchema#dateTimeStamp"
@@ -73,7 +73,7 @@ Example of ConnectorUnavailableMessage:
   "ids:senderAgent" : {
     "@id" : "http://example.org"
   },
-  "ids:modelVersion" : "4.0.0",
+  "ids:modelVersion" : "4.2.7",
   "ids:issuerConnector" : {
     "@id" : "https://eng.true-connector.com/"
   },
@@ -110,7 +110,7 @@ Example of ConnectorInactiveMessage:
     "@value" : "2021-03-09T13:01:55.255+01:00",
     "@type" : "http://www.w3.org/2001/XMLSchema#dateTimeStamp"
   },
-  "ids:modelVersion" : "4.0.0",
+  "ids:modelVersion" : "4.2.7",
   "ids:issuerConnector" : {
     "@id" : "https://eng.true-connector.com/"
   }
@@ -144,7 +144,7 @@ Example of QueryMessage:
     "@value" : "2021-03-09T13:22:05.209+01:00",
     "@type" : "http://www.w3.org/2001/XMLSchema#dateTimeStamp"
   },
-  "ids:modelVersion" : "4.0.0",
+  "ids:modelVersion" : "4.2.7",
   "ids:issuerConnector" : {
     "@id" : "http://connectorURI"
   }
