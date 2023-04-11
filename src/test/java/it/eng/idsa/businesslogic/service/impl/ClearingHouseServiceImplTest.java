@@ -147,7 +147,7 @@ public class ClearingHouseServiceImplTest {
 	  public void logNotificationMessage() {
 		  Message logMessage = new LogMessageBuilder()
           ._modelVersion_("4.0.6")
-          ._issued_(DateUtil.now())
+          ._issued_(DateUtil.normalizedDateTime())
           ._correlationMessage_(URI.create("https://correlationMessage"))
           ._issuerConnector_(URI.create("https://issuerConnector"))
           ._recipientConnector_(List.of(URI.create("https://recipient.connector")))

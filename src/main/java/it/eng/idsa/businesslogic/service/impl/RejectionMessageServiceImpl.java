@@ -60,7 +60,7 @@ public class RejectionMessageServiceImpl implements RejectionMessageService{
 	private Message createRejectionMessage(Message header, RejectionReason rejectionReason) {
 		return new RejectionMessageBuilder()
 				._issuerConnector_(whoIAm())
-				._issued_(DateUtil.now())
+				._issued_(DateUtil.normalizedDateTime())
 				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._recipientConnector_(header!=null?asList(header.getIssuerConnector()):asList(URI.create("http://auto-generated.com")))
 				._correlationMessage_(header!=null?header.getId():URI.create("http://auto-generated.com"))

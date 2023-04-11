@@ -108,7 +108,7 @@ Content-Length: 1293
       "@id" : "https://w3id.org/idsa/code/JWT"
     }
   },
-  "ids:modelVersion" : "4.1.0",
+  "ids:modelVersion" : "4.2.7",
   "ids:issued" : {
     "@value" : "2021-11-24T15:09:01.276+01:00",
     "@type" : "http://www.w3.org/2001/XMLSchema#dateTimeStamp"
@@ -170,7 +170,7 @@ Content-Length: 1293
       "@id" : "https://w3id.org/idsa/code/JWT"
     }
   },
-  "ids:modelVersion" : "4.1.0",
+  "ids:modelVersion" : "4.2.7",
   "ids:issued" : {
     "@value" : "2021-11-24T15:09:01.276+01:00",
     "@type" : "http://www.w3.org/2001/XMLSchema#dateTimeStamp"
@@ -227,7 +227,7 @@ curl --location --request POST 'https://{IPADDRESS}:{A_ENDPOINT_PUBLIC_PORT}/inc
       \"@id\" : \"https://w3id.org/idsa/code/JWT\"
     }
   },
-  \"ids:modelVersion\" : \"4.1.0\",
+  \"ids:modelVersion\" : \"4.2.7\",
   \"ids:issued\" : {
     \"@value\" : \"2021-11-24T15:09:01.276+01:00\",
     \"@type\" : \"http://www.w3.org/2001/XMLSchema#dateTimeStamp\"
@@ -279,7 +279,7 @@ curl --location --request POST 'https://localhost:8887/incoming-data-app/multipa
       \"@id\" : \"https://w3id.org/idsa/code/JWT\"
     }
   },
-  \"ids:modelVersion\" : \"4.1.0\",
+  \"ids:modelVersion\" : \"4.2.7\",
   \"ids:issued\" : {
     \"@value\" : \"2021-11-24T15:09:01.276+01:00\",
     \"@type\" : \"http://www.w3.org/2001/XMLSchema#dateTimeStamp\"
@@ -311,7 +311,7 @@ curl --location --request POST 'https://{IPADDRESS}:{A_ENDPOINT_PUBLIC_PORT}/inc
 --header 'IDS-Id: https://w3id.org/idsa/autogen/artifactResponseMessage/eb3ab487-dfb0-4d18-b39a-585514dd044f' \
 --header 'IDS-Issued: 2021-11-24T13:09:42.306Z' \
 --header 'IDS-IssuerConnector: http://w3id.org/engrd/connector/' \
---header 'IDS-ModelVersion: 4.1.0' \
+--header 'IDS-ModelVersion: 4.2.7' \
 --header 'IDS-RequestedArtifact: http://w3id.org/engrd/connector/artifact/1' \
 --header 'IDS-SecurityToken-Id: https://w3id.org/idsa/autogen/958a6a2a-5a94-4cf9-ad72-b39c59ee8955' \
 --header 'IDS-SecurityToken-TokenFormat: https://w3id.org/idsa/code/JWT' \
@@ -336,7 +336,7 @@ curl --location --request POST 'https://localhost:8887/incoming-data-app/multipa
 --header 'IDS-Id: https://w3id.org/idsa/autogen/artifactResponseMessage/eb3ab487-dfb0-4d18-b39a-585514dd044f' \
 --header 'IDS-Issued: 2021-11-24T13:09:42.306Z' \
 --header 'IDS-IssuerConnector: http://w3id.org/engrd/connector/' \
---header 'IDS-ModelVersion: 4.1.0' \
+--header 'IDS-ModelVersion: 4.2.7' \
 --header 'IDS-RequestedArtifact: http://w3id.org/engrd/connector/artifact/1' \
 --header 'IDS-SecurityToken-Id: https://w3id.org/idsa/autogen/958a6a2a-5a94-4cf9-ad72-b39c59ee8955' \
 --header 'IDS-SecurityToken-TokenFormat: https://w3id.org/idsa/code/JWT' \

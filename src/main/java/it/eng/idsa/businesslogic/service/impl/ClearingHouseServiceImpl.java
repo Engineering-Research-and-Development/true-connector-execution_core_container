@@ -214,7 +214,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	private RequestMessage buildRequestMessage() {
 		return new RequestMessageBuilder()._modelVersion_(UtilMessageService.MODEL_VERSION)
 										  ._issuerConnector_(whoIAm())
-										  ._issued_(DateUtil.now())
+										  ._issued_(DateUtil.normalizedDateTime())
 										  ._senderAgent_(whoIAm())
 										  ._securityToken_(dapsProvider.getDynamicAtributeToken())
 										  .build();
@@ -230,7 +230,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 	private LogMessage buildLogMessage(Message correlatedMessage) {
 		return new LogMessageBuilder()._modelVersion_(UtilMessageService.MODEL_VERSION)
 									  ._issuerConnector_(whoIAm())
-									  ._issued_(DateUtil.now())
+									  ._issued_(DateUtil.normalizedDateTime())
 									  ._senderAgent_(whoIAm())
 									  ._securityToken_(dapsProvider.getDynamicAtributeToken())
 									  .build();
