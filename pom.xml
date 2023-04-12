@@ -10,7 +10,7 @@
 	<groupId>it.eng.idsa</groupId>
 	<artifactId>market4.0-execution_core_container_business_logic
 	</artifactId>
-	<version>0.3.0</version>
+	<version>0.3.1-SNAPSHOT</version>
 	<name>market4.0-execution_core_container_business_logic</name>
 	<description>Market4.0 execution core container Business Logic
 	</description>
@@ -58,7 +58,7 @@
 		<connection>scm:git:git://github.com/Engineering-Research-and-Development/true-connector-execution_core_container.git</connection>
 		<developerConnection>scm:git:git@github.com:Engineering-Research-and-Development/true-connector-execution_core_container.git</developerConnection>
 		<url>https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container.git</url>
-		<tag>0.3.0</tag>
+		<tag>HEAD</tag>
 	</scm>
 
     <dependencies>
