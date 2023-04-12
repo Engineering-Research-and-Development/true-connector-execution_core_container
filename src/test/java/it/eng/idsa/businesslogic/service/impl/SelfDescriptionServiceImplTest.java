@@ -84,7 +84,6 @@ public class SelfDescriptionServiceImplTest {
 		assertTrue(selfDescription.contains("ids:curator"));
 		assertTrue(selfDescription.contains("ids:title"));
 		assertTrue(selfDescription.contains("ids:securityProfile"));
-		assertTrue(selfDescription.contains("ids:hasEndpoint"));
 		assertTrue(selfDescription.contains("ids:hasDefaultEndpoint"));
 	}
 

@@ -1,12 +1,20 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [0.3.0-SNAPSHOT] - 2023-03-08
+## [0.3.0-SNAPSHOT] - 2023-04-06
+
+### Changed
 
  - Support for DataApp message handler (http-header flow)
  - Requested for for this ECC version requires 0.2.0-SNAPSHOT+ version of DataApp
  - Support for GitHub Workflow (release process, docker image signing)
  - New UsageControl Platoon docker image (temurin based) rdlabengpa/ids_uc_data_app_platoon:v1.5 in GitHub Actions
+ - Add self-description for WSS flow
+ - Rename application.wss.server.port to application.wss-server-port
+ - Add messageType to WS-WS test case
+ - Add test1.csv as DataResource to selfdescription
+ - Multipart message library upgrade to 1.0.17
+ - infomodel dependency now managed via Multipart Library (excluded infomodel from idscp2 dependencies)
 
 ## [0.2.3-SNAPSHOT] - 2023-01-23
 

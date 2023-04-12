@@ -22,9 +22,8 @@
 		<start-class>it.eng.idsa.businesslogic.Application</start-class>
 		<camel.version>3.19.0</camel.version>
 		<tomcat.version>9.0.24</tomcat.version>
-		<information.model.version>4.1.1</information.model.version>
 		<application.basedir>${basedir}</application.basedir>
-		<multipart.message.processor.version>1.0.16</multipart.message.processor.version>
+		<multipart.message.processor.version>1.0.17</multipart.message.processor.version>
 		<idscp2.libraries.version>0.5.2</idscp2.libraries.version>
 		<jacoco.version>0.8.8</jacoco.version>
 	</properties>
@@ -124,18 +123,6 @@
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-ui</artifactId>
             <version>1.6.7</version>
-        </dependency>
-
-        <!-- Fraunhofer -->
-        <dependency>
-            <groupId>de.fraunhofer.iais.eis.ids.infomodel</groupId>
-            <artifactId>java</artifactId>
-            <version>${information.model.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>de.fraunhofer.iais.eis.ids</groupId>
-            <artifactId>infomodel-serializer</artifactId>
-            <version>${information.model.version}</version>
         </dependency>
 
         <!-- it.eng.idsa -->
@@ -367,12 +354,24 @@
             <groupId>de.fhg.aisec.ids</groupId>
             <artifactId>camel-idscp2</artifactId>
             <version>${idscp2.libraries.version}</version>
+            <exclusions>
+				<exclusion>
+					<groupId>de.fraunhofer.iais.eis.ids</groupId>
+					<artifactId>infomodel-serializer</artifactId>
+				</exclusion>
+			</exclusions>
         </dependency>
 
         <dependency>
             <groupId>de.fhg.aisec.ids</groupId>
             <artifactId>idscp2-app-layer</artifactId>
             <version>${idscp2.libraries.version}</version>
+            <exclusions>
+				<exclusion>
+					<groupId>de.fraunhofer.iais.eis.ids</groupId>
+					<artifactId>infomodel-serializer</artifactId>
+				</exclusion>
+			</exclusions>
         </dependency>
 
         <dependency>

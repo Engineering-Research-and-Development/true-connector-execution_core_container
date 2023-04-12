@@ -123,7 +123,7 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 		httpHeaders.put("IDS-IssuerConnector", "http://iais.fraunhofer.de/ids/mdm-connector");
 		httpHeaders.put("IDS-Id",
 				"https://w3id.org/idsa/autogen/artifactRequestMessage/d107ab28-5dc4-4f0c-a440-6d12ae6f2aab");
-		httpHeaders.put("IDS-ModelVersion", "4.0.0");
+		httpHeaders.put("IDS-ModelVersion", "4.2.7");
 		httpHeaders.put("IDS-RequestedArtifact", "http://mdm-connector.ids.isst.fraunhofer.de/artifact/1");
 		httpHeaders.put("Payload-Content-Type", ContentType.APPLICATION_JSON);
 		when(message.getHeaders()).thenReturn(httpHeaders);

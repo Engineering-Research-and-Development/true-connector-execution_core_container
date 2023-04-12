@@ -134,7 +134,7 @@ public class ExceptionProcessorSenderTest {
 		headers.put("IDS-IssuerConnector", "http://true-connector/issuer");
 		headers.put("IDS-Id",
 				"https://w3id.org/idsa/autogen/artifactRequestMessage/d107ab28-5dc4-4f0c-a440-6d12ae6f2aab");
-		headers.put("IDS-ModelVersion", "4.0.0");
+		headers.put("IDS-ModelVersion", "4.2.7");
 		headers.put("IDS-RequestedArtifact", "http://true-connector/artifact/1");
 		headers.put("Payload-Content-Type", ContentType.APPLICATION_JSON);
 		when(messageOut.getHeaders()).thenReturn(headers);

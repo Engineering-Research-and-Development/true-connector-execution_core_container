@@ -146,15 +146,15 @@ public class ClearingHouseServiceImplTest {
 	  @Disabled("Used to check new IM compatibility")
 	  public void logNotificationMessage() {
 		  Message logMessage = new LogMessageBuilder()
-          ._modelVersion_("4.0.6")
-          ._issued_(DateUtil.now())
-          ._correlationMessage_(URI.create("https://correlationMessage"))
-          ._issuerConnector_(URI.create("https://issuerConnector"))
-          ._recipientConnector_(List.of(URI.create("https://recipient.connector")))
-          ._senderAgent_(URI.create("https://sender.agent"))
+          ._modelVersion_(UtilMessageService.MODEL_VERSION)
+          ._issued_(DateUtil.normalizedDateTime())
+          ._correlationMessage_(UtilMessageService.CORRELATION_MESSAGE)
+          ._issuerConnector_(UtilMessageService.ISSUER_CONNECTOR)
+          ._recipientConnector_(List.of(UtilMessageService.RECIPIENT_CONNECTOR))
+          ._senderAgent_(UtilMessageService.SENDER_AGENT)
           ._recipientAgent_(List.of(URI.create("https://recipient.agent")))
-          ._transferContract_(null)
-          ._securityToken_(null) //mandatory in SPECS but non suitable for Blockchain
+          ._transferContract_(UtilMessageService.TRANSFER_CONTRACT)
+          ._securityToken_(UtilMessageService.getDynamicAttributeToken()) //mandatory in SPECS but non suitable for Blockchain
           ._authorizationToken_(null)
           ._contentVersion_(null)
           .build();

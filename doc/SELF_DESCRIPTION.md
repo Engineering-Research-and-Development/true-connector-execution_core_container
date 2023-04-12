@@ -229,7 +229,7 @@ The response should be like following:
   "ids:hasAgent": [],
   "ids:extendedGuarantee": [],
   "ids:inboundModelVersion": [
-    "4.1.0"
+    "4.2.7"
   ],
   "ids:hasDefaultEndpoint": {
     "@type": "ids:ConnectorEndpoint",
@@ -240,7 +240,7 @@ The response should be like following:
       "@id": "https://172.19.160.1:8443/"
     }
   },
-  "ids:outboundModelVersion": "4.1.0",
+  "ids:outboundModelVersion": "4.2.7",
   "ids:title": [
     {
       "@value": "Sender Connector title",
