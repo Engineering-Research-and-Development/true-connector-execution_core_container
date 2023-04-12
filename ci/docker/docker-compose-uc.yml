@@ -49,7 +49,7 @@ services:
       - "ecc-provider:127.0.0.1"
 
   uc-dataapp-provider:
-    image: rdlabengpa/ids_uc_data_app_platoon:v1.3
+    image: rdlabengpa/ids_uc_data_app_platoon:v1.5
     networks:
       - provider
     environment:
@@ -58,7 +58,7 @@ services:
       - "8180"
     volumes:
       - ./uc-dataapp_resources_provider:/etc
-      - ./uc_provider_data:/data
+      - uc_provider_data:/data
 
   be-dataapp-provider:
     image: rdlabengpa/ids_be_data_app:develop
@@ -134,7 +134,7 @@ services:
       - "ecc-consumer:127.0.0.1"
 
   uc-dataapp-consumer:
-    image: rdlabengpa/ids_uc_data_app_platoon:v1.3
+    image: rdlabengpa/ids_uc_data_app_platoon:v1.5
     networks:
       - consumer
     environment:
@@ -143,7 +143,7 @@ services:
       - "8280"
     volumes:
       - ./uc-dataapp_resources_consumer:/etc
-      - ./uc_consumer_data:/data
+      - uc_consumer_data:/data
 
   be-dataapp-consumer:
     image: rdlabengpa/ids_be_data_app:develop

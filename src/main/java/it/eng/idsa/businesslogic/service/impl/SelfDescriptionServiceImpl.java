@@ -24,6 +24,7 @@ import de.fraunhofer.iais.eis.ConnectorUpdateMessageBuilder;
 import de.fraunhofer.iais.eis.ContentType;
 import de.fraunhofer.iais.eis.ContractOffer;
 import de.fraunhofer.iais.eis.ContractOfferBuilder;
+import de.fraunhofer.iais.eis.DataResourceBuilder;
 import de.fraunhofer.iais.eis.DynamicAttributeToken;
 import de.fraunhofer.iais.eis.KeyType;
 import de.fraunhofer.iais.eis.Language;
@@ -156,10 +157,16 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	private java.util.List<ResourceCatalog> getCatalog() {
 		URI defaultTarget = URI.create("http://w3id.org/engrd/connector/artifact/1");
 		URI bigResource = URI.create("http://w3id.org/engrd/connector/artifact/big");
+		URI csvResource = URI.create("http://w3id.org/engrd/connector/artifact/test1.csv");
+
 		Artifact defaultArtifact = new ArtifactBuilder(defaultTarget)
-			._creationDate_(DateUtil.now())
+			._creationDate_(DateUtil.normalizedDateTime())
 			.build();
 		Artifact bigArtifact = new ArtifactBuilder(bigResource)
+				._creationDate_(DateUtil.normalizedDateTime())
+				.build();
+		
+		Artifact csvArtifact = new ArtifactBuilder(csvResource)
 				._creationDate_(DateUtil.now())
 				.build();
 		
@@ -170,8 +177,8 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._keyword_(Util.asList(new TypedLiteral("Engineering Ingegneria Informatica SpA"),
 						new TypedLiteral("TRUEConnector")))
 				._version_("1.0.0")._language_(Util.asList(Language.EN, Language.IT))
-				._modified_(DateUtil.now())
-				._created_(DateUtil.now())
+				._modified_(DateUtil.normalizedDateTime())
+				._created_(DateUtil.normalizedDateTime())
 				._contractOffer_(Util.asList(createContractOffer(defaultTarget)))
 				._representation_(Util.asList(getTextRepresentation(defaultArtifact)))
 				.build();
@@ -183,23 +190,37 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._keyword_(Util.asList(new TypedLiteral("Engineering Ingegneria Informatica SpA"),
 						new TypedLiteral("TRUEConnector")))
 				._version_("1.0.0")._language_(Util.asList(Language.EN, Language.IT))
-				._modified_(DateUtil.now())
-				._created_(DateUtil.now())
+				._modified_(DateUtil.normalizedDateTime())
+				._created_(DateUtil.normalizedDateTime())
 				._contractOffer_(Util.asList(createContractOffer(bigResource)))
 				._representation_(Util.asList(getTextRepresentation(bigArtifact)))
+				.build();
+		
+		Resource offeredResourceCsv = (new DataResourceBuilder())
+				._title_(Util.asList(new TypedLiteral("CSV resource")))
+				._description_(Util.asList(new TypedLiteral("Used to verify wss flow")))
+				._contentType_(ContentType.SCHEMA_DEFINITION)
+				._keyword_(Util.asList(new TypedLiteral("Engineering Ingegneria Informatica SpA"),
+						new TypedLiteral("TRUEConnector")))
+				._version_("1.0.0")._language_(Util.asList(Language.EN, Language.IT))
+				._modified_(DateUtil.now())
+				._created_(DateUtil.now())
+				._contractOffer_(Util.asList(createContractOffer(csvResource)))
+				._representation_(Util.asList(getTextRepresentation(csvArtifact)))
 				.build();
 		
 		List<ResourceCatalog> catalogList = new ArrayList<>();
 		ArrayList<Resource> offeredResources = new ArrayList<>();
 		offeredResources.add(offeredResource);
 		offeredResources.add(offeredResourceBig);
+		offeredResources.add(offeredResourceCsv);
 		catalogList.add(new ResourceCatalogBuilder()._offeredResource_(offeredResources).build());
 		return catalogList;
 	}
 	
 	private Representation getTextRepresentation(Artifact artifact) {
 		return new TextRepresentationBuilder()
-				._created_(DateUtil.now())
+				._created_(DateUtil.normalizedDateTime())
 				._instance_(Util.asList(artifact))
 				._language_(Language.EN)
 				.build();
@@ -237,7 +258,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		return new ContractOfferBuilder()
 				._provider_(issuerConnectorURI)
 				._permission_(Util.asList(permission2))
-				._contractDate_(DateUtil.now())
+				._contractDate_(DateUtil.normalizedDateTime())
 				._contractStart_(UtilMessageService.START_DATE)
 				.build();
 	}
@@ -246,7 +267,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	public Message getConnectorAvailbilityMessage() {
 		return new ConnectorUpdateMessageBuilder()
 			._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
-			._issued_(DateUtil.now())
+			._issued_(DateUtil.normalizedDateTime())
 			._issuerConnector_(issuerConnectorURI)
 			._modelVersion_(UtilMessageService.MODEL_VERSION)
 			._securityToken_(getDynamicAtributeToken())
@@ -260,7 +281,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._issuerConnector_(issuerConnectorURI)
-				._issued_(DateUtil.now())
+				._issued_(DateUtil.normalizedDateTime())
 				._securityToken_(getDynamicAtributeToken())
 				._affectedConnector_(connector.getId())
 				.build();
@@ -272,7 +293,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		// Mandatory fields are: affectedConnector, securityToken, issuerConnector, senderAgent, modelVersion, issued
 		
 		return new ConnectorUnavailableMessageBuilder()
-				._issued_(DateUtil.now())
+				._issued_(DateUtil.normalizedDateTime())
 				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._issuerConnector_(issuerConnectorURI)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
@@ -284,7 +305,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	@Override
 	public Message getConnectorInactiveMessage() {
 		return new ConnectorUnavailableMessageBuilder()
-				._issued_(DateUtil.now())
+				._issued_(DateUtil.normalizedDateTime())
 				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._issuerConnector_(issuerConnectorURI)
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
@@ -299,7 +320,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._senderAgent_(selfDescriptionConfiguration.getSenderAgent())
 				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._issuerConnector_(issuerConnectorURI)
-				._issued_(DateUtil.now())
+				._issued_(DateUtil.normalizedDateTime())
 				._securityToken_(getDynamicAtributeToken())
 				._queryLanguage_(QueryLanguage.SPARQL)
 				._queryScope_(QueryScope.ALL)

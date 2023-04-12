@@ -108,7 +108,7 @@ Content-Length: 1293
       "@id" : "https://w3id.org/idsa/code/JWT"
     }
   },
-  "ids:modelVersion" : "4.1.0",
+  "ids:modelVersion" : "4.2.7",
   "ids:issued" : {
     "@value" : "2021-11-24T15:09:01.276+01:00",
     "@type" : "http://www.w3.org/2001/XMLSchema#dateTimeStamp"
@@ -170,7 +170,7 @@ Content-Length: 1293
       "@id" : "https://w3id.org/idsa/code/JWT"
     }
   },
-  "ids:modelVersion" : "4.1.0",
+  "ids:modelVersion" : "4.2.7",
   "ids:issued" : {
     "@value" : "2021-11-24T15:09:01.276+01:00",
     "@type" : "http://www.w3.org/2001/XMLSchema#dateTimeStamp"
@@ -227,7 +227,7 @@ curl --location --request POST 'https://{IPADDRESS}:{A_ENDPOINT_PUBLIC_PORT}/inc
       \"@id\" : \"https://w3id.org/idsa/code/JWT\"
     }
   },
-  \"ids:modelVersion\" : \"4.1.0\",
+  \"ids:modelVersion\" : \"4.2.7\",
   \"ids:issued\" : {
     \"@value\" : \"2021-11-24T15:09:01.276+01:00\",
     \"@type\" : \"http://www.w3.org/2001/XMLSchema#dateTimeStamp\"
@@ -279,7 +279,7 @@ curl --location --request POST 'https://localhost:8887/incoming-data-app/multipa
       \"@id\" : \"https://w3id.org/idsa/code/JWT\"
     }
   },
-  \"ids:modelVersion\" : \"4.1.0\",
+  \"ids:modelVersion\" : \"4.2.7\",
   \"ids:issued\" : {
     \"@value\" : \"2021-11-24T15:09:01.276+01:00\",
     \"@type\" : \"http://www.w3.org/2001/XMLSchema#dateTimeStamp\"
@@ -311,7 +311,7 @@ curl --location --request POST 'https://{IPADDRESS}:{A_ENDPOINT_PUBLIC_PORT}/inc
 --header 'IDS-Id: https://w3id.org/idsa/autogen/artifactResponseMessage/eb3ab487-dfb0-4d18-b39a-585514dd044f' \
 --header 'IDS-Issued: 2021-11-24T13:09:42.306Z' \
 --header 'IDS-IssuerConnector: http://w3id.org/engrd/connector/' \
---header 'IDS-ModelVersion: 4.1.0' \
+--header 'IDS-ModelVersion: 4.2.7' \
 --header 'IDS-RequestedArtifact: http://w3id.org/engrd/connector/artifact/1' \
 --header 'IDS-SecurityToken-Id: https://w3id.org/idsa/autogen/958a6a2a-5a94-4cf9-ad72-b39c59ee8955' \
 --header 'IDS-SecurityToken-TokenFormat: https://w3id.org/idsa/code/JWT' \
@@ -336,7 +336,7 @@ curl --location --request POST 'https://localhost:8887/incoming-data-app/multipa
 --header 'IDS-Id: https://w3id.org/idsa/autogen/artifactResponseMessage/eb3ab487-dfb0-4d18-b39a-585514dd044f' \
 --header 'IDS-Issued: 2021-11-24T13:09:42.306Z' \
 --header 'IDS-IssuerConnector: http://w3id.org/engrd/connector/' \
---header 'IDS-ModelVersion: 4.1.0' \
+--header 'IDS-ModelVersion: 4.2.7' \
 --header 'IDS-RequestedArtifact: http://w3id.org/engrd/connector/artifact/1' \
 --header 'IDS-SecurityToken-Id: https://w3id.org/idsa/autogen/958a6a2a-5a94-4cf9-ad72-b39c59ee8955' \
 --header 'IDS-SecurityToken-TokenFormat: https://w3id.org/idsa/code/JWT' \
@@ -357,6 +357,8 @@ Follow the REST endpoint or WS examples, put the server hostname/ip address in t
 
 ### Web Socket over HTTPS
 Follow the REST endpoint examples, taking care to use *wss://{RECEIVER_IP_ADDRESS}:{WS_PUBLIC_PORT}* in the Forward-To header.
+
+**NOTE**: In the case of WSS flow, additional property is used in ECC, which isn't listed in the property file, and that is wssSelfDescriptionPort which is used for fetching self-description. This value isn't essential to the end user since both in ECC and DataApp it is automatically generated based on application.wss-server-port.
 
 ### Broker
 
@@ -382,3 +384,72 @@ Clone projects from the following links and run mvn clean install
 [WebSocket Message Streamer library](https://github.com/Engineering-Research-and-Development/market4.0-websocket_message_streamer)
 
 [Execution Core Container](https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container)
+
+### GitHub Workflow
+
+This repository implements following branch management:
+
+![diagram](doc/workflow//github_actions_workflow.drawio.png?raw=true "GitHub Workflow diagram")
+
+and has several GitHub action files to support such functionality. Those files are located in:
+
+*.github\workflows\*  
+
+#### feature_hotfix.yml
+
+Used when code is pushed to branch prefixed with feature/ or hotfix/
+
+Customize GHA to fit your needs. For now, just run mvn clean package
+
+#### develop.yml
+
+Executed when code is pushed to develop branch.
+
+#### maven_release.yml
+
+Manual trigger of the GHA.</br>
+Perform mvn release:prepare and mvn release:perform.
+
+Input parameters:</br>
+release version</br>
+next development version</br>
+tag version
+
+#### docker-publish.yml
+
+Manual trigger of the GHA.</br>
+Build docker image, and push it to dockerhub.</br>
+Sign with cosign.
+
+Input parameters:<br/>
+versionName<br/>
+tagMessage
+
+#### snyk.yml
+
+Manual trigger of the GHA.
+
+Execute snyk code analysis for security vulnerabilities.
+
+### Issue management
+
+Create issue in Issue tab in GitHub repo, before starting to work on new functionality. It would be nice to provide task breakdown, with estimation. Try not to have activities that are longer than 8 hours. If such activity is present in task breakdown, please split this activity in 2 or more sub activities, trying that new sub activities are not bigger than 8 hours.
+
+Example could be like following:
+
+~~Implement new ServiceA - 16h~~</br>
+Implement method A in ServiceA 4h</br>
+Implement method B in ServiceA 3h</br>
+Implement method C in ServiceA 7h</br>
+Implement method D in ServiceA 2h</br>
+Write unit tests for ServiceA - 6 hours</br>
+Update documentation - 2 hours</br>
+
+
+### Working on new feature
+
+If you need to work on new feature, be sure first to pull changes from origin, and create new branch, following the naming convetion from develop branch.
+
+### Creating Pull Request
+
+When creating pull request, double check if PR will merge to develop branch and not master. If this is not the case, change destination branch to be develop.

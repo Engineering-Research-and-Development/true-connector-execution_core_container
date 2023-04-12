@@ -52,10 +52,10 @@ public class SelfDescriptionUtil {
 	private static final @NotNull URI ISSUER_CONNECTOR = URI.create("https://issuer.connector.com");
 	private static URI MAINTAINER = URI.create("https://maintainer.connector.com");
 	private static URI CURATOR = URI.create("https://curator.connector.com");
-	private static String INFO_MODEL_VERSION = "4.1.1";
+	private static String INFO_MODEL_VERSION = "4.2.7";
 	private static String SELF_DESCRIPTION_TITLE = "Self Description title";
 	private static String SELF_DESCRIPTION_DESCRIPTION = "Self Description - description with some more text";
-	private static String OUTBOUND_INFO_MODEL_VERSION = "4.1.1";
+	private static String OUTBOUND_INFO_MODEL_VERSION = "4.2.7";
 	private static @NotNull URI DEFAUT_ENDPOINT = URI.create("https://default.endpoint.com");;
 	private static URI ACCESS_URL = URI.create("https://access.url.com");;
 
@@ -66,7 +66,7 @@ public class SelfDescriptionUtil {
 		URI artifact1URI = URI.create("http://w3id.org/engrd/connector/artifact/catalog/" + catalogNumber + "/resource/1");
 		Representation defaultRepresentation1 = new DataRepresentationBuilder(
 					URI.create("https://w3id.org/idsa/autogen/representation/catalog/" + catalogNumber + "/resource/1/representation/1"))
-				._created_(DateUtil.now())
+				._created_(DateUtil.normalizedDateTime())
 				._instance_(Util.asList(getArtifact(
 						URI.create("http://w3id.org/engrd/connector/artifact/catalog/" + catalogNumber + "/artifact/1"), 
 						"some_file_catalog_" + catalogNumber + "_1" + ".pdf")))
@@ -81,8 +81,8 @@ public class SelfDescriptionUtil {
 				._keyword_(Util.asList(new TypedLiteral("Engineering Ingegneria Informatica SpA"),
 						new TypedLiteral("broker"), new TypedLiteral("trueConnector")))
 				._version_("1.0.0")._language_(Util.asList(Language.EN, Language.IT))
-				._modified_(DateUtil.now())
-				._created_(DateUtil.now())
+				._modified_(DateUtil.normalizedDateTime())
+				._created_(DateUtil.normalizedDateTime())
 				._sovereign_(URI.create("https://sovereign.com"))
 				._contractOffer_(Util.asList(offer1))
 				._representation_(Util.asList(defaultRepresentation1))
@@ -91,7 +91,7 @@ public class SelfDescriptionUtil {
 		URI artifact2URI = URI.create("http://w3id.org/engrd/connector/artifact/catalog/" + catalogNumber + "/resource/2");
 		Representation defaultRepresentation2 = new ImageRepresentationBuilder(
 					URI.create("https://w3id.org/idsa/autogen/representation/catalog/" + catalogNumber + "/resource/2/representation/1"))
-				._created_(DateUtil.now())
+				._created_(DateUtil.normalizedDateTime())
 				._instance_(Util.asList(getArtifact(
 						URI.create("http://w3id.org/engrd/connector/artifact/catalog/" + catalogNumber + "/artifact/2"), 
 						"some_file_catalog_" + catalogNumber + "_2" + ".pdf")))
@@ -105,8 +105,8 @@ public class SelfDescriptionUtil {
 				._keyword_(Util.asList(new TypedLiteral("Engineering Ingegneria Informatica SpA"),
 						new TypedLiteral("broker"), new TypedLiteral("trueConnector")))
 				._version_("1.0.0")._language_(Util.asList(Language.EN, Language.IT))
-				._modified_(DateUtil.now())
-				._created_(DateUtil.now())
+				._modified_(DateUtil.normalizedDateTime())
+				._created_(DateUtil.normalizedDateTime())
 				._sovereign_(URI.create("https://sovereign.com"))
 				._contractOffer_(Util.asList(offer2))
 				._representation_(Util.asList(defaultRepresentation2))
@@ -155,20 +155,20 @@ public class SelfDescriptionUtil {
 	
 	public static Artifact getArtifact(URI artifactId, String fileName) {
 		return new ArtifactBuilder(artifactId)
-		._creationDate_(DateUtil.now())
+		._creationDate_(DateUtil.normalizedDateTime())
 		._fileName_(fileName)
 		.build();
 	}
 	
 	public static Representation getDataRepresentation(URI representationURI, Artifact artifact) {
 		return new DataRepresentationBuilder(representationURI)
-				._created_(DateUtil.now())
+				._created_(DateUtil.normalizedDateTime())
 				._instance_(Util.asList(artifact))
 				.build();
 	}
 	public static Representation getImageRepresentation(URI representationURI, Artifact artifact) {
 		return new ImageRepresentationBuilder(representationURI)
-				._created_(DateUtil.now())
+				._created_(DateUtil.normalizedDateTime())
 				._instance_(Util.asList(artifact))
 				._height_(BigDecimal.valueOf(200))
 				._width_(BigDecimal.valueOf(450))
@@ -176,7 +176,7 @@ public class SelfDescriptionUtil {
 	}
 	public static Representation getTextRepresentation(URI representationURI, Artifact artifact) {
 		return new TextRepresentationBuilder(representationURI)
-				._created_(DateUtil.now())
+				._created_(DateUtil.normalizedDateTime())
 				._instance_(Util.asList(artifact))
 				._language_(Language.EN)
 				.build();
@@ -214,7 +214,7 @@ public class SelfDescriptionUtil {
 				._consumer_(URI.create("https://consumer.com"))
 				._provider_(URI.create("https://provider.com"))
 				._permission_(Util.asList(permission2))
-				._contractDate_(DateUtil.now())
+				._contractDate_(DateUtil.normalizedDateTime())
 				.build();
 	}
 	

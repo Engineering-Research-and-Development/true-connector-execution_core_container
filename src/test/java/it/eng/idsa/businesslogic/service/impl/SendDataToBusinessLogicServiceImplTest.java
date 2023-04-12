@@ -322,7 +322,7 @@ public class SendDataToBusinessLogicServiceImplTest {
 		messageAsMap.put("IDS-Issued","2021-04-07T13:09:42.306Z");
 		messageAsMap.put("IDS-IssuerConnector","http://true-connector.com");
 		messageAsMap.put("IDS-Id","https://w3id.org/idsa/autogen/artifactResponseMessage/eb3ab487-dfb0-4d18-b39a-585514dd044f");
-		messageAsMap.put("IDS-ModelVersion","4.0.0");
+		messageAsMap.put("IDS-ModelVersion","4.2.7");
 		messageAsMap.put("IDS-RequestedArtifact", "http:/true-connector/artifact/1");
 		return messageAsMap;
 	}

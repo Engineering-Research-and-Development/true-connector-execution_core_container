@@ -106,7 +106,7 @@ public class ContractAgreementProcessorTest {
 	
 	private MessageProcessedNotificationMessage createProcessNotificationMessage() {
 		return new MessageProcessedNotificationMessageBuilder()
-				._issued_(DateUtil.now())
+				._issued_(DateUtil.normalizedDateTime())
 				._modelVersion_(UtilMessageService.MODEL_VERSION)
 				._issuerConnector_(URI.create("auto-generated"))
 				._recipientConnector_(URI.create("auto-generated"))
