@@ -44,7 +44,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
       with:
-        images: igorbalogeng/${{ env.IMAGE_NAME }}
+        images: rdlabengpa/${{ env.IMAGE_NAME }}
 
     - name: Build and push Docker image
       id: build-and-push
@@ -52,7 +52,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: igorbalogeng/${{ env.IMAGE_NAME }}
+        tags: rdlabengpa/${{ env.IMAGE_NAME }}
 #          labels: ${{ steps.meta.outputs.labels }}
       
     - name: cosign-installer
@@ -71,7 +71,7 @@ jobs:
     - name: Sign the published Docker image
       env:
         COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-      run: cosign sign --key cosign.key igorbalogeng/${{ env.IMAGE_NAME }}
+      run: cosign sign --key cosign.key rdlabengpa/${{ env.IMAGE_NAME }}
         
     - name: Create Tag
       uses: negz/create-tag@v1
