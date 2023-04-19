@@ -72,10 +72,3 @@ jobs:
       env:
         COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
       run: cosign sign --key cosign.key rdlabengpa/${{ env.IMAGE_NAME }}
-        
-    - name: Create Tag
-      uses: negz/create-tag@v1
-      with:
-        version: ${{ github.event.inputs.versionName }}
-        message: ${{ github.event.inputs.tagMessage }}
-        token: ${{ secrets.GITHUB_TOKEN }}
