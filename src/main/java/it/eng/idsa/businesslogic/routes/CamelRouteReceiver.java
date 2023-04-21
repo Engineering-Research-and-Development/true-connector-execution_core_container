@@ -167,7 +167,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 				.removeHeaders("Camel*");
 			
 			
-			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/internal/sd")
+			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/internal/sd")
 				.routeId("internalSelfDescription")
 				.log("Requesting internal Self Description document")
 				.process(selfDescriptionProcessor);
