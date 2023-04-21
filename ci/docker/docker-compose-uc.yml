@@ -24,7 +24,6 @@ services:
       - UC_DATAAPP_ENABLED=${UC_ENABLED}
       - UC_DATAAPP_URI=${PROVIDER_UC_DATAAPP_URI}
       - UC_DATAAPP_HEALTH_URI=${PROVIDER_UC_DATAAPP_HEALTH_URI}
-      - CLEARING_HOUSE=${CLEARING_HOUSE}
       - PUBLIC_PORT=${PROVIDER_PORT}
       - BROKER_URL=${BROKER_URL}
       - DISABLE_SSL_VALIDATION=${DISABLE_SSL_VALIDATION}
@@ -49,7 +48,7 @@ services:
       - "ecc-provider:127.0.0.1"
 
   uc-dataapp-provider:
-    image: rdlabengpa/ids_uc_data_app_platoon:v1.5
+    image: rdlabengpa/ids_uc_data_app_platoon:develop
     networks:
       - provider
     environment:
@@ -74,6 +73,7 @@ services:
       - ALIAS=${ALIAS}
       - ECC_HOSTNAME=ecc-provider
       - ECC_PORT=8887
+      - ECC_WSS_PORT=${ECC_PROVIDER_WSS_PORT}
       - TZ=Europe/Rome
       - ISSUER_CONNECTOR_URI=${PROVIDER_ISSUER_CONNECTOR_URI}
       - EXTRACT_PAYLOAD_FROM_RESPONSE=${EXTRACT_PAYLOAD_FROM_RESPONSE}
@@ -106,7 +106,6 @@ services:
       - IDSCP2=${IDSCP2}
       - WS_EDGE=${CONSUMER_WS_EDGE}
       - WS_ECC=${WS_ECC}
-      - CLEARING_HOUSE=${CLEARING_HOUSE}
       - UC_DATAAPP_ENABLED=${UC_ENABLED}
       - UC_DATAAPP_URI=${CONSUMER_UC_DATAAPP_URI}
       - UC_DATAAPP_HEALTH_URI=${CONSUMER_UC_DATAAPP_HEALTH_URI}
@@ -134,7 +133,7 @@ services:
       - "ecc-consumer:127.0.0.1"
 
   uc-dataapp-consumer:
-    image: rdlabengpa/ids_uc_data_app_platoon:v1.5
+    image: rdlabengpa/ids_uc_data_app_platoon:develop
     networks:
       - consumer
     environment:
@@ -159,6 +158,7 @@ services:
       - ALIAS=${ALIAS}
       - ECC_HOSTNAME=ecc-consumer
       - ECC_PORT=8887
+      - ECC_WSS_PORT=${ECC_CONSUMER_WSS_PORT}
       - TZ=Europe/Rome
       - ISSUER_CONNECTOR_URI=${CONSUMER_ISSUER_CONNECTOR_URI}
       - EXTRACT_PAYLOAD_FROM_RESPONSE=${EXTRACT_PAYLOAD_FROM_RESPONSE}
