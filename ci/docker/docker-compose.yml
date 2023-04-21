@@ -60,7 +60,7 @@ services:
       - KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
       - ALIAS=${ALIAS}
       - ECC_HOSTNAME=ecc-provider
-      - ECC_PORT=8887
+      - ECC_PORT=8889
       - ECC_WSS_PORT=${ECC_PROVIDER_WSS_PORT}
       - TZ=Europe/Rome
       - ISSUER_CONNECTOR_URI=${PROVIDER_ISSUER_CONNECTOR_URI}
@@ -133,7 +133,7 @@ services:
       - KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
       - ALIAS=${ALIAS}
       - ECC_HOSTNAME=ecc-consumer
-      - ECC_PORT=8887
+      - ECC_PORT=8889
       - ECC_WSS_PORT=${ECC_CONSUMER_WSS_PORT}
       - TZ=Europe/Rome
       - ISSUER_CONNECTOR_URI=${CONSUMER_ISSUER_CONNECTOR_URI}
