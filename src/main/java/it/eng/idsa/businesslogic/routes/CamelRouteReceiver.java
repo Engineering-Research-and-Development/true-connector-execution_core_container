@@ -19,6 +19,7 @@ import it.eng.idsa.businesslogic.processor.common.MapMultipartToIDSCP2;
 import it.eng.idsa.businesslogic.processor.common.ModifyPayloadProcessor;
 import it.eng.idsa.businesslogic.processor.common.OriginalMessageProcessor;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
+import it.eng.idsa.businesslogic.processor.common.SelfDescriptionProcessor;
 import it.eng.idsa.businesslogic.processor.common.TrueConnectorAuthorization;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
@@ -111,6 +112,9 @@ public class CamelRouteReceiver extends RouteBuilder {
 
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledDataAppWebSocket;
+	
+	@Autowired
+	private SelfDescriptionProcessor selfDescriptionProcessor;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -161,6 +165,12 @@ public class CamelRouteReceiver extends RouteBuilder {
                 .process(modifyPayloadProcessor)
 				.process(sendDataToBusinessLogicProcessor)
 				.removeHeaders("Camel*");
+			
+			
+			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/internal/sd")
+				.routeId("internalSelfDescription")
+				.log("Requesting internal Self Description document")
+				.process(selfDescriptionProcessor);
 		} 
 		
 		if (isEnabledWebSocket) {
@@ -187,6 +197,12 @@ public class CamelRouteReceiver extends RouteBuilder {
 				.process(registerTransactionToCHProcessor)
 				.process(sendDataToBusinessLogicProcessor);
 			//@formatter:on
+			
+			
+			from("jetty://https4://0.0.0.0:" +  configuration.getWssSelfDescriptionPort() + "/internal/sd")
+				.routeId("internalSelfDescription")
+				.log("Requesting internal Self Description document")
+				.process(selfDescriptionProcessor);
 		}
 		if (isEnabledIdscp2 && receiver && !isEnabledDataAppWebSocket) {
 			logger.info("Starting IDSCP v2 Receiver route");
