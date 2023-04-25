@@ -358,8 +358,6 @@ Follow the REST endpoint or WS examples, put the server hostname/ip address in t
 ### Web Socket over HTTPS
 Follow the REST endpoint examples, taking care to use *wss://{RECEIVER_IP_ADDRESS}:{WS_PUBLIC_PORT}* in the Forward-To header.
 
-**NOTE**: In the case of WSS flow, additional property is used in ECC, which isn't listed in the property file, and that is wssSelfDescriptionPort which is used for fetching self-description. This value isn't essential to the end user since both in ECC and DataApp it is automatically generated based on application.wss-server-port.
-
 ### Broker
 
 Information on how to interact with a Broker, can be found on following [link](doc/BROKER.md)

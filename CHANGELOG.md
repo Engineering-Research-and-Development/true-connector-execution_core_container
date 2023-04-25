@@ -1,6 +1,17 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.3.1-SNAPSHOT] - 2023-04-25
+
+### Added
+
+ - new property application.internalSelfdescriptionPort=
+
+### Changed
+
+ - internal/sd now always available on it's own port
+ - all camel routes support now only support POST method with the exception of internal/sd which is available only with GET
+
 ## [0.3.0-SNAPSHOT] - 2023-04-06
 
 ### Changed
