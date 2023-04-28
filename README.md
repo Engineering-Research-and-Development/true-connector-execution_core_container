@@ -15,7 +15,7 @@ The ENG Execution Core Container, based on the IDS Base Connector, is the core c
 ## How to Configure and Run
 
 The configuration should be performed customizing the following variables in the **docker-compose** file:
-* **DATA_APP_ENDPOINT=192.168.56.1:8083/incoming-data-app/dataAppIncomingMessageReceiver** DataAPP endpoint for receiveing data (F endpoint in the above picture)
+* **DATA_APP_ENDPOINT=https://localhost:8083/incoming-data-app/dataAppIncomingMessageReceiver** DataAPP endpoint for receiving data (F endpoint in the above picture)
 * **MULTIPART=mixed** DataAPP endpoint Content Type (choose mixed for Multipart/mixed or form for Multipart/form-data) 
 * Edit external port if need (default values: **8086** for **web sockets over HTTPS**, **8090** for **http**, **8887** for **A endpoint** and  **8889** for **B endpoint**)
 * Forward-To protocol validation can be enabled by setting the property **application.enableProtocolValidation** to *true*. If you have this enabled please refer to the following step.
@@ -374,15 +374,52 @@ Connector health check functionality can be found in [this document](doc/HEALTHC
 
 ## Developer guide section
 
-### How to build Execution Core Container
-Clone projects from the following links and run mvn clean install
+## Building the execution core container
 
-[Multipart Message library](https://github.com/Engineering-Research-and-Development/true-connector-multipart_message_library)
+**Requirements:** <a name="requirements"></a>
 
-[WebSocket Message Streamer library](https://github.com/Engineering-Research-and-Development/market4.0-websocket_message_streamer)
+ `Java11` `Apache Maven`
+ 
+To build the execution core container you will have to do one of the following:
 
-[Execution Core Container](https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container)
+**Solution 1** <a name="solution1"></a>
 
+Use provided libraries on GitHub Package. To do so, you will have to modify Apache Maven settings.xml file like following:
+
+Add in servers section:
+
+```xml
+<servers>
+  <server>
+    <id>github</id> 
+    <username>some_username</username>
+    <password>{your GitHub Personal Access Token}</password> 
+  </server>
+</servers>
+```
+
+How to get GH PAT, you can check following [link](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
+
+
+**Solution 2** <a name="solution2"></a>
+
+ * Clone [Multipart Message Library](https://github.com/Engineering-Research-and-Development/true-connector-multipart_message_library) 
+ * Once this project is cloned, run `mvn clean install`
+
+This will install an internal library that is needed by the execution core container project.
+
+After that you can run `mvn clean package` in the root of the execution core container project, to build it.
+
+
+**NOTE:** If you proceed with Solution 2, pay attention to the Multipart Message Library version in pom.xml file, and check if the same version is used in the execution core container pom.xml, if not modify them according to the one from the clone repository.
+
+### Creating docker image
+
+Once you build the execution core container, if required, you can build docker image, by executing following command, from terminal, inside the root of the project:
+
+```
+docker build -t some_tag .
+```
 ### GitHub Workflow
 
 This repository implements following branch management:
@@ -423,11 +460,9 @@ Input parameters:<br/>
 versionName<br/>
 tagMessage
 
-#### snyk.yml
+#### dependabot
 
-Manual trigger of the GHA.
-
-Execute snyk code analysis for security vulnerabilities.
+Dependabot code analysis for security vulnerabilities is done automatically.
 
 ### Issue management
 
@@ -446,7 +481,7 @@ Update documentation - 2 hours</br>
 
 ### Working on new feature
 
-If you need to work on new feature, be sure first to pull changes from origin, and create new branch, following the naming convetion from develop branch.
+If you need to work on new feature, be sure first to pull changes from origin, and create new branch, following the naming convention from develop branch.
 
 ### Creating Pull Request
 
