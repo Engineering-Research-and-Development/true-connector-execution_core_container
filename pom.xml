@@ -5,7 +5,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.2.11.RELEASE</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>it.eng.idsa</groupId>
 	<artifactId>market4.0-execution_core_container_business_logic
@@ -22,7 +22,7 @@
 		<tomcat.version>9.0.24</tomcat.version>
 		<application.basedir>${basedir}</application.basedir>
 		<multipart.message.processor.version>1.0.17</multipart.message.processor.version>
-		<idscp2.libraries.version>0.5.2</idscp2.libraries.version>
+		<idscp2.libraries.version>0.10.0</idscp2.libraries.version>
 		<jacoco.version>0.8.8</jacoco.version>
 	</properties>
 
@@ -393,13 +393,13 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20210307</version>
+            <version>20230227</version>
         </dependency>
 
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>
             <artifactId>jose4j</artifactId>
-            <version>0.7.8</version>
+            <version>0.9.3</version>
         </dependency>
 
         <dependency>
