@@ -29,7 +29,7 @@ public class HeaderCleaner {
 		for (String technicalHeader : technicalHeadersList) {
 			if (headers.containsKey(technicalHeader)) {
 				logger.debug("==============Technical header=========================="+ technicalHeader);
-				headers.remove(technicalHeader);
+				headers.remove(technicalHeader)
 			}
 		}
 	}
