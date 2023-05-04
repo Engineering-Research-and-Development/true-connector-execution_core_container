@@ -376,13 +376,13 @@ Connector health check functionality can be found in [this document](doc/HEALTHC
 
 ## Building the execution core container
 
-**Requirements:** <a name="requirements"></a>
+**Requirements:**
 
  `Java11` `Apache Maven`
  
 To build the execution core container you will have to do one of the following:
 
-**Solution 1** <a name="solution1"></a>
+**Solution 1**
 
 Use provided libraries on GitHub Package. To do so, you will have to modify Apache Maven settings.xml file like following:
 
@@ -401,7 +401,7 @@ Add in servers section:
 How to get GH PAT, you can check following [link](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
 
 
-**Solution 2** <a name="solution2"></a>
+**Solution 2**
 
  * Clone [Multipart Message Library](https://github.com/Engineering-Research-and-Development/true-connector-multipart_message_library) 
  * Once this project is cloned, run `mvn clean install`
