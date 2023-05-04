@@ -111,7 +111,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledDataAppWebSocket;
-
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void configure() throws Exception {
@@ -135,7 +135,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 		// Camel SSL - Endpoint: B communication http
 		if(!isEnabledWebSocket && !isEnabledIdscp2) {
 			logger.info("REST Configuration");
-			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/data")
+			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/data" + "?httpMethodRestrict=POST")
 				.routeId("data")
 				.process(trueConnectorAuthorization)
 				.policy("adminPolicy")
