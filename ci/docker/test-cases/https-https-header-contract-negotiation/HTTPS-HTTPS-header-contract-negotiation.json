@@ -242,7 +242,7 @@
 			},
 			{
 				"key": "username",
-				"value": "connector",
+				"value": "proxy",
 				"type": "string"
 			}
 		]
@@ -270,7 +270,7 @@
 	"variable": [
 		{
 			"key": "Proxy_Endpoint",
-			"value": "https://localhost:8085/proxy",
+			"value": "https://localhost:8185/proxy",
 			"type": "string"
 		},
 		{

@@ -79,7 +79,7 @@ services:
       - EXTRACT_PAYLOAD_FROM_RESPONSE=${EXTRACT_PAYLOAD_FROM_RESPONSE}
       - CONTRACT_NEGOTIATION_DEMO=${CONTRACT_NEGOTIATION_DEMO}
     ports:
-      - "8083:8083"
+      - "8183:8083"
       - "9000:9000"
     volumes:
       - ./be-dataapp_resources:/config
@@ -165,7 +165,7 @@ services:
       - EXTRACT_PAYLOAD_FROM_RESPONSE=${EXTRACT_PAYLOAD_FROM_RESPONSE}
       - CONTRACT_NEGOTIATION_DEMO=${CONTRACT_NEGOTIATION_DEMO}
     ports:
-      - "8085:8083"
+      - "8185:8083"
       - "9001:9000"
     volumes:
       - ./be-dataapp_resources:/config

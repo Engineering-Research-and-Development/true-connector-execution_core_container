@@ -97,7 +97,7 @@
 					"basic": [
 						{
 							"key": "username",
-							"value": "connector",
+							"value": "proxy",
 							"type": "string"
 						},
 						{

@@ -31,12 +31,12 @@
 					"raw": "{\r\n    \"multipart\": \"wss\",\r\n    \"Forward-To-Internal\": \"wss://ecc-consumer:8887\",\r\n\t\"Forward-To\": \"wss://ecc-provider:8086\",\r\n    \"messageType\": \"ArtifactRequestMessage\",\r\n    \"requestedArtifact\" : \"http://w3id.org/engrd/connector/artifact/test1.csv\"\r\n}"
 				},
 				"url": {
-					"raw": "https://localhost:8085/proxy",
+					"raw": "https://localhost:8185/proxy",
 					"protocol": "https",
 					"host": [
 						"localhost"
 					],
-					"port": "8085",
+					"port": "8185",
 					"path": [
 						"proxy"
 					]
