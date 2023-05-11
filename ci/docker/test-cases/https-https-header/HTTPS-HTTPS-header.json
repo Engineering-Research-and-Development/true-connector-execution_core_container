@@ -68,7 +68,7 @@
                     "script": {
                         "exec": [
                             "pm.test(\"Unauthorized\", function () {\r",
-                            "    pm.response.to.have.status(401);\r"
+                            "    pm.response.to.have.status(401);\r",
                             "});\r",
                             ""
                         ],
