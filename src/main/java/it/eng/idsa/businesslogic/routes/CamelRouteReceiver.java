@@ -1,6 +1,5 @@
 package it.eng.idsa.businesslogic.routes;
 
-import org.apache.camel.CamelAuthorizationException;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
@@ -118,10 +117,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 		
 		interceptFrom().process(connectorHealthCheckProcessor);
 
-		onException(CamelAuthorizationException.class)
-			.handled(true)
-			.process(exceptionProcessorReceiver);
-			
 		//@formatter:off
 		onException(ExceptionForProcessor.class, RuntimeException.class)
 			.handled(true)
@@ -133,8 +128,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 			logger.info("REST Configuration");
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/data" + "?httpMethodRestrict=POST")
 				.routeId("data")
-//				.process(trueConnectorAuthorization)
-//				.policy("adminPolicy")
 				.process(connectorRequestProcessor)
 				.process(originalMessageProcessor)
 				.process(deModifyPayloadProcessor)

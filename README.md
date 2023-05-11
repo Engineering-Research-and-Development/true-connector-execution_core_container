@@ -15,7 +15,7 @@ The ENG Execution Core Container, based on the IDS Base Connector, is the core c
 ## How to Configure and Run
 
 The configuration should be performed customizing the following variables in the **docker-compose** file:
-* **DATA_APP_ENDPOINT=https://localhost:8083/incoming-data-app/dataAppIncomingMessageReceiver** DataAPP endpoint for receiving data (F endpoint in the above picture)
+* **DATA_APP_ENDPOINT=https://localhost:8083/data** DataAPP endpoint for receiving data (F endpoint in the above picture)
 * **MULTIPART=mixed** DataAPP endpoint Content Type (choose mixed for Multipart/mixed or form for Multipart/form-data) 
 * Edit external port if need (default values: **8086** for **web sockets over HTTPS**, **8090** for **http**, **8887** for **A endpoint** and  **8889** for **B endpoint**)
 * Forward-To protocol validation can be enabled by setting the property **application.enableProtocolValidation** to *true*. If you have this enabled please refer to the following step.

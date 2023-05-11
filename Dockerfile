@@ -11,9 +11,6 @@ RUN apk add --no-cache wget
 #  && apt-get install -y wget \
 #  && rm -rf /var/lib/apt/lists/
 
-# Make port 8443 available to the world outside this container
-EXPOSE 8449
-
 RUN mkdir -p /home/nobody/app/sd
 RUN mkdir /var/log/ecc
 WORKDIR /home/nobody
