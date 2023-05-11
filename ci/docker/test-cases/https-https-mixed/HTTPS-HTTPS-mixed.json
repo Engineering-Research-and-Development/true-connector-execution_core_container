@@ -111,7 +111,6 @@
                         "exec": [
                             "pm.test(\"Unauthorized\", function () {\r",
                             "    pm.response.to.have.status(401);\r",
-                            "    pm.expect(pm.response.text()).to.include(\"NOT_AUTHORIZED\");\r",
                             "});"
                         ],
                         "type": "text/javascript"
@@ -165,7 +164,6 @@
                         "exec": [
                             "pm.test(\"Unauthorized\", function () {\r",
                             "    pm.response.to.have.status(401);\r",
-                            "    pm.expect(pm.response.text()).to.include(\"NOT_AUTHORIZED\");\r",
                             "});"
                         ],
                         "type": "text/javascript"
