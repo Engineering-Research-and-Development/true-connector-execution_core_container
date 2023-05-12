@@ -1,4 +1,4 @@
-# TrueConnector Github Actions tests
+# TRUE Connector Github Actions tests
 
 | Test name                                         | Description                                                                    | Tests                                                                                                                                                                                                   | Mixed | Form | Http-headers | Data App <-> ECC<br>(internally) | ECC <-> ECC<br>(between connectors)   |
 | ------------------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | ---- | ------------ | ------------------------------- | ------------------------------------- |
@@ -25,5 +25,5 @@
 
 The Github Actions tests simulate some real world scenarios and use cases of the connector. This is achieved by using Postman scripts which are executed on every push to the <a href=https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container> Execution Core Container repository</a>. The pushed code will be first built using Maven where it has to pass all junit tests.
  Afterwards the JAR is used to create a Docker image using the <a href=https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container/blob/master/Dockerfile>Dockerfile</a> in the same repository.
- During the Github Actions <a href=https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container/blob/master/.github/workflows/ECC.yml>workflow </a> multiple TrueConnector instances will be run with different configurations on which the previously mentioned Postman scripts will be executed.
+ During the Github Actions <a href=https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container/blob/master/.github/workflows/ECC.yml>workflow </a> multiple TRUE Connector instances will be run with different configurations on which the previously mentioned Postman scripts will be executed.
  <a href=https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container/tree/master/ci/docker/test-cases>These scripts</a> consist of requests which will be sent between those connector instances and tests which will be performed on the received responses.
