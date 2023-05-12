@@ -1,7 +1,7 @@
 # Securing Connector Endpoints
 
 
-Execution Core Container (and TRUEConnector) has implemented basic security mechanisms for all "public" endpoints (those endpoints that will be reached from outside world).
+Execution Core Container (and TRUE Connector) has implemented basic security mechanisms for all "public" endpoints (those endpoints that will be reached from outside world).
 
 There are 2 types of users:
 

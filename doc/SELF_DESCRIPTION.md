@@ -195,7 +195,7 @@ The response should be like following:
               "@type": "http://www.w3.org/2001/XMLSchema#string"
             },
             {
-              "@value": "TRUEConnector",
+              "@value": "TRUE Connector",
               "@type": "http://www.w3.org/2001/XMLSchema#string"
             }
           ],
@@ -295,7 +295,7 @@ To add a offered resource to existing resource catalog the request body should l
             "@value": "Engineering Ingegneria Informatica SpA",
             "@type": "http://www.w3.org/2001/XMLSchema#string"
         }, {
-            "@value": "TRUEConnector",
+            "@value": "TRUE Connector",
             "@type": "http://www.w3.org/2001/XMLSchema#string"
         }
     ],

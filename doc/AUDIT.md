@@ -1,12 +1,12 @@
-# Audit events in TRUEConnector
+# Audit events in TRUE Connector
 
 ## Audit event types
 
 TRUE Connector has list of audit events which can be found in following table:
 
-| TRUEConnector audit event type | Description |
+| TRUE Connector audit event type | Description |
 | ----------- | ----------- |
-|TRUE_CONNECTOR_EVENT | Default TRUEConnector event |
+|TRUE_CONNECTOR_EVENT | Default TRUE Connector event |
 |HTTP_REQUEST_RECEIVED | Http request received |
 |USER_AUTHORIZATION_FAILURE | Authorization failure |
 |USER_AUTHORIZATION_SUCCESS | Authorization success |
@@ -65,7 +65,7 @@ User has possibility to turn on all audit events, by setting property to *ALL*, 
 
 Here is the binding of properties and which events are covered with it:
 
-| Audit property | TRUEConnector audit event type | Note |
+| Audit property | TRUE Connector audit event type | Note |
 | ----------- | ----------- | ----------- |  
 | SELF_DESCRIPTION | SELF_DESCRIPTION | Event when connector's Self description is requested |
 | SELF_DESCRIPTION_ALL | SELF_DESCRIPTION, CONTRACT_OFFER, OFFERED_RESOURCE, OFFERED_RESOURCE, REPRESENTATION | All events related with Self Description activities, include events wrapped up with properties from the list|
@@ -84,7 +84,7 @@ With default configuration, events will be logged in log file, in JSON format, l
 {
 	"@timestamp": "2022-10-18T10:54:23.317+02:00",
 	"@version": "1",
-	"message": "TRUEConnector Audit Event was received",
+	"message": "TRUE Connector Audit Event was received",
 	"logger_name": "JSON",
 	"thread_name": "task-1",
 	"level": "INFO",
@@ -105,7 +105,7 @@ With default configuration, events will be logged in log file, in JSON format, l
 {
 	"@timestamp": "2022-10-18T10:54:23.473+02:00",
 	"@version": "1",
-	"message": "TRUEConnector Audit Event was received",
+	"message": "TRUE Connector Audit Event was received",
 	"logger_name": "JSON",
 	"thread_name": "task-2",
 	"level": "INFO",
