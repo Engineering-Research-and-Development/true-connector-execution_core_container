@@ -40,22 +40,6 @@ application.user.lock.duration=30
 application.user.lock.unit=MINUTES
 ```
 
-## Connector user
-
-This user is used to authorize requests on:
-
-```
-/data
-```
-
-endpoint, so called B-endpoint from connector diagram. When sending request, to exchange IDS messages, Authorization header, with basic authorization must be present in request, otherwise, rejection message will be received, NOT AUTHORIZED.
-
-```
-application.user.connector.username=connector
-# 'password' encoded value
-application.user.connector.password=$2a$10$MQ5grDaIqDpBjMlG78PFduv.AMRe9cs0CNm/V4cgUubrqdGTFCH3m
-```
-
 ## Change default password
 
 Using following endpoint, with API user, you can generate new password. 
