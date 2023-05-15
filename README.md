@@ -15,7 +15,7 @@ The ENG Execution Core Container, based on the IDS Base Connector, is the core c
 ## How to Configure and Run
 
 The configuration should be performed customizing the following variables in the **docker-compose** file:
-* **DATA_APP_ENDPOINT=https://localhost:8083/incoming-data-app/dataAppIncomingMessageReceiver** DataAPP endpoint for receiving data (F endpoint in the above picture)
+* **DATA_APP_ENDPOINT=https://localhost:8083/data** DataAPP endpoint for receiving data (F endpoint in the above picture)
 * **MULTIPART=mixed** DataAPP endpoint Content Type (choose mixed for Multipart/mixed or form for Multipart/form-data) 
 * Edit external port if need (default values: **8086** for **web sockets over HTTPS**, **8090** for **http**, **8887** for **A endpoint** and  **8889** for **B endpoint**)
 * Forward-To protocol validation can be enabled by setting the property **application.enableProtocolValidation** to *true*. If you have this enabled please refer to the following step.
@@ -82,7 +82,6 @@ The sender DataApp should send a request using the following schema, specifying 
 curl --location --request POST 'https://{IPADDRESS}:{A_ENDPOINT_PUBLIC_PORT}/incoming-data-app/multipartMessageBodyBinary' \
 --header 'Content-Type: multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6' \
 --header 'Forward-To: {RECEIVER_IP_ADDRESS}:{B_ENDPOINT_PUBLIC_PORT}/data' \
---header 'Authorization: Basic Y29ubmVjdG9yOnBhc3N3b3Jk' \
 --data-raw ' --CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6
 Content-Disposition: form-data; name="header"
 Content-Type: application/json; charset=UTF-8
@@ -144,7 +143,6 @@ Keeping the provided configuration:
 curl --location --request POST 'https://localhost:8887/incoming-data-app/multipartMessageBodyBinary' \
 --header 'Content-Type: multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6' \
 --header 'Forward-To: https://localhost:8889/data' \
---header 'Authorization: Basic Y29ubmVjdG9yOnBhc3N3b3Jk' \
 --data-raw ' --CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6
 Content-Disposition: form-data; name="header"
 Content-Type: application/json; charset=UTF-8
@@ -205,7 +203,6 @@ Content-Length: 50
 curl --location --request POST 'https://{IPADDRESS}:{A_ENDPOINT_PUBLIC_PORT}/incoming-data-app/multipartMessageBodyFormData' \
 --header 'Content-Type: multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6' \
 --header 'Forward-To: {RECEIVER_IP_ADDRESS}:{B_ENDPOINT_PUBLIC_PORT}/data' \
---header 'Authorization: Basic Y29ubmVjdG9yOnBhc3N3b3Jk' \
 --form 'header="{
   \"@context\" : {
     \"ids\" : \"https://w3id.org/idsa/core/\",
@@ -257,7 +254,6 @@ Keeping the provided configuration:
 curl --location --request POST 'https://localhost:8887/incoming-data-app/multipartMessageBodyFormData' \
 --header 'Content-Type: multipart/mixed; boundary=CQWZRdCCXr5aIuonjmRXF-QzcZ2Kyi4Dkn6' \
 --header 'Forward-To: https://localhost:8889/data' \
---header 'Authorization: Basic Y29ubmVjdG9yOnBhc3N3b3Jk' \
 --form 'header="{
   \"@context\" : {
     \"ids\" : \"https://w3id.org/idsa/core/\",
@@ -306,7 +302,6 @@ curl --location --request POST 'https://localhost:8887/incoming-data-app/multipa
 curl --location --request POST 'https://{IPADDRESS}:{A_ENDPOINT_PUBLIC_PORT}/incoming-data-app/multipartMessageHttpHeader' \
 --header 'Content-Type: text/plain' \
 --header 'Forward-To: {RECEIVER_IP_ADDRESS}:8889/data' \
---header 'Authorization: Basic Y29ubmVjdG9yOnBhc3N3b3Jk' \
 --header 'IDS-Messagetype: ids:ArtifactRequestMessage' \
 --header 'IDS-Id: https://w3id.org/idsa/autogen/artifactResponseMessage/eb3ab487-dfb0-4d18-b39a-585514dd044f' \
 --header 'IDS-Issued: 2021-11-24T13:09:42.306Z' \
@@ -332,7 +327,6 @@ curl --location --request POST 'https://localhost:8887/incoming-data-app/multipa
 --header 'Content-Type: text/plain' \
 --header 'Forward-To: https//localhost:8889/data' \
 --header 'IDS-Messagetype: ids:ArtifactRequestMessage' \
---header 'Authorization: Basic Y29ubmVjdG9yOnBhc3N3b3Jk' \
 --header 'IDS-Id: https://w3id.org/idsa/autogen/artifactResponseMessage/eb3ab487-dfb0-4d18-b39a-585514dd044f' \
 --header 'IDS-Issued: 2021-11-24T13:09:42.306Z' \
 --header 'IDS-IssuerConnector: http://w3id.org/engrd/connector/' \

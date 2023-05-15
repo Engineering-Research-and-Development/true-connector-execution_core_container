@@ -12,6 +12,10 @@ All notable changes to this project will be documented in this file.
  - internal/sd now always available on it's own port
  - all camel routes now only support POST method with the exception of internal/sd which is available only with GET
  - dependency vulnerabilities know checked by dependabot
+ 
+### Removed
+
+ - removed authorization from IDS endpoint (B endpoint)
 
 ## [0.3.0-SNAPSHOT] - 2023-04-06
 

@@ -17,7 +17,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
  */
 
 /**
- * The App: market4.0 Execution Core Container Business Logic
+ * The App: TRUE Connector Execution Core Container Business Logic
  */
 @EnableCaching
 @SpringBootApplication

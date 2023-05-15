@@ -16,15 +16,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
-import it.eng.idsa.businesslogic.configuration.CamelSecurityConfiguration;
 
 @Service
 @DependsOn({"encoder"})
@@ -49,9 +48,6 @@ public class InMemoryUserCrudService implements TrueConnectorUserDetailsService 
 	public void setup() {
 		users.put(userConfiguration.getApiUser().getUsername(), new User(UUID.randomUUID().toString(), 
 				userConfiguration.getApiUser().getUsername(), userConfiguration.getApiUser().getPassword(), "ADMIN"));
-		users.put(userConfiguration.getConnectorUser().getUsername(), new User(UUID.randomUUID().toString(), 
-				userConfiguration.getConnectorUser().getUsername(), userConfiguration.getConnectorUser().getPassword(), 
-				CamelSecurityConfiguration.CONNECTOR));
 	}
 	
 	@Override
@@ -101,5 +97,4 @@ public class InMemoryUserCrudService implements TrueConnectorUserDetailsService 
 	    }
 	    return xfHeader.split(",")[0];
 	}
-
 }
