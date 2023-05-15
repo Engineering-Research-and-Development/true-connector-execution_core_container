@@ -97,5 +97,4 @@ public class InMemoryUserCrudService implements TrueConnectorUserDetailsService 
 	    }
 	    return xfHeader.split(",")[0];
 	}
-
 }
