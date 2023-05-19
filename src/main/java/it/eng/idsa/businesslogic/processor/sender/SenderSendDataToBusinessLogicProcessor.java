@@ -3,6 +3,7 @@ package it.eng.idsa.businesslogic.processor.sender;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -27,6 +28,8 @@ import it.eng.idsa.businesslogic.processor.sender.websocket.client.MessageWebSoc
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
+import it.eng.idsa.businesslogic.util.OCSPValidation;
+import it.eng.idsa.businesslogic.util.OCSPValidation.OCSP_STATUS;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -42,12 +45,12 @@ import okhttp3.Response;
 public class SenderSendDataToBusinessLogicProcessor implements Processor {
 
 	private static final Logger logger = LoggerFactory.getLogger(SenderSendDataToBusinessLogicProcessor.class);
-	
+
 	public static final String REGEX_WSS = "(wss://)([^:^/]*)(:)(\\d*)";
 
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
-	
+
 	@Value("${application.eccHttpSendRouter}")
 	private String eccHttpSendRouter;
 
@@ -57,6 +60,9 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	@Value("${application.openDataAppReceiverRouter}")
 	private String openDataAppReceiverRouter;
 
+	@Value("${application.OCSP_RevocationCheckValue:revoked}")
+	private String desideredOCSPRevocationCheckValue;
+
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
 
@@ -65,17 +71,17 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 
 	@Autowired
 	private MessageWebSocketOverHttpSender messageWebSocketOverHttpSender;
-	
+
 	@Autowired
 	private HttpHeaderService httpHeaderService;
 
 	private String webSocketHost;
 	private Integer webSocketPort;
-	
+
 	@Override
 	@CamelAuditable(beforeEventType =  TrueConnectorEventType.CONNECTOR_SEND,
-			successEventType = TrueConnectorEventType.CONNECTOR_RESPONSE, 
-			failureEventType = TrueConnectorEventType.EXCEPTION_SERVER_ERROR)
+	successEventType = TrueConnectorEventType.CONNECTOR_RESPONSE, 
+	failureEventType = TrueConnectorEventType.EXCEPTION_SERVER_ERROR)
 	public void process(Exchange exchange) throws Exception {
 		MultipartMessage multipartMessage = exchange.getMessage().getBody(MultipartMessage.class);
 		Map<String, Object> headerParts = exchange.getMessage().getHeaders();
@@ -88,36 +94,74 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		header= multipartMessage.getHeaderContentString();
 
 		String forwardTo = (String) headerParts.get("Forward-To");
-		logger.info("Sending data to business logic ...");
-			if (isEnabledWebSocket) {
-				// check & extract HTTPS WebSocket IP and Port
-				try {
-					this.extractWebSocketIPAndPort(forwardTo, REGEX_WSS);
-				} catch (Exception e) {
-					logger.info("... bad wss URL - '{}', {}", forwardTo, e.getMessage());
-					rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.BAD_PARAMETERS);
-				}
+
+		if(desideredOCSPRevocationCheckValue == null) {
+			logger.info("desidered OCSP Revocation Check Value is null. Put default value 'revoked'.");
+			desideredOCSPRevocationCheckValue = OCSPValidation.OCSP_STATUS.revoked.name();
+		}
+		
+		logger.info("desidered OCSP Revocation Check Value " + desideredOCSPRevocationCheckValue);
+
+		if(desideredOCSPRevocationCheckValue.equalsIgnoreCase(OCSPValidation.OCSP_STATUS.good.name()) ||
+				desideredOCSPRevocationCheckValue.equalsIgnoreCase(OCSPValidation.OCSP_STATUS.unknown.name())) {
+
+			OCSPValidation validation = new OCSPValidation();
+			OCSP_STATUS result = validation.testURL(new URL(forwardTo));
+
+			logger.info("OCSP test result " + result);
+
+			if(result.equals(OCSP_STATUS.revoked)) {
+				logger.error("The target certificate is 'revoked'!!!");
+				//this.handleResponseWebSocket(exchange, null, "The target certificate is 'revoked'!!!", forwardTo);
+											
+				rejectionMessageService.sendRejectionMessage(message, RejectionReason.NOT_AUTHENTICATED);
 				
-				// -- Send data using HTTPS - (Client) - WebSocket
-				String response = messageWebSocketOverHttpSender.sendMultipartMessageWebSocketOverHttps(this.webSocketHost,
-						this.webSocketPort, header, payload, (Message) exchange.getProperty("Original-Message-Header"));
+				return;
+			} else if(result.equals(OCSP_STATUS.unknown) && 
+					desideredOCSPRevocationCheckValue.equalsIgnoreCase(OCSPValidation.OCSP_STATUS.good.name())) {
+				logger.error("The target certificate is 'unknown' but 'good' is required!!!");
+				//this.handleResponseWebSocket(exchange, null, "The target certificate is 'unknown' but 'good' is required!!!", forwardTo);
+				
+				rejectionMessageService.sendRejectionMessage(message, RejectionReason.NOT_AUTHENTICATED);
+				
+				return;
+			}
+
+		} else if (!desideredOCSPRevocationCheckValue.equalsIgnoreCase(OCSPValidation.OCSP_STATUS.revoked.name())) {
+			logger.warn("application.OCSP_RevocationCheckValue invalid. Just one between 'good', 'unknown' and 'revoked' is admitted.");
+		}
+
+
+		logger.info("Sending data to business logic ...");
+		if (isEnabledWebSocket) {
+			// check & extract HTTPS WebSocket IP and Port
+			try {
+				this.extractWebSocketIPAndPort(forwardTo, REGEX_WSS);
+			} catch (Exception e) {
+				logger.info("... bad wss URL - '{}', {}", forwardTo, e.getMessage());
+				rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.BAD_PARAMETERS);
+			}
+
+			// -- Send data using HTTPS - (Client) - WebSocket
+			String response = messageWebSocketOverHttpSender.sendMultipartMessageWebSocketOverHttps(this.webSocketHost,
+					this.webSocketPort, header, payload, (Message) exchange.getProperty("Original-Message-Header"));
+			// Handle response
+			this.handleResponseWebSocket(exchange, message, response, forwardTo);
+		} else {
+			Response httpResponse = null;
+			try {
+				// Send MultipartMessage HTTPS
+				httpResponse = this.sendMultipartMessage(headerParts, forwardTo, message, multipartMessage);
+				// Check response
+				sendDataToBusinessLogicService.checkResponse((Message) exchange.getProperty("Original-Message-Header"), httpResponse, forwardTo);
 				// Handle response
-				this.handleResponseWebSocket(exchange, message, response, forwardTo);
-			} else {
-				Response httpResponse = null;
-				try {
-					// Send MultipartMessage HTTPS
-					httpResponse = this.sendMultipartMessage(headerParts, forwardTo, message, multipartMessage);
-					// Check response
-					sendDataToBusinessLogicService.checkResponse((Message) exchange.getProperty("Original-Message-Header"), httpResponse, forwardTo);
-					// Handle response
-					this.handleResponse(exchange, message, httpResponse, forwardTo);
-				} finally {
-					if (httpResponse != null) {
-						httpResponse.close();
-					}
+				this.handleResponse(exchange, message, httpResponse, forwardTo);
+			} finally {
+				if (httpResponse != null) {
+					httpResponse.close();
 				}
 			}
+		}
 	}
 
 	private Response sendMultipartMessage(Map<String, Object> headerParts, String forwardTo, Message message, MultipartMessage multipartMessage)
@@ -125,23 +169,23 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 			ExecutionException, UnsupportedEncodingException {
 		Response response = null;
 		// -- Send message using HTTPS
-			switch (eccHttpSendRouter) {
-			case "mixed": {
-				response = sendDataToBusinessLogicService.sendMessageBinary(forwardTo, multipartMessage, headerParts);
-				break;
-			}
-			case "form": {
-				response = sendDataToBusinessLogicService.sendMessageFormData(forwardTo, multipartMessage, headerParts);
-				break;
-			}
-			case "http-header": {
-				response = sendDataToBusinessLogicService.sendMessageHttpHeader(forwardTo, multipartMessage, headerParts);
-				break;
-			}
-			default:
-				logger.error("Applicaton property: application.eccHttpSendRouter is not properly set");
-				rejectionMessageService.sendRejectionMessage(message, RejectionReason.INTERNAL_RECIPIENT_ERROR);
-			}
+		switch (eccHttpSendRouter) {
+		case "mixed": {
+			response = sendDataToBusinessLogicService.sendMessageBinary(forwardTo, multipartMessage, headerParts);
+			break;
+		}
+		case "form": {
+			response = sendDataToBusinessLogicService.sendMessageFormData(forwardTo, multipartMessage, headerParts);
+			break;
+		}
+		case "http-header": {
+			response = sendDataToBusinessLogicService.sendMessageHttpHeader(forwardTo, multipartMessage, headerParts);
+			break;
+		}
+		default:
+			logger.error("Applicaton property: application.eccHttpSendRouter is not properly set");
+			rejectionMessageService.sendRejectionMessage(message, RejectionReason.INTERNAL_RECIPIENT_ERROR);
+		}
 		return response;
 	}
 
@@ -153,9 +197,9 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		logger.info("response received from Provider Connector = " + responseString);
 
 		exchange.getMessage().setHeaders(httpHeaderService.okHttpHeadersToMap(response.headers()));
-		
+
 		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) {
-//			exchange.getMessage().setBody(responseString);
+			//			exchange.getMessage().setBody(responseString);
 			message = httpHeaderService.headersToMessage(httpHeaderService.okHttpHeadersToMap(response.headers()));
 			Map<String, String> headerHeaderContentType = new HashMap<>();
 			headerHeaderContentType.put("Content-Type", "application/ld+json");
@@ -179,9 +223,9 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 			logger.info("...communication error");
 			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.INTERNAL_RECIPIENT_ERROR);
 		} else {
-//			logger.info("response received from the DataAPP=" + responseString);
+			//			logger.info("response received from the DataAPP=" + responseString);
 			logger.info("data sent to destination " + forwardTo);
-//			logger.info("Successful response: " + responseString);
+			//			logger.info("Successful response: " + responseString);
 			// TODO:
 			// Set original body which is created using the original payload and header
 			MultipartMessage mm = MultipartMessageProcessor.parseMultipartMessage(responseString);
