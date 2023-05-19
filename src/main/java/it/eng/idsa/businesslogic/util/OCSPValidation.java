@@ -15,7 +15,6 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import it.eng.idsa.businesslogic.service.ProcessExecutor;
 import it.eng.idsa.businesslogic.service.impl.ProcessExecutorImpl;
@@ -31,28 +30,52 @@ public class OCSPValidation {
 
 	public enum OCSP_STATUS { good, revoked, unknown }; 
 	
-	@Autowired
-	private ProcessExecutor processExecutor = new ProcessExecutorImpl();
-
-	public static void main(String[] args) {
-		OCSPValidation sovs = new OCSPValidation();
-
-		try {
-			OCSP_STATUS result = sovs.testURL(new URL("https://lucalux.giize.com:8890/data"));
-			//OCSP_STATUS result = sovs.testURL(new URL("https://wikipedia.org/wiki/Pagina_principale"));
-			//OCSP_STATUS result = sovs.testConnectionTo(new URL("https://revoked.badssl.com/"));
-			
-			logger.info(result.toString());
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (OCSPValidationException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public OCSP_STATUS testURL(URL url) throws OCSPValidationException {
-		//Calendar before = Calendar.getInstance();
+	public static boolean checkOCSPCerificate(URL url, String desideredOCSPRevocationCheckValueString) throws OCSPValidationException {
+				
+		OCSP_STATUS desideredOCSPRevocationCheckValue = OCSP_STATUS.revoked;
 		
+		try {
+			desideredOCSPRevocationCheckValue = OCSP_STATUS.valueOf(desideredOCSPRevocationCheckValueString);
+		} catch (NullPointerException e) {
+			logger.info("desidered OCSP Revocation Check Value is null. Put default value 'revoked'.");
+			desideredOCSPRevocationCheckValue = OCSP_STATUS.revoked;
+		} catch (IllegalArgumentException e) {
+			logger.warn("application.OCSP_RevocationCheckValue invalid. Just one between 'good', 'unknown' and 'revoked' is admitted.");
+			desideredOCSPRevocationCheckValue = OCSP_STATUS.revoked;
+		}
+				
+		logger.info("desidered OCSP Revocation Check Value " + desideredOCSPRevocationCheckValue);
+
+		if(desideredOCSPRevocationCheckValue.equals(OCSPValidation.OCSP_STATUS.good) ||
+				desideredOCSPRevocationCheckValue.equals(OCSPValidation.OCSP_STATUS.unknown)) {
+
+			OCSPValidation validation = new OCSPValidation();
+			OCSP_STATUS result = validation.testURL(url);
+
+			logger.info("OCSP test result " + result);
+
+			if(result.equals(OCSP_STATUS.revoked)) {
+				logger.error("The target certificate is 'revoked'!!!");
+															
+				//rejectionMessageService.sendRejectionMessage(message, RejectionReason.NOT_AUTHENTICATED);
+				
+				return false;
+			} else if(result.equals(OCSP_STATUS.unknown) && 
+					desideredOCSPRevocationCheckValue.equals(OCSPValidation.OCSP_STATUS.good)) {
+				logger.error("The target certificate is 'unknown' but 'good' is required!!!");
+								
+				//rejectionMessageService.sendRejectionMessage(message, RejectionReason.NOT_AUTHENTICATED);
+				
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	private OCSP_STATUS testURL(URL url) throws OCSPValidationException {
+		ProcessExecutor processExecutor = new ProcessExecutorImpl();
+				
 		String host = url.getHost();
 		int port = url.getPort();
 		
@@ -109,7 +132,7 @@ public class OCSPValidation {
 			cmdList.add("/bin/sh");
 			cmdList.add("-c");
 			cmdList.add("openssl s_client -connect " + host + ":" + port + " -showcerts 2>&1 < /dev/null | sed -n '/-----BEGIN/,/-----END/p' > " + tmpdir + host + "_chain.pem");
-			String writeCertificateChainResponse = processExecutor.executeProcess(cmdList);
+			processExecutor.executeProcess(cmdList);
 			
 			if(new File(tmpdir + host + "_chain.pem").length() > 0) {
 				logger.info("File" + tmpdir + host + "_chain.pem correctly saved.");				
@@ -168,29 +191,8 @@ public class OCSPValidation {
 							
 			logger.debug("delete .pem file from FileSystem");
 		}
-		
-		/*
-		 * StringBuffer certs = new StringBuffer();
-		 * 
-		 * processResponse = processResponse.substring(processResponse.
-		 * indexOf("-----BEGIN CERTIFICATE-----"));
-		 * 
-		 * while(processResponse.indexOf("-----BEGIN CERTIFICATE-----") != -1) { String
-		 * newcert = processResponse.substring(processResponse.
-		 * indexOf("-----BEGIN CERTIFICATE-----"),
-		 * processResponse.indexOf("-----END CERTIFICATE-----")+25);
-		 * certs.append(newcert+"\n\n");
-		 * 
-		 * processResponse = processResponse.substring(processResponse.
-		 * indexOf("-----BEGIN CERTIFICATE-----") + newcert.length()); }
-		 * 
-		 * System.err.println(certs);
-		 */
-
-		//logger.info((Calendar.getInstance().getTimeInMillis() - before.getTimeInMillis())/1000);
-		
-		return null;
-
+				
+		return OCSP_STATUS.unknown;
 	}		
 
 }

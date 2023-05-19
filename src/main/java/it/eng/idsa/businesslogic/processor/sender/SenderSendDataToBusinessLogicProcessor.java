@@ -29,7 +29,6 @@ import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.util.OCSPValidation;
-import it.eng.idsa.businesslogic.util.OCSPValidation.OCSP_STATUS;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -95,43 +94,14 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 
 		String forwardTo = (String) headerParts.get("Forward-To");
 
-		if(desideredOCSPRevocationCheckValue == null) {
-			logger.info("desidered OCSP Revocation Check Value is null. Put default value 'revoked'.");
-			desideredOCSPRevocationCheckValue = OCSPValidation.OCSP_STATUS.revoked.name();
+		boolean ocspCheck = OCSPValidation.checkOCSPCerificate(new URL(forwardTo), desideredOCSPRevocationCheckValue);
+		
+		if(!ocspCheck) {
+			rejectionMessageService.sendRejectionMessage(message, RejectionReason.NOT_AUTHENTICATED);
+			
+			return;
 		}
 		
-		logger.info("desidered OCSP Revocation Check Value " + desideredOCSPRevocationCheckValue);
-
-		if(desideredOCSPRevocationCheckValue.equalsIgnoreCase(OCSPValidation.OCSP_STATUS.good.name()) ||
-				desideredOCSPRevocationCheckValue.equalsIgnoreCase(OCSPValidation.OCSP_STATUS.unknown.name())) {
-
-			OCSPValidation validation = new OCSPValidation();
-			OCSP_STATUS result = validation.testURL(new URL(forwardTo));
-
-			logger.info("OCSP test result " + result);
-
-			if(result.equals(OCSP_STATUS.revoked)) {
-				logger.error("The target certificate is 'revoked'!!!");
-				//this.handleResponseWebSocket(exchange, null, "The target certificate is 'revoked'!!!", forwardTo);
-											
-				rejectionMessageService.sendRejectionMessage(message, RejectionReason.NOT_AUTHENTICATED);
-				
-				return;
-			} else if(result.equals(OCSP_STATUS.unknown) && 
-					desideredOCSPRevocationCheckValue.equalsIgnoreCase(OCSPValidation.OCSP_STATUS.good.name())) {
-				logger.error("The target certificate is 'unknown' but 'good' is required!!!");
-				//this.handleResponseWebSocket(exchange, null, "The target certificate is 'unknown' but 'good' is required!!!", forwardTo);
-				
-				rejectionMessageService.sendRejectionMessage(message, RejectionReason.NOT_AUTHENTICATED);
-				
-				return;
-			}
-
-		} else if (!desideredOCSPRevocationCheckValue.equalsIgnoreCase(OCSPValidation.OCSP_STATUS.revoked.name())) {
-			logger.warn("application.OCSP_RevocationCheckValue invalid. Just one between 'good', 'unknown' and 'revoked' is admitted.");
-		}
-
-
 		logger.info("Sending data to business logic ...");
 		if (isEnabledWebSocket) {
 			// check & extract HTTPS WebSocket IP and Port
