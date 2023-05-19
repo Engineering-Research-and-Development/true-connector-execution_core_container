@@ -12,7 +12,10 @@ import org.passay.LengthRule;
 import org.passay.Rule;
 import org.passay.WhitespaceRule;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @ConfigurationProperties(prefix ="application.password.validator")
@@ -113,5 +116,10 @@ public class PasswordConfig {
 
 	public void setMinSpecial(int minSpecial) {
 		this.minSpecial = minSpecial;
+	}
+	
+	@Bean
+	public PasswordEncoder encoder() {
+		return new BCryptPasswordEncoder();
 	}
 }

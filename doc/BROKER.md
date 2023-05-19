@@ -2,10 +2,6 @@
 
 Here are sample requests, which can be used as starting point to make request towards Broker.
 
-**Note:** Some Brokers might require authorization, in that case, please add Authorization part in proxy request:
- 
-![Broker Auth](broker_auth.jpg?raw=true "Broker Authorization")
-
 ### Registration request
 In order to register to broker, proxy endpoint can be used to send register request. 
 
