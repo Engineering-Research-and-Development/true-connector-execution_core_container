@@ -3,6 +3,7 @@ package it.eng.idsa.businesslogic.processor.sender;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -94,7 +95,16 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 
 		String forwardTo = (String) headerParts.get("Forward-To");
 
-		boolean ocspCheck = OCSPValidation.checkOCSPCerificate(new URL(forwardTo), desideredOCSPRevocationCheckValue);
+		URL forwardToURL = null;
+		try {
+			forwardToURL = new URL(forwardTo);
+		} catch (MalformedURLException e) {
+			if(forwardTo.startsWith("wss")) {
+				forwardToURL = new URL(forwardTo.replaceFirst("wss", "https"));
+			}
+		}
+		
+		boolean ocspCheck = OCSPValidation.checkOCSPCerificate(forwardToURL, desideredOCSPRevocationCheckValue);
 		
 		if(!ocspCheck) {
 			rejectionMessageService.sendRejectionMessage(message, RejectionReason.NOT_AUTHENTICATED);
