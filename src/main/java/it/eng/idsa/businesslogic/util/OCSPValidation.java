@@ -7,11 +7,9 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,20 +26,20 @@ public class OCSPValidation {
 
 	private static final Logger logger = LoggerFactory.getLogger(OCSPValidation.class);
 
-	public enum OCSP_STATUS { good, revoked, unknown }; 
+	public enum OCSP_STATUS { good, none, unknown }; 
 	
 	public static boolean checkOCSPCerificate(URL url, String desideredOCSPRevocationCheckValueString) throws OCSPValidationException {
 				
-		OCSP_STATUS desideredOCSPRevocationCheckValue = OCSP_STATUS.revoked;
+		OCSP_STATUS desideredOCSPRevocationCheckValue = OCSP_STATUS.none;
 		
 		try {
 			desideredOCSPRevocationCheckValue = OCSP_STATUS.valueOf(desideredOCSPRevocationCheckValueString);
 		} catch (NullPointerException e) {
 			logger.info("desidered OCSP Revocation Check Value is null. Put default value 'revoked'.");
-			desideredOCSPRevocationCheckValue = OCSP_STATUS.revoked;
+			desideredOCSPRevocationCheckValue = OCSP_STATUS.none;
 		} catch (IllegalArgumentException e) {
 			logger.warn("application.OCSP_RevocationCheckValue invalid. Just one between 'good', 'unknown' and 'revoked' is admitted.");
-			desideredOCSPRevocationCheckValue = OCSP_STATUS.revoked;
+			desideredOCSPRevocationCheckValue = OCSP_STATUS.none;
 		}
 				
 		logger.info("desidered OCSP Revocation Check Value " + desideredOCSPRevocationCheckValue);
@@ -54,17 +52,13 @@ public class OCSPValidation {
 
 			logger.info("OCSP test result " + result);
 
-			if(result.equals(OCSP_STATUS.revoked)) {
+			if(result.equals(OCSP_STATUS.none)) {
 				logger.error("The target certificate is 'revoked'!!!");
-															
-				//rejectionMessageService.sendRejectionMessage(message, RejectionReason.NOT_AUTHENTICATED);
 				
 				return false;
 			} else if(result.equals(OCSP_STATUS.unknown) && 
 					desideredOCSPRevocationCheckValue.equals(OCSPValidation.OCSP_STATUS.good)) {
 				logger.error("The target certificate is 'unknown' but 'good' is required!!!");
-								
-				//rejectionMessageService.sendRejectionMessage(message, RejectionReason.NOT_AUTHENTICATED);
 				
 				return false;
 			}
@@ -87,29 +81,48 @@ public class OCSPValidation {
 		
 		logger.debug("temp dir -> " + tmpdir);
 		
+		List<String> startCmdList = getStartCmdList();
+				
 		/* get Host Certificate */
-		List<String> cmdList = new ArrayList<>();
-		cmdList.add("/bin/sh");
-		cmdList.add("-c");
-		cmdList.add("openssl s_client -connect " + host + ":" + port + " 2>&1 < /dev/null | sed -n '/-----BEGIN/,/-----END/p' > " + tmpdir + host + ".pem");
+		List<String> cmdList = new ArrayList<String>(startCmdList);
+		//cmdList.add("/bin/sh");
+		//cmdList.add("-c");
+		//cmdList.add("openssl s_client -connect " + host + ":" + port + " 2>&1 < /dev/null | sed -n '/-----BEGIN/,/-----END/p' > " + tmpdir + host + ".pem");
+		cmdList.add("echo | openssl s_client -connect " + host + ":" + port + " -servername " + host);// + " 2>&1 < /dev/null | sed -n '/-----BEGIN/,/-----END/p' > " + tmpdir + host + ".pem");
 		
-		String writeCertificateResponse = processExecutor.executeProcess(cmdList);
+		String getCertificateResponse = processExecutor.executeProcess(cmdList);
 		
-		File hostCertificate = new File(tmpdir + host + ".pem");
-		if(hostCertificate.length() > 0) {
-			logger.info("File " + tmpdir + host + ".pem correctly saved.");
+		String serverCertificate = getCertificatesInString(getCertificateResponse, null);
+		/*
+		 * try { serverCertificate =
+		 * getCertificateResponse.substring(getCertificateResponse.indexOf("-----BEGIN")
+		 * , getCertificateResponse.indexOf("END CERTIFICATE-----") + 20); } catch
+		 * (IndexOutOfBoundsException e) {
+		 * logger.error("The server certificate is empty."); }
+		 */
+				
+		Charset charset = StandardCharsets.UTF_8;
+		
+		if(serverCertificate.length() > 0) {
+			try {
+				Files.write(Paths.get(tmpdir + host + ".pem"), serverCertificate.getBytes(charset));
+				logger.info("File " + tmpdir + host + ".pem correctly saved.");
+			} catch (IOException e) {
+				logger.warn(e.getMessage(), e.getCause());
+				throw new OCSPValidationException("OCSPValidationException() cause:", e.getCause());
+			}			
 		} else {
 			logger.error("File " + tmpdir + host + ".pem is empty.");
 			
-			hostCertificate.delete();
+			//hostCertificate.delete();
 			
 			return OCSP_STATUS.unknown;
 		}
 		
 		/* get OCSP URI if exist */
-		cmdList = new ArrayList<>();
-		cmdList.add("/bin/sh");
-		cmdList.add("-c");
+		cmdList = new ArrayList<String>(startCmdList);
+		//cmdList.add("/bin/sh");
+		//cmdList.add("-c");
 		cmdList.add("openssl x509 -noout -ocsp_uri -in " + tmpdir + host + ".pem");
 		
 		String existOCSPUriResponse = processExecutor.executeProcess(cmdList);
@@ -117,8 +130,9 @@ public class OCSPValidation {
 		logger.info("Test to verify if exist a OCSP server Uri. Response " + existOCSPUriResponse);
 		
 		if(existOCSPUriResponse.isBlank()) {
-			logger.error("NOT exist a OCSP server Uri. Response " + writeCertificateResponse);
+			logger.error("NOT exist a OCSP server Uri. Response " + getCertificateResponse);
 			
+			File hostCertificate = new File(tmpdir + host + ".pem");
 			hostCertificate.delete();
 			
 			return OCSP_STATUS.unknown;
@@ -128,53 +142,41 @@ public class OCSPValidation {
 			URL ocspUri = new URL(existOCSPUriResponse);
 			
 			/* get Certificate Chain */			
-			cmdList = new ArrayList<>();
-			cmdList.add("/bin/sh");
-			cmdList.add("-c");
-			cmdList.add("openssl s_client -connect " + host + ":" + port + " -showcerts 2>&1 < /dev/null | sed -n '/-----BEGIN/,/-----END/p' > " + tmpdir + host + "_chain.pem");
-			processExecutor.executeProcess(cmdList);
+			cmdList = new ArrayList<String>(startCmdList);
+			//cmdList.add("/bin/sh");
+			//cmdList.add("-c");
+			//cmdList.add("openssl s_client -connect " + host + ":" + port + " -showcerts 2>&1 < /dev/null | sed -n '/-----BEGIN/,/-----END/p' > " + tmpdir + host + "_chain.pem");
+			cmdList.add("echo | openssl s_client -connect " + host + ":" + port + " -showcerts"); // 2>&1 < /dev/null | sed -n '/-----BEGIN/,/-----END/p' > " + tmpdir + host + "_chain.pem");
 			
-			if(new File(tmpdir + host + "_chain.pem").length() > 0) {
-				logger.info("File" + tmpdir + host + "_chain.pem correctly saved.");				
+			String getChainResponse = processExecutor.executeProcess(cmdList);
+			
+			String chainCertificate = getCertificatesInString(getChainResponse, serverCertificate);
+			
+			if(!chainCertificate.isBlank()) {
+				try {
+					Files.write(Paths.get(tmpdir + host + "_chain.pem"), chainCertificate.getBytes(charset));
+					logger.info("File" + tmpdir + host + "_chain.pem correctly saved.");				
+				} catch (IOException e) {
+					logger.warn(e.getMessage(), e.getCause());
+					throw new OCSPValidationException("OCSPValidationException() cause:", e.getCause());
+				}
 			} else {
 				logger.error("File " + tmpdir + host + "_chain.pem NOT saved.");
 				return OCSP_STATUS.unknown;
 			}
-			
-			try {
-				Path pathChain = Paths.get(tmpdir + host + "_chain.pem");
-				Charset charset = StandardCharsets.UTF_8;
-
-				String chainContent = new String(Files.readAllBytes(pathChain), charset);
-				
-				Path pathCertificate = Paths.get(tmpdir + host + ".pem");
-
-				String certificateContent = new String(Files.readAllBytes(pathCertificate), charset);
-				
-				logger.debug(host + "_chain.pem -->\n" + chainContent);
-				logger.info(host + "_chain.pem downloaded hashcode " + chainContent.hashCode());
-				chainContent = chainContent.replaceAll(Pattern.quote(certificateContent),"");
-				logger.info(host + "_chain.pem hashcode after removing target certificate " + chainContent.hashCode());
-				logger.debug(host + "_chain.pem after removing target certificate -->\n" + chainContent);
-								
-				Files.write(pathChain, chainContent.getBytes(charset));
-			} catch (IOException e) {
-				logger.warn(e.getMessage(), e.getCause());
-				throw new OCSPValidationException("OCSPValidationException() cause:", e.getCause());
-			}
-			
+					
 			/* sending OCSP request */
-			cmdList = new ArrayList<>();
-			cmdList.add("/bin/sh");
-			cmdList.add("-c");
+			cmdList = new ArrayList<String>(startCmdList);
+			//cmdList.add("/bin/sh");
+			//cmdList.add("-c");
 			cmdList.add("openssl ocsp -issuer " + tmpdir + host + "_chain.pem -cert " + tmpdir + host + ".pem -text -url "+ ocspUri);
 			
 			String ocspTestResponse = processExecutor.executeProcess(cmdList);
 			
 			logger.debug("OCSP test response " + ocspTestResponse);
 						
-			if(ocspTestResponse.contains(": " + OCSP_STATUS.revoked.name())) {
-				return OCSP_STATUS.revoked;
+			if(ocspTestResponse.contains(": " + OCSP_STATUS.none.name())) {
+				return OCSP_STATUS.none;
 			} else if(ocspTestResponse.contains(": " + OCSP_STATUS.good.name())) {
 				return OCSP_STATUS.good;
 			} else if(ocspTestResponse.contains(": " + OCSP_STATUS.unknown.name())) {
@@ -186,14 +188,51 @@ public class OCSPValidation {
 			throw new OCSPValidationException("OCSPValidationException() cause:", e.getCause());
 		} finally {
 			/* delete cert files*/
-			new File(tmpdir + host + ".pem").delete();
-			new File(tmpdir + host + "_chain.pem").delete();
+			//new File(tmpdir + host + ".pem").delete();
+			//new File(tmpdir + host + "_chain.pem").delete();
 							
 			logger.debug("delete .pem file from FileSystem");
 		}
 				
 		return OCSP_STATUS.unknown;
+	}
+
+	private List<String> getStartCmdList() {
+		List<String> startCmdList = new ArrayList<String>();
+		if(System.getProperty("os.name").toLowerCase().contains("win")) {
+			logger.info("Running on windows");
+			startCmdList.add("cmd.exe");
+			startCmdList.add("/c");
+		} else {
+			startCmdList.add("/bin/sh");
+			startCmdList.add("-c");
+		}
+		return startCmdList;
 	}		
 
+	private String getCertificatesInString(String startingChain, String certificateToExclude) {
+		String remainString = startingChain;
+		
+		List<String> certificatesInChain = new ArrayList<String>();
+		
+		while(remainString.indexOf("-----BEGIN CERTIFICATE-----") != -1) {
+			int indexEndCerificate = remainString.indexOf("-----END CERTIFICATE-----") + 25;
+			certificatesInChain.add(
+					remainString.substring(remainString.indexOf("-----BEGIN CERTIFICATE-----"), 
+							indexEndCerificate));
+			remainString = remainString.substring(indexEndCerificate);			
+		}
+		
+		StringBuffer result = new StringBuffer();
+		
+		for (String certificateCurr : certificatesInChain) {
+			if(!(certificateCurr + "\n").equals(certificateToExclude)) {
+				result.append(certificateCurr + "\n");
+			}
+		}
+		
+		return result.toString();		
+	}
+	
 }
 

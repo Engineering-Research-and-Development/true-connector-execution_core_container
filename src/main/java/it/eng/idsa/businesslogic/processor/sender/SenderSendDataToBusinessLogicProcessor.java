@@ -108,8 +108,6 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		
 		if(!ocspCheck) {
 			rejectionMessageService.sendRejectionMessage(message, RejectionReason.NOT_AUTHENTICATED);
-			
-			return;
 		}
 		
 		logger.info("Sending data to business logic ...");
