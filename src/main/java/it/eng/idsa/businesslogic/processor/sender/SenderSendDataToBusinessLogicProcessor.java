@@ -60,7 +60,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	@Value("${application.openDataAppReceiverRouter}")
 	private String openDataAppReceiverRouter;
 
-	@Value("${application.OCSP_RevocationCheckValue:revoked}")
+	@Value("${application.OCSP_RevocationCheckValue:none}")
 	private String desideredOCSPRevocationCheckValue;
 
 	@Autowired
