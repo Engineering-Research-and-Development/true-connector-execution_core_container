@@ -97,6 +97,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		boolean ocspCheck = false;
 		if(OCSP_STATUS.none.equals(desideredOCSPRevocationCheckValue)) {
 			logger.info("Skipping OCSP validation");
+			ocspCheck = true;
 		} else {
 			ocspCheck = OCSPValidation.checkOCSPCerificate(forwardTo, desideredOCSPRevocationCheckValue);
 		}
