@@ -27,6 +27,7 @@ import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.util.MockUtil;
 import it.eng.idsa.businesslogic.util.RequestResponseUtil;
 import it.eng.idsa.businesslogic.util.RouterType;
+import it.eng.idsa.businesslogic.util.OCSPValidation.OCSP_STATUS;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -80,6 +81,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 				.withPayloadContent(PAYLOAD_RESPONSE)
 				.build();
 		multipartResponse = MultipartMessageProcessor.multipartMessagetoString(multipartMessage);
+		ReflectionTestUtils.setField(processor, "desideredOCSPRevocationCheckValue", OCSP_STATUS.none, OCSP_STATUS.class);
 	}
 
 	@Test

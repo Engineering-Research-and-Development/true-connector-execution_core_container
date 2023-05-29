@@ -3,8 +3,6 @@ package it.eng.idsa.businesslogic.processor.sender;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -30,6 +28,7 @@ import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.util.OCSPValidation;
+import it.eng.idsa.businesslogic.util.OCSPValidation.OCSP_STATUS;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
@@ -61,7 +60,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	private String openDataAppReceiverRouter;
 
 	@Value("${application.OCSP_RevocationCheckValue:none}")
-	private String desideredOCSPRevocationCheckValue;
+	private OCSP_STATUS desideredOCSPRevocationCheckValue;
 
 	@Autowired
 	private RejectionMessageService rejectionMessageService;
@@ -95,16 +94,12 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 
 		String forwardTo = (String) headerParts.get("Forward-To");
 
-		URL forwardToURL = null;
-		try {
-			forwardToURL = new URL(forwardTo);
-		} catch (MalformedURLException e) {
-			if(forwardTo.startsWith("wss")) {
-				forwardToURL = new URL(forwardTo.replaceFirst("wss", "https"));
-			}
+		boolean ocspCheck = false;
+		if(OCSP_STATUS.none.equals(desideredOCSPRevocationCheckValue)) {
+			logger.info("Skipping OCSP validation");
+		} else {
+			ocspCheck = OCSPValidation.checkOCSPCerificate(forwardTo, desideredOCSPRevocationCheckValue);
 		}
-		
-		boolean ocspCheck = OCSPValidation.checkOCSPCerificate(forwardToURL, desideredOCSPRevocationCheckValue);
 		
 		if(!ocspCheck) {
 			rejectionMessageService.sendRejectionMessage(message, RejectionReason.NOT_AUTHENTICATED);
