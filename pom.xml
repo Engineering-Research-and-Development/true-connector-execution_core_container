@@ -8,12 +8,10 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>it.eng.idsa</groupId>
-	<artifactId>market4.0-execution_core_container_business_logic
-	</artifactId>
+	<artifactId>true-connector-execution_core_container</artifactId>
 	<version>0.3.1-SNAPSHOT</version>
-	<name>market4.0-execution_core_container_business_logic</name>
-	<description>Market4.0 execution core container Business Logic
-	</description>
+	<name>true-connector-execution_core_container</name>
+	<description>TRUE Connector execution core container</description>
 	<properties>
 		<project.java.version>11</project.java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

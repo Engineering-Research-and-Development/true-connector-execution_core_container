@@ -1,6 +1,6 @@
-# TRUEConnector Health Check
+# TRUE Connector Health Check
 
-TRUEConnector has logic to verify internal and external health check. This means that for internal health check availability of internal components availability is check and for audit log volume, free space is check. For external health check, availability (reachability) of external services is checked - DAPS and Clearing House.
+TRUE Connector has logic to verify internal and external health check. This means that for internal health check availability of internal components availability is check and for audit log volume, free space is check. For external health check, availability (reachability) of external services is checked - DAPS and Clearing House.
 
 If health check logic is turned on, by setting up the property
 
@@ -30,7 +30,7 @@ Following health check logic includes following:
  
 ### Audit log volume free space
  
-When running in dockerized environment, volume for audit logs can be mounted, and TRUEConnector will check the amount of remaining space on that volume. Logic will read audit **file** location from logback.xml file
+When running in dockerized environment, volume for audit logs can be mounted, and TRUE Connector will check the amount of remaining space on that volume. Logic will read audit **file** location from logback.xml file
 
 ```xml
 <appender name="FILE" class="ch.qos.logback.core.FileAppender">
@@ -70,7 +70,7 @@ application.healthcheck.usagecontrol=https://localhost:8080/platoontec/PlatoonDa
 
 ### Events
 
-Upon successful health check evaluation, TRUEConnector will fire **CONNECTOR_INTERNAL_HEALTHY** event, meaning *"Connector internal state is healthy"*, and upon evaluating health check as false - **CONNECTOR_INTERNAL_UNHEALTHY**, meaning *"Connector internal state is unhealthy"*.
+Upon successful health check evaluation, TRUE Connector will fire **CONNECTOR_INTERNAL_HEALTHY** event, meaning *"Connector internal state is healthy"*, and upon evaluating health check as false - **CONNECTOR_INTERNAL_UNHEALTHY**, meaning *"Connector internal state is unhealthy"*.
 
 ## External health check
 
@@ -107,11 +107,11 @@ If Clearing House interaction is disabled - check will be evaluated as true.
 
 ### Events
 
-Upon successful health check evaluation, TRUEConnector will fire **CONNECTOR_EXTERNAL_HEALTHY** event, meaning *"Connector external state is healthy"*, and upon evaluating health check as false - **CONNECTOR_EXTERNAL_UNHEALTHY**, meaning *"Connector external state is unhealthy"*.
+Upon successful health check evaluation, TRUE Connector will fire **CONNECTOR_EXTERNAL_HEALTHY** event, meaning *"Connector external state is healthy"*, and upon evaluating health check as false - **CONNECTOR_EXTERNAL_UNHEALTHY**, meaning *"Connector external state is unhealthy"*.
 
 ## Resource monitor
 
-TRUEConnector has implemented resource (CPU and memory) monitor. It can be configured with following properties:
+TRUE Connector has implemented resource (CPU and memory) monitor. It can be configured with following properties:
 
 ```
 ## Time in miliseconds

@@ -27,6 +27,7 @@ public class ApplicationConfiguration {
 	private String openDataAppReceiver;
 	private String camelReceiverPort;
 	private String camelSenderPort;
+	private String internalSelfdescriptionPort;
 	private int wssServerPort;
 
 	private String basedir;
@@ -41,10 +42,6 @@ public class ApplicationConfiguration {
 
 	public String getDapsUrl() {
 		return dapsUrl;
-	}
-
-	public int getWssSelfDescriptionPort() {
-		return getWssServerPort() + 100;
 	}
 
 	public int getWssServerPort() {
@@ -161,6 +158,14 @@ public class ApplicationConfiguration {
 
 	public void setBasedir(String basedir) {
 		this.basedir = basedir;
+	}
+
+	public String getInternalSelfdescriptionPort() {
+		return internalSelfdescriptionPort;
+	}
+
+	public void setInternalSelfdescriptionPort(String internalSelfdescriptionPort) {
+		this.internalSelfdescriptionPort = internalSelfdescriptionPort;
 	}
 
 }

@@ -1,6 +1,24 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.12.0] - 2023-05-30
+
+### Added
+
+ - new property application.internalSelfdescriptionPort=
+ - OCSP verification of receiver certificate
+
+### Changed
+
+ - version increase to align with docker images
+ - internal/sd now always available on it's own port
+ - all camel routes now only support POST method with the exception of internal/sd which is available only with GET
+ - dependency vulnerabilities know checked by dependabot
+ 
+### Removed
+
+ - removed authorization from IDS endpoint (B endpoint)
+
 ## [0.3.0-SNAPSHOT] - 2023-04-06
 
 ### Changed

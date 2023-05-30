@@ -1,6 +1,5 @@
 package it.eng.idsa.businesslogic.routes;
 
-import org.apache.camel.CamelAuthorizationException;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
@@ -19,7 +18,6 @@ import it.eng.idsa.businesslogic.processor.common.MapMultipartToIDSCP2;
 import it.eng.idsa.businesslogic.processor.common.ModifyPayloadProcessor;
 import it.eng.idsa.businesslogic.processor.common.OriginalMessageProcessor;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
-import it.eng.idsa.businesslogic.processor.common.TrueConnectorAuthorization;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorReceiver;
@@ -97,9 +95,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 	@Autowired
 	private ConnectorHealthCheckProcessor connectorHealthCheckProcessor;
 
-	@Autowired
-	private TrueConnectorAuthorization trueConnectorAuthorization;
-
 	@Value("${application.websocket.isEnabled}")
 	private boolean isEnabledWebSocket;
 
@@ -111,7 +106,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 
 	@Value("${application.dataApp.websocket.isEnabled}")
 	private boolean isEnabledDataAppWebSocket;
-
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void configure() throws Exception {
@@ -122,10 +117,6 @@ public class CamelRouteReceiver extends RouteBuilder {
 		
 		interceptFrom().process(connectorHealthCheckProcessor);
 
-		onException(CamelAuthorizationException.class)
-			.handled(true)
-			.process(exceptionProcessorReceiver);
-			
 		//@formatter:off
 		onException(ExceptionForProcessor.class, RuntimeException.class)
 			.handled(true)
@@ -135,10 +126,8 @@ public class CamelRouteReceiver extends RouteBuilder {
 		// Camel SSL - Endpoint: B communication http
 		if(!isEnabledWebSocket && !isEnabledIdscp2) {
 			logger.info("REST Configuration");
-			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/data")
+			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/data" + "?httpMethodRestrict=POST")
 				.routeId("data")
-				.process(trueConnectorAuthorization)
-				.policy("adminPolicy")
 				.process(connectorRequestProcessor)
 				.process(originalMessageProcessor)
 				.process(deModifyPayloadProcessor)

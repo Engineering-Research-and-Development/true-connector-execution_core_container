@@ -83,7 +83,7 @@
 					"script": {
 						"exec": [
 							"pm.test(\"Forbidden - connector user\", function () {\r",
-							"  pm.response.to.have.status(403);\r",
+							"  pm.response.to.have.status(401);\r",
 							"});\r",
 							""
 						],
@@ -97,7 +97,7 @@
 					"basic": [
 						{
 							"key": "username",
-							"value": "connector",
+							"value": "proxy",
 							"type": "string"
 						},
 						{
@@ -139,13 +139,10 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"var jsonData = pm.response.json();\r",
-							"pm.response.to.be.unauthorized;\r",
-							"\r",
-							"pm.test(\"unauthorized\", function () {\r",
-							"  // ids:ContractOffer\r",
-							"  pm.expect(pm.response.text()).to.include(\"Unauthorized\");\r",
-							"});"
+							"pm.test(\"Forbidden - Unathorized no auth\", function () {\r",
+							"  pm.response.to.have.status(401);\r",
+							"});\r",
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -187,12 +184,10 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"var jsonData = pm.response.json();\r",
-							"\r",
-							"pm.test(\"Unauthorized\", function () {\r",
-							"  pm.response.to.be.unauthorized;\r",
-							"  pm.expect(pm.response.text()).to.include(\"Unauthorized\");\r",
-							"});"
+							"pm.test(\"Forbidden - Unathorized any user\", function () {\r",
+							"  pm.response.to.have.status(401);\r",
+							"});\r",
+							""
 						],
 						"type": "text/javascript"
 					}

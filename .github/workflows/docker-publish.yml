@@ -6,9 +6,6 @@ on:
       versionName:
         description: 'Name of version  (ie 5.5.0)'
         required: true
-      tagMessage:
-        description: 'Tag message'
-        required: true
     
 env:
   REGISTRY: hub.docker.com
@@ -16,70 +13,59 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        
-      - name: Set up JDK 11
-        uses: actions/setup-java@v3
-        with:
-          java-version: '11'
-          distribution: 'temurin'
-          cache: maven
-      - name: Build with Maven
-        run: mvn -B package --file pom.xml
+    - uses: actions/checkout@v3
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        cache: maven
+    - name: Build with Maven
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_PACKAGE_REPO_PASSWORD: ${{ secrets.GH_PACKAGE_REPO_PASSWORD }}
+      run: mvn -B package --file pom.xml
 
-      - name: Setup Docker buildx
-        uses: docker/setup-buildx-action@v1.6.0
+    - name: Setup Docker buildx
+      uses: docker/setup-buildx-action@v1.6.0
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+    - name: Log in to Docker Hub
+      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      with:
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
           
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-        with:
-          images: rdlabengpa/${{ env.IMAGE_NAME }}
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+      with:
+        images: rdlabengpa/${{ env.IMAGE_NAME }}
 
-      - name: Build and push Docker image
-        id: build-and-push
-        uses: docker/build-push-action@v2.9.0
-        with:
-          context: .
-          push: true
-          tags: rdlabengpa/${{ env.IMAGE_NAME }}
+    - name: Build and push Docker image
+      id: build-and-push
+      uses: docker/build-push-action@v2.9.0
+      with:
+        context: .
+        push: true
+        tags: rdlabengpa/${{ env.IMAGE_NAME }}
 #          labels: ${{ steps.meta.outputs.labels }}
       
-      - name: cosign-installer
-        uses: sigstore/cosign-installer@v2.0.0
+    - name: cosign-installer
+      uses: sigstore/cosign-installer@v2.0.0
         
-      - name: Write signing key to disk
-        run: 'echo "$KEY" > cosign.key'
-        shell: bash
-        env:
-          KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+    - name: Write signing key to disk
+      run: 'echo "$KEY" > cosign.key'
+      shell: bash
+      env:
+        KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           
-      - name: Echo cosign.key file
-        run: 'cat cosign.key'
-        shell: bash
+    - name: Echo cosign.key file
+      run: 'cat cosign.key'
+      shell: bash
       
-      - name: Sign the published Docker image
-        env:
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-        run: cosign sign --key cosign.key rdlabengpa/${{ env.IMAGE_NAME }}
-        
-      - name: Create Tag
-        uses: negz/create-tag@v1
-        with:
-          version: ${{ github.event.inputs.versionName }}
-          message: ${{ github.event.inputs.tagMessage }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Sign the published Docker image
+      env:
+        COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+      run: cosign sign --key cosign.key rdlabengpa/${{ env.IMAGE_NAME }}

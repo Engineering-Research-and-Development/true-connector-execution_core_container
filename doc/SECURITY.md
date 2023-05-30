@@ -1,7 +1,7 @@
 # Securing Connector Endpoints
 
 
-Execution Core Container (and TRUEConnector) has implemented basic security mechanisms for all "public" endpoints (those endpoints that will be reached from outside world).
+Execution Core Container (and TRUE Connector) has implemented basic security mechanisms for all "public" endpoints (those endpoints that will be reached from outside world).
 
 There are 2 types of users:
 
@@ -38,22 +38,6 @@ application.user.lock.maxattempts=5
 application.user.lock.duration=30
 # time unit used for locking user, possible values are: SECONDS,MINUTES,HOURS,DAYS
 application.user.lock.unit=MINUTES
-```
-
-## Connector user
-
-This user is used to authorize requests on:
-
-```
-/data
-```
-
-endpoint, so called B-endpoint from connector diagram. When sending request, to exchange IDS messages, Authorization header, with basic authorization must be present in request, otherwise, rejection message will be received, NOT AUTHORIZED.
-
-```
-application.user.connector.username=connector
-# 'password' encoded value
-application.user.connector.password=$2a$10$MQ5grDaIqDpBjMlG78PFduv.AMRe9cs0CNm/V4cgUubrqdGTFCH3m
 ```
 
 ## Change default password

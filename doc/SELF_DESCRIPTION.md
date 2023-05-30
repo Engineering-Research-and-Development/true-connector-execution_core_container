@@ -11,8 +11,23 @@ The same thing goes for persisting, the Connector will save the document in the 
 The Self Description logic can be accessed directly or by using the SwaggerUI
 
 ```
-https://{IPADDRESS}:{SERVER_PORT}/swagger-ui/index.html
+https://{IP_ADDRESS}:{SERVER_PORT}/swagger-ui/index.html
 ```
+
+The Execution Core Container exposes the Self Description via the internal endpoint which will be accessible to the Data App:
+
+```
+https://{IP_ADDRESS}:{INTERNAL_SELF_DESCRIPTION_PORT}/internal/sd
+```
+
+The ports value is set in the following property:
+
+```
+application.internalSelfdescriptionPort=
+```
+
+**NOTE** This endpoint is open during local development and can be accessed directly. In the official Dockerized version of the TRUE Connector this endpoint is not accessible from outside.
+
 ## Endpoint Security - lock user
 
 All endpoints after /api/** are protected and you will have to provide credentials with each request (Basic authentication) to obtain desired functionality. 
@@ -180,7 +195,7 @@ The response should be like following:
               "@type": "http://www.w3.org/2001/XMLSchema#string"
             },
             {
-              "@value": "TRUEConnector",
+              "@value": "TRUE Connector",
               "@type": "http://www.w3.org/2001/XMLSchema#string"
             }
           ],
@@ -280,7 +295,7 @@ To add a offered resource to existing resource catalog the request body should l
             "@value": "Engineering Ingegneria Informatica SpA",
             "@type": "http://www.w3.org/2001/XMLSchema#string"
         }, {
-            "@value": "TRUEConnector",
+            "@value": "TRUE Connector",
             "@type": "http://www.w3.org/2001/XMLSchema#string"
         }
     ],
