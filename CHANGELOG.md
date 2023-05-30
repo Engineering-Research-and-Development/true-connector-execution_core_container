@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.3.2-SNAPSHOT] - 2023-05-22
+
+### Added
+
+ - OCSP verification of receiver certificate
+
 ## [0.3.1-SNAPSHOT] - 2023-04-25
 
 ### Added
