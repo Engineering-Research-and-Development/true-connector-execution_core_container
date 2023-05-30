@@ -173,7 +173,6 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 		exchange.getMessage().setHeaders(httpHeaderService.okHttpHeadersToMap(response.headers()));
 
 		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) {
-			//			exchange.getMessage().setBody(responseString);
 			message = httpHeaderService.headersToMessage(httpHeaderService.okHttpHeadersToMap(response.headers()));
 			Map<String, String> headerHeaderContentType = new HashMap<>();
 			headerHeaderContentType.put("Content-Type", "application/ld+json");
@@ -195,12 +194,10 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	private void handleResponseWebSocket(Exchange exchange, Message message, String responseString, String forwardTo) {
 		if (responseString == null) {
 			logger.info("...communication error");
-			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.INTERNAL_RECIPIENT_ERROR);
+			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), 
+					RejectionReason.INTERNAL_RECIPIENT_ERROR);
 		} else {
-			//			logger.info("response received from the DataAPP=" + responseString);
 			logger.info("data sent to destination " + forwardTo);
-			//			logger.info("Successful response: " + responseString);
-			// TODO:
 			// Set original body which is created using the original payload and header
 			MultipartMessage mm = MultipartMessageProcessor.parseMultipartMessage(responseString);
 			exchange.getMessage().setBody(mm);
