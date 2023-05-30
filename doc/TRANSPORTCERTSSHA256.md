@@ -32,7 +32,7 @@ payload:
 ```
 
 ## Prerequisite 
-For extended token validation is that **public keys from connector itself and other connectors MUST be loaded into truststore.** Reason for this is that  will, during startup:
+For extended token validation is that **public keys from connector itself and other connectors MUST be loaded into truststore.** Reason for this is that TRUE Connector will, during startup:
  - load all certificates from truststore
  - generate hash from certificate, using *MessageDigest* class.
  - use certificate's SubjectAlternativeName and populate map with SAN and hash. This map will later be used to perform extended jwToken validation.
