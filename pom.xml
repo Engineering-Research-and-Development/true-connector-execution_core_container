@@ -5,7 +5,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.2.11.RELEASE</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>it.eng.idsa</groupId>
 	<artifactId>true-connector-execution_core_container</artifactId>
@@ -16,11 +16,11 @@
 		<project.java.version>11</project.java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<start-class>it.eng.idsa.businesslogic.Application</start-class>
-		<camel.version>3.19.0</camel.version>
+		<camel.version>3.20.4</camel.version>
 		<tomcat.version>9.0.24</tomcat.version>
 		<application.basedir>${basedir}</application.basedir>
 		<multipart.message.processor.version>1.0.17</multipart.message.processor.version>
-		<idscp2.libraries.version>0.5.2</idscp2.libraries.version>
+		<idscp2.libraries.version>0.12.1</idscp2.libraries.version>
 		<jacoco.version>0.8.8</jacoco.version>
 	</properties>
 
@@ -118,7 +118,7 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-ui</artifactId>
-            <version>1.6.7</version>
+            <version>1.6.12</version>
         </dependency>
 
         <!-- it.eng.idsa -->
@@ -259,12 +259,12 @@
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-            <version>3.19.1</version>
+            <version>3.19.3</version>
         </dependency>
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>jwks-rsa</artifactId>
-            <version>0.21.1</version>
+            <version>0.21.3</version>
         </dependency>
 
         <dependency>
@@ -297,7 +297,7 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
-	    <version>5.5.7</version>
+	    <version>5.7.8</version>
         </dependency>
 
         <!-- Apache Commons -->
@@ -321,7 +321,7 @@
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
-            <version>7.0.1</version>
+            <version>7.3</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -391,13 +391,13 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20210307</version>
+            <version>20230227</version>
         </dependency>
 
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>
             <artifactId>jose4j</artifactId>
-            <version>0.7.8</version>
+            <version>0.9.3</version>
         </dependency>
 
         <dependency>
