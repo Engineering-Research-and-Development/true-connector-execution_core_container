@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [0.3.1-SNAPSHOT] - 2023-05-30
+## [1.12.0] - 2023-05-30
 
 ### Added
 
@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+ - version increase to align with docker images
  - internal/sd now always available on it's own port
  - all camel routes now only support POST method with the exception of internal/sd which is available only with GET
  - dependency vulnerabilities know checked by dependabot
