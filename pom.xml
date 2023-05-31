@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>it.eng.idsa</groupId>
 	<artifactId>true-connector-execution_core_container</artifactId>
-	<version>0.3.1-SNAPSHOT</version>
+	<version>1.12.0</version>
 	<name>true-connector-execution_core_container</name>
 	<description>TRUE Connector execution core container</description>
 	<properties>
@@ -56,7 +56,7 @@
 		<connection>scm:git:git://github.com/Engineering-Research-and-Development/true-connector-execution_core_container.git</connection>
 		<developerConnection>scm:git:git@github.com:Engineering-Research-and-Development/true-connector-execution_core_container.git</developerConnection>
 		<url>https://github.com/Engineering-Research-and-Development/true-connector-execution_core_container.git</url>
-		<tag>HEAD</tag>
+		<tag>1.12.0</tag>
 	</scm>
 
     <dependencies>
