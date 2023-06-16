@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.13.0] - 2023-06-16
+
+### Removed
+
+ - removed internal sd route
+ - auth for self description endpoint
+
 ## [1.12.0] - 2023-05-30
 
 ### Added
