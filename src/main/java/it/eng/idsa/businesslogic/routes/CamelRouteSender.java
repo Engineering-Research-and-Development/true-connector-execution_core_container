@@ -20,7 +20,6 @@ import it.eng.idsa.businesslogic.processor.common.ModifyPayloadProcessor;
 import it.eng.idsa.businesslogic.processor.common.OriginalMessageProcessor;
 import it.eng.idsa.businesslogic.processor.common.ProtocolValidationProcessor;
 import it.eng.idsa.businesslogic.processor.common.RegisterTransactionToCHProcessor;
-import it.eng.idsa.businesslogic.processor.common.SelfDescriptionProcessor;
 import it.eng.idsa.businesslogic.processor.common.ValidateTokenProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionProcessorSender;
@@ -133,9 +132,6 @@ public class CamelRouteSender extends RouteBuilder {
 	@Autowired
 	private CorrelationIDProcessor correlationIDProcessor;
 	
-	@Autowired
-	private SelfDescriptionProcessor selfDescriptionProcessor;
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public void configure() throws Exception {
@@ -153,11 +149,6 @@ public class CamelRouteSender extends RouteBuilder {
 			.handled(true)
 			.process(processorException);
 		
-		from("jetty://https4://0.0.0.0:" + configuration.getInternalSelfdescriptionPort() + "/internal/sd" + "?httpMethodRestrict=GET")
-			.routeId("internalSelfDescription")
-			.log("Requesting internal Self Description document")
-			.process(selfDescriptionProcessor);
-
 		if(!isEnabledDataAppWebSocket) {
 			logger.info("REST self registration configuration");
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/selfRegistration/register" + "?httpMethodRestrict=POST")
