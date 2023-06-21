@@ -23,31 +23,29 @@ public class PlatoonUsageControlServiceImpl implements UsageControlService {
 
 	@Value("${spring.ids.ucapp.baseUrl}")
 	private String platoonURL;
-	
-	@Value("${application.isEnabledUsageControl}") 
+
+	@Value("${application.isEnabledUsageControl}")
 	private boolean isEnabledUsageControl;
-	
+
 	private String policyEnforcementEndpoint = "enforce/usage/agreement";
-	
+
 	private String policyUploadEndpoint = "contractAgreement/";
-	
+
 	private final String CONTENT_TYPE = "application/json;charset=UTF-8";
-	
+
 	@Autowired
 	private CommunicationService communicationService;
-	
+
 	@Override
-	public String enforceUsageControl(URI uri, String ucObject) throws IOException {
-		
-		logger.info("enforcing contract agreement:" + uri.toString());
-		
-		StringBuffer ucUrl = new StringBuffer().append(platoonURL)
-				.append(policyEnforcementEndpoint)
-				.append("?contractAgreementUri=")
-				.append(uri)
-				.append("&consuming=true");
-		
-		
+	public String enforceUsageControl(URI uri, URI requestedArtifact, String ucObject) throws IOException {
+
+		logger.info("enforcing contract agreement:" + uri.toString(),
+				"for requested artifact:" + requestedArtifact.toString());
+
+		StringBuffer ucUrl = new StringBuffer().append(platoonURL).append(policyEnforcementEndpoint)
+				.append("?contractAgreementUri=").append(uri).append("&requestedArtifact=").append(requestedArtifact)
+				.append(("&consuming=true"));
+
 		return communicationService.sendDataAsJson(ucUrl.toString(), ucObject, CONTENT_TYPE);
 	}
 
@@ -67,16 +65,16 @@ public class PlatoonUsageControlServiceImpl implements UsageControlService {
 
 	@Override
 	public void rollbackPolicyUpload(String contractAgreementUUID) {
-		if(isEnabledUsageControl) {
+		if (isEnabledUsageControl) {
 			logger.info("Rolling back policy upload");
 			communicationService.deleteRequest(platoonURL + policyUploadEndpoint + contractAgreementUUID);
 		}
 	}
-	
+
 	@Override
 	public boolean isUsageControlAvailable(String usageContolHealthEndpoint) {
-		if(isEnabledUsageControl) {
-			 return communicationService.getRequest(usageContolHealthEndpoint) != null ? true : false;
+		if (isEnabledUsageControl) {
+			return communicationService.getRequest(usageContolHealthEndpoint) != null ? true : false;
 		}
 		return true;
 	}

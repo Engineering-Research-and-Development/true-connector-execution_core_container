@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
+import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactResponseMessage;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
@@ -30,7 +31,7 @@ public class SenderUsageControlProcessor implements Processor {
 
 	@Value("#{new Boolean('${application.isEnabledUsageControl}')}")
 	private boolean isEnabledUsageControl;
-	
+
 	@Autowired(required = false)
 	private UsageControlService usageControlService;
 
@@ -45,10 +46,10 @@ public class SenderUsageControlProcessor implements Processor {
 
 	@Value("${application.openDataAppReceiverRouter}")
 	private String openDataAppReceiverRouter;
-	
+
 	@Autowired
 	private HeaderCleaner headerCleaner;
-	
+
 	@Autowired
 	private ApplicationEventPublisher publisher;
 
@@ -58,6 +59,10 @@ public class SenderUsageControlProcessor implements Processor {
 			logger.info("Usage control not configured - continued with flow");
 			return;
 		}
+
+		
+		ArtifactRequestMessage requestMessage = exchange.getProperty("Original-Message-Header",
+				ArtifactRequestMessage.class);
 		Message responseMessage = null;
 		String payload = null;
 		MultipartMessage multipartMessageResponse = null;
@@ -66,7 +71,7 @@ public class SenderUsageControlProcessor implements Processor {
 		responseMessage = multipartMessage.getHeaderContent();
 		String correlationId = (String) exchange.getMessage().getHeader(TrueConnectorConstants.CORRELATION_ID);
 
-		//TODO should we check if request instanceof ArtifactRequestMessage?
+		// TODO should we check if request instanceof ArtifactRequestMessage?
 		if (!(responseMessage instanceof ArtifactResponseMessage)) {
 			logger.info("Usage Control not applied - not ArtifactResponseMessage");
 			return;
@@ -78,25 +83,25 @@ public class SenderUsageControlProcessor implements Processor {
 
 		try {
 
-			String objectToEnforce = usageControlService.enforceUsageControl(responseMessage.getTransferContract(), payload);
-			
-			multipartMessageResponse = new MultipartMessageBuilder()
-					.withHeaderContent(responseMessage)
-					.withPayloadContent(objectToEnforce)
-					.build();
-			
+			String objectToEnforce = usageControlService.enforceUsageControl(responseMessage.getTransferContract(),
+					requestMessage.getRequestedArtifact(), payload);
+
+			multipartMessageResponse = new MultipartMessageBuilder().withHeaderContent(responseMessage)
+					.withPayloadContent(objectToEnforce).build();
+
 			headerCleaner.removeTechnicalHeaders(exchange.getMessage().getHeaders());
 			exchange.getMessage().setBody(multipartMessageResponse);
 			exchange.getMessage().setHeaders(exchange.getMessage().getHeaders());
 			logger.info("Usage control policy enforcementd - completed");
-			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_POLICY_ENFORCEMENT_SUCCESS, 
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_POLICY_ENFORCEMENT_SUCCESS,
 					multipartMessage, correlationId));
 
 		} catch (Exception e) {
 			logger.error("Usage Control Enforcement has failed with MESSAGE: {}", e.getMessage());
-			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_POLICY_ENFORCEMENT_FAILED, 
+			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_POLICY_ENFORCEMENT_FAILED,
 					multipartMessage, correlationId));
-			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.NOT_AUTHORIZED);
+			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"),
+					RejectionReason.NOT_AUTHORIZED);
 		}
 	}
 }

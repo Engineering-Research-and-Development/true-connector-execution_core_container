@@ -69,7 +69,7 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
 
 
 	@Override
-	public String enforceUsageControl(URI contractAgreementUri, String payload) throws Exception {
+	public String enforceUsageControl(URI contractAgreementUri, URI requestedArtifact, String payload) throws Exception {
 		JsonElement transferedDataObject = getDataObject(payload);
 		UsageControlObject ucObj = gson.fromJson(transferedDataObject, UsageControlObject.class);
 
