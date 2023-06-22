@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 
  - removed internal sd route
  - auth for self description endpoint
- - add requestedArtifact as mandatory field for communication with UC
+ - add requestedArtifact as mandatory field for communication with UC App (UC App v1.7.0 and DataApp v0.2.7)
 
 ## [1.12.0] - 2023-05-30
 
