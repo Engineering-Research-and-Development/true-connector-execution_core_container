@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>it.eng.idsa</groupId>
 	<artifactId>true-connector-execution_core_container</artifactId>
-	<version>1.12.1-SNAPSHOT</version>
+	<version>1.13.1-SNAPSHOT</version>
 	<name>true-connector-execution_core_container</name>
 	<description>TRUE Connector execution core container</description>
 	<properties>
