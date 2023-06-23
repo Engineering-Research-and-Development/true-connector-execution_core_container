@@ -14,7 +14,7 @@ public interface UsageControlService {
 	 * @return result response from REST call
 	 * @throws Exception exception in case of error
 	 */
-	String enforceUsageControl(URI contractAgreementUri, String payload) throws Exception;
+	String enforceUsageControl(URI contractAgreementUri, URI requestedArtifact, String payload) throws Exception;
 
 	/**
 	 * Used on the Usage Control provider side for creating Usage Control Object
