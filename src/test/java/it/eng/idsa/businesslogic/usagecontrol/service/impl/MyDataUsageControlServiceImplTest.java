@@ -101,7 +101,7 @@ public class MyDataUsageControlServiceImplTest {
 		when(response.isSuccessful()).thenReturn(true);
 		when(response.body()).thenReturn(treeMap);
 		
-		String response = myDataUsageControlServiceImpl.enforceUsageControl(caURI, payload);
+		String response = myDataUsageControlServiceImpl.enforceUsageControl(caURI,targetArtifactURI, payload);
 		
 		assertEquals("Usage allowed", response);
 	}

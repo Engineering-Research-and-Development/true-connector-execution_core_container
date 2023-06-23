@@ -20,6 +20,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
@@ -49,12 +50,14 @@ public class SenderUsageControlProcessorTest {
 	private MultipartMessage multipartMessage;
 	@Mock
 	private ApplicationEventPublisher publisher;
+	@Mock
+	private ArtifactRequestMessage artifactRequestMessage;
 	private Map<String, Object> headers;
-	
+
 	private Message message;
-	
+
 	private Message requestMessage;
-	
+
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
@@ -68,7 +71,7 @@ public class SenderUsageControlProcessorTest {
 	public void usageControlDisabled() throws Exception {
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", false);
 		processor.process(exchange);
-		verify(ucService, times(0)).enforceUsageControl(any(URI.class), any(String.class));
+		verify(ucService, times(0)).enforceUsageControl(any(URI.class), any(URI.class), any(String.class));
 	}
 
 	@Test
@@ -76,33 +79,35 @@ public class SenderUsageControlProcessorTest {
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", true);
 		mockExchangeHeaderAndBody();
 		when(multipartMessage.getPayloadContent()).thenReturn(mockUsageControlPayload());
-		when(ucService.enforceUsageControl(any(URI.class), any(String.class))).thenReturn("Usage allowed");
-
+		when(ucService.enforceUsageControl(any(URI.class), any(URI.class), any(String.class)))
+				.thenReturn("Usage allowed");
+		when(exchange.getProperty("Original-Message-Header", ArtifactRequestMessage.class))
+				.thenReturn(artifactRequestMessage);
 		processor.process(exchange);
-		
-		verify(ucService).enforceUsageControl(any(URI.class), any(String.class));
-		verify(rejectionMessageService, times(0)).sendRejectionMessage(requestMessage,  RejectionReason.NOT_AUTHORIZED);
+
+		verify(ucService).enforceUsageControl(any(URI.class), any(), any(String.class));
+		verify(rejectionMessageService, times(0)).sendRejectionMessage(requestMessage, RejectionReason.NOT_AUTHORIZED);
 	}
 
 	@Test
 	public void usageControlEnabledAndInhibited() throws Exception {
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", true);
 		rejectionMessageService = MockUtil.mockRejectionService(rejectionMessageService);
-		ReflectionTestUtils.setField(processor, "rejectionMessageService", 
-				rejectionMessageService, RejectionMessageService.class);
+		ReflectionTestUtils.setField(processor, "rejectionMessageService", rejectionMessageService,
+				RejectionMessageService.class);
 
 		mockExchangeHeaderAndBody();
 		when(multipartMessage.getPayloadContent()).thenReturn(mockUsageControlPayload());
-		when(ucService.enforceUsageControl(any(URI.class), any(String.class))).thenReturn(null);
-		doThrow(Exception.class)
-			.when(ucService).enforceUsageControl(any(URI.class), any(String.class));
-		
-		assertThrows(ExceptionForProcessor.class,
-	            ()->{
-	            	processor.process(exchange);
-	            });
-		
-		verify(ucService).enforceUsageControl(any(URI.class), any(String.class));
+		when(ucService.enforceUsageControl(any(URI.class), any(URI.class), any(String.class))).thenReturn(null);
+		when(exchange.getProperty("Original-Message-Header", ArtifactRequestMessage.class))
+				.thenReturn(artifactRequestMessage);
+		doThrow(Exception.class).when(ucService).enforceUsageControl(any(URI.class), any(), any(String.class));
+
+		assertThrows(ExceptionForProcessor.class, () -> {
+			processor.process(exchange);
+		});
+
+		verify(ucService).enforceUsageControl(any(URI.class), any(), any(String.class));
 	}
 
 	@Test
@@ -110,37 +115,40 @@ public class SenderUsageControlProcessorTest {
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", true);
 		mockExchangeHeaderAndBody();
 		when(multipartMessage.getPayloadContent()).thenReturn("not UC payload");
-		doThrow(NullPointerException.class).when(ucService).enforceUsageControl(any(URI.class), any(String.class));
+		when(exchange.getProperty("Original-Message-Header", ArtifactRequestMessage.class))
+				.thenReturn(artifactRequestMessage);
+		doThrow(NullPointerException.class).when(ucService).enforceUsageControl(any(URI.class), any(),
+				any(String.class));
 
-		
 		processor.process(exchange);
-		
-		verify(ucService).enforceUsageControl(any(URI.class), any(String.class));
-		verify(rejectionMessageService).sendRejectionMessage(requestMessage ,RejectionReason.NOT_AUTHORIZED);
+
+		verify(ucService).enforceUsageControl(any(URI.class), any(), any(String.class));
+		verify(rejectionMessageService).sendRejectionMessage(requestMessage, RejectionReason.NOT_AUTHORIZED);
 	}
-	
+
 	@Test
 	public void usageControlEnabledAndPayloadNull() throws Exception {
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", true);
 		mockExchangeHeaderAndBody();
 		when(multipartMessage.getPayloadContent()).thenReturn(null);
-		when(ucService.enforceUsageControl(any(), any())).thenThrow(new NullPointerException());
-		
+		when(ucService.enforceUsageControl(any(), any(), any())).thenThrow(new NullPointerException());
+		when(exchange.getProperty("Original-Message-Header", ArtifactRequestMessage.class))
+				.thenReturn(artifactRequestMessage);
 		processor.process(exchange);
-		
-		verify(ucService).enforceUsageControl(any(URI.class), any());
+
+		verify(ucService).enforceUsageControl(any(URI.class), any(), any());
 		verify(rejectionMessageService).sendRejectionMessage(requestMessage, RejectionReason.NOT_AUTHORIZED);
 	}
-	
+
 	@Test
-	public void usageControlEnabledMessageNotArtifactResponseMessage() throws Exception{
+	public void usageControlEnabledMessageNotArtifactResponseMessage() throws Exception {
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", true);
 		message = UtilMessageService.getRejectionMessage(RejectionReason.NOT_AUTHORIZED);
 		mockExchangeHeaderAndBody();
-		
+
 		processor.process(exchange);
-		
-		verify(ucService, times(0)).enforceUsageControl(any(URI.class), any(String.class));
+
+		verify(ucService, times(0)).enforceUsageControl(any(URI.class), any(URI.class), any(String.class));
 		verify(rejectionMessageService, times(0)).sendRejectionMessage(requestMessage, RejectionReason.NOT_AUTHORIZED);
 	}
 
