@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.13.1] - 2023-06-23
+
+### Changed
+ - udpated GitHub Actions, simplified input parameters; skipping develop build when performing mvn release commits
+
 ## [1.13.0] - 2023-06-16
 
 ### Removed
