@@ -17,7 +17,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<start-class>it.eng.idsa.businesslogic.Application</start-class>
 		<camel.version>3.19.0</camel.version>
-		<tomcat.version>9.0.24</tomcat.version>
+		<tomcat.version>9.0.76</tomcat.version>
 		<application.basedir>${basedir}</application.basedir>
 		<multipart.message.processor.version>1.0.17</multipart.message.processor.version>
 		<idscp2.libraries.version>0.5.2</idscp2.libraries.version>
