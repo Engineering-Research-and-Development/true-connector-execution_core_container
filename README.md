@@ -407,6 +407,30 @@ After that you can run `mvn clean package` in the root of the execution core con
 
 **NOTE:** If you proceed with Solution 2, pay attention to the Multipart Message Library version in pom.xml file, and check if the same version is used in the execution core container pom.xml, if not modify them according to the one from the clone repository.
 
+### Running ECC from IDE
+
+If you wish to run ECC from IDE, please address following prerequisite:
+
+ * Add src/main/resources directory to class path; either by making this change in Run configuration in IDE or comment out exclude section in pom.xml. This resource directory is removed from final jar, to externalize property files from docker image.
+ 
+ * Copy ssl-server.jks file from [TRUE Connector](https://github.com/Engineering-Research-and-Development/true-connector/blob/main/ecc_cert/ssl-server.jks) repo into some directory on the file system
+ 
+ * Configure property application.targetDirectory= to point to the file containing ssl-server.jks file
+ * Configure DAPS related properties, if DAPS will be used.
+ 
+ ```
+application.dapsUrl= 
+application.keyStoreName=
+application.keyStorePassword=
+application.keystoreAliasName=
+application.trustStoreName=
+application.trustStorePassword=
+application.connectorUUID=
+application.dapsJWKSUrl=
+```
+ * Choose one of 2 profiles: SENDER or RECEIVER.
+ * Start application 
+ 
 ### Creating docker image
 
 Once you build the execution core container, if required, you can build docker image, by executing following command, from terminal, inside the root of the project:
