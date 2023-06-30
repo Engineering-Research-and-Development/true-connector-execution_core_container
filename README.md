@@ -454,9 +454,13 @@ Input parameters:<br/>
 versionName<br/>
 tagMessage
 
-#### dependabot
+#### Vulnerability Remediation Process
 
-Dependabot code analysis for security vulnerabilities is done automatically.
+Vulnerability Remediation Process is done as following:
+1. Dependabot code analysis for security vulnerabilities is done automatically
+2. Analyzing vulnerabilities
+3. Proposing code change in accordance with version update of dependency at risk
+4. Fixing/updating and releasing new TRUE Connector version
 
 ### Issue management
 
