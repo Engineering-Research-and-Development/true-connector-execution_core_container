@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.14.0] - 2023-07-05
+
+### Removed
+ - removed redundant and unused http endpoint for Self Description
+
 ## [1.13.1] - 2023-06-30
 
 ### Changed
