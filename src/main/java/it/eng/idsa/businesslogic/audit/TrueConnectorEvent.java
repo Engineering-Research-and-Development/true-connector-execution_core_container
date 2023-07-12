@@ -16,6 +16,8 @@ import it.eng.idsa.multipart.domain.MultipartMessage;
 public class TrueConnectorEvent extends AuditApplicationEvent {
 	
 	private static final long serialVersionUID = -87655024649097585L;
+	
+	private static final String IDS_USER = "idsUser";
 
 	public TrueConnectorEvent(String principal, TrueConnectorEventType type, MultipartMessage multipartMessage) {
 		super(principal, type.name(), detailsMultipartMessage(multipartMessage, null));
@@ -27,7 +29,7 @@ public class TrueConnectorEvent extends AuditApplicationEvent {
 	 * @param multipartMessage - logs information from multipartMessage to event
 	 */
 	public TrueConnectorEvent(TrueConnectorEventType type, MultipartMessage multipartMessage) {
-		super("connector", type.name(), detailsMultipartMessage(multipartMessage, null));
+		super(IDS_USER, type.name(), detailsMultipartMessage(multipartMessage, null));
 	}
 	
 	/**
@@ -37,7 +39,7 @@ public class TrueConnectorEvent extends AuditApplicationEvent {
 	 * @param correlationId correlation Id
 	 */
 	public TrueConnectorEvent(TrueConnectorEventType type, MultipartMessage multipartMessage, String correlationId) {
-		super("connector", type.name(), detailsMultipartMessage(multipartMessage, correlationId));
+		super(IDS_USER, type.name(), detailsMultipartMessage(multipartMessage, correlationId));
 	}
 	
 	/**
