@@ -58,7 +58,7 @@ public class TrueConnectorEvent extends AuditApplicationEvent {
 	 * @param type TrueConnectorEventType
 	 */
 	public TrueConnectorEvent(HttpServletRequest request, TrueConnectorEventType type) {
-		super(principal(request), type.name(), details(request, null));
+		super(principal(request), type.name(), details(request, null, null));
 	}
 	
 	/**
@@ -68,7 +68,18 @@ public class TrueConnectorEvent extends AuditApplicationEvent {
 	 * @param correlationId correlation id
 	 */
 	public TrueConnectorEvent(HttpServletRequest request, TrueConnectorEventType type, String correlationId) {
-		super(principal(request), type.name(), details(request, correlationId));
+		super(principal(request), type.name(), details(request, correlationId, null));
+	}
+	
+	/**
+	 * TrueConnectorEvent with request, type, correlationId and payload
+	 * @param request
+	 * @param type
+	 * @param correlationId
+	 * @param payload
+	 */
+	public TrueConnectorEvent(HttpServletRequest request, TrueConnectorEventType type, String correlationId, String payload) {
+		super(principal(request), type.name(), details(request, correlationId, payload));
 	}
 
 	private static String principal(HttpServletRequest request) {
@@ -89,13 +100,17 @@ public class TrueConnectorEvent extends AuditApplicationEvent {
 		return details;
 	}
 	
-	private static Map<String, Object> details(HttpServletRequest request, String correlationId) {
+	private static Map<String, Object> details(HttpServletRequest request, String correlationId, String payload) {
 		Map<String, Object> details = new HashMap<>();
 		details.put("http.method", request.getMethod());
 		details.put("http.path", request.getRequestURL());
 		details.put("http.headers", getHeadersInfo(request));
 		if (correlationId != null) {
 			details.put("correlationId", correlationId);
+		}
+		
+		if (payload != null) {
+			details.put("payload", payload);
 		}
 		return details;
 	}

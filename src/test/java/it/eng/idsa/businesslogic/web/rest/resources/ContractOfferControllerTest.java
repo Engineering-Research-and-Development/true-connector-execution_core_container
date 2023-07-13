@@ -10,6 +10,9 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URI;
+import java.security.Principal;
+import java.util.Collections;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 
 import de.fraunhofer.iais.eis.ContractOffer;
@@ -35,6 +39,10 @@ public class ContractOfferControllerTest {
 	private ContractOfferService service;
 	@Mock
 	private HttpServletRequest request;
+	@Mock
+	private ApplicationEventPublisher publisher;
+	@Mock
+	private Principal principal;
 	
 	private URI contractOfferURI = URI.create("contract.offer.uri");
 	private URI resourceURI = URI.create("resource.uri");
@@ -42,6 +50,11 @@ public class ContractOfferControllerTest {
 	@BeforeEach
 	public void init() {
 		MockitoAnnotations.initMocks(this);
+		when(request.getUserPrincipal()).thenReturn(principal);
+		when(principal.getName()).thenReturn("testUser");
+		when(request.getMethod()).thenReturn("POST");
+		when(request.getRequestURL()).thenReturn(new StringBuffer("http://test.com"));
+		when(request.getHeaderNames()).thenReturn(Collections.enumeration(List.of("Authorization")));
 	}
 	
 	@Test
