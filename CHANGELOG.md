@@ -1,9 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-<<<<<<< HEAD
 
 ## [1.14.0] - 2023-07-14
+
+### Added
+
+ - added certification check
 
 ### Changed
 
