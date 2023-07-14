@@ -1,10 +1,17 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+
 ## [1.14.0] - 2023-07-14
+
+### Added
+
+ - added certification check
 
 ### Changed
 
+ - admin role now changed to apiUser, for ease of understanding
+ - default user name now application.user.api.username=apiUser
  - upgraded org.json:json from 20210307 to 20230227 (Dependabot #4 - json stack overflow vulnerability)
 
 ### Removed

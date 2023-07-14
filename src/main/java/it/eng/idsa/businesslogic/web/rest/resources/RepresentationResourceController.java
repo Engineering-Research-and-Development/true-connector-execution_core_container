@@ -2,9 +2,13 @@ package it.eng.idsa.businesslogic.web.rest.resources;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.UUID;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,6 +33,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.eng.idsa.businesslogic.audit.Auditable;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.resources.JsonException;
 import it.eng.idsa.businesslogic.service.resources.RepresentationResourceService;
@@ -43,9 +48,16 @@ public class RepresentationResourceController {
 
 	private RepresentationResourceService resourceCatalogService;
 	
-	public RepresentationResourceController(RepresentationResourceService resourceCatalogService) {
+	private ApplicationEventPublisher publisher;
+	
+
+	public RepresentationResourceController(RepresentationResourceService resourceCatalogService,
+			ApplicationEventPublisher publisher) {
+		super();
 		this.resourceCatalogService = resourceCatalogService;
+		this.publisher = publisher;
 	}
+
 
 	@Operation(tags = "Resource representation controller", summary = "Get requested resource representation")
 	@ApiResponses(value = {
@@ -67,18 +79,22 @@ public class RepresentationResourceController {
 			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	@Auditable(eventType = TrueConnectorEventType.REPRESENTATION_CREATED)
 	@ResponseBody
 	public ResponseEntity<String> addRepresentationToResource(@RequestHeader("resource") URI resource,
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(content = { @Content(mediaType = "application/json", schema = @Schema(implementation = RepresentationImpl.class)) })
-			@RequestBody String representation) throws IOException {
+			@RequestBody String representation,
+			HttpServletRequest request) throws IOException {
+		String correlationId = UUID.randomUUID().toString();
+		publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.HTTP_REQUEST_RECEIVED, correlationId, representation));
 		Connector modifiedConnector = null;
 		try {
 			Serializer s = new Serializer();
 			Representation r = s.deserialize(representation, Representation.class);
 			logger.info("Adding representation with id '{}' to resource '{}'", r.getId(), resource);
 			modifiedConnector = resourceCatalogService.addRepresentationToResource(r, resource);
+			publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.REPRESENTATION_CREATED, correlationId));
 		} catch (IOException e) {
+			publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.REPRESENTATION_CREATION_FAILED, correlationId));
 			throw new JsonException("Error while processing request\n" + e.getMessage());
 		}
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
@@ -90,18 +106,22 @@ public class RepresentationResourceController {
 			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	@Auditable(eventType = TrueConnectorEventType.REPRESENTATION_UPDATED)
 	@ResponseBody
 	public ResponseEntity<String> updateRepresentationToResource(@RequestHeader("resource") URI resource,
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(content = { @Content(mediaType = "application/json", schema = @Schema(implementation = RepresentationImpl.class)) })
-			@RequestBody String representation) throws IOException {
+			@RequestBody String representation,
+			HttpServletRequest request) throws IOException {
+		String correlationId = UUID.randomUUID().toString();
+		publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.HTTP_REQUEST_RECEIVED, correlationId, representation));
 		Connector modifiedConnector = null;
 		try {
 			Serializer s = new Serializer();
 			Representation r = s.deserialize(representation, Representation.class);
 			logger.info("Update representation with id '{}' to resource '{}'", r.getId(), resource);
 			modifiedConnector = resourceCatalogService.updateRepresentationToResource(r, resource);
+			publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.REPRESENTATION_UPDATED, correlationId));
 		} catch (IOException e) {
+			publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.REPRESENTATION_UPDATE_FAILED, correlationId));
 			throw new JsonException("Error while processing request\n" + e.getMessage());
 		}
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));

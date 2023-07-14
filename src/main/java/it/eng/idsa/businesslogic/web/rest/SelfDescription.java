@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.eng.idsa.businesslogic.audit.Auditable;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
 
 /**
@@ -35,6 +37,7 @@ public class SelfDescription {
 			@ApiResponse(responseCode = "200", description = "Valid self description document", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
     @GetMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Auditable(eventType = TrueConnectorEventType.SELF_DESCRIPTION)
     @ResponseBody
     public String selfDescriptions() {
         return selfDescriptionService.getConnectorSelfDescription();
