@@ -21,6 +21,6 @@ public class CertificationCheck {
 	public void checkIfVerionsIsCertified() {
 		String version = Objects.requireNonNullElse(Application.class.getPackage().getImplementationVersion(), "");
 		logger.info("Certified version: " + 
-				 Arrays.stream(CERTIFIED_VERSION).anyMatch(version::contains));
+				 Arrays.stream(CERTIFIED_VERSION).anyMatch(version::equals));
 	}
 }
