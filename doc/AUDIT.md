@@ -23,7 +23,6 @@ TRUE Connector has list of audit events which can be found in following table:
 |OFFERED_RESOURCE_CREATION_FAILED | Offered resource creation failed |
 |OFFERED_RESOURCE_UPDATED | Offered resource updated |
 |OFFERED_RESOURCE_UPDATE_FAILED | Offered resource update failed |
-|OFFERED_RESOURCE_UPDATED | Offered resource updated |
 |OFFERED_RESOURCE_DELETED | Offered resource deleted |
 |REPRESENTATION | Representation requested |
 |REPRESENTATION_CREATED | Representation created |
@@ -76,9 +75,9 @@ Here is the binding of properties and which events are covered with it:
 | ----------- | ----------- | ----------- |  
 | SELF_DESCRIPTION | SELF_DESCRIPTION | Event when connector's Self description is requested |
 | SELF_DESCRIPTION_ALL | SELF_DESCRIPTION, CONTRACT_OFFER, OFFERED_RESOURCE, OFFERED_RESOURCE, REPRESENTATION | All events related with Self Description activities, include events wrapped up with properties from the list|
-| CONTRACT_OFFER | CONTRACT_OFFER,CONTRACT_OFFER_CREATED, CONTRACT_OFFER_UPDATED,CONTRACT_OFFER_DELETED | Events related  with **Contract offer** manipulation (requested, created, updated, deleted) |
-| OFFERED_RESOURCE | OFFERED_RESOURCE, OFFERED_RESOURCE_CREATED, OFFERED_RESOURCE_UPDATED, OFFERED_RESOURCE_DELETED | Events related  with **Offered resource** manipulation (requested, created, updated, deleted) |
-| REPRESENTATION | REPRESENTATION, REPRESENTATION_CREATED, REPRESENTATION_UPDATED, REPRESENTATION_DELETED | Events related  with **Representation** manipulation (requested, created, updated, deleted) |
+| CONTRACT_OFFER | CONTRACT_OFFER, CONTRACT_OFFER_CREATED, CONTRACT_OFFER_CREATION_FAILED, CONTRACT_OFFER_UPDATED, CONTRACT_OFFER_UPDATE_FAILED, CONTRACT_OFFER_DELETED | Events related  with **Contract offer** manipulation (requested, created, updated, deleted) |
+| OFFERED_RESOURCE | OFFERED_RESOURCE, OFFERED_RESOURCE_CREATED, OFFERED_RESOURCE_CREATION_FAILED, OFFERED_RESOURCE_UPDATED, OFFERED_RESOURCE_UPDATE_FAILED, OFFERED_RESOURCE_DELETED | Events related  with **Offered resource** manipulation (requested, created, updated, deleted) |
+| REPRESENTATION | REPRESENTATION, REPRESENTATION_CREATED, REPRESENTATION_CREATION_FAILED, REPRESENTATION_UPDATED, REPRESENTATION_UPDATE_FAILED, REPRESENTATION_DELETED | Events related  with **Representation** manipulation (requested, created, updated, deleted) |
 | CONNECTOR | CONNECTOR_REQUEST, CONNECTOR_RESPONSE, CONNECTOR_SEND, CONNECTOR_SEND_DATAAPP, CONNECTOR_TOKEN_FETCH_SUCCESS,CONNECTOR_TOKEN_FETCH_FAILURE , CONNECTOR_VALIDATED_TOKEN_SUCCESS, CONNECTOR_TOKEN_VALIDATED_FAILURE, CONNECTOR_CLEARING_HOUSE_SUCCESS,CONNECTOR_CLEARING_HOUSE_FAILURE , CONNECTOR_CONTRACT_AGREEMENT_SUCCESS, CONNECTOR_CONTRACT_AGREEMENT_FAILED, CONNECTOR_POLICY_ENFORCEMENT_SUCCESS, CONNECTOR_POLICY_ENFORCEMENT_FAILED, CONNECTOR_BROKER_REGISTER, CONNECTOR_BROKER_UPDATE, CONNECTOR_BROKER_PASSIVATE, CONNECTOR_BROKER_DELETE, CONNECTOR_BROKER_QUERY, CONNECTOR_INTERNAL_HEALTHY, CONNECTOR_INTERNAL_UNHEALTHY, CONNECTOR_EXTERNAL_HEALTHY, CONNECTOR_EXTERNAL_UNHEALTHY| Events related with message exchange process |
 | USER | USER_AUTHORIZATION_FAILURE, USER_AUTHORIZATION_SUCCESS, USER_BLOCKED | User activity related events |
 | EXCEPTION | EXCEPTION_BAD_REQUEST, EXCEPTION_NOT_FOUND, EXCEPTION_SERVER_ERROR, EXCEPTION_GENERAL | All events that are translated to invalid state (errors) |
@@ -89,46 +88,74 @@ With default configuration, events will be logged in log file, in JSON format, l
 
 ```
 {
-	"@timestamp": "2022-10-18T10:54:23.317+02:00",
-	"@version": "1",
-	"message": "TRUE Connector Audit Event was received",
-	"logger_name": "JSON",
-	"thread_name": "task-1",
-	"level": "INFO",
-	"level_value": 20000,
-	"connectorRole": "Sender",
-	"event.type": "CONNECTOR_REQUEST",
-	"event.principal": "idsUser",
-	"event": {
-		"timestamp": 1666083263.293266,
-		"principal": "idsUser",
-		"type": "CONNECTOR_REQUEST",
-		"data": {
-			"http.message": "de.fraunhofer.iais.eis.ArtifactRequestMessageImpl",
-			"http.method": "POST"
-		}
-	}
-}
-{
-	"@timestamp": "2022-10-18T10:54:23.473+02:00",
-	"@version": "1",
-	"message": "TRUE Connector Audit Event was received",
-	"logger_name": "JSON",
-	"thread_name": "task-2",
-	"level": "INFO",
-	"level_value": 20000,
-	"connectorRole": "Sender",
-	"event.type": "CONNECTOR_FETCH_TOKEN",
-	"event.principal": "idsUser",
-	"event": {
-		"timestamp": 1666083263.473887,
-		"principal": "idsUser",
-		"type": "CONNECTOR_FETCH_TOKEN",
-		"data": {
-			"http.message": "de.fraunhofer.iais.eis.ArtifactRequestMessageImpl",
-			"http.method": "POST"
-		}
-	}
+    "@timestamp": "2023-07-14T14:57:03.288+02:00",
+    "@version": "1",
+    "message": "TrueConnector Audit Event was received",
+    "logger_name": "JSON",
+    "thread_name": "task-3",
+    "level": "INFO",
+    "level_value": 20000,
+    "connectorRole": "Sender",
+    "event.type": "HTTP_REQUEST_RECEIVED",
+    "event.principal": "apiUser",
+    "event": {
+        "timestamp": 1689339423.287265000,
+        "principal": "apiUser",
+        "type": "HTTP_REQUEST_RECEIVED",
+        "data": {
+            "http.headers": {
+                "authorization": "******",
+                "content-length": "2968",
+                "resource": "https://w3id.org/idsa/autogen/textResource/1c9c8f02-f6f9-4a6e-b31b-997bf555b66c",
+                "postman-token": "2c52150c-8476-43d4-a9a6-f07244ecde5b",
+                "host": "localhost:8444",
+                "content-type": "application/json",
+                "connection": "keep-alive",
+                "cache-control": "no-cache",
+                "accept-encoding": "gzip, deflate, br",
+                "user-agent": "PostmanRuntime/7.32.3",
+                "accept": "*/*"
+            },
+            "payload": "omitted for brevity",
+            "http.path": "https://localhost:8444/api/contractOffer/",
+            "correlationId": "c4d2c0b2-97aa-42d5-966b-84c2a4634b1f",
+            "http.method": "POST"
+        }
+    }
+}{
+    "@timestamp": "2023-07-14T14:57:03.342+02:00",
+    "@version": "1",
+    "message": "TrueConnector Audit Event was received",
+    "logger_name": "JSON",
+    "thread_name": "task-4",
+    "level": "INFO",
+    "level_value": 20000,
+    "connectorRole": "Sender",
+    "event.type": "CONTRACT_OFFER_CREATED",
+    "event.principal": "apiUser",
+    "event": {
+        "timestamp": 1689339423.341133100,
+        "principal": "apiUser",
+        "type": "CONTRACT_OFFER_CREATED",
+        "data": {
+            "http.headers": {
+                "authorization": "******",
+                "content-length": "2968",
+                "resource": "https://w3id.org/idsa/autogen/textResource/1c9c8f02-f6f9-4a6e-b31b-997bf555b66c",
+                "postman-token": "2c52150c-8476-43d4-a9a6-f07244ecde5b",
+                "host": "localhost:8444",
+                "content-type": "application/json",
+                "connection": "keep-alive",
+                "cache-control": "no-cache",
+                "accept-encoding": "gzip, deflate, br",
+                "user-agent": "PostmanRuntime/7.32.3",
+                "accept": "*/*"
+            },
+            "http.path": "https://localhost:8444/api/contractOffer/",
+            "correlationId": "c4d2c0b2-97aa-42d5-966b-84c2a4634b1f",
+            "http.method": "POST"
+        }
+    }
 }
 
 ```
