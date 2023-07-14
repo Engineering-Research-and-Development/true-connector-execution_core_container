@@ -3,7 +3,7 @@ services:
   ecc-provider:
     image: rdlabengpa/ids_execution_core_container:develop
     ports:
-      - "${PROVIDER_PORT}:${INTERNAL_REST_PORT}"  #Port for exposing HTTP endpoints
+      - ${PROVIDER_PORT}:8449  #Port for exposing HTTP endpoints
       - 8889:8889  #Exposed port for receiving data from another connector (REST)
       - 8086:8086  #Exposed port for receiving data from another connector (WS)
     depends_on:
@@ -76,7 +76,7 @@ services:
   ecc-consumer:
     image: rdlabengpa/ids_execution_core_container:develop
     ports:
-      - "${CONSUMER_PORT}:${INTERNAL_REST_PORT}"  #Port for exposing HTTP endpoints
+      - ${CONSUMER_PORT}:8449  #Port for exposing HTTP endpoints
       - 8890:8889  #Exposed port for receiving data from another connector (REST)
       - 8087:8086  #Exposed port for receiving data from another connector (WS)
     depends_on:

@@ -1,12 +1,17 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+
 ## [1.14.0] - 2023-07-14
 
 ### Changed
 
  - admin role now changed to apiUser, for ease of understanding
  - default user name now application.user.api.username=apiUser
+
+### Removed
+
+ - removed redundant and unused http endpoint that was running in parallel with https for Spring Boot; if http is needed please set server.ssl.enabled=false
 
 ## [1.13.1] - 2023-06-30
 

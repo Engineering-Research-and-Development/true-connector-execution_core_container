@@ -24,21 +24,12 @@ public class SelfDescriptionConfiguration {
 	
 	public static final String SELF_DESCRIPTION_FILE_NAME = "self_description.json";
 
-	@Value("${camel.component.http4.use-global-ssl-context-parameters}")
+	@Value("${server.ssl.enabled}")
 	private boolean useHttps;
 	
 	@Autowired
 	private ProcessExecutor processExecutor;
 	
-	/**
-	 * Used for http communication
-	 */
-	@Value("${http.port}")
-	private String httpPort;
-	
-	/**
-	 * Used for https communication
-	 */
 	@Value("${server.port}")
 	private String serverPort;
 
@@ -151,9 +142,9 @@ public class SelfDescriptionConfiguration {
 		String schema = useHttps ? "https" : "http";
 		String port = System.getenv("PUBLIC_PORT");
 		if(StringUtils.isEmpty(port)) {
-			port = useHttps ? serverPort : httpPort;
+			port = serverPort;
 		}
-		return URI.create(schema + "://" + getPublicIpAddress() + ":" + port + "/");
+		return URI.create(schema + "://" + getPublicIpAddress() + ":" + serverPort + "/");
 	}
 	
 	private String getPublicIpAddress() {
