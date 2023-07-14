@@ -1,7 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [1.14.0] - 2023-07-05
+## [1.14.0] - 2023-07-14
+
+### Changed
+
+ - upgraded org.json:json from 20210307 to 20230227 (Dependabot #4 - json stack overflow vulnerability)
 
 ### Removed
 
@@ -11,8 +15,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
- - udpated GitHub Actions, simplified input parameters; skipping develop build when performing mvn release commits
- - upgraded Tomcat version to 9.0.76 due to small NIO exception bug when fething Self Description
+ - updated GitHub Actions, simplified input parameters; skipping develop build when performing mvn release commits
+ - upgraded Tomcat version to 9.0.76 due to small NIO exception bug when fetching Self Description
 
 ## [1.13.0] - 2023-06-16
 
