@@ -21,6 +21,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import it.eng.idsa.businesslogic.util.TrueConnectorConstants;
+
 public class InMemoryUserCrudServiceTest {
 
 	@InjectMocks
@@ -37,7 +39,7 @@ public class InMemoryUserCrudServiceTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		user = new User(UUID.randomUUID().toString(), "testUsername", "testPassword", "ADMIN");
+		user = new User(UUID.randomUUID().toString(), "testUsername", "testPassword", TrueConnectorConstants.API_USER_ROLE);
 	}
 	
 	@Test

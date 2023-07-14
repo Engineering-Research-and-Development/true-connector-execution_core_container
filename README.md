@@ -478,14 +478,6 @@ Input parameters:<br/>
 versionName<br/>
 tagMessage
 
-#### Vulnerability Remediation Process
-
-Vulnerability Remediation Process is done as following:
-1. Dependabot code analysis for security vulnerabilities is done automatically
-2. Analyzing vulnerabilities
-3. Proposing code change in accordance with version update of dependency at risk
-4. Fixing/updating and releasing new TRUE Connector version
-
 ### Issue management
 
 Create issue in Issue tab in GitHub repo, before starting to work on new functionality. It would be nice to provide task breakdown, with estimation. Try not to have activities that are longer than 8 hours. If such activity is present in task breakdown, please split this activity in 2 or more sub activities, trying that new sub activities are not bigger than 8 hours.

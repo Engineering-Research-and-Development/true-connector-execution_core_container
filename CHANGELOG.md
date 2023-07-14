@@ -1,9 +1,17 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.14.0] - 2023-07-14
+
+### Changed
+
+ - admin role now changed to apiUser, for ease of understanding
+ - default user name now application.user.api.username=apiUser
+
 ## [1.13.1] - 2023-06-30
 
 ### Changed
+
  - udpated GitHub Actions, simplified input parameters; skipping develop build when performing mvn release commits
  - upgraded Tomcat version to 9.0.76 due to small NIO exception bug when fething Self Description
 

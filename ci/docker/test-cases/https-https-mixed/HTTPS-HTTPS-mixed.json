@@ -122,7 +122,7 @@
                     "type": "basic",
                     "basic": [{
                             "key": "username",
-                            "value": "admin",
+                            "value": "apiUser",
                             "type": "string"
                         }, {
                             "key": "password",

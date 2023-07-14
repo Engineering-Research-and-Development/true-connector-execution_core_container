@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
+import it.eng.idsa.businesslogic.util.TrueConnectorConstants;
 
 @Service
 @DependsOn({"encoder"})
@@ -47,7 +48,7 @@ public class InMemoryUserCrudService implements TrueConnectorUserDetailsService 
 	@PostConstruct
 	public void setup() {
 		users.put(userConfiguration.getApiUser().getUsername(), new User(UUID.randomUUID().toString(), 
-				userConfiguration.getApiUser().getUsername(), userConfiguration.getApiUser().getPassword(), "ADMIN"));
+				userConfiguration.getApiUser().getUsername(), userConfiguration.getApiUser().getPassword(), TrueConnectorConstants.API_USER_ROLE));
 	}
 	
 	@Override

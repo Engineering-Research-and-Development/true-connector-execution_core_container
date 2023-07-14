@@ -40,7 +40,7 @@
 					"basic": [
 						{
 							"key": "username",
-							"value": "admin",
+							"value": "apiUser",
 							"type": "string"
 						},
 						{
@@ -157,7 +157,7 @@
 					"basic": [
 						{
 							"key": "username",
-							"value": "admin",
+							"value": "apiUser",
 							"type": "string"
 						},
 						{
@@ -223,7 +223,7 @@
 					"basic": [
 						{
 							"key": "username",
-							"value": "admin",
+							"value": "apiUser",
 							"type": "string"
 						},
 						{
@@ -282,7 +282,7 @@
 					"basic": [
 						{
 							"key": "username",
-							"value": "admin",
+							"value": "apiUser",
 							"type": "string"
 						},
 						{
@@ -342,7 +342,7 @@
 						},
 						{
 							"key": "username",
-							"value": "admin",
+							"value": "apiUser",
 							"type": "string"
 						}
 					]
@@ -391,7 +391,7 @@
 						},
 						{
 							"key": "username",
-							"value": "admin",
+							"value": "apiUser",
 							"type": "string"
 						}
 					]

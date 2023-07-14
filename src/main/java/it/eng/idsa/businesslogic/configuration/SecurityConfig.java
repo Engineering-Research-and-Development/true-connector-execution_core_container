@@ -13,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
+import it.eng.idsa.businesslogic.util.TrueConnectorConstants;
+
 /**
  * 
  * @author Milan Karajovic and Gabriele De Luca
@@ -45,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers("/about/**").permitAll()
 			.antMatchers("/error").permitAll()
 			.antMatchers("/").permitAll()
-			.antMatchers("/api/**").hasRole("ADMIN")
+			.antMatchers("/api/**").hasRole(TrueConnectorConstants.API_USER_ROLE)
 			.anyRequest().authenticated()
 			.and()
 			.csrf().disable()
@@ -57,7 +59,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Bean
 	public AuthenticationEntryPoint authenticationEntryPoint() {
 		final var entryPoint = new BasicAuthenticationEntryPoint();
-		entryPoint.setRealmName("admin realm");
+		entryPoint.setRealmName("api realm");
 		return entryPoint;
 	}
 }

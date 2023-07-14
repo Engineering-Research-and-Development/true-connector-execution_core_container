@@ -14,15 +14,22 @@ TRUE Connector has list of audit events which can be found in following table:
 |SELF_DESCRIPTION | Self description requested |
 |CONTRACT_OFFER | Contract offer requested |
 |CONTRACT_OFFER_CREATED | Contract offer created |
+|CONTRACT_OFFER_CREATION_FAILED | Contract offer creation failed |
 |CONTRACT_OFFER_UPDATED | Contract offer updated |
+|CONTRACT_OFFER_UPDATE_FAILED | Contract offer update failed |
 |CONTRACT_OFFER_DELETED | Contract offer deleted |
 |OFFERED_RESOURCE | Offered resource requested |
 |OFFERED_RESOURCE_CREATED | Offered resource created |
+|OFFERED_RESOURCE_CREATION_FAILED | Offered resource creation failed |
+|OFFERED_RESOURCE_UPDATED | Offered resource updated |
+|OFFERED_RESOURCE_UPDATE_FAILED | Offered resource update failed |
 |OFFERED_RESOURCE_UPDATED | Offered resource updated |
 |OFFERED_RESOURCE_DELETED | Offered resource deleted |
 |REPRESENTATION | Representation requested |
 |REPRESENTATION_CREATED | Representation created |
+|REPRESENTATION_CREATION_FAILED | Representation creation failed |
 |REPRESENTATION_UPDATED | Representation updated |
+|REPRESENTATION_UPDATE_FAILED | Representation update failed |
 |REPRESENTATION_DELETED | Representation deleted |
 |EXCEPTION_BAD_REQUEST | Bad request |
 |EXCEPTION_NOT_FOUND | Entity not found |
@@ -91,10 +98,10 @@ With default configuration, events will be logged in log file, in JSON format, l
 	"level_value": 20000,
 	"connectorRole": "Sender",
 	"event.type": "CONNECTOR_REQUEST",
-	"event.principal": "connector",
+	"event.principal": "idsUser",
 	"event": {
 		"timestamp": 1666083263.293266,
-		"principal": "connector",
+		"principal": "idsUser",
 		"type": "CONNECTOR_REQUEST",
 		"data": {
 			"http.message": "de.fraunhofer.iais.eis.ArtifactRequestMessageImpl",
@@ -112,10 +119,10 @@ With default configuration, events will be logged in log file, in JSON format, l
 	"level_value": 20000,
 	"connectorRole": "Sender",
 	"event.type": "CONNECTOR_FETCH_TOKEN",
-	"event.principal": "connector",
+	"event.principal": "idsUser",
 	"event": {
 		"timestamp": 1666083263.473887,
-		"principal": "connector",
+		"principal": "idsUser",
 		"type": "CONNECTOR_FETCH_TOKEN",
 		"data": {
 			"http.message": "de.fraunhofer.iais.eis.ArtifactRequestMessageImpl",

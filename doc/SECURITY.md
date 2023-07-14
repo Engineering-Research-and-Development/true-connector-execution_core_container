@@ -23,7 +23,7 @@ Details about this user can be found in property file:
 
 ```
 #API management credentials
-application.user.api.username=admin
+application.user.api.username=apiUser
 # 'password' encoded value
 application.user.api.password=$2a$10$MQ5grDaIqDpBjMlG78PFduv.AMRe9cs0CNm/V4cgUubrqdGTFCH3m
 
