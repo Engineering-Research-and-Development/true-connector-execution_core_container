@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
  - added certification check
+ - checksum for artifact/1 and artifact/big
 
 ### Changed
 
