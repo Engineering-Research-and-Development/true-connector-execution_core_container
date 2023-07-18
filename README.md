@@ -500,3 +500,15 @@ If you need to work on new feature, be sure first to pull changes from origin, a
 ### Creating Pull Request
 
 When creating pull request, double check if PR will merge to develop branch and not master. If this is not the case, change destination branch to be develop.
+
+## Code coverage
+
+Code coverage is checked by using jacoco plugin.
+
+![Execution Core Container Code Coverage](doc/jacoco.jpg?raw=true "ENG Execution Core Container Code coverage")
+
+For more up to date information about code coverage, you can check report after you build a project. Report can be found in 
+
+```
+target\site\jacoco\index.html
+```
