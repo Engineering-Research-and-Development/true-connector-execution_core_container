@@ -1,11 +1,30 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+
+## [1.14.0] - 2023-07-14
+
+### Added
+
+ - added certification check
+ - checksum for artifact/1 and artifact/big
+
+### Changed
+
+ - admin role now changed to apiUser, for ease of understanding
+ - default user name now application.user.api.username=apiUser
+ - upgraded org.json:json from 20210307 to 20230227 (Dependabot #4 - json stack overflow vulnerability)
+
+### Removed
+
+ - removed redundant and unused http endpoint that was running in parallel with https for Spring Boot; if http is needed please set server.ssl.enabled=false
+
 ## [1.13.1] - 2023-06-30
 
 ### Changed
- - udpated GitHub Actions, simplified input parameters; skipping develop build when performing mvn release commits
- - upgraded Tomcat version to 9.0.76 due to small NIO exception bug when fething Self Description
+
+ - updated GitHub Actions, simplified input parameters; skipping develop build when performing mvn release commits
+ - upgraded Tomcat version to 9.0.76 due to small NIO exception bug when fetching Self Description
 
 ## [1.13.0] - 2023-06-16
 

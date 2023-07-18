@@ -2,11 +2,13 @@ package it.eng.idsa.businesslogic.web.rest.resources;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,6 +33,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.eng.idsa.businesslogic.audit.Auditable;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.resources.ContractOfferService;
 import it.eng.idsa.businesslogic.service.resources.JsonException;
@@ -45,10 +48,14 @@ public class ContractOfferController {
 	
 	private ContractOfferService service;
 	
-	public ContractOfferController(ContractOfferService service) {
-		this.service = service;
-	}
+	private ApplicationEventPublisher publisher;
 	
+	public ContractOfferController(ContractOfferService service, ApplicationEventPublisher publisher) {
+		super();
+		this.service = service;
+		this.publisher = publisher;
+	}
+
 	@Operation(tags = "Contract offer controller", summary = "Get requested contract offer")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Returns requested contract offer", 
@@ -67,19 +74,22 @@ public class ContractOfferController {
 			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-	@Auditable(eventType = TrueConnectorEventType.CONTRACT_OFFER_CREATED)
 	@ResponseBody
 	public ResponseEntity<String> addOrUpdateContractOffer(@RequestHeader("resource") URI resource,
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ContractOfferImpl.class)) })
 			@RequestBody String contractOffer,
 			HttpServletRequest request) throws IOException {
+		String correlationId = UUID.randomUUID().toString();
+		publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.HTTP_REQUEST_RECEIVED, correlationId, contractOffer));
 		Connector modifiedConnector = null;
 		try {
 			Serializer s = new Serializer();
 			ContractOffer co = s.deserialize(contractOffer, ContractOffer.class);
 			logger.info("Adding contract offer with id '{}' to resource '{}'", co.getId(), resource);
 			modifiedConnector = service.addContractOfferToResource(co, resource);
+			publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.CONTRACT_OFFER_CREATED, correlationId));
 		} catch (IOException e) {
+			publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.CONTRACT_OFFER_CREATION_FAILED, correlationId));
 			throw new JsonException("Error while processing request\n" + e.getMessage());
 		}
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
@@ -90,19 +100,22 @@ public class ContractOfferController {
 			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-	@Auditable(eventType = TrueConnectorEventType.CONTRACT_OFFER_UPDATED)
 	@ResponseBody
 	public ResponseEntity<String> updateContractOffer(@RequestHeader("resource") URI resource,
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ContractOfferImpl.class)) })
 			@RequestBody String contractOffer,
 			HttpServletRequest request) throws IOException {
+		String correlationId = UUID.randomUUID().toString();
+		publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.HTTP_REQUEST_RECEIVED, correlationId, contractOffer));
 		Connector modifiedConnector = null;
 		try {
 			Serializer s = new Serializer();
 			ContractOffer co = s.deserialize(contractOffer, ContractOffer.class);
 			logger.info("Updatig contract offer with id '{}' to resource '{}'", co.getId(), resource);
 			modifiedConnector = service.updateContractOfferToResource(co, resource);
+			publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.CONTRACT_OFFER_UPDATED, correlationId));
 		} catch (IOException e) {
+			publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.CONTRACT_OFFER_UPDATE_FAILED, correlationId));
 			throw new JsonException("Error while processing request\n" + e.getMessage());
 		}
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));

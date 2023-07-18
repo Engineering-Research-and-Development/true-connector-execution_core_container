@@ -6,6 +6,7 @@ import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.zip.CRC32C;
 
 import javax.annotation.PostConstruct;
 
@@ -51,6 +52,7 @@ import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
 import it.eng.idsa.businesslogic.service.resources.SelfDescription;
 import it.eng.idsa.businesslogic.service.resources.SelfDescriptionManager;
+import it.eng.idsa.businesslogic.util.BigPayload;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 import it.eng.idsa.multipart.util.DateUtil;
 import it.eng.idsa.multipart.util.UtilMessageService;
@@ -161,9 +163,13 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 
 		Artifact defaultArtifact = new ArtifactBuilder(defaultTarget)
 			._creationDate_(DateUtil.normalizedDateTime())
+			// this one is dynamic resource and checksum will change because of new Date when generating data
+			._checkSum_("21683540")
 			.build();
+		
 		Artifact bigArtifact = new ArtifactBuilder(bigResource)
 				._creationDate_(DateUtil.normalizedDateTime())
+				._checkSum_(String.valueOf(calculateChecksum(BigPayload.BIG_PAYLOAD.getBytes())))
 				.build();
 		
 		Artifact csvArtifact = new ArtifactBuilder(csvResource)
@@ -332,4 +338,12 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				.orElse(UtilMessageService.getDynamicAttributeToken());
 	}
 
+	private long calculateChecksum(final byte[] bytes) {
+        if (bytes == null) {
+            return 0;
+        }
+        final var checksum = new CRC32C();
+        checksum.update(bytes, 0, bytes.length);
+        return checksum.getValue();
+    }
 }

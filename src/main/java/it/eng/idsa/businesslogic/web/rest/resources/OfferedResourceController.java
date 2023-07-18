@@ -2,9 +2,13 @@ package it.eng.idsa.businesslogic.web.rest.resources;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.UUID;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,6 +33,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.eng.idsa.businesslogic.audit.Auditable;
+import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.service.resources.JsonException;
 import it.eng.idsa.businesslogic.service.resources.OfferedResourceService;
@@ -43,9 +48,15 @@ public class OfferedResourceController {
 	
 	private OfferedResourceService service;
 	
-	public OfferedResourceController(OfferedResourceService service) {
+	private ApplicationEventPublisher publisher;
+	
+
+	public OfferedResourceController(OfferedResourceService service, ApplicationEventPublisher publisher) {
+		super();
 		this.service = service;
+		this.publisher = publisher;
 	}
+
 
 	@Operation(tags = "Offered resource controller", summary = "Get requested resource")
 	@ApiResponses(value = {
@@ -66,18 +77,22 @@ public class OfferedResourceController {
 			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	@Auditable(eventType = TrueConnectorEventType.OFFERED_RESOURCE_CREATED)
 	@ResponseBody
 	public ResponseEntity<String> addOrUpdateResource(@RequestHeader("catalog") URI catalog,
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ResourceImpl.class)) })
-			@RequestBody String resource) throws IOException {
+			@RequestBody String resource,
+			HttpServletRequest request) throws IOException {
+		String correlationId = UUID.randomUUID().toString();
+		publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.HTTP_REQUEST_RECEIVED, correlationId, resource));
 		Connector modifiedConnector = null;
 		try {
 			Serializer s = new Serializer();
 			Resource r = s.deserialize(resource, Resource.class);
 			logger.info("Adding offered resource with id '{}' to catalog '{}'", r.getId(), catalog);
 			modifiedConnector = service.addOfferedResource(catalog, r);
+			publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.OFFERED_RESOURCE_CREATED, correlationId));
 		} catch (IOException e) {
+			publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.OFFERED_RESOURCE_CREATION_FAILED, correlationId));
 			throw new JsonException("Error while processing request\n" + e.getMessage());
 		}
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
@@ -89,18 +104,22 @@ public class OfferedResourceController {
 			@ApiResponse(responseCode = "200", description = "Returns modified connector", 
 					content = { @Content(mediaType = "application/json", schema = @Schema(implementation = BaseConnectorImpl.class)) }) })
 	@PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	@Auditable(eventType = TrueConnectorEventType.OFFERED_RESOURCE_UPDATED)
 	@ResponseBody
 	public ResponseEntity<String> updateResource(@RequestHeader("catalog") URI catalog,
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ResourceImpl.class)) })
-			@RequestBody String resource) throws IOException {
+			@RequestBody String resource,
+			HttpServletRequest request) throws IOException {
+		String correlationId = UUID.randomUUID().toString();
+		publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.HTTP_REQUEST_RECEIVED, correlationId, resource));
 		Connector modifiedConnector = null;
 		try {
 			Serializer s = new Serializer();
 			Resource r = s.deserialize(resource, Resource.class);
 			logger.info("Updating offered resource with id '{}' to catalog '{}'", r.getId(), catalog);
 			modifiedConnector = service.updateOfferedResource(catalog, r);
+			publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.OFFERED_RESOURCE_UPDATED, correlationId));
 		} catch (IOException e) {
+			publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.OFFERED_RESOURCE_UPDATE_FAILED, correlationId));
 			throw new JsonException("Error while processing request\n" + e.getMessage());
 		}
 		return ResponseEntity.ok(MultipartMessageProcessor.serializeToJsonLD(modifiedConnector));
