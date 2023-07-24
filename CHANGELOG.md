@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.14.1] - 2023-07-23
+
+### Added
+ - new processor at B-endpoint, for checking incoming info model version
 
 ## [1.14.0] - 2023-07-14
 
