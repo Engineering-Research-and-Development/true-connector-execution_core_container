@@ -196,6 +196,7 @@ public class SelfDescriptionConfiguration {
 		private URI maintainer;
 		private URI curator;
 		private String filelocation;
+		private String inboundModelVersion;
 		
 		public String getDescription() {
 			return description;
@@ -235,6 +236,12 @@ public class SelfDescriptionConfiguration {
 
 		public void setFilelocation(String filelocation) {
 			this.filelocation = filelocation;
+		}
+		public String getInboundModelVersion() {
+			return inboundModelVersion;
+		}
+		public void setInboundModelVersion(String inboundModelVersion) {
+			this.inboundModelVersion = inboundModelVersion;
 		}
 	}
 }
