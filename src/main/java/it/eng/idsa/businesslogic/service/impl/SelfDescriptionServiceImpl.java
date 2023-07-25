@@ -122,7 +122,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 				._resourceCatalog_(this.getCatalog())
 				._securityProfile_(SecurityProfile.BASE_SECURITY_PROFILE)
 				._publicKey_(publicKey)
-				._inboundModelVersion_(Util.asList(new String[] { UtilMessageService.MODEL_VERSION }))
+				._inboundModelVersion_(Util.asList(selfDescriptionConfiguration.getSelfDescription().getInboundModelVersion().split(",")))
 				._title_(Util.asList(new TypedLiteral(selfDescriptionConfiguration.getTitle())))
 				._description_(Util.asList(new TypedLiteral(selfDescriptionConfiguration.getDescription())))
 				._outboundModelVersion_(UtilMessageService.MODEL_VERSION)
