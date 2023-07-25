@@ -22,7 +22,7 @@ public class Application {
 	public static void main(String[] args) {
 		 System.setProperty("camel.springboot.main-run-controller", "true");
 		 System.setProperty("camel.component.http4.use-global-ssl-context-parameters", "true");
-		 System.setProperty("ssl.enabled", "true");
+		 System.setProperty("server.ssl.enabled", "true");
 		 System.setProperty("application.disableSslVerification", "false");
 		 System.setProperty("camel.component.jetty.use-global-ssl-context-parameters", "true");
 		SpringApplication.run(Application.class, args);

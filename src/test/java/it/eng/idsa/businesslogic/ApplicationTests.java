@@ -8,9 +8,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@TestPropertySource(properties = { "server.ssl.enabled=true", "camel.springboot.main-run-controller=true",
-		"camel.component.http4.use-global-ssl-context-parameters=true", "ssl.enabled=true",
-		"application.disableSslVerification=false", })
+@TestPropertySource(properties = { "camel.springboot.main-run-controller=true",
+		"camel.component.http4.use-global-ssl-context-parameters=true",
+		"camel.component.jetty.use-global-ssl-context-parameters=true", "server.ssl.enabled=true",
+		"application.disableSslVerification=false" })
 public class ApplicationTests {
 
 	@Test
