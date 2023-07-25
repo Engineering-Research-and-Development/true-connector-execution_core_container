@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file.
 
  - Hardcoded to use TLS communication only
  - Deleted next properties and set them to the hardcoded values:
- camel.springboot.main-run-controller = true, camel.component.http4.use-global-ssl-context-parameters = true, camel.component.jetty.use-global-ssl-context-parameters = true, ssl.enabled = true, application.disableSslVerification = false, 
+ camel.springboot.main-run-controller = true, camel.component.http4.use-global-ssl-context-parameters = true, camel.component.jetty.use-global-ssl-context-parameters = true, ssl.enabled = true, application.disableSslVerification = false
 
 
 ## [1.14.0] - 2023-07-14
