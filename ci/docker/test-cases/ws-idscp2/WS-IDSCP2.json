@@ -1,56 +1,62 @@
 {
-    "info": {
-        "_postman_id": "b8c232a7-97d2-404f-a02f-781e8c54b745",
-        "name": "GHA WSS-IDSCP2",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-    },
-    "item": [{
-            "name": "WSS-IDSCP2",
-            "event": [{
-                    "listen": "test",
-                    "script": {
-                        "exec": [
-                            "pm.test(\"Status code is 200\", function () {\r",
-                            "    pm.response.to.have.status(200);\r",
-                            "});\r"
-                        ],
-                        "type": "text/javascript"
-                    }
-                }
-            ],
-            "request": {
-                "auth": {
-                    "type": "basic",
-                    "basic": [{
-                            "key": "password",
-                            "value": "password",
-                            "type": "string"
-                        }, {
-                            "key": "username",
-                            "value": "proxy",
-                            "type": "string"
-                        }
-                    ]
-                },
-                "method": "POST",
-                "header": [],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\r\n    \"multipart\": \"wss\",\r\n    \"Forward-To-Internal\": \"wss://ecc-consumer:8887\",\r\n\t\"Forward-To\": \"wss://ecc-provider:8086\",\r\n    \"messageType\": \"ArtifactRequestMessage\",\r\n    \"requestedArtifact\" : \"http://w3id.org/engrd/connector/artifact/test1.csv\"\r\n}"
-                },
-                "url": {
-                    "raw": "https://localhost:8185/proxy",
-                    "protocol": "https",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "8185",
-                    "path": [
-                        "proxy"
-                    ]
-                }
-            },
-            "response": []
-        }
-    ]
+	"info": {
+		"_postman_id": "95b9fe10-516a-447d-b1e1-f172af220ed3",
+		"name": "GHA WSS-IDSCP2",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "2326106",
+		"_collection_link": "https://martian-water-684810.postman.co/workspace/TC-CI~255b9f39-3698-4730-873d-66392ca44292/collection/2326106-95b9fe10-516a-447d-b1e1-f172af220ed3?action=share&creator=2326106&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "WSS-IDSCP2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "idsUser",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"multipart\": \"wss\",\r\n    \"Forward-To-Internal\": \"wss://ecc-consumer:8887\",\r\n\t\"Forward-To\": \"wss://ecc-provider:8086\",\r\n    \"messageType\": \"ArtifactRequestMessage\",\r\n    \"requestedArtifact\" : \"http://w3id.org/engrd/connector/artifact/test1.csv\"\r\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8185/proxy",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8185",
+					"path": [
+						"proxy"
+					]
+				}
+			},
+			"response": []
+		}
+	]
 }

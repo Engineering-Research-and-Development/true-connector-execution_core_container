@@ -1,8 +1,10 @@
 {
 	"info": {
-		"_postman_id": "30afc366-975c-4e68-8c3c-67afd9e937a3",
-		"name": "GHA API Tests Copy",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"_postman_id": "5c8cb7a3-fc52-4fa1-9f4a-653d437bd292",
+		"name": "GHA API Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "2326106",
+		"_collection_link": "https://martian-water-684810.postman.co/workspace/TC-CI~255b9f39-3698-4730-873d-66392ca44292/collection/2326106-5c8cb7a3-fc52-4fa1-9f4a-653d437bd292?action=share&creator=2326106&source=collection_link"
 	},
 	"item": [
 		{
@@ -97,7 +99,7 @@
 					"basic": [
 						{
 							"key": "username",
-							"value": "proxy",
+							"value": "idsUser",
 							"type": "string"
 						},
 						{
