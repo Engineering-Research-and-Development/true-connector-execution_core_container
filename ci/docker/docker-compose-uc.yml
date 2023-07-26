@@ -17,7 +17,6 @@ services:
       - DATA_APP_HEALTH_ENDPOINT=${PROVIDER_DATA_APP_HEALTH_ENDPOINT}
       - MULTIPART_EDGE=${PROVIDER_MULTIPART_EDGE}                     #Data APP endpoint multipart/mixed content type
       - MULTIPART_ECC=${MULTIPART_ECC}
-      - REST_ENABLE_HTTPS=${REST_ENABLE_HTTPS}
       - IDSCP2=${IDSCP2}
       - WS_EDGE=${PROVIDER_WS_EDGE}
       - WS_ECC=${WS_ECC}
@@ -100,7 +99,6 @@ services:
       - DATA_APP_HEALTH_ENDPOINT=${CONSUMER_DATA_APP_HEALTH_ENDPOINT}
       - MULTIPART_EDGE=${CONSUMER_MULTIPART_EDGE}                     #Data APP endpoint multipart/mixed content type
       - MULTIPART_ECC=${MULTIPART_ECC}
-      - REST_ENABLE_HTTPS=${REST_ENABLE_HTTPS}
       - IDSCP2=${IDSCP2}
       - WS_EDGE=${CONSUMER_WS_EDGE}
       - WS_ECC=${WS_ECC}
