@@ -1,65 +1,72 @@
 {
-    "info": {
-        "_postman_id": "9c082b64-9816-4182-819f-1daf058b36c3",
-        "name": "GHA HTTPS-IDSCP2-mixed",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-    },
-    "item": [{
-            "name": "HTTPS-IDSCP2-mixed",
-            "event": [{
-                    "listen": "test",
-                    "script": {
-                        "exec": [
-                            "pm.test(\"Status code is 200\", function () {\r",
-                            "    pm.response.to.have.status(200);\r",
-                            "});\r",
-                            "pm.test(\"Body matches string\", function () {\r",
-                            "    pm.expect(pm.response.text()).to.include(\"{\\\"firstName\\\":\\\"John\\\",\\\"lastName\\\":\\\"Doe\\\",\\\"address\\\":\\\"591  Franklin Street, Pennsylvania\");\r",
-                            "});"
-                        ],
-                        "type": "text/javascript"
-                    }
-                }
-            ],
-            "request": {
-                "auth": {
-                    "type": "basic",
-                    "basic": [{
-                            "key": "password",
-                            "value": "password",
-                            "type": "string"
-                        }, {
-                            "key": "username",
-                            "value": "proxy",
-                            "type": "string"
-                        }
-                    ]
-                },
-                "method": "POST",
-                "header": [{
-                        "key": "Content-Type",
-                        "value": "text/plain",
-                        "type": "text"
-                    }
-                ],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\r\n    \"multipart\": \"mixed\",\r\n    \"Forward-To\": \"https://ecc-provider:8889/data\",\r\n    \"messageType\": \"ArtifactRequestMessage\" ,\r\n    \"requestedArtifact\": \"http://w3id.org/engrd/connector/artifact/1\" ,\r\n     \"payload\" : {\r\n\t\t\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"\r\n\t\t}\r\n}"
-                },
-                "url": {
-                    "raw": "https://localhost:8185/proxy",
-                    "protocol": "https",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "8185",
-                    "path": [
-                        "proxy"
-                    ]
-                },
-                "description": "HTTPS on the edge\r\nIDSCP2 between ECCs"
-            },
-            "response": []
-        }
-    ]
+	"info": {
+		"_postman_id": "1b4e19c5-1f34-4b3a-a769-ca665065250a",
+		"name": "GHA HTTPS-IDSCP2-mixed",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "2326106",
+		"_collection_link": "https://martian-water-684810.postman.co/workspace/TC-CI~255b9f39-3698-4730-873d-66392ca44292/collection/2326106-1b4e19c5-1f34-4b3a-a769-ca665065250a?action=share&creator=2326106&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "HTTPS-IDSCP2-mixed",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Body matches string\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"{\\\"firstName\\\":\\\"John\\\",\\\"lastName\\\":\\\"Doe\\\",\\\"address\\\":\\\"591  Franklin Street, Pennsylvania\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "idsUser",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "text/plain",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"multipart\": \"mixed\",\r\n    \"Forward-To\": \"https://ecc-provider:8889/data\",\r\n    \"messageType\": \"ArtifactRequestMessage\" ,\r\n    \"requestedArtifact\": \"http://w3id.org/engrd/connector/artifact/1\" ,\r\n     \"payload\" : {\r\n\t\t\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"\r\n\t\t}\r\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8185/proxy",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8185",
+					"path": [
+						"proxy"
+					]
+				},
+				"description": "HTTPS on the edge\r\nIDSCP2 between ECCs"
+			},
+			"response": []
+		}
+	]
 }

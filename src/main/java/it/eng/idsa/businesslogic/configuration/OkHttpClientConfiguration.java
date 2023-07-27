@@ -30,9 +30,6 @@ public class OkHttpClientConfiguration {
 
 	private static final Logger logger = LoggerFactory.getLogger(OkHttpClientConfiguration.class);
 
-	@Value("#{new Boolean('${application.disableSslVerification:false}')}")
-	private boolean disableSslVerification;
-
 	@Autowired
 	private KeystoreProvider keystoreProvider;
 
@@ -47,17 +44,11 @@ public class OkHttpClientConfiguration {
 		SSLSocketFactory sslSocketFactory;
 		HostnameVerifier hostnameVerifier;
 
-		if (disableSslVerification) {
-			logger.info("Disabling SSL Validation");
-			hostnameVerifier = new NoopHostnameVerifier();
-			trustManagers = createTrustCertificates();
-			sslSocketFactory = sslSocketFactory(trustManagers);
-		} else {
-			logger.info("Using default SSL Validation with certificates from trust store");
-			hostnameVerifier = OkHostnameVerifier.INSTANCE;
-			trustManagers = keystoreProvider.getTrustManagerFactory().getTrustManagers();
-			sslSocketFactory = sslSocketFactory(trustManagers);
-		}
+		logger.info("Using default SSL Validation with certificates from trust store");
+		hostnameVerifier = OkHostnameVerifier.INSTANCE;
+		trustManagers = keystoreProvider.getTrustManagerFactory().getTrustManagers();
+		sslSocketFactory = sslSocketFactory(trustManagers);
+
 		//@formatter:off
 		client = new OkHttpClient.Builder()
 				.connectionSpecs(Collections.singletonList(ConnectionSpec.MODERN_TLS))

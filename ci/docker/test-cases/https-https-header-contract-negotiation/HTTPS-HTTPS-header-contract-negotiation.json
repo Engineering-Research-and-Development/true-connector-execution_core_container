@@ -1,8 +1,10 @@
 {
 	"info": {
-		"_postman_id": "78a8e285-c86f-45e0-96c3-ccd685564f40",
+		"_postman_id": "23ca8ab8-e8bc-4cab-91b4-06334f61b12c",
 		"name": "GHA HTTPS-HTTPS-header-contract-negotiation",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "2326106",
+		"_collection_link": "https://martian-water-684810.postman.co/workspace/TC-CI~255b9f39-3698-4730-873d-66392ca44292/collection/2326106-23ca8ab8-e8bc-4cab-91b4-06334f61b12c?action=share&creator=2326106&source=collection_link"
 	},
 	"item": [
 		{
@@ -236,13 +238,13 @@
 		"type": "basic",
 		"basic": [
 			{
-				"key": "password",
-				"value": "password",
+				"key": "username",
+				"value": "idsUser",
 				"type": "string"
 			},
 			{
-				"key": "username",
-				"value": "proxy",
+				"key": "password",
+				"value": "password",
 				"type": "string"
 			}
 		]

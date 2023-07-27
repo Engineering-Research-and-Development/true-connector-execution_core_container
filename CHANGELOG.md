@@ -4,7 +4,16 @@ All notable changes to this project will be documented in this file.
 ## [1.14.1] - 2023-07-23
 
 ### Added
+
  - new processor at B-endpoint, for checking incoming info model version
+
+### Changed
+
+ - Hardcoded to use TLS communication only
+ - Property application.disableSslVerification deleted, so trust store must be set and valid
+ - Deleted next properties and set them to the hardcoded values:
+ camel.springboot.main-run-controller = true, camel.component.http4.use-global-ssl-context-parameters = true, camel.component.jetty.use-global-ssl-context-parameters = true, server.ssl.enabled = true
+
 
 ## [1.14.0] - 2023-07-14
 
