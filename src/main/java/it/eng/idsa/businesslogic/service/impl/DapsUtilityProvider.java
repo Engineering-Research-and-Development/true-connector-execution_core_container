@@ -1,7 +1,6 @@
 package it.eng.idsa.businesslogic.service.impl;
 
 import java.net.URL;
-import java.nio.file.Path;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.interfaces.RSAPrivateKey;
@@ -35,20 +34,11 @@ public class DapsUtilityProvider {
     private static final Logger logger = LoggerFactory.getLogger(DapsUtilityProvider.class);
 
     @Autowired
-    private KeystoreProvider keystoreProvider;
+    private DapsKeystoreProvider keystoreProvider;
     
 	@Value("${application.dapsJWKSUrl}")
 	private URL dapsJWKSUrl;
 	
-	@Value("${application.targetDirectory}")
-	private Path targetDirectory;
-	@Value("${application.keyStoreName}")
-	private String keyStoreName;
-	@Value("${application.keyStorePassword}")
-	private String keyStorePassword;
-	@Value("${application.keystoreAliasName}")
-	private String keystoreAliasName;
-
     private String targetAudience = "idsc:IDS_CONNECTORS_ALL";
     
 	public String getDapsV2Jws() {

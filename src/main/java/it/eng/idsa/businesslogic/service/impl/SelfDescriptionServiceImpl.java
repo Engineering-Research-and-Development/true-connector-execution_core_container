@@ -71,13 +71,13 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	private Connector connector;
 	private SelfDescriptionManager selfDescriptionManager;
 	private URI issuerConnectorURI;
-    private KeystoreProvider keystoreProvider;
+    private DapsKeystoreProvider keystoreProvider;
 
 	public SelfDescriptionServiceImpl(
 			SelfDescriptionConfiguration selfDescriptionConfiguration,	
 			Optional<DapsTokenProviderService> dapsProvider,
 			SelfDescriptionManager selfDescriptionManager,
-			KeystoreProvider keystoreProvider) {
+			DapsKeystoreProvider keystoreProvider) {
 		this.selfDescriptionConfiguration = selfDescriptionConfiguration;
 		this.dapsProvider = dapsProvider;
 		this.selfDescriptionManager = selfDescriptionManager;

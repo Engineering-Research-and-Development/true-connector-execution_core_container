@@ -1,16 +1,10 @@
 package it.eng.idsa.businesslogic.service.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
@@ -19,18 +13,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * Reads certificate from truststore, \n
- * calculates SHA256 using MessageDigest.getInstance("SHA-256").digest(cert.getEncoded())\n
- * creates map with certificate SubjectAlternativeName and calculated SHA256\n
+ * Reads certificate from truststore, \n calculates SHA256 using
+ * MessageDigest.getInstance("SHA-256").digest(cert.getEncoded())\n creates map
+ * with certificate SubjectAlternativeName and calculated SHA256\n
  * 
- * Map is later used to verify if jwt.transportCertSha256 matches with the one from truststore
+ * Map is later used to verify if jwt.transportCertSha256 matches with the one
+ * from truststore
  * 
  * @author igor.balog
  *
@@ -42,32 +35,11 @@ public class TransportCertsManager {
 
 	private Map<String, String> transportCerts;
 	private String connectorTransportCertSha;
+	private TLSProvider tlsProvider;
 
-	public TransportCertsManager(@Value("${application.ssl.key-store.name}") String sslKeystore,
-			@Value("${application.ssl.key-store-password}") String sslPassword,
-			@Value("${server.ssl.key-alias}") String sslAlias,
-			@Value("${application.targetDirectory}") Path targetDirectory,
-			@Value("${application.trustStoreName}") String trustStoreName,
-			@Value("${application.trustStorePassword}") String trustStorePwd)
-			throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-		InputStream jksTrustStoreInputStream = null;
-		KeyStore trustManagerKeyStore;
-		try {
-			if (StringUtils.isNotBlank(trustStoreName)) {
-				logger.info("TransportCerts manager initialization");
-				jksTrustStoreInputStream = Files.newInputStream(targetDirectory.resolve(trustStoreName));
-				trustManagerKeyStore = KeyStore.getInstance("JKS");
-				trustManagerKeyStore.load(jksTrustStoreInputStream, trustStorePwd.toCharArray());
-				populateTransportCertsSha(trustManagerKeyStore);
-				this.connectorTransportCertSha = getConnectorTransportCertSha256(targetDirectory, sslKeystore, sslPassword, sslAlias);
-			} else {
-				logger.info("Truststore not configured, cannot calculate TransportCertsSha256");
-			}
-		} finally {
-			if (jksTrustStoreInputStream != null) {
-				jksTrustStoreInputStream.close();
-			}
-		}
+	public TransportCertsManager(TLSProvider tlsProvider) {
+		this.tlsProvider = tlsProvider;
+		populateTransportCertsSha();
 	}
 
 	public String getConnectorTransportCertsSha() {
@@ -79,16 +51,16 @@ public class TransportCertsManager {
 		return transportCert.equals(transportCerts.get(connectorId));
 	}
 
-	private void populateTransportCertsSha(KeyStore trustManagerKeyStore) throws KeyStoreException {
+	private void populateTransportCertsSha() {
 		logger.info("Calculating TransportCertsSha256 from configured truststore");
 		transportCerts = new HashMap<>();
-		List<String> aliases = Collections.list(trustManagerKeyStore.aliases());
+		List<String> aliases = Collections.list(tlsProvider.getTruststoreAliases());
 		aliases.forEach(a -> {
 			try {
-				X509Certificate x509Cert = (X509Certificate) trustManagerKeyStore.getCertificate(a);
-				if(x509Cert.getSubjectAlternativeNames() != null) {
+				X509Certificate x509Cert = (X509Certificate) tlsProvider.getTrustManagerKeyStore().getCertificate(a);
+				if (x509Cert.getSubjectAlternativeNames() != null) {
 					x509Cert.getSubjectAlternativeNames().stream()
-					.forEach(san -> transportCerts.put((String) san.get(1), getCertificateDigest(x509Cert)));
+							.forEach(san -> transportCerts.put((String) san.get(1), getCertificateDigest(x509Cert)));
 				}
 			} catch (KeyStoreException | CertificateParsingException e) {
 				logger.error("Error while calculating TransportCertsSha256", e);
@@ -110,23 +82,6 @@ public class TransportCertsManager {
 			logger.error("Error while trying to load certificate", e);
 		}
 		return digest;
-	}
-
-	private String getConnectorTransportCertSha256(Path targetDirectory, String sslKeystore, String sslPassword, String sslAlias) {
-		return getCertificateDigest(getCertificateTLS(targetDirectory, sslKeystore, sslPassword, sslAlias));
-	}
-
-	private X509Certificate getCertificateTLS(Path targetDirectory, String sslKeystore, String sslPassword, String sslAlias) {
-		KeyStore keystore;
-		try {
-			InputStream jksKeyStoreInputStream = Files.newInputStream(targetDirectory.resolve(sslKeystore));
-			keystore = KeyStore.getInstance("JKS");
-			keystore.load(jksKeyStoreInputStream, sslPassword.toCharArray());
-			return (X509Certificate) keystore.getCertificate(sslAlias);
-		} catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
-			logger.error("Error while trying to read server certificate", e);
-		}
-		return null;
 	}
 
 }
