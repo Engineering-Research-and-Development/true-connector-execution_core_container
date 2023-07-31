@@ -259,12 +259,12 @@
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-            <version>3.19.1</version>
+            <version>3.19.3</version>
         </dependency>
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>jwks-rsa</artifactId>
-            <version>0.21.1</version>
+            <version>0.22.1</version>
         </dependency>
 
         <dependency>
@@ -321,7 +321,7 @@
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
-            <version>7.0.1</version>
+            <version>7.3</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -397,7 +397,7 @@
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>
             <artifactId>jose4j</artifactId>
-            <version>0.7.8</version>
+            <version>0.9.3</version>
         </dependency>
 
         <dependency>

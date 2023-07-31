@@ -73,10 +73,10 @@ public class TrueConnectorEvent extends AuditApplicationEvent {
 	
 	/**
 	 * TrueConnectorEvent with request, type, correlationId and payload
-	 * @param request
-	 * @param type
-	 * @param correlationId
-	 * @param payload
+	 * @param request HTTP request
+	 * @param type TrueConnectorEventType
+	 * @param correlationId correlationId for tracking request
+	 * @param payload payload of the request
 	 */
 	public TrueConnectorEvent(HttpServletRequest request, TrueConnectorEventType type, String correlationId, String payload) {
 		super(principal(request), type.name(), details(request, correlationId, payload));

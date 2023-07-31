@@ -38,7 +38,7 @@ public class SelfDescriptionServiceImplTest {
 	@Mock
 	private Connector connectorMock;
 	@Mock
-	private KeystoreProvider keystoreProvider;
+	private DapsKeystoreProvider keystoreProvider;
 	@Mock 
 	private X509Certificate cert;
 	@Mock 

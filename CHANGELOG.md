@@ -13,7 +13,11 @@ All notable changes to this project will be documented in this file.
  - Property application.disableSslVerification deleted, so trust store must be set and valid
  - Deleted next properties and set them to the hardcoded values:
  camel.springboot.main-run-controller = true, camel.component.http4.use-global-ssl-context-parameters = true, camel.component.jetty.use-global-ssl-context-parameters = true, server.ssl.enabled = true
-
+ - refactor classes for handling TLS (server certificate and truststore) and Daps certificate
+ - Security upgrade com.auth0:jwks-rsa from 0.21.1 to 0.22.1
+ - Security upgrade net.logstash.logback:logstash-logback-encoder from 7.0.1 to 7.3
+ - Security upgrade com.auth0:java-jwt from 3.19.1 to 3.19.3
+ - Security upgrade org.bitbucket.b_c:jose4j:0.7.8 to 0.9.3
 
 ## [1.14.0] - 2023-07-14
 
