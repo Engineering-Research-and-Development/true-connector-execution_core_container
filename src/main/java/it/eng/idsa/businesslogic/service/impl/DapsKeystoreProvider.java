@@ -72,7 +72,7 @@ public class DapsKeystoreProvider {
 			}
 		} else {
 			logger.info("**********************************************************************");
-			logger.info("DAPS Interaction disabled. KeyStore and/or trustStore not loaded");
+			logger.info("DAPS Interaction disabled. DAPS KeyStore not loaded");
 			logger.info("**********************************************************************");
 			logger.info("**********************************************************************");
 			logger.info("Clearing house Interaction also disabled because of DAPS.");

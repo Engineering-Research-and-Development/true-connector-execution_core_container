@@ -41,9 +41,9 @@ public class TLSProvider {
 	private KeyManagerFactory keyFactory;
 	private TrustManagerFactory trustFactory;
 	
-	@Value("${application.ssl.key-store.name}") String sslKeystore;
-	@Value("${application.ssl.key-store-password}") String sslPassword;
-	@Value("${server.ssl.key-alias}") String sslAlias;
+	@Value("${application.ssl.key-store.name}") String tlsKeystoreName;
+	@Value("${application.ssl.key-store-password}") String tlsKeystorePassword;
+	@Value("${server.ssl.key-alias}") String tlsKeystoreAlias;
 	@Value("${application.targetDirectory}") Path targetDirectory;
 	@Value("${application.trustStoreName}") String trustStoreName;
 	@Value("${application.trustStorePassword}") String trustStorePwd;
@@ -55,20 +55,19 @@ public class TLSProvider {
 	}
 
 	private void loadTLSKeystore() {
-		logger.info("Loading key store: " + sslKeystore);
-		try (InputStream jksKeyStoreInputStream = Files.newInputStream(targetDirectory.resolve(sslKeystore))) {
+		logger.info("Loading TLS keystore: " + tlsKeystoreName);
+		try (InputStream jksKeyStoreInputStream = Files.newInputStream(targetDirectory.resolve(tlsKeystoreName))) {
 			tlsKeystore = KeyStore.getInstance("JKS");
-			tlsKeystore.load(jksKeyStoreInputStream, sslPassword.toCharArray());
+			tlsKeystore.load(jksKeyStoreInputStream, tlsKeystorePassword.toCharArray());
 			keyFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-			keyFactory.init(tlsKeystore, sslPassword.toCharArray());
+			keyFactory.init(tlsKeystore, tlsKeystorePassword.toCharArray());
 		} catch (UnrecoverableKeyException | IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
 			logger.error("Error while trying to read server certificate", e);
 		} 
-		
 	}
 
 	private void loadTrustStore() {
-		logger.info("Loading key store: " + trustStoreName);
+		logger.info("Loading truststore: " + trustStoreName);
 		try (InputStream jksTrustStoreInputStream = Files.newInputStream(targetDirectory.resolve(trustStoreName))) {
 			trustManagerKeyStore = KeyStore.getInstance("JKS");
 			trustManagerKeyStore.load(jksTrustStoreInputStream, trustStorePwd.toCharArray());
@@ -109,7 +108,7 @@ public class TLSProvider {
 	
 	public Certificate getTLSKeystoreCertificate() {
 		try {
-			return tlsKeystore.getCertificate(sslAlias);
+			return tlsKeystore.getCertificate(tlsKeystoreAlias);
 		} catch (KeyStoreException e) {
 			logger.error("Error while trying to read server certificate", e);
 		}
@@ -126,7 +125,7 @@ public class TLSProvider {
 	
 	public X509Certificate getCertificateTLS() {
 		try {
-			return (X509Certificate) tlsKeystore.getCertificate(sslAlias);
+			return (X509Certificate) tlsKeystore.getCertificate(tlsKeystoreAlias);
 		} catch (KeyStoreException e) {
 			logger.error("Error while trying to read server certificate", e);
 		}
