@@ -89,8 +89,7 @@ public class DapsV2ServiceImpl implements DapsService {
 			return valid;
 		}
 		try {
-			String base64encoded = Base64.toBase64String("perica".getBytes());
-		    DecodedJWT jwt = JWT.decode(base64encoded+ "." + base64encoded + "." + base64encoded);
+			DecodedJWT jwt = JWT.decode(tokenValue);
 			Algorithm algorithm = dapsUtilityProvider.provideAlgorithm(tokenValue);
 			algorithm.verify(jwt);
 			valid = true;
