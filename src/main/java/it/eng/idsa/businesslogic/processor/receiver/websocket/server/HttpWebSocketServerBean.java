@@ -118,7 +118,7 @@ public class HttpWebSocketServerBean {
             logger.warn("IDSCP Server should be 'OFF' in order to use WS over HTTPS!");
             logger.warn(e.getMessage());
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("WebSocket Server did not start: {}", e.getMessage());
         }
     }
 

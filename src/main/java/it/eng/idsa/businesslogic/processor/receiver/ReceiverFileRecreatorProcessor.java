@@ -42,7 +42,7 @@ public class ReceiverFileRecreatorProcessor implements Processor {
 		Thread fileRecreatorBeanThread = new Thread(fileRecreatorBean, "FileRecreator_"+this.getClass().getSimpleName());
 		fileRecreatorBeanThread.start();
 		String recreatedMultipartMessage = webSocketServerConfiguration.recreatedMultipartMessageBeanWebSocket().remove();
-		logger.debug("Received message over WSS , {}", recreatedMultipartMessage);
+		logger.debug("Received message over WSS");
 		
 		exchange.getMessage().setBody(recreatedMultipartMessage, String.class);
 	}
@@ -51,8 +51,7 @@ public class ReceiverFileRecreatorProcessor implements Processor {
 		try {
 			fileRecreatorBean.setup();
 		} catch(Exception e) {
-			logger.info("... can not initilize the IdscpServer");
-			logger.error("Cannot initiallize server", e);
+			logger.error("Cannot initiallize IDSCP Server", e);
 			rejectionMessageService.sendRejectionMessage(null, RejectionReason.TEMPORARILY_NOT_AVAILABLE);
 		}
 	}

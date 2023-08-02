@@ -72,8 +72,6 @@ public class ReceiverUsageControlProcessor implements Processor {
 			String payloadToEnforce = usageControlService.createUsageControlObject(artifactRequestMessage, artifactResponseMessage,
 			        multipartMessage.getPayloadContent());
 			
-			logger.debug("Message Body: " + payloadToEnforce);
-			
 			MultipartMessage reponseMultipartMessage = new MultipartMessageBuilder()
 					.withHttpHeader(multipartMessage.getHttpHeaders())
 					.withHeaderHeader(multipartMessage.getHeaderHeader())

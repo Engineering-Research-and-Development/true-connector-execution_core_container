@@ -39,10 +39,8 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, Object> messageToHeaders(Message message) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Converting following message to http-headers: \r\n {}",
-					UtilMessageService.getMessageAsString(message));
-		}
+		logger.debug("Converting message to http-headers");
+		
 		Map<String, Object> headers = new HashMap<>();
 		ObjectMapper mapper = new ObjectMapper();
 		// exclude null values from map
@@ -94,7 +92,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 			}
 		});
 
-		logger.debug("Message converted, following headers are the result: \r\n {}", headers.toString());
+		logger.debug("Message converted");
 
 		return headers;
 	}
@@ -104,7 +102,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		// bare in mind that in rumtime, headers is
 		// org.apache.camel.util.CaseInsensitiveMap
 		// which means that headers.get("aaa") is the same like headers.get("Aaa")
-		logger.debug("Converting following http-headers to message: \r\n {}", headers.toString());
+		logger.debug("Converting http-headers to message");
 
 		Map<String, Object> messageAsHeader = new HashMap<>();
 
@@ -158,10 +156,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 
 		Message message = mapper.convertValue(messageAsHeader, Message.class);
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Headers converted, following message is the result: \\r\\n {}",
-					UtilMessageService.getMessageAsString(message));
-		}
+		logger.debug("Headers converted to IDS message");
 
 		return message;
 	}
@@ -197,7 +192,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 
 	@Override
 	public Map<String, Object> okHttpHeadersToMap(Headers headers) {
-		logger.debug("Converting okHttpHeaders to map: \r\n {}", headers.toString());
+		logger.debug("Converting okHttpHeaders to map");
 		Map<String, Object> originalHeaders = new HashMap<>();
 
 		for (String name : headers.names()) {
@@ -211,7 +206,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 				originalHeaders.put(name, value);
 			}
 		}
-		logger.debug("OkHttpHeaders converted, following map is the result: \r\n {}", originalHeaders.toString());
+		logger.debug("OkHttpHeaders converted to map");
 
 		return originalHeaders;
 	}
