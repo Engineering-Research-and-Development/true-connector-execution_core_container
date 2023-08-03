@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.14.2] - 2023-08-01
+
+### Changed
+
+ - Dockerfile improvements
+
 ## [1.14.1] - 2023-07-23
 
 ### Added
