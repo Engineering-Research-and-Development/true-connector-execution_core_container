@@ -5,7 +5,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.2.11.RELEASE</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>it.eng.idsa</groupId>
 	<artifactId>true-connector-execution_core_container</artifactId>
@@ -385,7 +385,7 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>4.10.0</version>
+            <version>4.11.0</version>
         </dependency>
 
         <dependency>
