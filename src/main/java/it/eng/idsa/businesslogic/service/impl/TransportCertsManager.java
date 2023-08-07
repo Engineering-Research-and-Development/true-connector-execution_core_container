@@ -67,7 +67,6 @@ public class TransportCertsManager {
 			}
 		});
 		transportCerts.remove("localhost");
-		logger.info("Calculated transportCertsSha256 values");
 		if (logger.isDebugEnabled()) {
 			transportCerts.keySet().stream().forEach(k -> logger.debug(k + " : " + transportCerts.get(k)));
 		}

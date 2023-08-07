@@ -25,7 +25,7 @@ import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.ids.jsonld.custom.XMLGregorianCalendarDeserializer;
 import de.fraunhofer.iais.eis.ids.jsonld.custom.XMLGregorianCalendarSerializer;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
-import it.eng.idsa.multipart.util.UtilMessageService;
+import it.eng.idsa.businesslogic.util.Helper;
 import okhttp3.Headers;
 
 @Service
@@ -39,7 +39,9 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, Object> messageToHeaders(Message message) {
-		logger.debug("Converting message to http-headers");
+		if (logger.isDebugEnabled()) {
+			logger.debug("Converting following message to http-headers: {}", Helper.getIDSMessageType(message));
+		}
 		
 		Map<String, Object> headers = new HashMap<>();
 		ObjectMapper mapper = new ObjectMapper();
@@ -156,7 +158,9 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 
 		Message message = mapper.convertValue(messageAsHeader, Message.class);
 
-		logger.debug("Headers converted to IDS message");
+		if (logger.isDebugEnabled()) {
+			logger.debug("Headers converted to: {}", Helper.getIDSMessageType(message));
+		}
 
 		return message;
 	}

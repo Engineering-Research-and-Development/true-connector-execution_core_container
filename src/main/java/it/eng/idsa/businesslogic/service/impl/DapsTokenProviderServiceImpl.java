@@ -47,7 +47,7 @@ public class DapsTokenProviderServiceImpl implements DapsTokenProviderService {
 	public String provideToken() {
 		logger.info("Requesting token");
 		if(!useDaps) {
-			logger.info("Daps not configured - continuing without token");
+			logger.info("Daps not configured - continuing with dummy token");
 			return UtilMessageService.TOKEN_VALUE;
 		}
 		if (tokenCaching) {

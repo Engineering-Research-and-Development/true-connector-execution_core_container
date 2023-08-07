@@ -100,6 +100,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 						response.code(), response.message(), response.body().string());
 				return null;
 			} else {
+				logger.info("Clearing House created a new log ProcessID: {}", contractAgreementUUID);
 				logger.info("Clearing House created a new log ProcessID");
 				return contractAgreementUUID;
 			}
@@ -143,6 +144,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 			logger.info("Sending Data to the Clearing House {} ...", endpoint);
 			response = sendDataToBusinessLogicService.sendMessageFormData(endpoint, multipartMessage, getBasicAuth());
 			
+			logger.info("Data [LogMessage.id={}] sent to the Clearing House {}", multipartMessage.getHeaderContent().getId(), endpoint);
 			logger.info("Data sent to the Clearing House");
 
 			int code = response.code();
