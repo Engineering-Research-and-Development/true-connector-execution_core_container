@@ -48,14 +48,12 @@ public class ReceiverVersionCheckProcessor implements Processor {
 			}
 		}
 
-		if (!versionSupported) {
-			if (logger.isWarnEnabled()) {
-				logger.warn("InfoModel version incompatibility detected! "
-						+ "To disable this warning, add the request's version to the inbound "
-						+ "version list in your property file. PLEASE NOTE that this is NO "
-						+ "guarantee that this log message will not be followed by exceptions, "
-						+ "e.g. due to deserialization errors.");
-			}
+		if (!versionSupported && logger.isWarnEnabled()) {
+			logger.warn("InfoModel version incompatibility detected! "
+					+ "To disable this warning, add the request's version to the inbound "
+					+ "version list in your property file. PLEASE NOTE that this is NO "
+					+ "guarantee that this log message will not be followed by exceptions, "
+					+ "e.g. due to deserialization errors.");
 		}
 		return versionSupported;
 	}

@@ -76,11 +76,9 @@ public class DapsOrbiterServiceImpl implements DapsService {
 		// Try clause for setup phase (loading keys, building trust manager)
 		Response jwtResponse = null;
 		try {
-			logger.info("ConnectorUUID: " + connectorUUID);
 			logger.info("Retrieving Dynamic Attribute Token...");
 
 			String jws = dapsOrbiterProvider.provideJWS();
-			logger.info("Request token: " + jws);
 
 			// build form body to embed client assertion into post request
 			Map<String, String> jsonObject = new HashMap<>();
@@ -111,14 +109,12 @@ public class DapsOrbiterServiceImpl implements DapsService {
 				throw new Exception("JWT response is null.");
 			}
 			var jwtString = responseBody.string();
-			logger.info("Response body of token request:\n{}", jwtString);
+			logger.info("Received response from DAPS");
 			ObjectNode node = new ObjectMapper().readValue(jwtString, ObjectNode.class);
 
 			 if (node.has("response")) {
 	                token = node.get("response").asText();
-	                logger.info("access_token: {}", token);
 	            }
-	            logger.info("access_token: {}", jwtString);
 	        } catch (KeyStoreException
 	                | NoSuchAlgorithmException
 	                | CertificateException
@@ -178,11 +174,10 @@ public class DapsOrbiterServiceImpl implements DapsService {
 			ResponseBody responseBody = jwtResponse.body();
 			String response = responseBody.string();
 			if (!jwtResponse.isSuccessful()) {
-				logger.warn("Token did not validated successfuly", jwtResponse);
-				throw new IOException("Error calling validate token." + jwtResponse);
+				throw new IOException("Error when validating token: " + jwtResponse);
 			}
 
-			logger.info("Response body of validate token request:\n{}", response);
+			logger.info("Received response from DAPS");
 			// parse body and check if content is like following
 //			{
 //			    "response": true,
@@ -196,7 +191,7 @@ public class DapsOrbiterServiceImpl implements DapsService {
 					isValid = true;
 				}
 			} catch (JsonProcessingException ex) {
-				logger.info("Token was not validated correct");
+				logger.info("Token was not validated correctly: {}", ex);
 			}
 		} catch (Exception e) {
 			logger.error("Error while validating token", e);
@@ -228,7 +223,7 @@ public class DapsOrbiterServiceImpl implements DapsService {
 		token = getJwTokenInternal();
 
 		if (StringUtils.isNotBlank(token) && validateToken(token)) {
-			logger.info("Token is valid: " + token);
+			logger.info("Token is valid");
 		} else {
 			logger.info("Token is invalid");
 			return null;

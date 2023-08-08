@@ -47,7 +47,7 @@ public class TransportCertsManager {
 	}
 
 	public boolean isTransportCertValid(String connectorId, String transportCert) {
-		logger.info("Validating transportCertSha256 '{}' for connector with id {}", transportCert, connectorId);
+		logger.info("Validating transportCertSha256 for connector");
 		return transportCert.equals(transportCerts.get(connectorId));
 	}
 
@@ -67,10 +67,6 @@ public class TransportCertsManager {
 			}
 		});
 		transportCerts.remove("localhost");
-		logger.info("Calculated {} transportCertsSha256 values", transportCerts.entrySet().size());
-		if (logger.isDebugEnabled()) {
-			transportCerts.keySet().stream().forEach(k -> logger.debug(k + " : " + transportCerts.get(k)));
-		}
 	}
 
 	public String getCertificateDigest(Certificate cert) {

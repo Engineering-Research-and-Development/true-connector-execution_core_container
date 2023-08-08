@@ -110,7 +110,6 @@ public class DapsUtilityProvider {
 
         String connectorUUID = ski_result + "keyid:" + aki_result.substring(0, aki_result.length() - 1);
 
-        logger.info("ConnectorUUID: " + connectorUUID);
         return connectorUUID;
 	}
 	

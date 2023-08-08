@@ -4,21 +4,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.security.cert.PKIXParameters;
-import java.security.cert.TrustAnchor;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.net.ssl.KeyManager;
@@ -71,21 +65,6 @@ public class TLSProvider {
 		try (InputStream jksTrustStoreInputStream = Files.newInputStream(targetDirectory.resolve(trustStoreName))) {
 			trustManagerKeyStore = KeyStore.getInstance("JKS");
 			trustManagerKeyStore.load(jksTrustStoreInputStream, trustStorePwd.toCharArray());
-			
-			if (logger.isDebugEnabled()) {
-				PKIXParameters params;
-				try {
-					params = new PKIXParameters(trustManagerKeyStore);
-					Set<TrustAnchor> trustAnchors = params.getTrustAnchors();
-					List<Certificate> certificates = trustAnchors.stream().map(TrustAnchor::getTrustedCert)
-							.collect(Collectors.toList());
-					logger.debug("Cert chain: " + certificates);
-				} catch (InvalidAlgorithmParameterException e) {
-					logger.error("Error while trying to read trusted certificates");
-				}
-			}
-			List<String> aliases = Collections.list(trustManagerKeyStore.aliases());
-			logger.info("Trusted certificate aliases: {}", aliases);
 			trustFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 			trustFactory.init(trustManagerKeyStore);
 		} catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {

@@ -10,6 +10,7 @@ import java.security.cert.CertificateException;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.util.encoders.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -72,7 +73,7 @@ public class DapsV2ServiceImpl implements DapsService {
 		token = getJwTokenInternal();
 
 		if (StringUtils.isNotBlank(token) && validateToken(token)) {
-			logger.info("Token is valid: " + token);
+			logger.info("Token is valid");
 		} else {
 			logger.info("Token is invalid");
 			return null;
@@ -102,7 +103,7 @@ public class DapsV2ServiceImpl implements DapsService {
 				}
 			}
 		} catch (SignatureVerificationException e) {
-			logger.info("Token did not verified, {}", e);
+			logger.info("Token did not get verified, {}", e);
 		} catch (JWTDecodeException e) {
 			logger.error("Invalid token, {}", e);
 		}
@@ -131,7 +132,7 @@ public class DapsV2ServiceImpl implements DapsService {
 				}
 			}
 		}
-		logger.info("TransportCertsSha256 '{}' for connector '{}' validated as {}", transportCertsSha256, connectorId, isValid);
+		logger.info("TransportCertsSha256 for connector validated as {}", isValid);
 		return isValid;
 	}
 
@@ -163,7 +164,6 @@ public class DapsV2ServiceImpl implements DapsService {
 			logger.info("Retrieving Dynamic Attribute Token...");
 
 			String jws = dapsUtilityProvider.getDapsV2Jws();
-			logger.info("Request token: " + jws);
 
 			// build form body to embed client assertion into post request
 			Builder formBodyBuilder = new FormBody.Builder()
@@ -191,14 +191,10 @@ public class DapsV2ServiceImpl implements DapsService {
 				throw new Exception("JWT response is null.");
 			}
 			var jwtString = responseBody.string();
-			logger.info("Response body of token request:\n{}", jwtString);
 			ObjectNode node = new ObjectMapper().readValue(jwtString, ObjectNode.class);
 
 			if (node.has("access_token")) {
 				token = node.get("access_token").asText();
-				logger.debug("access_token: {}", token.toString());
-			} else {
-				logger.info("jwtResponse: {}", jwtResponse.toString());
 			}
 		} catch (KeyStoreException 
 				| NoSuchAlgorithmException 

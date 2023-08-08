@@ -12,6 +12,8 @@ import javax.validation.constraints.NotNull;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.fraunhofer.iais.eis.Action;
 import de.fraunhofer.iais.eis.Artifact;
@@ -48,6 +50,9 @@ import it.eng.idsa.multipart.util.DateUtil;
 
 
 public class SelfDescriptionUtil {
+	
+	private static final Logger logger = LoggerFactory.getLogger(SelfDescriptionUtil.class);
+
 	
 	private static final @NotNull URI ISSUER_CONNECTOR = URI.create("https://issuer.connector.com");
 	private static URI MAINTAINER = URI.create("https://maintainer.connector.com");
@@ -132,7 +137,7 @@ public class SelfDescriptionUtil {
 					.build();
 			catalogList.add(catalog2);
 		} catch (ConstraintViolationException e) {
-			e.printStackTrace();
+			logger.error("Could not create resource catalog: {}", e.getMessage());
 		}
 		return catalogList;
 	}

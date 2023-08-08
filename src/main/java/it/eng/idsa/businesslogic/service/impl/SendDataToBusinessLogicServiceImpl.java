@@ -157,7 +157,6 @@ public class SendDataToBusinessLogicServiceImpl implements SendDataToBusinessLog
 			rejectionMessageService.sendRejectionMessage(messageForRejection, RejectionReason.TEMPORARILY_NOT_AVAILABLE);
 		} else {
 			int statusCode = response.code();
-			logger.debug("Response {}", response);
 			logger.info("status code of the response message is: " + statusCode);
 			if (HttpStatus.MULTIPLE_CHOICES.value() <= statusCode) {
 				if (HttpStatus.UNAUTHORIZED.value() == statusCode) {

@@ -5,9 +5,12 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import it.eng.idsa.businesslogic.configuration.WebSocketServerConfiguration;
 
 /**
  * 
@@ -16,6 +19,8 @@ import org.eclipse.jetty.websocket.api.Session;
  */
 
 public class ResponseMessageSendPartialServer implements Runnable {
+	private static final Logger logger = LoggerFactory.getLogger(ResponseMessageSendPartialServer.class);
+
 	
 	private Session session;
 	
@@ -23,7 +28,6 @@ public class ResponseMessageSendPartialServer implements Runnable {
 	private int streamBufferSize = DEFAULT_STREAM_BUFFER_SIZE;
 	private volatile int loopCounter;
 	
-	//@Autowired
 	private WebSocketServerConfiguration webSocketServerConfiguration;
 
 	public ResponseMessageSendPartialServer() {	
@@ -41,8 +45,7 @@ public class ResponseMessageSendPartialServer implements Runnable {
 		try {
 			sendResponseMessageAsPartialBytes(remote, responseMessage);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Error while sending response as partial bytes: {}", e.getMessage());
 		}
 	}
 	

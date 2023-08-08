@@ -3,6 +3,7 @@ package it.eng.idsa.businesslogic.processor.receiver;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.RejectionReason;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.exception.ExceptionForProcessor;
@@ -69,7 +71,7 @@ public class ReceiverSendDataToDataAppProcessorTest {
 	public void processMixedSuccess() throws Exception {
 		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", "mixed", String.class);
 		RequestBody mixRequestBody = RequestResponseUtil.createRequestBody("payload");
-		var multipartMessage = MultipartMessageUtil.getMultipartMessage();
+		MultipartMessage multipartMessage = MultipartMessageUtil.getMultipartMessage();
 		Response response = RequestResponseUtil.createResponse(
 				RequestResponseUtil.createRequest(URL, mixRequestBody), 
 				RESPONSE_SUCCESFULL_MESSAGE, 
@@ -85,10 +87,33 @@ public class ReceiverSendDataToDataAppProcessorTest {
 	}
 	
 	@Test
+	public void processMixedFailed() throws Exception {
+		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", "mixed", String.class);
+		RequestBody mixRequestBody = RequestResponseUtil.createRequestBody("payload");
+		MultipartMessage multipartMessage = MultipartMessageUtil.getMultipartMessage();
+		String badMultipartMessage = MultipartMessageProcessor.multipartMessagetoString(multipartMessage).replaceFirst("Artifact", "something");
+		Response response = RequestResponseUtil.createResponse(
+				RequestResponseUtil.createRequest(URL, mixRequestBody), 
+				RESPONSE_SUCCESFULL_MESSAGE, 
+				RequestResponseUtil.createResponseBodyJsonUTF8(badMultipartMessage), 
+				200);
+		
+		when(sendDataToBusinessLogicService.sendMessageBinary(any(String.class), any(MultipartMessage.class), any(HashMap.class)))
+			.thenReturn(response);
+		
+		assertThrows(Exception.class,
+	            ()->{
+	            	processor.process(exchange);
+	            });
+		
+		verify(message, times(0)).setBody(multipartMessage);
+	}
+	
+	@Test
 	public void processFormSuccess() throws Exception {
 		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", "form", String.class);
 		RequestBody mixRequestBody = RequestResponseUtil.createRequestBody("payload");
-		var multipartMessage = MultipartMessageUtil.getMultipartMessage();
+		MultipartMessage multipartMessage = MultipartMessageUtil.getMultipartMessage();
 		Response response = RequestResponseUtil.createResponse(
 				RequestResponseUtil.createRequest(URL, mixRequestBody), 
 				RESPONSE_SUCCESFULL_MESSAGE, 
@@ -104,10 +129,33 @@ public class ReceiverSendDataToDataAppProcessorTest {
 	}
 	
 	@Test
+	public void processFormFailed() throws Exception {
+		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", "form", String.class);
+		RequestBody mixRequestBody = RequestResponseUtil.createRequestBody("payload");
+		MultipartMessage multipartMessage = MultipartMessageUtil.getMultipartMessage();
+		String badMultipartMessage = MultipartMessageProcessor.multipartMessagetoString(multipartMessage).replaceFirst("Artifact", "something");
+		Response response = RequestResponseUtil.createResponse(
+				RequestResponseUtil.createRequest(URL, mixRequestBody), 
+				RESPONSE_SUCCESFULL_MESSAGE, 
+				RequestResponseUtil.createResponseBodyJsonUTF8(badMultipartMessage), 
+				200);
+		
+		when(sendDataToBusinessLogicService.sendMessageFormData(any(String.class), any(MultipartMessage.class), any(HashMap.class)))
+			.thenReturn(response);
+		
+		assertThrows(Exception.class,
+	            ()->{
+	            	processor.process(exchange);
+	            });
+		
+		verify(message, times(0)).setBody(multipartMessage);
+	}
+	
+	@Test
 	public void processHttpHeaderSuccess() throws Exception {
 		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", "http-header", String.class);
 		RequestBody mixRequestBody = RequestResponseUtil.createRequestBody("PAYLOAD");
-		var multipartMessage = MultipartMessageUtil.getMultipartMessage();
+		MultipartMessage multipartMessage = MultipartMessageUtil.getMultipartMessage();
 		Response response = RequestResponseUtil.createResponse(
 				RequestResponseUtil.createRequest(URL, mixRequestBody), 
 				RESPONSE_SUCCESFULL_MESSAGE, 
@@ -123,10 +171,32 @@ public class ReceiverSendDataToDataAppProcessorTest {
 		verify(message).setBody(multipartMessage);
 	}
 	
+	@Test
+	public void processHttpHeaderFailed() throws Exception {
+		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", "http-header", String.class);
+		RequestBody mixRequestBody = RequestResponseUtil.createRequestBody("PAYLOAD");
+		MultipartMessage multipartMessage = MultipartMessageUtil.getMultipartMessage();
+		Response response = RequestResponseUtil.createResponse(
+				RequestResponseUtil.createRequest(URL, mixRequestBody), 
+				RESPONSE_SUCCESFULL_MESSAGE, 
+				RequestResponseUtil.createResponseBodyJsonUTF8("PAYLOAD"), 
+				200);
+		
+		when(sendDataToBusinessLogicService.sendMessageHttpHeader(any(String.class), any(MultipartMessage.class), any(HashMap.class)))
+			.thenReturn(response);
+		
+		assertThrows(Exception.class,
+	            ()->{
+	            	processor.process(exchange);
+	            });
+		
+		verify(message, times(0)).setBody(multipartMessage);
+	}
+	
 	@Test()
 	public void defaultCase() throws Exception {
 		ReflectionTestUtils.setField(processor, "openDataAppReceiverRouter", "def", String.class);
-		var originalMessage = UtilMessageService.getArtifactRequestMessage();
+		ArtifactRequestMessage originalMessage = UtilMessageService.getArtifactRequestMessage();
 		when(exchange.getProperty("Original-Message-Header")).thenReturn(originalMessage);
 		doThrow(ExceptionForProcessor.class)
 			.when(rejectionMessageService).sendRejectionMessage(any(de.fraunhofer.iais.eis.Message.class), any(RejectionReason.class));

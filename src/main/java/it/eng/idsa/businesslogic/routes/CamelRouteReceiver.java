@@ -1,6 +1,7 @@
 package it.eng.idsa.businesslogic.routes;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -189,7 +190,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 			// and communication between ECCs with IDSCP2)
 			from("idscp2server://0.0.0.0:29292?transportSslContextParameters=#sslContext&dapsSslContextParameters=#sslContext")
 					.routeId("IDSCP2 - receiver - HTTP internal")
-					.log("### IDSCP2 SERVER RECEIVER: Detected Message")
+					.log(LoggingLevel.INFO, logger,"### IDSCP2 SERVER RECEIVER: Detected Message")
 					.process(mapIDSCP2toMultipart)
 					.process(receiverVersionCheckProcessor)
 					.process(originalMessageProcessor)
@@ -209,7 +210,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 
 			from("idscp2server://0.0.0.0:29292?sslContextParameters=#sslContext")
 					.routeId("Receiver - dataApp-ECC over WSS and ECC-ECC over IDSCP2")
-					.log("### IDSCP2 SERVER RECEIVER: Detected Message")
+					.log(LoggingLevel.INFO, logger,"### IDSCP2 SERVER RECEIVER: Detected Message")
 					.process(mapIDSCP2toMultipart)
 					.process(receiverVersionCheckProcessor)
 					.process(originalMessageProcessor)

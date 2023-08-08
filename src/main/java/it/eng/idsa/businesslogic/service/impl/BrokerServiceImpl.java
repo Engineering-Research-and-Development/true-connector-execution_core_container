@@ -67,8 +67,7 @@ public class BrokerServiceImpl implements BrokerService {
 			
 			try(Response response = sendDataToBusinessLogicService.sendMessageBinary(brokerURL, multipartMessage, headers)) {
 				if (response != null) {
-					String responseString = new String(response.body().string());
-					logger.info("Broker responded with {}", responseString);
+					logger.info("Recived response from Broker");
 				} 
 			}
 		} catch (Exception e) {
