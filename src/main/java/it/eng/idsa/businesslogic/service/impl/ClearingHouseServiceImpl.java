@@ -101,7 +101,6 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 				return null;
 			} else {
 				logger.info("Clearing House created a new log ProcessID: {}", contractAgreementUUID);
-				logger.info("Clearing House created a new log ProcessID");
 				return contractAgreementUUID;
 			}
 		} catch (Exception e) {
