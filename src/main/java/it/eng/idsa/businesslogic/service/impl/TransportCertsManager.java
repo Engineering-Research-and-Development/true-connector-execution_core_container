@@ -67,9 +67,6 @@ public class TransportCertsManager {
 			}
 		});
 		transportCerts.remove("localhost");
-		if (logger.isDebugEnabled()) {
-			transportCerts.keySet().stream().forEach(k -> logger.debug(k + " : " + transportCerts.get(k)));
-		}
 	}
 
 	public String getCertificateDigest(Certificate cert) {

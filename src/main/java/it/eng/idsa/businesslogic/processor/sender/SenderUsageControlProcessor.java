@@ -78,7 +78,6 @@ public class SenderUsageControlProcessor implements Processor {
 		}
 
 		logger.info("Proceeding with Usage control enforcement");
-		logger.info("from: " + exchange.getFromEndpoint());
 
 		try {
 

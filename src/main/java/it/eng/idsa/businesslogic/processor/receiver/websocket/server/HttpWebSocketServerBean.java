@@ -106,7 +106,7 @@ public class HttpWebSocketServerBean {
 
             server.setHandler(handlerCollection);
     	}catch (Exception e) {
-    		e.printStackTrace();
+			logger.error("Failed to start websocket server: {}", e.getMessage());
     	}
     }
 

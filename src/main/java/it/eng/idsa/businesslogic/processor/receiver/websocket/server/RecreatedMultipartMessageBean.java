@@ -1,5 +1,8 @@
 package it.eng.idsa.businesslogic.processor.receiver.websocket.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 
  * @author Milan Karajovic and Gabriele De Luca
@@ -7,6 +10,8 @@ package it.eng.idsa.businesslogic.processor.receiver.websocket.server;
  */
 
 public class RecreatedMultipartMessageBean {
+	private static final Logger logger = LoggerFactory.getLogger(RecreatedMultipartMessageBean.class);
+
 	private String multipartMessage = null;
 	private boolean multipartMessageIsRecreated = false;
 	
@@ -15,7 +20,7 @@ public class RecreatedMultipartMessageBean {
 			try {
 				wait();
 			} catch(InterruptedException e) {
-				e.printStackTrace();
+				logger.error("Failed to recreate multipart message: {}", e.getMessage());
 			}
 		}
 		
@@ -29,7 +34,7 @@ public class RecreatedMultipartMessageBean {
 			try {
 				wait();
 			} catch(InterruptedException e) {
-				e.printStackTrace();
+				logger.error("Failed to remove recreated multipart message: {}", e.getMessage());
 			}
 		}
 		
