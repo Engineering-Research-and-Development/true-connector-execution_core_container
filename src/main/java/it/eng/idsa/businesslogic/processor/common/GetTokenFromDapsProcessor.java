@@ -64,7 +64,6 @@ public class GetTokenFromDapsProcessor implements Processor {
 		String token = null;
 		try {
 			token = dapsTokenProviderService.provideToken();
-			logger.debug("DAT token: {}", token);
 		} catch (Exception e) {
 			logger.error("Can not get the token from the DAPS server ", e);
 			publisher.publishEvent(new TrueConnectorEvent(TrueConnectorEventType.CONNECTOR_TOKEN_FETCH_FAILURE, multipartMessage, correlationId));
@@ -84,7 +83,6 @@ public class GetTokenFromDapsProcessor implements Processor {
 		}
 
 		String messageStringWithToken = multipartMessageService.addToken(message, token);
-		logger.debug("messageStringWithToken=\n" + messageStringWithToken);
 
 		multipartMessage = new MultipartMessageBuilder()
 				.withHttpHeader(multipartMessage.getHttpHeaders())

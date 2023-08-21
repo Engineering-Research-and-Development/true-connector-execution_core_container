@@ -25,7 +25,7 @@ import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.ids.jsonld.custom.XMLGregorianCalendarDeserializer;
 import de.fraunhofer.iais.eis.ids.jsonld.custom.XMLGregorianCalendarSerializer;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
-import it.eng.idsa.multipart.util.UtilMessageService;
+import it.eng.idsa.businesslogic.util.Helper;
 import okhttp3.Headers;
 
 @Service
@@ -40,9 +40,9 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 	@Override
 	public Map<String, Object> messageToHeaders(Message message) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("Converting following message to http-headers: \r\n {}",
-					UtilMessageService.getMessageAsString(message));
+			logger.debug("Converting following message to http-headers: {}", Helper.getIDSMessageType(message));
 		}
+		
 		Map<String, Object> headers = new HashMap<>();
 		ObjectMapper mapper = new ObjectMapper();
 		// exclude null values from map
@@ -94,7 +94,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 			}
 		});
 
-		logger.debug("Message converted, following headers are the result: \r\n {}", headers.toString());
+		logger.debug("Message converted");
 
 		return headers;
 	}
@@ -104,7 +104,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		// bare in mind that in rumtime, headers is
 		// org.apache.camel.util.CaseInsensitiveMap
 		// which means that headers.get("aaa") is the same like headers.get("Aaa")
-		logger.debug("Converting following http-headers to message: \r\n {}", headers.toString());
+		logger.debug("Converting http-headers to message");
 
 		Map<String, Object> messageAsHeader = new HashMap<>();
 
@@ -159,8 +159,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 		Message message = mapper.convertValue(messageAsHeader, Message.class);
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Headers converted, following message is the result: \\r\\n {}",
-					UtilMessageService.getMessageAsString(message));
+			logger.debug("Headers converted to: {}", Helper.getIDSMessageType(message));
 		}
 
 		return message;
@@ -197,7 +196,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 
 	@Override
 	public Map<String, Object> okHttpHeadersToMap(Headers headers) {
-		logger.debug("Converting okHttpHeaders to map: \r\n {}", headers.toString());
+		logger.debug("Converting okHttpHeaders to map");
 		Map<String, Object> originalHeaders = new HashMap<>();
 
 		for (String name : headers.names()) {
@@ -211,7 +210,7 @@ public class HttpHeaderServiceImpl implements HttpHeaderService {
 				originalHeaders.put(name, value);
 			}
 		}
-		logger.debug("OkHttpHeaders converted, following map is the result: \r\n {}", originalHeaders.toString());
+		logger.debug("OkHttpHeaders converted to map");
 
 		return originalHeaders;
 	}

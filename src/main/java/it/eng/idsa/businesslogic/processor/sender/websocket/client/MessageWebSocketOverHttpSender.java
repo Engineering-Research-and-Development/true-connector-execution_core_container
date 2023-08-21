@@ -93,7 +93,6 @@ public class MessageWebSocketOverHttpSender {
         String responseMessage = new String(responseMessageBufferClient.remove());
         closeWSClient(wsClient, message);
         logger.info("Response is received");
-        logger.debug("response content: " + responseMessage);
 
         return responseMessage;
     }

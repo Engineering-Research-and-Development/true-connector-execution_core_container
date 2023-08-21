@@ -6,9 +6,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.springframework.stereotype.Component;
+import de.fraunhofer.iais.eis.Message;
 
-@Component
 public class Helper {
 
 	public static String getUUID(URI uri) {
@@ -20,6 +19,10 @@ public class Helper {
 			matches.add(matcher.group(0));
 		}
 		return !matches.isEmpty() ? matches.get(matches.size() - 1) : null;
+	}
+	
+	public static String getIDSMessageType(Message message) {
+		return message.getClass().getSimpleName().substring(0, message.getClass().getSimpleName().lastIndexOf("Impl"));
 	}
 
 }

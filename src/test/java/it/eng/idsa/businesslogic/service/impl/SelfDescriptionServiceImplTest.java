@@ -21,6 +21,7 @@ import de.fraunhofer.iais.eis.DynamicAttributeToken;
 import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
+import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration.SelfDescription;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.impl.resources.SelfDescriptionUtil;
 import it.eng.idsa.businesslogic.service.resources.SelfDescriptionManager;
@@ -37,9 +38,11 @@ public class SelfDescriptionServiceImplTest {
 	@Mock
 	private Connector connectorMock;
 	@Mock
-	private KeystoreProvider keystoreProvider;
+	private DapsKeystoreProvider keystoreProvider;
 	@Mock 
 	private X509Certificate cert;
+	@Mock 
+	private SelfDescription selfDescription;
 	private SelfDescriptionServiceImpl selfDefinitionService;
 
 	private URI connectorURI = URI.create("http://connectorURI");
@@ -62,6 +65,8 @@ public class SelfDescriptionServiceImplTest {
 		when(configuration.getDefaultEndpoint()).thenReturn(endpointUri);
 		when(configuration.getMaintainer()).thenReturn(maintainerURI);
 		when(configuration.getSenderAgent()).thenReturn(senderAgent);
+		when(configuration.getSelfDescription()).thenReturn(selfDescription);
+		when(selfDescription.getInboundModelVersion()).thenReturn("4.0.0,4.2.7");
 		when(keystoreProvider.getCertificate()).thenReturn(cert);
 		when(selfDescriptionManager.getValidConnector(any(Connector.class))).thenReturn(SelfDescriptionUtil.getBaseConnector());
 		selfDefinitionService = new SelfDescriptionServiceImpl(configuration, Optional.ofNullable(dapsProvider), selfDescriptionManager, keystoreProvider);

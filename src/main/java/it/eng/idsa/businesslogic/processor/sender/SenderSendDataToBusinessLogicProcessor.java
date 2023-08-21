@@ -27,6 +27,7 @@ import it.eng.idsa.businesslogic.processor.sender.websocket.client.MessageWebSoc
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
+import it.eng.idsa.businesslogic.util.Helper;
 import it.eng.idsa.businesslogic.util.OCSPValidation;
 import it.eng.idsa.businesslogic.util.OCSPValidation.OCSP_STATUS;
 import it.eng.idsa.businesslogic.util.RouterType;
@@ -167,18 +168,18 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 	private void handleResponse(Exchange exchange, Message message, Response response, String forwardTo)
 			throws UnsupportedOperationException, IOException {
 		String responseString = getResponseBodyAsString(response);
-		logger.info("data received from destination " + forwardTo);
-		logger.info("response received from Provider Connector = " + responseString);
+		logger.info("data received from " + forwardTo);
 
 		exchange.getMessage().setHeaders(httpHeaderService.okHttpHeadersToMap(response.headers()));
 
+		MultipartMessage multipartMessage = null;
 		if (RouterType.HTTP_HEADER.equals(eccHttpSendRouter)) {
 			message = httpHeaderService.headersToMessage(httpHeaderService.okHttpHeadersToMap(response.headers()));
 			Map<String, String> headerHeaderContentType = new HashMap<>();
 			headerHeaderContentType.put("Content-Type", "application/ld+json");
 			Map<String, String> payloadHeaderContentType = new HashMap<>();
 			payloadHeaderContentType.put("Content-Type", response.headers().get(MultipartMessageKey.CONTENT_TYPE.label));
-			MultipartMessage multipartMessage = new MultipartMessageBuilder()
+			multipartMessage = new MultipartMessageBuilder()
 					.withHeaderContent(message)
 					.withHeaderHeader(headerHeaderContentType)
 					.withPayloadContent(responseString)
@@ -186,9 +187,10 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 					.build();
 			exchange.getMessage().setBody(multipartMessage);
 		} else {
-			MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(responseString);
+			multipartMessage = MultipartMessageProcessor.parseMultipartMessage(responseString);
 			exchange.getMessage().setBody(multipartMessage);
 		}
+		logger.info("message received from Provider Connector : {}", Helper.getIDSMessageType(multipartMessage.getHeaderContent()));
 	}
 
 	private void handleResponseWebSocket(Exchange exchange, Message message, String responseString, String forwardTo) {
@@ -197,7 +199,7 @@ public class SenderSendDataToBusinessLogicProcessor implements Processor {
 			rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), 
 					RejectionReason.INTERNAL_RECIPIENT_ERROR);
 		} else {
-			logger.info("data sent to destination " + forwardTo);
+			logger.info("data sent to " + forwardTo);
 			// Set original body which is created using the original payload and header
 			MultipartMessage mm = MultipartMessageProcessor.parseMultipartMessage(responseString);
 			exchange.getMessage().setBody(mm);

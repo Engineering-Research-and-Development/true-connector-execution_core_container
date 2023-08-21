@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Path;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -33,7 +32,7 @@ public class DapsUtilityProviderTest {
 	private DapsUtilityProvider dapsUtilityProvider;
 
 	@Mock
-	private KeystoreProvider keystoreProvider;
+	private DapsKeystoreProvider keystoreProvider;
 	
 	private X509Certificate x509Certificate;
 	
@@ -46,7 +45,6 @@ public class DapsUtilityProviderTest {
 	private Key mockKey;
 
 	private URL dapsJWKSUrl;
-	private Path targetDirectory;
 	private String keyStoreName;
 	private String keyStorePassword;
 	private String keystoreAliasName;
@@ -62,17 +60,11 @@ public class DapsUtilityProviderTest {
 	public void init() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
 		MockitoAnnotations.initMocks(this);
 		dapsJWKSUrl = new URL("https://dap.aisec.fraunhofer.de");
-		targetDirectory = Path.of("./");
 		keyStoreName = "classpath:ssl-server.jks";    
 		keyStorePassword = "changeit";
 		keystoreAliasName = "execution-core-container";
 		
 		ReflectionTestUtils.setField(dapsUtilityProvider, "dapsJWKSUrl", dapsJWKSUrl);
-		ReflectionTestUtils.setField(dapsUtilityProvider, "targetDirectory", targetDirectory);
-		ReflectionTestUtils.setField(dapsUtilityProvider, "keyStoreName", keyStoreName);
-		ReflectionTestUtils.setField(dapsUtilityProvider, "keyStorePassword", keyStorePassword);
-		ReflectionTestUtils.setField(dapsUtilityProvider, "keystoreAliasName", keystoreAliasName);
-		
 		
 		keyStore = KeyStore.getInstance("JKS");
 		keyStore.load(new DefaultResourceLoader().getResource(keyStoreName).getInputStream(), keyStorePassword.toCharArray());

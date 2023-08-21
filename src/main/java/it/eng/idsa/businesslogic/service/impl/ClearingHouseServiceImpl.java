@@ -205,7 +205,7 @@ public class ClearingHouseServiceImpl implements ClearingHouseService {
 				fingerprint = jwt.getSubject();
 
 			} catch (JWTDecodeException e) {
-				logger.warn("{}\nToken value: {}", e.getMessage(), token);
+				logger.warn("Could not decode jwt: {}", e.getMessage());
 			}
 			return fingerprint;
 		}

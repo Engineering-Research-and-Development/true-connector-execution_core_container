@@ -42,7 +42,7 @@ Following endpoints are open for all (credentials are not required), since in re
 /data to receive data (IDS Message) from a sender connector (the B endpoint in the above picture)
 ```
 
-while 'B-endpoint' is public, and exposed in outside world, so it will require credentials
+while 'B-endpoint' is public, and exposed to the world.
 
 ```
 /data

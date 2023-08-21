@@ -1,5 +1,8 @@
 package it.eng.idsa.businesslogic.processor.receiver.websocket.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 
  * @author Milan Karajovic and Gabriele De Luca
@@ -7,6 +10,8 @@ package it.eng.idsa.businesslogic.processor.receiver.websocket.server;
  */
 
 public class FrameBufferBean {
+	private static final Logger logger = LoggerFactory.getLogger(FrameBufferBean.class);
+
 	private byte[] frame = null;
 	private boolean frameIsReceived = false;
 	
@@ -15,7 +20,7 @@ public class FrameBufferBean {
 			try {
 				wait();
 			} catch(InterruptedException e) {
-				e.printStackTrace();
+				logger.error("Adding frame to buffer interupted: {}", e.getMessage());
 			}
 		}
 		
@@ -29,7 +34,7 @@ public class FrameBufferBean {
 			try {
 				wait();
 			} catch(InterruptedException e) {
-				e.printStackTrace();
+				logger.error("Removing frame from buffer interupted: {}", e.getMessage());
 			}
 		}
 		

@@ -1,6 +1,7 @@
 package it.eng.idsa.businesslogic.routes;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,22 +154,27 @@ public class CamelRouteSender extends RouteBuilder {
 			logger.info("REST self registration configuration");
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/selfRegistration/register" + "?httpMethodRestrict=POST")
 				.routeId("selfRegistration/register")
+				.log(LoggingLevel.INFO, logger, "Registering connector to a Broker")
 				.process(createRegistratioMessageSender)
 				.to("direct:registrationProcess");
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/selfRegistration/update" + "?httpMethodRestrict=POST")
 				.routeId("selfRegistration/update")
+				.log(LoggingLevel.INFO, logger,"Updating registered connector")
 				.process(createUpdateMessageSender)
 				.to("direct:registrationProcess");
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/selfRegistration/delete" + "?httpMethodRestrict=POST")
 				.routeId("selfRegistration/delete")
+				.log(LoggingLevel.INFO, logger,"Removing registered connector from Broker")
 				.process(createDeleteMessageSender)
 				.to("direct:registrationProcess");
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/selfRegistration/passivate" + "?httpMethodRestrict=POST")
 				.routeId("selfRegistration/passivate")
+				.log(LoggingLevel.INFO, logger,"Passivating registered connector")
 				.process(createPassivateMessageSender)
 				.to("direct:registrationProcess");
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelSenderPort() + "/selfRegistration/query" + "?httpMethodRestrict=POST")
 				.routeId("selfRegistration/query")
+				.log(LoggingLevel.INFO, logger,"Sending query message to Broker")
 				.process(createBrokerQueryMessageSender)
 				.to("direct:registrationProcess");
 			
@@ -253,13 +259,13 @@ public class CamelRouteSender extends RouteBuilder {
 			
             from("direct:IDSCP2")
             	.routeId("IDSCP2 - sender - HTTP internal")
-            	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
+            	.log(LoggingLevel.INFO, logger,"##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
             	.process(originalMessageProcessor)
             	.process(protocolValidationProcessor)
             	.process(registerTransactionToCHProcessor)
             	.process(mapMultipartToIDSCP2)
             	.toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&transportSslContextParameters=#sslContext&dapsSslContextParameters=#sslContext")
-        		.log("### CLIENT RECEIVER: Detected Message")
+        		.log(LoggingLevel.INFO, logger,"### CLIENT RECEIVER: Detected Message")
         		.process(mapIDSCP2toMultipart)
                 .process(contractAgreementProcessor)
                 .process(senderUsageControlProcessor)
@@ -279,14 +285,14 @@ public class CamelRouteSender extends RouteBuilder {
     			    
     	    from("timer://timerEndpointA?repeatCount=-1")
     	    	.routeId("Sender - dataApp-ECC over WSS and ECC-ECC over IDSCP2")
-	        	.log("##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
+	        	.log(LoggingLevel.INFO, logger,"##### STARTING IDSCP2 ARTIFACT-GIVEN MESSAGE FLOW #####")
 	            .process(fileRecreatorProcessor)
 	            .process(originalMessageProcessor)
 				.process(protocolValidationProcessor)
 	            .process(registerTransactionToCHProcessor)		                
 	            .process(mapMultipartToIDSCP2)
 	            .toD("idscp2client://${exchangeProperty.host}:29292?awaitResponse=true&sslContextParameters=#sslContext")
-	            .log("### CLIENT RECEIVER: Detected Message")
+	            .log(LoggingLevel.INFO, logger,"### CLIENT RECEIVER: Detected Message")
 	        	.process(mapIDSCP2toMultipart)
 		        .process(contractAgreementProcessor)
 		        .process(senderUsageControlProcessor)

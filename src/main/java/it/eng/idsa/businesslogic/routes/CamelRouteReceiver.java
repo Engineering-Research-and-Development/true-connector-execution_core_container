@@ -1,6 +1,7 @@
 package it.eng.idsa.businesslogic.routes;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import it.eng.idsa.businesslogic.processor.receiver.ReceiverParseReceivedConnect
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverSendDataToBusinessLogicProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverSendDataToDataAppProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverUsageControlProcessor;
+import it.eng.idsa.businesslogic.processor.receiver.ReceiverVersionCheckProcessor;
 import it.eng.idsa.businesslogic.processor.receiver.ReceiverWebSocketSendDataToDataAppProcessor;
 
 /**
@@ -74,6 +76,9 @@ public class CamelRouteReceiver extends RouteBuilder {
 
 	@Autowired
 	private ReceiverUsageControlProcessor receiverUsageControlProcessor;
+	
+	@Autowired
+	private ReceiverVersionCheckProcessor receiverVersionCheckProcessor;
 	
 	@Autowired
 	private MapIDSCP2toMultipart mapIDSCP2toMultipart;
@@ -129,6 +134,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 			from("jetty://https4://0.0.0.0:" + configuration.getCamelReceiverPort() + "/data" + "?httpMethodRestrict=POST")
 				.routeId("data")
 				.process(connectorRequestProcessor)
+				.process(receiverVersionCheckProcessor)
 				.process(originalMessageProcessor)
 				.process(deModifyPayloadProcessor)
 				.process(validateTokenProcessor)
@@ -159,6 +165,7 @@ public class CamelRouteReceiver extends RouteBuilder {
 				.routeId("WSS")
 				.process(fileRecreatorProcessor)
 				.process(connectorRequestProcessor)
+				.process(receiverVersionCheckProcessor)
 				.process(originalMessageProcessor)
 				.process(validateTokenProcessor)
                 .process(registerTransactionToCHProcessor)
@@ -183,8 +190,9 @@ public class CamelRouteReceiver extends RouteBuilder {
 			// and communication between ECCs with IDSCP2)
 			from("idscp2server://0.0.0.0:29292?transportSslContextParameters=#sslContext&dapsSslContextParameters=#sslContext")
 					.routeId("IDSCP2 - receiver - HTTP internal")
-					.log("### IDSCP2 SERVER RECEIVER: Detected Message")
+					.log(LoggingLevel.INFO, logger,"### IDSCP2 SERVER RECEIVER: Detected Message")
 					.process(mapIDSCP2toMultipart)
+					.process(receiverVersionCheckProcessor)
 					.process(originalMessageProcessor)
 					.process(registerTransactionToCHProcessor)
 					// Send to the Endpoint: F
@@ -202,8 +210,9 @@ public class CamelRouteReceiver extends RouteBuilder {
 
 			from("idscp2server://0.0.0.0:29292?sslContextParameters=#sslContext")
 					.routeId("Receiver - dataApp-ECC over WSS and ECC-ECC over IDSCP2")
-					.log("### IDSCP2 SERVER RECEIVER: Detected Message")
+					.log(LoggingLevel.INFO, logger,"### IDSCP2 SERVER RECEIVER: Detected Message")
 					.process(mapIDSCP2toMultipart)
+					.process(receiverVersionCheckProcessor)
 					.process(originalMessageProcessor)
 					.process(registerTransactionToCHProcessor)
 					// Send to the Endpoint: F

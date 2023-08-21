@@ -18,6 +18,7 @@ import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.processor.sender.websocket.client.MessageWebSocketOverHttpSender;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
+import it.eng.idsa.businesslogic.util.Helper;
 import it.eng.idsa.businesslogic.util.MessagePart;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -71,12 +72,10 @@ public class ReceiverWebSocketSendDataToDataAppProcessor implements Processor {
               logger.info("...communication error with: " + openApiDataAppAddress);
               rejectionMessageService.sendRejectionMessage((Message) exchange.getProperty("Original-Message-Header"), RejectionReason.INTERNAL_RECIPIENT_ERROR);
           } else {
-        	  logger.info("Received response from DataAPP");
-        	  logger.debug("response received from the DataAPP=" + response);
 			  MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(response);
               exchange.getMessage().setHeader(MessagePart.HEADER, multipartMessage.getHeaderContentString());
               //Save original Header for Usage Control Enforcement
-              
+              logger.info("Received response from DataAPP, message type: {}", Helper.getIDSMessageType(multipartMessage.getHeaderContent()));
               if (multipartMessage.getPayloadContent() != null) {
                   exchange.getMessage().setHeader(MessagePart.PAYLOAD, multipartMessage.getPayloadContent());
               }

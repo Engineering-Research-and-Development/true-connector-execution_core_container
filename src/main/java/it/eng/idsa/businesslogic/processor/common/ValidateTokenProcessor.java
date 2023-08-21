@@ -58,7 +58,6 @@ public class ValidateTokenProcessor implements Processor {
             return;
 		}
 		String token = multipartMessage.getHeaderContent().getSecurityToken().getTokenValue();
-		logger.info("token: {}", token);
 		
 		// Check is "token" valid
 		boolean isTokenValid = dapsService.validateToken(token);

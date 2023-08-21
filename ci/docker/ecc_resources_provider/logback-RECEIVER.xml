@@ -9,7 +9,7 @@
     </encoder>
   </appender>
 
-	<property name="LOG_DIR" value="/var/log/ecc" />
+	<property name="LOG_DIR" value="/home/nobody/data/log/ecc" />
 	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
 		<file>${LOG_DIR}/true_connector_audit_RECEIVER.log</file>
 		<append>true</append>

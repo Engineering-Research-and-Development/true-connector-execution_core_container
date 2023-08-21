@@ -77,10 +77,6 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
 		String provider = ucObj.getMeta().getAssigner().toString();
 		String consumer = ucObj.getMeta().getAssignee().toString();
 		String targetArtifact = ucObj.getMeta().getTargetArtifact().getId().toString();
-		logger.info("Provider:" + provider);
-		logger.info("Consumer:" + consumer);
-		logger.info("payload:" + ucObj.getPayload());
-		logger.info("artifactID:" + targetArtifact);
 		
 		IdsUseObject idsUseObject = new IdsUseObject();
 		idsUseObject.setTargetDataUri(targetArtifact);
@@ -105,7 +101,6 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
 		if (result instanceof LinkedTreeMap<?, ?>) {
 			final LinkedTreeMap<?, ?> treeMap = (LinkedTreeMap<?, ?>) result;
 			jsonElement = gson.toJsonTree(treeMap);
-			logger.debug("Result from Usage Control: " + jsonElement.toString());
 		} else if (null == result || StringUtils.isEmpty(result.toString())) {
 			throw new Exception("Usage Control Enforcement with EMPTY RESULT encountered.");
 		}

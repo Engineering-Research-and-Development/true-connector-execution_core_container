@@ -39,8 +39,7 @@ public class PlatoonUsageControlServiceImpl implements UsageControlService {
 	@Override
 	public String enforceUsageControl(URI uri, URI requestedArtifact, String ucObject) throws IOException {
 
-		logger.info("enforcing contract agreement:" + uri.toString(),
-				" for requested artifact:" + requestedArtifact.toString());
+		logger.info("Enforcing contract agreement:" + uri.toString(), " for requested artifact:" + requestedArtifact.toString());
 
 		StringBuffer ucUrl = new StringBuffer().append(platoonURL).append(policyEnforcementEndpoint)
 				.append("?contractAgreementUri=").append(uri).append("&requestedArtifact=").append(requestedArtifact)

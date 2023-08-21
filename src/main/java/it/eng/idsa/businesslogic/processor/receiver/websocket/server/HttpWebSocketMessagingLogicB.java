@@ -44,8 +44,6 @@ public class HttpWebSocketMessagingLogicB {
                 Thread fileRecreatorBeanThread = new Thread(responseMessageSendPartialServer, "ResponseMessageSendPartialServer");
                 fileRecreatorBeanThread.start();
             }
-           logger.debug("DATA RECEIVED FROM SOCKET -> " + receivedMessage);
-
        }
     }
 

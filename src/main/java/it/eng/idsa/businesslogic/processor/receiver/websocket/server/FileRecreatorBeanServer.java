@@ -41,7 +41,7 @@ public class FileRecreatorBeanServer implements Runnable {
 			HttpWebSocketServerBean httpWebSocketServerBean = webSocketServerConfiguration.httpsServerWebSocket();
 			httpWebSocketServerBean.createServer();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Could not start file recreator server: {}", e.getMessage());
 			throw e;
 		}
 	}
@@ -88,12 +88,9 @@ public class FileRecreatorBeanServer implements Runnable {
 			multipartMessage = recreateMultipartMessage(this.fileByteArray);
 			// once bytes are consumed to get message - empty array
 			fileByteArray = new ArrayList<>();
-			logger.info(
-					"Recreated the Multipart message from the received frames: lenght=" + multipartMessage.length());
+			logger.info("Recreated the Multipart message from the received frames: lenght= {}", multipartMessage.length());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.out.println("Error on the process of recreation the file from the received frames.");
+			logger.error("Coud not recreate the file from the received frames: {}", e.getMessage());
 		}
 		return multipartMessage;
 	}

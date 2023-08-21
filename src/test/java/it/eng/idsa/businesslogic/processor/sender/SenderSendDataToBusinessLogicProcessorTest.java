@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,9 +26,9 @@ import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.SendDataToBusinessLogicService;
 import it.eng.idsa.businesslogic.util.MockUtil;
+import it.eng.idsa.businesslogic.util.OCSPValidation.OCSP_STATUS;
 import it.eng.idsa.businesslogic.util.RequestResponseUtil;
 import it.eng.idsa.businesslogic.util.RouterType;
-import it.eng.idsa.businesslogic.util.OCSPValidation.OCSP_STATUS;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
@@ -111,6 +112,34 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	}
 	
 	@Test
+	public void sendHttpHeaderMissingHeader() throws Exception {
+		String jsonString = "aaaa";
+
+		Request requestDaps =  RequestResponseUtil.createRequest(FORWARD_TO, 
+				RequestResponseUtil.createRequestBody(jsonString)) ;
+		Response response = RequestResponseUtil.createResponse(requestDaps, 
+				"ABC", 
+				RequestResponseUtil.createResponseBodyJsonUTF8(PAYLOAD_RESPONSE), 
+				200);
+		
+		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER, String.class);
+		mockExchangeHeaderAndBody();
+		
+		when(sendDataToBusinessLogicService.sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers))
+			.thenReturn(response);
+		
+		doNothing().when(sendDataToBusinessLogicService).checkResponse(message, response, FORWARD_TO);
+		
+		assertThrows(Exception.class,
+	            ()->{
+	            	processor.process(exchange);
+	            });
+		
+		verify(sendDataToBusinessLogicService).sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers);
+		verify(exchange.getMessage(), times(0)).setBody(any());
+	}
+	
+	@Test
 	public void sendHttpHeaderNotFound() throws Exception {
 		String jsonString = "aaaa";
 		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.HTTP_HEADER, String.class);
@@ -135,6 +164,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	            });
 		
 		verify(sendDataToBusinessLogicService).sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers);
+		verify(exchange.getMessage(), times(0)).setBody(any());
 	}
 
 	@Test
@@ -154,6 +184,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	            });
 		
 		verify(sendDataToBusinessLogicService).sendMessageHttpHeader(FORWARD_TO, multipartMessage, headers);
+		verify(exchange.getMessage(), times(0)).setBody(any());
 	}
 	
 	@Test
@@ -178,6 +209,32 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	}
 	
 	@Test
+	public void sendBodyBinaryFailed() throws Exception {
+		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.MULTIPART_MIX, String.class);
+		mockExchangeHeaderAndBody();
+		multipartResponse = multipartResponse.replace("Artifact", "something");
+		
+		String jsonString = "aaaa";
+		Request requestDaps =  RequestResponseUtil.createRequest(FORWARD_TO, 
+				RequestResponseUtil.createRequestBody(jsonString)) ;
+		Response response = RequestResponseUtil.createResponse(requestDaps, 
+				"ABC", 
+				RequestResponseUtil.createResponseBodyJsonUTF8(multipartResponse), 
+				200);
+		
+		when(sendDataToBusinessLogicService.sendMessageBinary(FORWARD_TO, multipartMessage, headers))
+			.thenReturn(response);
+		
+		assertThrows(Exception.class,
+	            ()->{
+	            	processor.process(exchange);
+	            });
+		
+		
+		verify(exchange.getMessage(), times(0)).setBody(any());
+	}
+	
+	@Test
 	public void sendFormSuccess() throws Exception {
 		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.MULTIPART_BODY_FORM, String.class);
 		mockExchangeHeaderAndBody();
@@ -193,6 +250,30 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 			.thenReturn(response);
 		
 		processor.process(exchange);
+		
+		verify(sendDataToBusinessLogicService).sendMessageFormData(FORWARD_TO, multipartMessage, headers);
+	}
+	
+	@Test
+	public void sendFormFailed() throws Exception {
+		ReflectionTestUtils.setField(processor, "eccHttpSendRouter", RouterType.MULTIPART_BODY_FORM, String.class);
+		mockExchangeHeaderAndBody();
+		multipartResponse = multipartResponse.replace("Artifact", "something");
+		
+		String jsonString = "aaaa";
+		Request requestDaps =  RequestResponseUtil.createRequest(FORWARD_TO, 
+				RequestResponseUtil.createRequestBody(jsonString)) ;
+		Response response = RequestResponseUtil.createResponse(requestDaps, 
+				"ABC", 
+				RequestResponseUtil.createResponseBodyJsonUTF8(multipartResponse), 
+				200);
+		when(sendDataToBusinessLogicService.sendMessageFormData(FORWARD_TO, multipartMessage, headers))
+			.thenReturn(response);
+		
+		assertThrows(Exception.class,
+	            ()->{
+	            	processor.process(exchange);
+	            });
 		
 		verify(sendDataToBusinessLogicService).sendMessageFormData(FORWARD_TO, multipartMessage, headers);
 	}

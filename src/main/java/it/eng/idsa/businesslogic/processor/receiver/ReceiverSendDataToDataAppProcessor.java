@@ -22,6 +22,7 @@ import it.eng.idsa.businesslogic.configuration.ApplicationConfiguration;
 import it.eng.idsa.businesslogic.service.HttpHeaderService;
 import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.businesslogic.service.impl.SendDataToBusinessLogicServiceImpl;
+import it.eng.idsa.businesslogic.util.Helper;
 import it.eng.idsa.businesslogic.util.RouterType;
 import it.eng.idsa.businesslogic.util.TrueConnectorConstants;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
@@ -119,8 +120,7 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 	private void handleResponse(Exchange exchange, Message message, Response response, String openApiDataAppAddress)
 			throws UnsupportedOperationException, IOException {
 		String responseString = getResponseBodyAsString(response);
-		logger.info("data sent to destination: " + openApiDataAppAddress);
-		logger.info("response received from the DataAPP=" + responseString);
+		logger.info("data received from: {}", openApiDataAppAddress);
 
 		Map<String, Object> headers = httpHeaderService.okHttpHeadersToMap(response.headers());
 		String correlationId = (String) exchange.getMessage().getHeader(TrueConnectorConstants.CORRELATION_ID);
@@ -128,7 +128,7 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 			headers.put(TrueConnectorConstants.CORRELATION_ID, correlationId);
 		}
 		exchange.getMessage().setHeaders(headers);
-		
+		MultipartMessage multipartMessage = null;
 		if (RouterType.HTTP_HEADER.equals(openDataAppReceiverRouter)) {
 			message = httpHeaderService.headersToMessage(headers);
 			
@@ -136,7 +136,7 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 			headerHeaderContentType.put("Content-Type", "application/ld+json");
 			Map<String, String> payloadHeaderContentType = new HashMap<>();
 			payloadHeaderContentType.put("Content-Type", response.headers().get(MultipartMessageKey.CONTENT_TYPE.label));
-			MultipartMessage multipartMessage = new MultipartMessageBuilder()
+			multipartMessage = new MultipartMessageBuilder()
 					.withHeaderContent(message)
 					.withHeaderHeader(headerHeaderContentType)
 					.withPayloadContent(responseString)
@@ -145,9 +145,11 @@ public class ReceiverSendDataToDataAppProcessor implements Processor {
 			exchange.getMessage().setBody(multipartMessage);
 			
 		} else {
-			MultipartMessage multipartMessage = MultipartMessageProcessor.parseMultipartMessage(responseString);
+			multipartMessage = MultipartMessageProcessor.parseMultipartMessage(responseString);
 			exchange.getMessage().setBody(multipartMessage);
 		}
+		
+		logger.info("Received message of type: {}", Helper.getIDSMessageType(multipartMessage.getHeaderContent()));
 	}
 	
 	private String getResponseBodyAsString(Response response) {

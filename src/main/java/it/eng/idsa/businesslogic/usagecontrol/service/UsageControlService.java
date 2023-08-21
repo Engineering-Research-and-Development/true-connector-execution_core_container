@@ -10,6 +10,7 @@ public interface UsageControlService {
 	/**
 	 * Used on the Usage Control consumer side for policy enforcement
 	 * @param contractAgreementUri contract agreement uri
+	 * @param requestedArtifact requested artifact uri
 	 * @param payload Payload for enforcing
 	 * @return result response from REST call
 	 * @throws Exception exception in case of error

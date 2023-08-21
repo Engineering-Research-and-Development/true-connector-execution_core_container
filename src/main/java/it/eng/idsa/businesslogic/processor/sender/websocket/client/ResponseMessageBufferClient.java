@@ -1,5 +1,8 @@
 package it.eng.idsa.businesslogic.processor.sender.websocket.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 
  * @author Milan Karajovic and Gabriele De Luca
@@ -7,6 +10,8 @@ package it.eng.idsa.businesslogic.processor.sender.websocket.client;
  */
 
 public class ResponseMessageBufferClient {
+	private static final Logger logger = LoggerFactory.getLogger(ResponseMessageBufferClient.class);
+
 	private byte[] responseMessage = null;
 	private boolean responseMessageIsReceived = false;
 	
@@ -15,7 +20,7 @@ public class ResponseMessageBufferClient {
 			try {
 				wait();
 			} catch(InterruptedException e) {
-				e.printStackTrace();
+				logger.error("Adding to response message buffer interupted: {}", e.getMessage());
 			}
 		}
 		
@@ -29,7 +34,7 @@ public class ResponseMessageBufferClient {
 			try {
 				wait();
 			} catch(InterruptedException e) {
-				e.printStackTrace();
+				logger.error("Removing from response message buffer interupted: {}", e.getMessage());
 			}
 		}
 		

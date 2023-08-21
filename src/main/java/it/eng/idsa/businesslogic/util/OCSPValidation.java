@@ -100,10 +100,10 @@ public class OCSPValidation {
 		cmdList = new ArrayList<String>(startCmdList);
 		cmdList.add("openssl x509 -noout -ocsp_uri -in " + tmpdir + host + ".pem");
 		String existOCSPUriResponse = processExecutor.executeProcess(cmdList);
-		logger.info("Test to verify if exist a OCSP server Uri. Response " + existOCSPUriResponse);
+		logger.info("Checking for OCSP server Uri. Response " + existOCSPUriResponse);
 		
 		if(existOCSPUriResponse.isBlank()) {
-			logger.error("NOT exist a OCSP server Uri. Response " + getCertificateResponse);
+			logger.error("No OCSP server Uri found. Response " + getCertificateResponse);
 			
 			File hostCertificate = new File(tmpdir + host + ".pem");
 			hostCertificate.delete();
@@ -146,7 +146,7 @@ public class OCSPValidation {
 				return OCSP_STATUS.unknown;
 			}			
 		} catch (MalformedURLException e) {
-			logger.warn("No OCSP URI exist!!!");
+			logger.warn("No OCSP URI found!!!");
 			logger.warn(e.getMessage(), e.getCause());
 			throw new OCSPValidationException("OCSPValidationException() cause:", e.getCause());
 		} finally {
