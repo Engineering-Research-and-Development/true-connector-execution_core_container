@@ -91,6 +91,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		connector = selfDescriptionManager.loadConnector();
 		if(connector == null) {
 			connector = createDefaultSelfDescription();
+			selfDescriptionManager.saveConnector();
 		}
 		logger.info("Done creating self description document.");
 		SelfDescription.getInstance().setBaseConnector(connector);

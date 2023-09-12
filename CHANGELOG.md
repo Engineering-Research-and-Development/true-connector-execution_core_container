@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.14.3] - 2023-09-12
+
+### Changed
+
+ - failed login is registered in logs (UserNotFoundException)
+
+### Added
+
+ - added Spring StrictHttpFirewall with firewall.property file; default - disabled
+ 
 ## [1.14.2] - 2023-08-01
 
 ### Changed
