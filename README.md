@@ -64,6 +64,34 @@ The ECC supports three different way to exchange data:
 *  **IDSCP2** enabled if *IDSCP2=true* and *WS_INTERNAL=false* (use https on the edge) or *IDSCP2=true* and *WS_INTERNAL=true* (use WS on the edge)
 *  **Web Socket over HTTPS** enabled if *WS_OVER_HTTPS=true* and *IDSCP2=false*
 
+## Firewall <a name="firewall"></a>
+
+Execution Core Container allows setting up HttpFirewall through Spring Security. To turn it on/off, please take a look at following property: 
+
+```
+#Firewall
+application.firewall.isEnabled=true
+```
+
+If firewall is enabled, it will read properties defined in `firewall.properties` file which easily can be modified by needs of setup.
+
+```
+#Set which HTTP methods should be allowed
+allowedMethods=GET,POST
+#Set if a backslash "\" or a URL encoded backslash "%5C" should be allowed in the path or not
+allowBackSlash=true
+#Set if a slash "/" that is URL encoded "%2F" should be allowed in the path or not
+allowUrlEncodedSlash=true
+#Set if double slash "//" that is URL encoded "%2F%2F" should be allowed in the path or not
+allowUrlEncodedDoubleSlash=true
+#Set if semicolon is allowed in the URL (i.e. matrix variables)
+allowSemicolon=true
+#Set if a percent "%" that is URL encoded "%25" should be allowed in the path or not
+allowUrlEncodedPercent=true
+#if a period "." that is URL encoded "%2E" should be allowed in the path or not
+allowUrlEncodedPeriod=true
+```
+
 ## How to Test
 The reachability could be verified using the following endpoints:
 *  **http://{IP_ADDRESS}:{HTTP_PUBLIC_PORT}/about/version**
