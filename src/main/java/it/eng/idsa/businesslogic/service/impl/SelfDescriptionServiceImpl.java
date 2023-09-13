@@ -117,7 +117,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 			logger.error("Error while creating PublicKey", e);
 		}
         
-		return new BaseConnectorBuilder(issuerConnectorURI)
+		Connector connector = new BaseConnectorBuilder(issuerConnectorURI)
 				._maintainer_(selfDescriptionConfiguration.getMaintainer())
 				._curator_(selfDescriptionConfiguration.getCurator())
 				._resourceCatalog_(this.getCatalog())
@@ -132,6 +132,8 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 						.build())
 //				._hasEndpoint_(Util.asList(new ConnectorEndpointBuilder(new URI("https://someURL/incoming-data-channel/receivedMessage")).build()))
 				.build();
+		SelfDescription.getInstance().setBaseConnector(connector);
+		return connector;
 	}
 
 	public Connector getConnector() {
