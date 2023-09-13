@@ -37,7 +37,7 @@ public class RESTExceptionHandlerTest {
 
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		handler = new RESTExceptionHandler(publisher);
 		when(request.getUserPrincipal()).thenReturn(principal);
 		when(principal.getName()).thenReturn("user");

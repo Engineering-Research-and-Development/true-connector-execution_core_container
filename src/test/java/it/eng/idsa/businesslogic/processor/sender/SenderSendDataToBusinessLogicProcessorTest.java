@@ -71,7 +71,7 @@ public class SenderSendDataToBusinessLogicProcessorTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		message = UtilMessageService.getArtifactRequestMessage();
 		headers.put("Forward-To", FORWARD_TO);
 		when(httpHeaderService.okHttpHeadersToMap(okHeaders)).thenReturn(headers);

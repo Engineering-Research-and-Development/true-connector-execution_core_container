@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 
  - failed login is registered in logs (UserNotFoundException)
  - bumped spring-boot-parent to 2.5.14
+ - hardcoded not to show stack trace in response
 
 ### Added
 

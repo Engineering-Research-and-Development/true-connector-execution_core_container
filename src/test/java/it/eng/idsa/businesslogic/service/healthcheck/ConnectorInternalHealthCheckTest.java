@@ -31,7 +31,7 @@ public class ConnectorInternalHealthCheckTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		iternalHealthCheck = new ConnectorInternalHealthCheck(communicationService, 
 				Optional.of(usageControlService), auditLogHealthService, healthCheckConfiguration);
 	}

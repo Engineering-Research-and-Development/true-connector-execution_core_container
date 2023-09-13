@@ -67,7 +67,7 @@ public class ClearingHouseServiceImplTest {
 	
 	@BeforeEach
 	public void init() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		contractAgreementMessage = UtilMessageService.getContractAgreementMessage();
 		contractAgreement  = UtilMessageService.getContractAgreement();
 		requestMessage = UtilMessageService.getArtifactRequestMessageWithTransferContract(UtilMessageService.REQUESTED_ARTIFACT.toString(), "http://w3id.org/engrd/connector/examplecontract/fa17023f-3059-4b89-b3ae-c9cd4340ccd9");

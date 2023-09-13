@@ -40,7 +40,7 @@ public class ModifyPayloadProcessorTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		ReflectionTestUtils.setField(processor, "encodeDecodePayload", Boolean.TRUE, Boolean.class);
 	}
 	

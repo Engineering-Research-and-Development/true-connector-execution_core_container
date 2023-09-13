@@ -24,6 +24,7 @@ public class Application {
 		 System.setProperty("camel.component.http4.use-global-ssl-context-parameters", "true");
 		 System.setProperty("server.ssl.enabled", "true");
 		 System.setProperty("camel.component.jetty.use-global-ssl-context-parameters", "true");
+		 System.setProperty("server.error.include-stacktrace", "never");
 		SpringApplication.run(Application.class, args);
 	}
 }

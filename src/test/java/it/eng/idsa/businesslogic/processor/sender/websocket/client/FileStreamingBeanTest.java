@@ -34,7 +34,7 @@ public class FileStreamingBeanTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		streamingBean.setup(webSocket);
 	}
 	

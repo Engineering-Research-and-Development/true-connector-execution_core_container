@@ -30,7 +30,7 @@ public class FileRecreatorBeanServerTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		when(frameBufferBean.remove()).thenReturn(message.getBytes(StandardCharsets.UTF_8));
 		when(frameBufferBean.remove()).thenReturn(InputStreamSocketListenerServer.END_BINARY_FRAME_SEPARATOR.getBytes(StandardCharsets.UTF_8));
 	}

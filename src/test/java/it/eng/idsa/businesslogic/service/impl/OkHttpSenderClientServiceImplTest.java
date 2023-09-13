@@ -59,7 +59,7 @@ public class OkHttpSenderClientServiceImplTest {
 	
 	@BeforeEach
 	public void init () {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		targetURL = "http://someUrl.com";
 		httpHeaders = Headers.of("someKey", "someValue");
 		payload = "somePayload";

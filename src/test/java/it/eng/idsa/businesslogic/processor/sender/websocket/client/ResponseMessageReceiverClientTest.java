@@ -25,7 +25,7 @@ public class ResponseMessageReceiverClientTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		client.setup(wsClient);
 		when(webSocketClientConfiguration.responseMessageBufferWebSocketClient()).thenReturn(bufferClient);
 		when(bufferClient.remove()).thenReturn("MESSAGE".getBytes());

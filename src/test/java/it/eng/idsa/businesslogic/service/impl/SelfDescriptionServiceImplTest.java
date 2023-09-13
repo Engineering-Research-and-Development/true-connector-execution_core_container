@@ -56,7 +56,7 @@ public class SelfDescriptionServiceImplTest {
 
 	@BeforeEach
 	public void setup() throws ConstraintViolationException, URISyntaxException {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		when(dapsProvider.getDynamicAtributeToken()).thenReturn(dynamicAttributeToken);
 		when(configuration.getConnectorURI()).thenReturn(connectorURI);
 		when(configuration.getTitle()).thenReturn(title);

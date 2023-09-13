@@ -55,7 +55,7 @@ public class SenderParseReceivedDataProcessorBodyFormDataTest {
 
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		msg = UtilMessageService.getArtifactRequestMessage();
 		headerAsString = UtilMessageService.getMessageAsString(msg);
 		forwardTo = "https://forward.to.example";

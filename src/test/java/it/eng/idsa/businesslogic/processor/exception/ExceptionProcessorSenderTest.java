@@ -68,7 +68,7 @@ public class ExceptionProcessorSenderTest {
 
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		when(exchange.getProperty(Exchange.EXCEPTION_CAUGHT)).thenReturn(exception);
 		
 		MultipartMessage multipartMessage = new MultipartMessageBuilder()

@@ -34,7 +34,7 @@ public class MapIDSCP2toMultipartTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", Boolean.TRUE, Boolean.class);
 		ReflectionTestUtils.setField(processor, "receiver", Boolean.TRUE, Boolean.class);
 		when(exchange.getMessage()).thenReturn(camelMessage);

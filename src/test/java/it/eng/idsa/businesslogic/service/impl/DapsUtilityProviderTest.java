@@ -58,7 +58,7 @@ public class DapsUtilityProviderTest {
 	
 	@BeforeEach
 	public void init() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		dapsJWKSUrl = new URL("https://dap.aisec.fraunhofer.de");
 		keyStoreName = "classpath:ssl-server.jks";    
 		keyStorePassword = "changeit";

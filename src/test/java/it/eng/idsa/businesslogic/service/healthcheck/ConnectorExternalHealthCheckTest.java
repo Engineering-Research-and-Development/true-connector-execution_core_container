@@ -28,7 +28,7 @@ public class ConnectorExternalHealthCheckTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		externalHealthCheck = new ConnectorExternalHealthCheck(Optional.of(dapsService), Optional.of(clearingHouseService), 
 				healthCheckConfiguration);
 		when(healthCheckConfiguration.getDaps()).thenReturn("daps");

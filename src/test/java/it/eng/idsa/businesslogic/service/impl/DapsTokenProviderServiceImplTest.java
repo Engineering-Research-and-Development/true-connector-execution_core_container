@@ -32,7 +32,7 @@ public class DapsTokenProviderServiceImplTest {
 
 	@BeforeEach
 	public void setup() throws ParseException {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "tokenCaching", true);
 		ReflectionTestUtils.setField(dapsTokenProviderServiceImpl, "useDaps", true);
 		dapsToken = JwTokenUtil.generateToken(false);

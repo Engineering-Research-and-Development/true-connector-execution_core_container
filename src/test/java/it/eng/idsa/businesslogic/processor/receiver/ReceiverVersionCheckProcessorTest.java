@@ -44,7 +44,7 @@ public class ReceiverVersionCheckProcessorTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		when(exchange.getMessage()).thenReturn(camelMessage);
 		when(camelMessage.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
 		when(multipartMessage.getHeaderContent()).thenReturn(idsMessage);

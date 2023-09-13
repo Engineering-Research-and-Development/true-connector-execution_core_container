@@ -44,7 +44,7 @@ public class ReceiverWebSocketSendDataToDataAppProcessorTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		ReflectionTestUtils.setField(processor, "openDataAppReceiver", openDataAppReceiver, String.class);
 		when(exchange.getMessage()).thenReturn(message);
 		when(message.getBody(MultipartMessage.class)).thenReturn(multipartMessage);

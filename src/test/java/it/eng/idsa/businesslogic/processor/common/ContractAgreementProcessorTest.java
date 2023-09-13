@@ -58,7 +58,7 @@ public class ContractAgreementProcessorTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", Boolean.TRUE, Boolean.class);
 		contractAgreementMessage = UtilMessageService.getContractAgreementMessage();
 		contractAgreement = UtilMessageService.getContractAgreement();

@@ -39,7 +39,7 @@ public class InMemoryUserCrudServiceTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		user = new User(UUID.randomUUID().toString(), "testUsername", "testPassword", TrueConnectorConstants.API_USER_ROLE);
 	}
 	

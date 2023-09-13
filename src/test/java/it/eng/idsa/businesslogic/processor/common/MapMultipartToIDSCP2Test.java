@@ -31,7 +31,7 @@ public class MapMultipartToIDSCP2Test {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		ReflectionTestUtils.setField(processor, "isEnabledIdscp2", Boolean.TRUE, Boolean.class);
 		ReflectionTestUtils.setField(processor, "receiver", Boolean.FALSE, Boolean.class);
 		when(exchange.getMessage()).thenReturn(camelMessage);
