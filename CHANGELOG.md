@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
  - failed login is registered in logs (UserNotFoundException)
+ - bumped spring-boot-parent to 2.5.14
 
 ### Added
 
