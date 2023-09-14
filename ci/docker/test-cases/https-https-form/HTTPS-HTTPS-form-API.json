@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "5c8cb7a3-fc52-4fa1-9f4a-653d437bd292",
+		"_postman_id": "6ef42754-a67c-4321-b679-ca0dc818c213",
 		"name": "GHA API Tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "2326106",
-		"_collection_link": "https://martian-water-684810.postman.co/workspace/TC-CI~255b9f39-3698-4730-873d-66392ca44292/collection/2326106-5c8cb7a3-fc52-4fa1-9f4a-653d437bd292?action=share&creator=2326106&source=collection_link"
+		"_exporter_id": "12578087"
 	},
 	"item": [
 		{
@@ -53,6 +52,63 @@
 					]
 				},
 				"method": "GET",
+				"header": [
+					{
+						"key": "fizz",
+						"value": "buzz"
+					},
+					{
+						"key": "Content-Type",
+						"value": "text/plain"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:8090/",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-form-Firewall",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Method not allowed\", function () {\r",
+							"  pm.response.to.have.status(405);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "apiUser",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						}
+					]
+				},
+				"method": "OPTIONS",
 				"header": [
 					{
 						"key": "fizz",
