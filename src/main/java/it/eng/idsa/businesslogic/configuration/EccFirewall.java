@@ -7,12 +7,15 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler;
+import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.util.CollectionUtils;
 
 @Configuration
 @PropertySource("classpath:firewall.properties")
-public class DataAppFirewall {
+public class EccFirewall {
 
 	@Value("${allowedMethods}")
 	private List<String> allowedMethods;
@@ -28,6 +31,12 @@ public class DataAppFirewall {
 	private boolean allowUrlEncodedPercent;
 	@Value("${allowUrlEncodedPeriod}")
 	private boolean allowUrlEncodedPeriod;
+	
+	@Bean
+	@ConditionalOnProperty(name = "application.firewall.isEnabled", havingValue = "true", matchIfMissing = false)
+	RequestRejectedHandler requestRejectedHandler() {
+	   return new HttpStatusRequestRejectedHandler(HttpStatus.METHOD_NOT_ALLOWED.value());
+	}
 
 	@Bean
 	@ConditionalOnProperty(name = "application.firewall.isEnabled", havingValue = "true", matchIfMissing = false)
