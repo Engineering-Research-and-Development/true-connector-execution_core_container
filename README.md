@@ -91,6 +91,7 @@ allowUrlEncodedPercent=true
 #if a period "." that is URL encoded "%2E" should be allowed in the path or not
 allowUrlEncodedPeriod=true
 ```
+*IMPORTANT:* If you're not an expert, the strong advice is to keep values at their default values. If you decide to change values, pay special attention to allowHeaderNames and allowHeaderValues, since those set values are exclusive and considered as only values that should be present in the header.
 
 ## How to Test
 The reachability could be verified using the following endpoints:
