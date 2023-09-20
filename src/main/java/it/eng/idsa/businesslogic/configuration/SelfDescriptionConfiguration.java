@@ -112,6 +112,10 @@ public class SelfDescriptionConfiguration {
 		return useHttps;
 	}
 
+	public void setConnectorid(String connectorid) {
+		this.connectorid = connectorid;
+	}
+
 	public URI getConnectorURI() {
 		return URI.create(connectorid);
 	}
