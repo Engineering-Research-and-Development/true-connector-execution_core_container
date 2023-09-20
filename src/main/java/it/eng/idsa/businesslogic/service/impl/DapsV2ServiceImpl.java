@@ -10,7 +10,6 @@ import java.security.cert.CertificateException;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.util.encoders.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
