@@ -23,10 +23,10 @@ import javax.net.ssl.KeyManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+
+import it.eng.idsa.businesslogic.configuration.ShutdownConnector;
 
 @Service
 public class DapsKeystoreProvider {
@@ -43,7 +43,7 @@ public class DapsKeystoreProvider {
 			@Value("${application.keyStorePassword}") String dapsKeyStorePassword,
 			@Value("${application.keystoreAliasName}") String dapsKeystoreAliasName,
 			@Value("${application.isEnabledDapsInteraction}") boolean isEnabledDapsInteraction,
-			ApplicationContext context) {
+			ShutdownConnector shutdownConnector) {
 
 		this.isEnabledDapsInteraction = isEnabledDapsInteraction;
 		keyStorePwd = dapsKeyStorePassword;
@@ -71,9 +71,7 @@ public class DapsKeystoreProvider {
 			} catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException
 					| UnrecoverableKeyException e) {
 				logger.error("Error while loading keystore and/or truststore. DAPS interaction will not work. \n{}", e.getMessage());
-				logger.error("********  SHUTTING DOWN THE CONNECTOR   ********");
-				SpringApplication.exit(context);
-				System.exit(-1);
+				shutdownConnector.shutdownConnector();
 			} finally {
 				if (jksKeyStoreInputStream != null) {
 					try {

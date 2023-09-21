@@ -3,13 +3,15 @@ package it.eng.idsa.businesslogic.service.impl;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +24,7 @@ import de.fraunhofer.iais.eis.Message;
 import de.fraunhofer.iais.eis.util.ConstraintViolationException;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration.SelfDescription;
+import it.eng.idsa.businesslogic.configuration.ShutdownConnector;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.impl.resources.SelfDescriptionUtil;
 import it.eng.idsa.businesslogic.service.resources.SelfDescriptionManager;
@@ -39,6 +42,8 @@ public class SelfDescriptionServiceImplTest {
 	private Connector connectorMock;
 	@Mock
 	private DapsKeystoreProvider keystoreProvider;
+	@Mock
+	private ShutdownConnector shutdown;
 	@Mock 
 	private X509Certificate cert;
 	@Mock 
@@ -69,7 +74,7 @@ public class SelfDescriptionServiceImplTest {
 		when(selfDescription.getInboundModelVersion()).thenReturn("4.0.0,4.2.7");
 		when(keystoreProvider.getCertificate()).thenReturn(cert);
 		when(selfDescriptionManager.getValidConnector(any(Connector.class))).thenReturn(SelfDescriptionUtil.getBaseConnector());
-		selfDefinitionService = new SelfDescriptionServiceImpl(configuration, Optional.ofNullable(dapsProvider), selfDescriptionManager, keystoreProvider);
+		selfDefinitionService = new SelfDescriptionServiceImpl(configuration, Optional.ofNullable(dapsProvider), selfDescriptionManager, keystoreProvider, shutdown);
 		selfDefinitionService.initConnector();
 	}
 
@@ -91,6 +96,18 @@ public class SelfDescriptionServiceImplTest {
 		assertTrue(selfDescription.contains("ids:securityProfile"));
 		assertTrue(selfDescription.contains("ids:hasDefaultEndpoint"));
 	}
+	
+	@Test
+	public void invalidConnectorId() {
+		when(selfDescriptionManager.loadConnector()).thenReturn(null);
+		
+		doThrow(IllegalArgumentException.class).when(configuration).getConnectorURI();
+
+		selfDefinitionService.initConnector();
+		
+		verify(shutdown).shutdownConnector();
+	}
+	
 
 	@Test
 	public void connectorAvailabilityMessage() {

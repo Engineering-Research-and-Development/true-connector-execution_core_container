@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
  - hardcoded not to show stack trace in response
  - if DAPS certificate is not loaded, or certificate expired, connector will not start
  - changed how connectorId is used - now it is single property that needs to be set (application.connectorid)
+ - if connectorId is not valid (blank) connector will not start
 
 ### Added
 

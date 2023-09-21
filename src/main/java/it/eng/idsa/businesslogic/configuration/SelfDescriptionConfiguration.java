@@ -117,6 +117,9 @@ public class SelfDescriptionConfiguration {
 	}
 
 	public URI getConnectorURI() {
+		if(StringUtils.isBlank(connectorid)) {
+			throw new IllegalArgumentException("ConnectorId cannot be blank");
+		}
 		return URI.create(connectorid);
 	}
 	
