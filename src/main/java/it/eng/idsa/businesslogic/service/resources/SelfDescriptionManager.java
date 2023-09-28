@@ -25,6 +25,7 @@ import de.fraunhofer.iais.eis.Resource;
 import de.fraunhofer.iais.eis.ResourceCatalog;
 import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
+import it.eng.idsa.businesslogic.configuration.ShutdownConnector;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
 
 @Service
@@ -40,6 +41,9 @@ public class SelfDescriptionManager {
 	
 	@Autowired
 	private SelfDescriptionConfiguration selfDescriptionConfiguration;
+	
+	@Autowired 
+	private ShutdownConnector shutdownConnector;
 	
 	/**
 	 * Offered Resource
@@ -392,7 +396,7 @@ public class SelfDescriptionManager {
 				 + File.separator + SelfDescriptionConfiguration.SELF_DESCRIPTION_FILE_NAME);
 		Connector connector = null;
 		if(selfDescriptionFile.exists() && !selfDescriptionFile.isDirectory()) { 
-		    logger.info("Found existing self description document at {}", selfDescriptionFile.getAbsoluteFile());
+		    logger.info("Found existing self description document at '{}'", selfDescriptionFile.getAbsoluteFile());
 		    // if exists - load it
 		    String content;
 			try {
@@ -404,8 +408,10 @@ public class SelfDescriptionManager {
 				SelfDescription.getInstance().setBaseConnector(connector);
 				logger.debug("Done with loading connector from file.");
 			} catch (IOException e) {
-				logger.error("Error while loading connector from file '{}'", selfDescriptionFile.getAbsoluteFile());
-				logger.debug(e.getMessage());
+				logger.error("Error while loading connector from file '{}', reason {}", 
+						selfDescriptionFile.getAbsoluteFile(), e.getLocalizedMessage());
+				logger.info("Either delete '{}' and get default self description document or try to fix the error", selfDescriptionFile.getAbsoluteFile());
+				shutdownConnector.shutdownConnector();
 			}
 		}
 		return connector;
