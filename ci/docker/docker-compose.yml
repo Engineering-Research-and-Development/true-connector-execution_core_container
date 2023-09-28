@@ -64,7 +64,8 @@ services:
       - CONTRACT_NEGOTIATION_DEMO=${CONTRACT_NEGOTIATION_DEMO}
     ports:
       - "8183:8183"
-      - "9000:9000"
+    expose:
+      - "9000"
     volumes:
       - ./be-dataapp_resources:/config
       - ./be-dataapp_data_receiver:/home/nobody/data
@@ -134,7 +135,8 @@ services:
       - CONTRACT_NEGOTIATION_DEMO=${CONTRACT_NEGOTIATION_DEMO}
     ports:
       - "8185:8183"
-      - "9001:9000"
+    expose:
+      - "9000"
     volumes:
       - ./be-dataapp_resources:/config
       - be-dataapp_data_sender:/home/nobody/data
