@@ -50,12 +50,19 @@ services:
     networks:
       - provider
     environment:
+      - ECC_PORT=8449
+      - ECC_SELF_DESCRIPTION_URL=${PROVIDER_ECC_SELF_DESCRIPTION_URL}
+      - KEYSTORE_NAME=${KEYSTORE_NAME}
+      - KEY_PASSWORD=${KEY_PASSWORD}
+      - KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
+      - ALIAS=${ALIAS}
       - TZ=Europe/Rome
     expose:
       - "8180"
     volumes:
       - ./uc-dataapp_resources_provider:/etc
       - uc_provider_data:/data
+      - ./ecc_cert:/cert
 
   be-dataapp-provider:
     image: rdlabengpa/ids_be_data_app:develop
@@ -70,7 +77,6 @@ services:
       - ALIAS=${ALIAS}
       - ECC_HOSTNAME=ecc-provider
       - ECC_PORT=8889
-      - ECC_WSS_PORT=${ECC_PROVIDER_WSS_PORT}
       - TZ=Europe/Rome
       - ISSUER_CONNECTOR_URI=${PROVIDER_ISSUER_CONNECTOR_URI}
       - EXTRACT_PAYLOAD_FROM_RESPONSE=${EXTRACT_PAYLOAD_FROM_RESPONSE}
@@ -134,12 +140,19 @@ services:
     networks:
       - consumer
     environment:
+      - ECC_PORT=8449
+      - ECC_SELF_DESCRIPTION_URL=${CONSUMER_ECC_SELF_DESCRIPTION_URL}
+      - KEYSTORE_NAME=${KEYSTORE_NAME}
+      - KEY_PASSWORD=${KEY_PASSWORD}
+      - KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
+      - ALIAS=${ALIAS}
       - TZ=Europe/Rome
     expose:
       - "8280"
     volumes:
       - ./uc-dataapp_resources_consumer:/etc
       - uc_consumer_data:/data
+      - ./ecc_cert:/cert
 
   be-dataapp-consumer:
     image: rdlabengpa/ids_be_data_app:develop
@@ -154,7 +167,6 @@ services:
       - ALIAS=${ALIAS}
       - ECC_HOSTNAME=ecc-consumer
       - ECC_PORT=8887
-      - ECC_WSS_PORT=${ECC_CONSUMER_WSS_PORT}
       - TZ=Europe/Rome
       - ISSUER_CONNECTOR_URI=${CONSUMER_ISSUER_CONNECTOR_URI}
       - EXTRACT_PAYLOAD_FROM_RESPONSE=${EXTRACT_PAYLOAD_FROM_RESPONSE}
