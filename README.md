@@ -76,7 +76,11 @@ application.firewall.isEnabled=true
 If firewall is enabled, it will read properties defined in `firewall.properties` file which easily can be modified by needs of setup.
 
 ```
-#Set which HTTP methods should be allowed
+#Set which HTTP header names should be allowed (if want to allow all header names, keep it empty)
+allowedHeaderNames=
+#Set which values in header names should have the exact value and allowed (if want to allow any values keep it empty)
+allowedHeaderValues=
+#Set which HTTP methods should be allowed (if want to allow all header names, keep it empty)
 allowedMethods=GET,POST
 #Set if a backslash "\" or a URL encoded backslash "%5C" should be allowed in the path or not
 allowBackSlash=true
