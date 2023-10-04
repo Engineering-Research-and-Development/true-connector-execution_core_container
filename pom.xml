@@ -70,20 +70,11 @@
             <artifactId>maven-project</artifactId>
             <version>2.2.1</version>
         </dependency>
-        <!-- H2 database -->
-        <!-- <dependency> -->
-        <!-- <groupId>com.h2database</groupId> -->
-        <!-- <artifactId>h2</artifactId> -->
-        <!-- </dependency> -->
         <!-- Spring Boot - common dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-        <!-- <dependency> -->
-        <!-- <groupId>org.springframework.boot</groupId> -->
-        <!-- <artifactId>spring-boot-starter-data-jpa</artifactId> -->
-        <!-- </dependency> -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -293,17 +284,14 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
-<!--             <version>5.5.7</version> -->
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
-<!--             <version>5.5.7</version> -->
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
-<!-- 	    	<version>5.5.7</version> -->
         </dependency>
 
         <!-- Apache Commons -->

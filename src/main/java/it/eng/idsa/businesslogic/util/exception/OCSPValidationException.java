@@ -9,6 +9,8 @@ package it.eng.idsa.businesslogic.util.exception;
  */
 public class OCSPValidationException extends Exception {
 
+	private static final long serialVersionUID = -4467886078464845582L;
+
 	public OCSPValidationException() {
 		super();
 	}

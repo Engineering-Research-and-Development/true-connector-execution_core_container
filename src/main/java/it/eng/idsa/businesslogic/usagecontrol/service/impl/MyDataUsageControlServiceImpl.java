@@ -74,8 +74,6 @@ public class MyDataUsageControlServiceImpl implements UsageControlService {
 		UsageControlObject ucObj = gson.fromJson(transferedDataObject, UsageControlObject.class);
 
 		logger.info("Proceeding with Usage control enforcement");
-		String provider = ucObj.getMeta().getAssigner().toString();
-		String consumer = ucObj.getMeta().getAssignee().toString();
 		String targetArtifact = ucObj.getMeta().getTargetArtifact().getId().toString();
 		
 		IdsUseObject idsUseObject = new IdsUseObject();
