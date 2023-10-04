@@ -64,13 +64,10 @@ public class MyDataUsageControlServiceImplTest {
 	
 	String payload = "{\"some\":\"json\"}";
 	
-	
-	
 	@BeforeEach
 	public void init () {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		ReflectionTestUtils.setField(myDataUsageControlServiceImpl, "usageControlDataAppURL", myDataURL);
-		
 	}
 	
 	@Test

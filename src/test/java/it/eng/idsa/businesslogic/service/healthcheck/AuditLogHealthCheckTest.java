@@ -15,7 +15,7 @@ public class AuditLogHealthCheckTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		auditLogCheck = new AuditLogHealthCheck(healthCheckConfiguration);
 	}
 	

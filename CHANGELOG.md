@@ -1,6 +1,22 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.14.3] - 2023-09-12
+
+### Changed
+
+ - failed login is registered in logs (UserNotFoundException)
+ - bumped spring-boot-parent to 2.5.14
+ - hardcoded not to show stack trace in response
+ - if DAPS certificate is not loaded, or certificate expired, connector will not start
+ - changed how connectorId is used - now it is single property that needs to be set (application.connectorid)
+ - if connectorId is not valid (blank) connector will not start
+
+### Added
+
+ - added Spring StrictHttpFirewall with firewall.property file; default - disabled
+ - new property application.connectorid
+ 
 ## [1.14.2] - 2023-08-01
 
 ### Changed

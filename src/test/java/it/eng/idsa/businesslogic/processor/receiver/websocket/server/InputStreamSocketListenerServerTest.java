@@ -32,7 +32,7 @@ public class InputStreamSocketListenerServerTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		HttpWebSocketMessagingLogicA.getInstance().setWebSocketServerConfiguration(webSocketServerConfiguration);
 	}
 	

@@ -35,7 +35,7 @@ public class ReceiverFileRecreatorProcessorTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		when(exchange.getMessage()).thenReturn(message);
 	}
 	

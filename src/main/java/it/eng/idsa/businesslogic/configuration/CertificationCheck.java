@@ -16,7 +16,7 @@ public class CertificationCheck {
 
 	private static final Logger logger = LoggerFactory.getLogger(CertificationCheck.class);
 
-	private static final String[] CERTIFIED_VERSION = { "1.14.2" };
+	private static final String[] CERTIFIED_VERSION = { "1.14.3" };
 	@PostConstruct
 	public void checkIfVerionsIsCertified() {
 		String version = Objects.requireNonNullElse(Application.class.getPackage().getImplementationVersion(), "");

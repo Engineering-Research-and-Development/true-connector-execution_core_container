@@ -67,7 +67,7 @@ public class RegisterTransactionToCHProcessorTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		clearingHouseService = Optional.of(chs);
 		usageControlService = Optional.of(ucs);
 		processor = new RegisterTransactionToCHProcessor(configuration, clearingHouseService, usageControlService, rejectionMessageService, publisher, false, false);

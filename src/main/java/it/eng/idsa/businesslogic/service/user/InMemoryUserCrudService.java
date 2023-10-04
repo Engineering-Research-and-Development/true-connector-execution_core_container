@@ -59,7 +59,7 @@ public class InMemoryUserCrudService implements TrueConnectorUserDetailsService 
 			publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.USER_BLOCKED));
 			throw new RuntimeException("blocked");
 		}
-		return findByUsername(username).orElse(null);
+		return findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
 	}
 	
 	@Override

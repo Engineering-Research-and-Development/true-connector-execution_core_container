@@ -61,7 +61,7 @@ public class DapsOrbiterServiceImplTest {
 
 	@BeforeEach
 	public void setup() throws IOException, GeneralSecurityException {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 
 		jws = "ABC";
 		when(dapsOrbiterProvider.provideJWS()).thenReturn(jws);

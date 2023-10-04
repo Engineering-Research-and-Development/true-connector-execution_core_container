@@ -59,7 +59,7 @@ public class DapsV2ServiceImplTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		when(dapsUtilityProvider.getDapsV2Jws()).thenReturn(jws);
 		when(transportCertsManager.getConnectorTransportCertsSha()).thenReturn("TOKEN_HASHED_VALUE");
 		ReflectionTestUtils.setField(dapsV2Service, "dapsUrl", dapsUrl);

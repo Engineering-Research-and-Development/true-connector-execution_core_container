@@ -67,7 +67,7 @@ public class ReceiverSendDataToBusinessLogicProcessorTest {
 
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		when(exchange.getMessage()).thenReturn(message);
 		when(message.getHeaders()).thenReturn(new HashMap<>());
 	}

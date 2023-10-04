@@ -55,7 +55,7 @@ public class SenderSendResponseToDataAppProcessorTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		multipartMessage = new MultipartMessageBuilder()
 				.withHeaderContent(UtilMessageService.getArtifactRequestMessage())
 				.withPayloadContent(PAYLOAD).build();

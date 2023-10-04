@@ -30,7 +30,7 @@ public class PlatoonUsageControlServiceImplTest {
 
 	@BeforeEach
 	public void init() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		ReflectionTestUtils.setField(platoonUsageControlServiceImpl, "platoonURL", platoonURL);
 		ReflectionTestUtils.setField(platoonUsageControlServiceImpl, "isEnabledUsageControl", true);
 	}

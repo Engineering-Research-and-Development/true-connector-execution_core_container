@@ -53,7 +53,7 @@ public class SenderParseReceivedDataProcessorHttpHeaderTest {
 
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		forwardTo = "https://forward.to.example";
 	}
 

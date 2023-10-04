@@ -40,8 +40,7 @@ public class SelfDescriptionConfiguration {
 	private String eccHttpSendRouter;
 	private boolean websocketIsEnabled;
 	private boolean dataAppWebsocketIsEnabled;
-	private String uriAuthority;
-	private String uriConnector;
+	private String connectorid;
 			
 	private SelfDescription selfDescription = new SelfDescription();
 	
@@ -109,29 +108,19 @@ public class SelfDescriptionConfiguration {
 		this.selfDescription = selfDescription;
 	}
 	
-	public String getUriAuthority() {
-		return uriAuthority;
-	}
-
-	public void setUriAuthority(String uriAuthority) {
-		this.uriAuthority = uriAuthority;
-	}
-
-	public String getUriConnector() {
-		return uriConnector;
-	}
-
-	public void setUriConnector(String uriConnector) {
-		this.uriConnector = uriConnector;
-	}
-	
 	public boolean isUseHttps() {
 		return useHttps;
 	}
 
+	public void setConnectorid(String connectorid) {
+		this.connectorid = connectorid;
+	}
+
 	public URI getConnectorURI() {
-		String schema = useHttps ? "https:" : "http:";
-		return URI.create(schema + uriAuthority + uriConnector);
+		if(StringUtils.isBlank(connectorid)) {
+			throw new IllegalArgumentException("ConnectorId cannot be blank");
+		}
+		return URI.create(connectorid);
 	}
 	
 	public URI getSenderAgent() {

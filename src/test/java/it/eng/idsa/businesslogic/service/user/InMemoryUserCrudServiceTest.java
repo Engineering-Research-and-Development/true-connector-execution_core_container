@@ -19,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import it.eng.idsa.businesslogic.util.TrueConnectorConstants;
@@ -38,7 +39,7 @@ public class InMemoryUserCrudServiceTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		user = new User(UUID.randomUUID().toString(), "testUsername", "testPassword", TrueConnectorConstants.API_USER_ROLE);
 	}
 	
@@ -51,8 +52,8 @@ public class InMemoryUserCrudServiceTest {
 	
 	@Test
 	public void loadUserByUsername_NotFound() {
-		UserDetails userDetails = userService.loadUserByUsername(user.getUsername());
-		assertNull(userDetails);
+		assertThrows(UsernameNotFoundException.class,
+	                () -> userService.loadUserByUsername(user.getUsername()));
 	}
 	
 	@Test

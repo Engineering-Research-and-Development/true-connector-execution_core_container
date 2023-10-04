@@ -8,6 +8,33 @@ application.selfdescription.filelocation=
 
 The same thing goes for persisting, the Connector will save the document in the location provided by the previous property named self_description.json.
 
+
+Otherwise it will create default Self Description document, from properties (with example default values):
+
+```
+application.connectorid=http://w3id.org/engrd/connector/id
+
+application.selfdescription.description=Data Connector description
+application.selfdescription.title=Data Connector title
+application.selfdescription.curator=http://curatorURI.com
+application.selfdescription.maintainer=http://maintainerURI.com
+application.selfdescription.inboundModelVersion=4.0.0,4.1.0,4.1.2,4.2.0,4.2.1,4.2.2,4.2.3,4.2.4,4.2.5,4.2.6,4.2.7
+
+```
+
+With single offered resource, artifact and contract offer.
+
+Other elements of self description document are calculated based on configuration, like connector endpoint, public key and such.
+
+Cryptographic hash of Connector certificate - calculate from configured DAPS certificate 
+
+Security profile cannot be changed, it is hardcoded in java code (user should not change it freely)
+
+Connector Id - application.connectorid
+
+Default endpoint - calculated based on public IP address of the machine/docker configuration and configured port
+
+
 The Self Description logic can be accessed directly or by using the SwaggerUI
 
 ```

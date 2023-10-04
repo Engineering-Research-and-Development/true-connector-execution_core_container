@@ -43,7 +43,7 @@ public class SenderCreateRegistrationMessageProcessorTest {
 
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		when(exchange.getMessage()).thenReturn(camelMessage);
 	}
 	

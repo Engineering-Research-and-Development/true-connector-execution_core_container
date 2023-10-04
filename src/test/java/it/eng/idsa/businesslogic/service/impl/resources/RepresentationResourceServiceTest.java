@@ -42,7 +42,7 @@ public class RepresentationResourceServiceTest {
 
 	@BeforeEach
 	public void init() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 	}
 	
 	@Test
