@@ -17,6 +17,7 @@ services:
       - DATA_APP_HEALTH_ENDPOINT=${PROVIDER_DATA_APP_HEALTH_ENDPOINT}
       - MULTIPART_EDGE=${PROVIDER_MULTIPART_EDGE}                     #Data APP endpoint multipart/mixed content type
       - MULTIPART_ECC=${MULTIPART_ECC}
+      - CONNECTOR_ID=${PROVIDER_ISSUER_CONNECTOR_URI}
       - IDSCP2=${IDSCP2}
       - WS_EDGE=${PROVIDER_WS_EDGE}
       - WS_ECC=${WS_ECC}
@@ -63,7 +64,8 @@ services:
       - CONTRACT_NEGOTIATION_DEMO=${CONTRACT_NEGOTIATION_DEMO}
     ports:
       - "8183:8183"
-      - "9000:9000"
+    expose:
+      - "9000"
     volumes:
       - ./be-dataapp_resources:/config
       - ./be-dataapp_data_receiver:/home/nobody/data
@@ -86,6 +88,7 @@ services:
       - DATA_APP_HEALTH_ENDPOINT=${CONSUMER_DATA_APP_HEALTH_ENDPOINT}
       - MULTIPART_EDGE=${CONSUMER_MULTIPART_EDGE}                     #Data APP endpoint multipart/mixed content type
       - MULTIPART_ECC=${MULTIPART_ECC}
+      - CONNECTOR_ID=${CONSUMER_ISSUER_CONNECTOR_URI}
       - IDSCP2=${IDSCP2}
       - WS_EDGE=${CONSUMER_WS_EDGE}
       - WS_ECC=${WS_ECC}
@@ -132,7 +135,8 @@ services:
       - CONTRACT_NEGOTIATION_DEMO=${CONTRACT_NEGOTIATION_DEMO}
     ports:
       - "8185:8183"
-      - "9001:9000"
+    expose:
+      - "9000"
     volumes:
       - ./be-dataapp_resources:/config
       - be-dataapp_data_sender:/home/nobody/data

@@ -64,7 +64,7 @@ public class ReceiverUsageControlProcessorTest {
 
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		ReflectionTestUtils.setField(processor, "isEnabledUsageControl", true);
 		ReflectionTestUtils.setField(processor, "usageControlService", usageControlService);
 

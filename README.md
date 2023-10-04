@@ -64,6 +64,39 @@ The ECC supports three different way to exchange data:
 *  **IDSCP2** enabled if *IDSCP2=true* and *WS_INTERNAL=false* (use https on the edge) or *IDSCP2=true* and *WS_INTERNAL=true* (use WS on the edge)
 *  **Web Socket over HTTPS** enabled if *WS_OVER_HTTPS=true* and *IDSCP2=false*
 
+## Firewall <a name="firewall"></a>
+
+Execution Core Container allows setting up HttpFirewall through Spring Security. To turn it on/off, please take a look at following property: 
+
+```
+#Firewall
+application.firewall.isEnabled=true
+```
+
+If firewall is enabled, it will read properties defined in `firewall.properties` file which easily can be modified by needs of setup.
+
+```
+#Set which HTTP header names should be allowed (if want to allow all header names, keep it empty)
+allowedHeaderNames=
+#Set which values in header names should have the exact value and allowed (if want to allow any values keep it empty)
+allowedHeaderValues=
+#Set which HTTP methods should be allowed (if want to allow all header names, keep it empty)
+allowedMethods=GET,POST
+#Set if a backslash "\" or a URL encoded backslash "%5C" should be allowed in the path or not
+allowBackSlash=true
+#Set if a slash "/" that is URL encoded "%2F" should be allowed in the path or not
+allowUrlEncodedSlash=true
+#Set if double slash "//" that is URL encoded "%2F%2F" should be allowed in the path or not
+allowUrlEncodedDoubleSlash=true
+#Set if semicolon is allowed in the URL (i.e. matrix variables)
+allowSemicolon=true
+#Set if a percent "%" that is URL encoded "%25" should be allowed in the path or not
+allowUrlEncodedPercent=true
+#if a period "." that is URL encoded "%2E" should be allowed in the path or not
+allowUrlEncodedPeriod=true
+```
+*IMPORTANT:* If you're not an expert, the strong advice is to keep values at their default values. If you decide to change values, pay special attention to allowHeaderNames and allowHeaderValues, since those set values are exclusive and considered as only values that should be present in the header.
+
 ## How to Test
 The reachability could be verified using the following endpoints:
 *  **http://{IP_ADDRESS}:{HTTP_PUBLIC_PORT}/about/version**

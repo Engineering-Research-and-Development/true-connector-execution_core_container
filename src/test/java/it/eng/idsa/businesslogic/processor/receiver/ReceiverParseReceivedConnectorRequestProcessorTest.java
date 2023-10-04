@@ -51,7 +51,7 @@ public class ReceiverParseReceivedConnectorRequestProcessorTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		when(exchange.getMessage()).thenReturn(message);
 	}
 	

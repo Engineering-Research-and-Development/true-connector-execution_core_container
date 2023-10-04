@@ -39,7 +39,7 @@ public class HttpWebSocketMessagingLogicBTest {
 	
 	@BeforeEach
 	public void init () {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		HttpWebSocketMessagingLogicB.getInstance().setWebSocketServerConfiguration(webSocketServerConfigurationB);
 	}
 	

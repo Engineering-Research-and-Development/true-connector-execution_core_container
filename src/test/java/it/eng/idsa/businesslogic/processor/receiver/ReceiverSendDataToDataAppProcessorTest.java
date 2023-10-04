@@ -61,7 +61,7 @@ public class ReceiverSendDataToDataAppProcessorTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		when(exchange.getMessage()).thenReturn(message);
 		when(message.getBody(MultipartMessage.class)).thenReturn(multipartMessage);
 		when(configuration.getOpenDataAppReceiver()).thenReturn("http://openDataAppReceiver");

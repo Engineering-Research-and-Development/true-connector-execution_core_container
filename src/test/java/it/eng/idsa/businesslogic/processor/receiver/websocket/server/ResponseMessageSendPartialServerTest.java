@@ -40,7 +40,7 @@ public class ResponseMessageSendPartialServerTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		when(webSocketServerConfiguration.responseMessageBufferWebSocket()).thenReturn(responseMessageBuffer);
 		when(session.getRemote()).thenReturn(remote);
 	}

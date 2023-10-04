@@ -48,6 +48,7 @@ import de.fraunhofer.iais.eis.ids.jsonld.Serializer;
 import de.fraunhofer.iais.eis.util.TypedLiteral;
 import de.fraunhofer.iais.eis.util.Util;
 import it.eng.idsa.businesslogic.configuration.SelfDescriptionConfiguration;
+import it.eng.idsa.businesslogic.configuration.ShutdownConnector;
 import it.eng.idsa.businesslogic.service.DapsTokenProviderService;
 import it.eng.idsa.businesslogic.service.SelfDescriptionService;
 import it.eng.idsa.businesslogic.service.resources.SelfDescription;
@@ -72,16 +73,19 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 	private SelfDescriptionManager selfDescriptionManager;
 	private URI issuerConnectorURI;
     private DapsKeystoreProvider keystoreProvider;
+    private ShutdownConnector shutdown;
 
 	public SelfDescriptionServiceImpl(
 			SelfDescriptionConfiguration selfDescriptionConfiguration,	
 			Optional<DapsTokenProviderService> dapsProvider,
 			SelfDescriptionManager selfDescriptionManager,
-			DapsKeystoreProvider keystoreProvider) {
+			DapsKeystoreProvider keystoreProvider,
+			ShutdownConnector shutdown) {
 		this.selfDescriptionConfiguration = selfDescriptionConfiguration;
 		this.dapsProvider = dapsProvider;
 		this.selfDescriptionManager = selfDescriptionManager;
 		this.keystoreProvider = keystoreProvider;
+		this.shutdown = shutdown;
 	}
 
 	@PostConstruct
@@ -91,6 +95,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 		connector = selfDescriptionManager.loadConnector();
 		if(connector == null) {
 			connector = createDefaultSelfDescription();
+			selfDescriptionManager.saveConnector();
 		}
 		logger.info("Done creating self description document.");
 		SelfDescription.getInstance().setBaseConnector(connector);
@@ -99,7 +104,12 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 
 	private Connector createDefaultSelfDescription() {
 		logger.info("Creating default selfDescription from properties");
-		issuerConnectorURI = selfDescriptionConfiguration.getConnectorURI();
+		try {
+			issuerConnectorURI = selfDescriptionConfiguration.getConnectorURI();
+		} catch (IllegalArgumentException e) {
+			logger.error(e.getLocalizedMessage());
+			shutdown.shutdownConnector();
+		}
 		
 		PublicKey publicKey = null;
 		try {
@@ -116,7 +126,7 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 			logger.error("Error while creating PublicKey", e);
 		}
         
-		return new BaseConnectorBuilder(issuerConnectorURI)
+		Connector connector = new BaseConnectorBuilder(issuerConnectorURI)
 				._maintainer_(selfDescriptionConfiguration.getMaintainer())
 				._curator_(selfDescriptionConfiguration.getCurator())
 				._resourceCatalog_(this.getCatalog())
@@ -131,6 +141,8 @@ public class SelfDescriptionServiceImpl implements SelfDescriptionService {
 						.build())
 //				._hasEndpoint_(Util.asList(new ConnectorEndpointBuilder(new URI("https://someURL/incoming-data-channel/receivedMessage")).build()))
 				.build();
+		SelfDescription.getInstance().setBaseConnector(connector);
+		return connector;
 	}
 
 	public Connector getConnector() {

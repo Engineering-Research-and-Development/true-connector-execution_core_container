@@ -38,9 +38,8 @@ public class MessageWebSocketOverHttpSenderTest {
 	private RejectionMessageService rejectionMessageService;
 	@Mock
     private FileStreamingBean fileStreamingBean;
-//	@Mock
+	
 	private ResponseMessageBufferClient responseMessageBufferClient;
-//	@Mock
 	private InputStreamSocketListenerClient inputStreamSocketListenerClient;
 	
 	private ResourceLoader resourceLoader;
@@ -56,7 +55,7 @@ public class MessageWebSocketOverHttpSenderTest {
 	
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		responseMessageBufferClient = new ResponseMessageBufferClient();
 		ReflectionTestUtils.setField(responseMessageBufferClient, "responseMessageIsReceived", true, boolean.class);
 		ReflectionTestUtils.setField(responseMessageBufferClient, "responseMessage", "RESPONSE".getBytes(StandardCharsets.UTF_8));

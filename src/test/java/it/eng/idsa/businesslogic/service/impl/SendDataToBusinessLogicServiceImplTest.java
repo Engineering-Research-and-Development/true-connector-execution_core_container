@@ -74,7 +74,7 @@ public class SendDataToBusinessLogicServiceImplTest {
 	
 	@BeforeEach
 	void init() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		payload = "{\"catalog.offers.0.resourceEndpoints.path\":\"/pet2\"}";
 		headerParts = new HashMap<>();
 		multipartMessage = createMultipartMessage();

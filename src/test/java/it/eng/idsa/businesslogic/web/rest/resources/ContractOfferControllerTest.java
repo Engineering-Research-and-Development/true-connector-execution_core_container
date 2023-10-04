@@ -49,7 +49,7 @@ public class ContractOfferControllerTest {
 	
 	@BeforeEach
 	public void init() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		when(request.getUserPrincipal()).thenReturn(principal);
 		when(principal.getName()).thenReturn("testUser");
 		when(request.getMethod()).thenReturn("POST");

@@ -30,7 +30,7 @@ public class HttpWebSocketListenerServerBTest {
 
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		when(byteBuffer.remaining()).thenReturn(10);
 		HttpWebSocketMessagingLogicB.getInstance().setWebSocketServerConfiguration(webSocketServerConfiguration);
 	}

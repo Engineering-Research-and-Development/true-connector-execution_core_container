@@ -31,7 +31,7 @@ public class MultipartMessageServiceImplTest {
 	
 	@BeforeEach
 	public void setup() throws ConstraintViolationException, URISyntaxException {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		service = new MultipartMessageServiceImpl();
 	}
 	

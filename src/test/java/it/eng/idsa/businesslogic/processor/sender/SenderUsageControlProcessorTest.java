@@ -60,7 +60,7 @@ public class SenderUsageControlProcessorTest {
 
 	@BeforeEach
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		message = UtilMessageService.getArtifactResponseMessage();
 		requestMessage = UtilMessageService.getArtifactRequestMessage();
 		when(exchange.getProperty("Original-Message-Header")).thenReturn(requestMessage);

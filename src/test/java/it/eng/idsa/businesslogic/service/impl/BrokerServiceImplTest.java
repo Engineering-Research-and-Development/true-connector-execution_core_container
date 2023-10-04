@@ -49,7 +49,7 @@ public class BrokerServiceImplTest {
 
 	@BeforeEach
 	public void init() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		brokerServiceImpl = new BrokerServiceImpl(sendDataToBusinessLogicService, Optional.of(dapsTokenProviderService), 
 				multiPartMessageService, rejectionService, "mockBrokerURL");
 		when(dapsTokenProviderService.provideToken())

@@ -40,7 +40,7 @@ public class RejectionMessageServiceImplTest {
 	
 	@BeforeEach
 	public void init() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		when(dapsProvider.getDynamicAtributeToken()).thenReturn(UtilMessageService.getDynamicAttributeToken());
 		when(selfDescriptionConfiguration.getConnectorURI()).thenReturn(URI.create("http://auto-generated"));
 		message = UtilMessageService.getArtifactResponseMessage();

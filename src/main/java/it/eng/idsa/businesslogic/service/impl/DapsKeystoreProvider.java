@@ -9,7 +9,10 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.UUID;
@@ -23,6 +26,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
+import it.eng.idsa.businesslogic.configuration.ShutdownConnector;
+
 @Service
 public class DapsKeystoreProvider {
 
@@ -32,17 +37,17 @@ public class DapsKeystoreProvider {
 	private String keyStorePwd;
 	private String keystoreAlias;
 	private boolean isEnabledDapsInteraction;
-
+	
 	public DapsKeystoreProvider(@Value("${application.targetDirectory}") Path targetDirectory,
 			@Value("${application.keyStoreName}") String dapsKeyStoreName,
 			@Value("${application.keyStorePassword}") String dapsKeyStorePassword,
 			@Value("${application.keystoreAliasName}") String dapsKeystoreAliasName,
-			@Value("${application.isEnabledDapsInteraction}") boolean isEnabledDapsInteraction) {
+			@Value("${application.isEnabledDapsInteraction}") boolean isEnabledDapsInteraction,
+			ShutdownConnector shutdownConnector) {
 
 		this.isEnabledDapsInteraction = isEnabledDapsInteraction;
 		keyStorePwd = dapsKeyStorePassword;
 		keystoreAlias = dapsKeystoreAliasName;
-
 		if (isEnabledDapsInteraction) {
 			InputStream jksKeyStoreInputStream = null;
 			try {
@@ -58,9 +63,15 @@ public class DapsKeystoreProvider {
 				dapsKeystore.load(jksKeyStoreInputStream, dapsKeyStorePassword.toCharArray());
 				KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 				kmf.init(dapsKeystore, dapsKeyStorePassword.toCharArray());
+				if(dapsKeystore.getCertificate(keystoreAlias) == null) {
+					logger.warn("No certificate found for provided alias '{}' - check application.keystoreAliasName property", keystoreAlias);
+					throw new CertificateException("No certificate found for provided alias");
+				}
+				checkCertificateExired(dapsKeystore.getCertificate(keystoreAlias));
 			} catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException
 					| UnrecoverableKeyException e) {
-				logger.error("Error while loading keystore and/or truststore. DAPS interaction will not work.");
+				logger.error("Error while loading keystore and/or truststore. DAPS interaction will not work. \n{}", e.getMessage());
+				shutdownConnector.shutdownConnector();
 			} finally {
 				if (jksKeyStoreInputStream != null) {
 					try {
@@ -78,6 +89,18 @@ public class DapsKeystoreProvider {
 			logger.info("Clearing house Interaction also disabled because of DAPS.");
 			logger.info("**********************************************************************");
 		}
+	}
+
+	private void checkCertificateExired(Certificate certificate) throws CertificateException {
+		if(certificate instanceof X509Certificate) {
+			X509Certificate x509 = (X509Certificate) certificate;
+			try {
+				x509.checkValidity();
+			} catch (CertificateExpiredException | CertificateNotYetValidException e) {
+				throw new CertificateException("Certificate expired"); 
+			}
+		}
+		logger.info("DAPS certificate still valid");
 	}
 
 	public Key getPrivateKey() {
