@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.14.4] - 2023-10-05
+
+### Changed
+
+  - Fix extended validation bug
+
 ## [1.14.3] - 2023-09-12
 
 ### Changed

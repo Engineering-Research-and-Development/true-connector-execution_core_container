@@ -48,7 +48,7 @@ In order to properly configure the extended token validation, there are a few st
 
 1. Clone IDS-Testbed repository from: https://github.com/International-Data-Spaces-Association/IDS-testbed
 
-2. Go to IDS-testbed/CertificateAuthority/data and generate key pair for device certificate (ECC) with the next command:
+2. Go to IDS-testbed/CertificateAuthority and generate key pair for device certificate (ECC) with the next command:
 
 ```
 python pki.py cert create --subCA ReferenceTestbedSubCA --common-name ecc-consumer --algo rsa --bits 2048 --hash sha256 --country-name ES --organization-name SQS --unit-name TestLab --server --client --san-name ecc-consumer
@@ -60,7 +60,7 @@ python pki.py cert create --subCA ReferenceTestbedSubCA --common-name ecc-consum
 openssl pkcs12 -export -out ecc-consumer.p12 -inkey ecc-consumer.key -in ecc-consumer.crt -certfile ReferenceTestbedCA.crt
 
 ```
-For password insert: ***password***, and for alias insert ***1***
+For password insert: ***password***
 
 3. Copy generated p12 file to true-connector/ecc_cert and change next properties in .env file:
 
@@ -71,17 +71,20 @@ CONSUMER_DAPS_KEYSTORE_PASSWORD=password
 CONSUMER_DAPS_KEYSTORE_ALIAS=1
 ```
 
-4. Register new client in DAPS
+4. Import ***ecc-consumer.crt*** to ***truststoreEcc.jks***
 
-4.1. Copy previously generated ecc-consumer.cert in IDS-testbed/DAPS/Keys
+5. Register new client in DAPS
 
-4.2. Go to IDS-testbed/DAPS/ and run the following command which will register ECC as new client in client.yml:
+5.1. Copy previously generated ecc-consumer.cert in IDS-testbed/DAPS/Keys and rename it from ***ecc-consumer.crt*** -> ***ecc-consumer.cert***
+
+5.2. Go to IDS-testbed/DAPS/ and run the following command which will register ECC as new client in client.yml:
 
 ```
 ./register_connector.sh ecc-consumer
 
 ```
 
+**IMPORTANT:** Repeat the same procedure for ECC Provider, and in all places instead of consumer use provider, e.g. ecc-provider.cert, etc.
 
 ## Validate jwToken
 
