@@ -46,15 +46,15 @@ From our example, TLS certificate should be for DNS domain with name *ecc-consum
 
 In order to properly configure the extended token validation, there are a few steps that should be done:
 
-1. Clone IDS-Testbed repository from: https://github.com/International-Data-Spaces-Association/IDS-testbed
+1. Clone some of MVD Certification Authority (e.g. Testbed or any other Testbed based)
 
-2. Go to IDS-testbed/CertificateAuthority and generate key pair for device certificate (ECC) with the next command:
+2. Go to /CertificateAuthority and generate key pair for device certificate (ECC) with the next command:
 
 ```
 python pki.py cert create --subCA ReferenceTestbedSubCA --common-name ecc-consumer --algo rsa --bits 2048 --hash sha256 --country-name ES --organization-name SQS --unit-name TestLab --server --client --san-name ecc-consumer
 ```
 
-2. Go to IDS-testbed/CertificateAuthority/data/cert and generate p12 file which will be used in ECC as DAPS keystore with the following command:
+2. Go to /CertificateAuthority/data/cert and generate p12 file which will be used in ECC as DAPS keystore with the following command:
 
 ```
 openssl pkcs12 -export -out ecc-consumer.p12 -inkey ecc-consumer.key -in ecc-consumer.crt -certfile ReferenceTestbedCA.crt
@@ -77,7 +77,7 @@ CONSUMER_DAPS_KEYSTORE_ALIAS=1
 
 5.1. Copy previously generated ecc-consumer.cert in IDS-testbed/DAPS/Keys and rename it from ***ecc-consumer.crt*** -> ***ecc-consumer.cert***
 
-5.2. Go to IDS-testbed/DAPS/ and run the following command which will register ECC as new client in client.yml:
+5.2. Go to /DAPS/ and run the following command which will register ECC as new client in client.yml:
 
 ```
 ./register_connector.sh ecc-consumer
