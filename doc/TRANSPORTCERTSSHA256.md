@@ -13,7 +13,7 @@ header:
 payload:
 {
   "aud": "idsc:IDS_CONNECTORS_ALL",
-  "iss": "https://daps.aisec.fraunhofer.de",
+  "iss": "https://omejdn/auth,
   "sub": "54:3D:3A:3A:FC:DC:05:AB:88:60:9E:60:36:54keyid:CB:8C:C7:B6:85:79:A8:23:A6:CB:15:AB:17:50",
   "nbf": 1674038398,
   "iat": 1674038398,
@@ -96,6 +96,8 @@ Once confirmed, following command can be executed:
 ```
 
 **IMPORTANT:** Repeat the same procedure for ECC Provider, and in all places instead of consumer use provider, e.g. ecc-provider.cert, etc.
+
+The same steps applies for all other connectors.
 
 ## Validate jwToken
 
