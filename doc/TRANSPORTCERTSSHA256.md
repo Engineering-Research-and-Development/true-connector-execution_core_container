@@ -21,7 +21,7 @@ payload:
   "exp": 1674041998,
   "client_id": "54:3D:3A:3A:FC:DC:05:AB:88:60:9E:60:36:54keyid:CB:8C:C7:B6:85:79:A8:23:A6:CB:15:AB:17:50",
   "securityProfile": "idsc:BASE_SECURITY_PROFILE",
-  "referringConnector": "http://ecc-consumer.demo",
+  "referringConnector": "http://ecc-consumer",
   "@type": "ids:DatPayload",
   "@context": "https://w3id.org/idsa/contexts/context.jsonld",
   "transportCertsSha256": "a3cd813e1510ca64a9da****",
@@ -38,7 +38,7 @@ For extended token validation is that **public keys from connector itself and ot
  - generate hash from certificate, using *MessageDigest* class.
  - use certificate's SubjectAlternativeName and populate map with SAN and hash. This map will later be used to perform extended jwToken validation.
  
-From our example, TLS certificate should be for DNS domain with name *ecc-consumer.demo*, and when hash is calculated from certificate, it should be a3cd813e1510ca64a9da\**\**. Those 2 values will be put in map, like key-pair (ecc-consumer.demo, a3cd813e1510ca64a9da\**\**), that will be used in verify token phase.
+From our example, TLS certificate should be for DNS domain with name *ecc-consumer*, and when hash is calculated from certificate, it should be a3cd813e1510ca64a9da\**\**. Those 2 values will be put in map, like key-pair (ecc-consumer, a3cd813e1510ca64a9da\**\**), that will be used in verify token phase.
 
 **NOTE:** Same certificate should be loaded into DAPS.
 
@@ -54,10 +54,10 @@ In order to properly configure the extended token validation, there are a few st
 python pki.py cert create --subCA ReferenceTestbedSubCA --common-name ecc-consumer --algo rsa --bits 2048 --hash sha256 --country-name ES --organization-name SQS --unit-name TestLab --server --client --san-name ecc-consumer
 ```
 
-2. Go to /CertificateAuthority/data/cert and generate p12 file which will be used in ECC as DAPS keystore with the following command:
+3. Go to /CertificateAuthority/data/cert and generate p12 file which will be used in ECC as DAPS keystore with the following command:
 
 ```
-openssl pkcs12 -export -out ecc-consumer.p12 -inkey ecc-consumer.key -in ecc-consumer.crt -certfile ReferenceTestbedCA.crt
+openssl pkcs12 -export -out ecc-consumer.p12 -inkey ecc-consumer.key -in ecc-consumer.crt -certfile ../ca/ReferenceTestbedCA.crt
 
 ```
 For password insert: ***password***
@@ -75,9 +75,20 @@ CONSUMER_DAPS_KEYSTORE_ALIAS=1
 
 5. Register new client in DAPS
 
+**NOTE** Subject Alternative Name (SAN) which was used in the certificate creation in previous step, MUST match with client name that is used to register certificate/connector to the DAPS in register_connector.sh script.
+
 5.1. Copy previously generated ecc-consumer.cert in IDS-testbed/DAPS/Keys and rename it from ***ecc-consumer.crt*** -> ***ecc-consumer.cert***
 
 5.2. Go to /DAPS/ and run the following command which will register ECC as new client in client.yml:
+
+5.3 Make sure that script (*register_connector.sh*) will not append additional name (like .demo) for referring connector
+
+```
+  - key: referringConnector
+    value: http://${CLIENT_NAME}.demo
+```
+
+Once confirmed, following command can be executed:
 
 ```
 ./register_connector.sh ecc-consumer
@@ -103,13 +114,13 @@ application.extendedTokenValidation=true
 
  
 Extended validation will do the following:
- - get *referringConnector* claim (in our example - "http://ecc-consumer.demo")
+ - get *referringConnector* claim (in our example - "http://ecc-consumer")
  - get *transportCertsSha256* (in our example - "a3cd813e1510ca64a9da****")
  - check if map contains same hash value for referringConnector
  
  In our example, map should contain key-pair like following (populated in startup phase):
  
- (ecc-consumer.demo, a3cd813e1510ca64a9da****)
+ (ecc-consumer, a3cd813e1510ca64a9da****)
  
  If this evaluates as true, token is valid, otherwise, token is not valid.
 
