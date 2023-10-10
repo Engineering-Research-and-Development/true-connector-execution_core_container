@@ -1,5 +1,21 @@
 # Securing Connector Endpoints
 
+Security in Basic DataApp is implemented via Spring Security mechanism. This framework is responsible for login user and also for response headers.
+
+SpringSecurity:
+
+```
+.headers().xssProtection().and().contentTypeOptions().and().frameOptions().sameOrigin()
+```
+
+Example for the response headers are:
+
+```
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+X-Frame-Options: SAMEORIGIN
+```
 
 Execution Core Container (and TRUE Connector) has implemented basic security mechanisms for all "public" endpoints (those endpoints that will be reached from outside world).
 

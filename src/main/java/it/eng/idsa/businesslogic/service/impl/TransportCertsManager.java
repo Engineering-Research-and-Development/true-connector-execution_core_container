@@ -40,10 +40,15 @@ public class TransportCertsManager {
 	public TransportCertsManager(TLSProvider tlsProvider) {
 		this.tlsProvider = tlsProvider;
 		populateTransportCertsSha();
+		setConnectorTransportCertSha();
 	}
 
 	public String getConnectorTransportCertsSha() {
 		return this.connectorTransportCertSha;
+	}
+
+	private void setConnectorTransportCertSha() {
+		this.connectorTransportCertSha = getCertificateDigest(tlsProvider.getTLSKeystoreCertificate());
 	}
 
 	public boolean isTransportCertValid(String connectorId, String transportCert) {
