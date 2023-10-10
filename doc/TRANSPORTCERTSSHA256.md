@@ -33,14 +33,12 @@ payload:
 
 ## Prerequisite
 
-For extended token validation is that **public keys from connector itself and other connectors MUST be loaded into truststore.** Reason for this is that TRUE Connector will, during startup:
+For extended token validation **public keys from connector itself and other connectors MUST be loaded into truststore.** Reason for this is that TRUE Connector will, during startup:
  - load all certificates from truststore
  - generate hash from certificate, using *MessageDigest* class.
  - use certificate's SubjectAlternativeName and populate map with SAN and hash. This map will later be used to perform extended jwToken validation.
  
 From our example, TLS certificate should be for DNS domain with name *ecc-consumer*, and when hash is calculated from certificate, it should be a3cd813e1510ca64a9da\**\**. Those 2 values will be put in map, like key-pair (ecc-consumer, a3cd813e1510ca64a9da\**\**), that will be used in verify token phase.
-
-**NOTE:** Same certificate should be loaded into DAPS.
 
 ### Setup and configure ECC and DAPS for extended token validation from scratch
 
@@ -62,7 +60,7 @@ openssl pkcs12 -export -out ecc-consumer.p12 -inkey ecc-consumer.key -in ecc-con
 ```
 For password insert: ***password***
 
-3. Copy generated p12 file to true-connector/ecc_cert and change next properties in .env file:
+4. Copy generated p12 file to true-connector/ecc_cert and change next properties in .env file:
 
 ```
 ### CONSUMER Configuration
@@ -71,21 +69,21 @@ CONSUMER_DAPS_KEYSTORE_PASSWORD=password
 CONSUMER_DAPS_KEYSTORE_ALIAS=1
 ```
 
-4. Import ***ecc-consumer.crt*** to ***truststoreEcc.jks***
+5. Import ***ecc-consumer.crt*** to ***truststoreEcc.jks***
 
-5. Register new client in DAPS
+6. Register new connector in DAPS
 
 **NOTE** Subject Alternative Name (SAN) which was used in the certificate creation in previous step, MUST match with client name that is used to register certificate/connector to the DAPS in register_connector.sh script.
 
-5.1. Copy previously generated ecc-consumer.cert in IDS-testbed/DAPS/Keys and rename it from ***ecc-consumer.crt*** -> ***ecc-consumer.cert***
+6.1. Copy previously generated ecc-consumer.cert in IDS-testbed/DAPS/Keys and rename it from ***ecc-consumer.crt*** -> ***ecc-consumer.cert***
 
-5.2. Go to /DAPS/ and run the following command which will register ECC as new client in client.yml:
+6.2. Go to /DAPS/ and run the following command which will register ECC as new client in client.yml:
 
-5.3 Make sure that script (*register_connector.sh*) will not append additional name (like .demo) for referring connector
+6.3 Make sure that script (*register_connector.sh*) will not append additional name (like .demo) for referring connector
 
 ```
   - key: referringConnector
-    value: http://${CLIENT_NAME}.demo
+    value: http://${CLIENT_NAME}
 ```
 
 Once confirmed, following command can be executed:
@@ -117,7 +115,7 @@ application.extendedTokenValidation=true
  
 Extended validation will do the following:
  - get *referringConnector* claim (in our example - "http://ecc-consumer")
- - get *transportCertsSha256* (in our example - "a3cd813e1510ca64a9da****")
+ - get *transportCertsSha256* (in our example - "a3cd813e1510ca64a9da****") - this one will require TLS certificate loaded previously in truststore, like stated at the begining of this document (this is mandatory also for TLS communication and enabling https traffic)
  - check if map contains same hash value for referringConnector
  
  In our example, map should contain key-pair like following (populated in startup phase):
