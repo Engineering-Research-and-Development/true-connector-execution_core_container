@@ -5,7 +5,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.5.14</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>it.eng.idsa</groupId>
 	<artifactId>true-connector-execution_core_container</artifactId>
@@ -20,7 +20,7 @@
 		<tomcat.version>9.0.76</tomcat.version>
 		<application.basedir>${basedir}</application.basedir>
 		<multipart.message.processor.version>1.0.17</multipart.message.processor.version>
-		<idscp2.libraries.version>0.5.2</idscp2.libraries.version>
+		<idscp2.libraries.version>0.10.0</idscp2.libraries.version>
 		<jacoco.version>0.8.8</jacoco.version>
 	</properties>
 
