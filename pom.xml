@@ -5,7 +5,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.5.14</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>it.eng.idsa</groupId>
 	<artifactId>true-connector-execution_core_container</artifactId>
@@ -310,7 +310,7 @@
         <dependency>
             <artifactId>logback-classic</artifactId>
             <groupId>ch.qos.logback</groupId>
-	    <version>1.2.7</version>
+	    <version>1.4.11</version>
         </dependency>
         <dependency>
             <groupId>net.logstash.logback</groupId>
