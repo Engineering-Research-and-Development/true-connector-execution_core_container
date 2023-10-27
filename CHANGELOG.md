@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.14.5] - 2023-10-30
+
+### Changed
+
+ - CertificationCheck now uses Cosign to verify if running version is signed
+
+### Added
+
+ - new property application.selfdescription.defaultEndpoint - used for custom URI where connector self-description is exposed
+
 ## [1.14.4] - 2023-10-05
 
 ### Changed
