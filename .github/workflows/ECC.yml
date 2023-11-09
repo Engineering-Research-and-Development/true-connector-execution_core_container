@@ -23,6 +23,8 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
+      - name: Install maven dependencies
+        run: ./ci/mavenDependency.sh      
       - name: Build with Maven
         run: mvn clean package
       - name: Run Creating Docker Image from ECC repo
