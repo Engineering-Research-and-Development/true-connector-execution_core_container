@@ -18,8 +18,3 @@ sudo chmod +x /usr/local/bin/docker-compose
 echo "docker-compose correctly installed"
 
 sudo docker system prune --volumes -f
-
-mkdir -p $HOME/.m2/de
-
-cp -f ./ci/.m2/settings/settings.xml  $HOME/.m2
-cp -f ./ci/.m2/de/*  $HOME/.m2/de/

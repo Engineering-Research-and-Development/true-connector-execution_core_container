@@ -5,7 +5,7 @@
 		  <id>insecure-repo</id>
 		  <mirrorOf>external:http:*</mirrorOf>
 		  <url>http://maven.iais.fraunhofer.de/artifactory/eis-ids-public</url>
-		  <blocked>false</blocked>
+		  <blocked>true</blocked>
 		</mirror>
 	</mirrors>
 	<servers>
