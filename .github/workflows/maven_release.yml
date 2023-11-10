@@ -33,7 +33,7 @@ jobs:
         ssh-private-key: ${{ secrets.SSH_KEY }}
     
     - name: Install maven dependencies
-        run: ./ci/mavenDependency.sh      
+      run: ./ci/mavenDependency.sh      
        
     - name: Release with Maven
       env:
