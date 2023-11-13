@@ -11,6 +11,12 @@
 	</mirrors>
 	-->
 	<servers>
+	    <server>
+            <id>snapshots</id>
+            <configuration>
+                <timeout>5000</timeout>
+            </configuration>
+        </server>
 		<server>
 			<id>github</id> 
 			<username>Engineering-Research-and-Development</username>
