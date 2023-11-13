@@ -19,17 +19,18 @@ import it.eng.idsa.businesslogic.service.ProcessExecutor;
 @Configuration
 @ConfigurationProperties(prefix = "application")
 public class SelfDescriptionConfiguration {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(SelfDescriptionConfiguration.class);
-	
+
 	public static final String SELF_DESCRIPTION_FILE_NAME = "self_description.json";
 
 	@Value("${server.ssl.enabled}")
 	private boolean useHttps;
-	
+	@Value("${application.selfdescription.defaultEndpoint}")
+	private String defaultEndpoint;
 	@Autowired
 	private ProcessExecutor processExecutor;
-	
+
 	@Value("${server.port}")
 	private String serverPort;
 
@@ -41,9 +42,9 @@ public class SelfDescriptionConfiguration {
 	private boolean websocketIsEnabled;
 	private boolean dataAppWebsocketIsEnabled;
 	private String connectorid;
-			
+
 	private SelfDescription selfDescription = new SelfDescription();
-	
+
 	public int getCamelSenderPort() {
 		return camelSenderPort;
 	}
@@ -103,11 +104,11 @@ public class SelfDescriptionConfiguration {
 	public SelfDescription getSelfDescription() {
 		return selfDescription;
 	}
-	
+
 	public void setSelfDescription(SelfDescription selfDescription) {
 		this.selfDescription = selfDescription;
 	}
-	
+
 	public boolean isUseHttps() {
 		return useHttps;
 	}
@@ -117,28 +118,32 @@ public class SelfDescriptionConfiguration {
 	}
 
 	public URI getConnectorURI() {
-		if(StringUtils.isBlank(connectorid)) {
+		if (StringUtils.isBlank(connectorid)) {
 			throw new IllegalArgumentException("ConnectorId cannot be blank");
 		}
 		return URI.create(connectorid);
 	}
-	
+
 	public URI getSenderAgent() {
 		return URI.create("http://senderAgentURI.com");
 	}
-	
+
 	public URI getDefaultEndpoint() {
-		String schema = useHttps ? "https" : "http";
-		String port = System.getenv("PUBLIC_PORT");
-		if(StringUtils.isEmpty(port)) {
-			port = serverPort;
+		if (!StringUtils.isBlank(defaultEndpoint)) {
+			return URI.create(defaultEndpoint);
+		} else {
+			String schema = useHttps ? "https" : "http";
+			String port = System.getenv("PUBLIC_PORT");
+			if (StringUtils.isEmpty(port)) {
+				port = serverPort;
+			}
+			return URI.create(schema + "://" + getPublicIpAddress() + ":" + serverPort + "/");
 		}
-		return URI.create(schema + "://" + getPublicIpAddress() + ":" + serverPort + "/");
 	}
-	
+
 	private String getPublicIpAddress() {
 		String ipAddress = null;
-		if(System.getProperty("os.name").toLowerCase().contains("win")) {
+		if (System.getProperty("os.name").toLowerCase().contains("win")) {
 			logger.info("Running on windows - no curl command, using InetAddress");
 			try {
 				ipAddress = InetAddress.getLocalHost().getHostAddress();
@@ -150,35 +155,35 @@ public class SelfDescriptionConfiguration {
 			cmdList.add("/bin/sh");
 			cmdList.add("-c");
 			cmdList.add(" wget -qO - http://ipinfo.io/ip");
-			
+
 			ipAddress = processExecutor.executeProcess(cmdList);
 		}
 		return ipAddress;
 	}
-	
+
 	/*
 	 * Shorthand methods to expose self description data
 	 */
 	public String getDescription() {
 		return this.selfDescription.getDescription();
 	}
-	
+
 	public String getTitle() {
 		return this.selfDescription.getTitle();
 	}
-	
+
 	public URI getMaintainer() {
 		return this.selfDescription.getMaintainer();
 	}
-	
+
 	public URI getCurator() {
 		return this.selfDescription.getCurator();
 	}
-	
+
 	public String getFileLocation() {
 		return this.selfDescription.getFilelocation();
 	}
-	
+
 	public static class SelfDescription {
 		private String description;
 		private String title;
@@ -186,7 +191,7 @@ public class SelfDescriptionConfiguration {
 		private URI curator;
 		private String filelocation;
 		private String inboundModelVersion;
-		
+
 		public String getDescription() {
 			return description;
 		}
@@ -218,7 +223,7 @@ public class SelfDescriptionConfiguration {
 		public void setCurator(URI curator) {
 			this.curator = curator;
 		}
-		
+
 		public String getFilelocation() {
 			return filelocation;
 		}
@@ -226,9 +231,11 @@ public class SelfDescriptionConfiguration {
 		public void setFilelocation(String filelocation) {
 			this.filelocation = filelocation;
 		}
+
 		public String getInboundModelVersion() {
 			return inboundModelVersion;
 		}
+
 		public void setInboundModelVersion(String inboundModelVersion) {
 			this.inboundModelVersion = inboundModelVersion;
 		}

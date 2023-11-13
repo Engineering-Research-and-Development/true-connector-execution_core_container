@@ -6,7 +6,7 @@ FROM eclipse-temurin:11-jre-alpine
 # Add Maintainer Info
 LABEL maintainer="gabriele.deluca@eng.it"
 
-RUN apk add --no-cache wget openssl curl
+RUN apk add --no-cache wget openssl curl cosign
 #RUN  apt-get update \
 #  && apt-get install -y wget \
 #  && rm -rf /var/lib/apt/lists/
