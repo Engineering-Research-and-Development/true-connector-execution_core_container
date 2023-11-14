@@ -6,12 +6,12 @@ FROM eclipse-temurin:11-jre-alpine
 # Add Maintainer Info
 LABEL maintainer="gabriele.deluca@eng.it"
 
-RUN apk add --no-cache wget openssl curl
+RUN apk add --no-cache wget openssl curl cosign
 #RUN  apt-get update \
 #  && apt-get install -y wget \
 #  && rm -rf /var/lib/apt/lists/
 
-RUN mkdir -p /home/nobody/data/sd && mkdir -p /home/nobody/data/log/ecc
+RUN mkdir -p /home/nobody/data/sd && mkdir -p /home/nobody/data/log/ecc && mkdir -p /.sigstore
 
 
 WORKDIR /home/nobody
@@ -22,7 +22,7 @@ COPY target/dependency-jars /home/nobody/app/dependency-jars
 # Add the application's jar to the container
 ADD target/application.jar /home/nobody/app/application.jar
 
-RUN chown -R nobody:nogroup /home/nobody
+RUN chown -R nobody:nogroup /home/nobody && chown -R nobody:nogroup /.sigstore 
 
 USER 65534
 

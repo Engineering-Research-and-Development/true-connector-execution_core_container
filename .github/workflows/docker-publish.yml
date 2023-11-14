@@ -21,7 +21,8 @@ jobs:
       with:
         java-version: '11'
         distribution: 'temurin'
-        cache: maven
+    - name: Install maven dependencies
+      run: ./ci/mavenDependency.sh      
     - name: Build with Maven
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

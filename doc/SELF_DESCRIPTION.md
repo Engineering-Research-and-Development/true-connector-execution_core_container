@@ -17,9 +17,8 @@ application.connectorid=http://w3id.org/engrd/connector/id
 application.selfdescription.description=Data Connector description
 application.selfdescription.title=Data Connector title
 application.selfdescription.curator=http://curatorURI.com
-application.selfdescription.maintainer=http://maintainerURI.com
-application.selfdescription.inboundModelVersion=4.0.0,4.1.0,4.1.2,4.2.0,4.2.1,4.2.2,4.2.3,4.2.4,4.2.5,4.2.6,4.2.7
-
+application.selfdescription.maintainer=http://maintainerURI.comapplication.selfdescription.inboundModelVersion=4.0.0,4.1.0,4.1.2,4.2.0,4.2.1,4.2.2,4.2.3,4.2.4,4.2.5,4.2.6,4.2.7
+application.selfdescription.defaultEndpoint=
 ```
 
 With single offered resource, artifact and contract offer.
@@ -32,7 +31,7 @@ Security profile cannot be changed, it is hardcoded in java code (user should no
 
 Connector Id - application.connectorid
 
-Default endpoint - calculated based on public IP address of the machine/docker configuration and configured port
+Default endpoint - application.selfDescription.defualtEndpoint - if property value is empty, it is calculated based on public IP address of the machine/docker configuration and configured port
 
 
 The Self Description logic can be accessed directly or by using the SwaggerUI
