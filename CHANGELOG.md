@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.14.6] - 2023-11-16
+
+### Changed
+
+ - cosign version upgrade with alpine image; must include --insecure-ignore-tlog flag
+
 ## [1.14.5] - 2023-10-30
 
 ### Changed
