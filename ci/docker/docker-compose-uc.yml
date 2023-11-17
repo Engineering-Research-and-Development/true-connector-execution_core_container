@@ -60,7 +60,7 @@ services:
     expose:
       - "8180"
     volumes:
-      - ./uc-dataapp_resources_provider:/etc
+      - ./uc-dataapp_resources_provider:/config
       - uc_provider_data:/data
       - ./ecc_cert:/cert
 
@@ -150,7 +150,7 @@ services:
     expose:
       - "8280"
     volumes:
-      - ./uc-dataapp_resources_consumer:/etc
+      - ./uc-dataapp_resources_consumer:/config
       - uc_consumer_data:/data
       - ./ecc_cert:/cert
 
