@@ -68,6 +68,7 @@ In the example, the property `user.list` is a list with each item separated by a
 /notification/password/{new_password}
 ```
 
+Using this endpoint, it is guaranteed that the password strength rules configured in the `application.properties` file will be enforced.
 
 Bare in mind that this endpoint is password protected, and you will have to provide existing credentials in order for TRUE Connector to generate new hash that matches with the value passed in URL, so the general advice is to keep `apiUser` as a kind of administrator account. Once new hash is returned, you can modify properties file and set new password for specific user.
 
