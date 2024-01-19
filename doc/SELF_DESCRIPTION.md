@@ -46,13 +46,24 @@ All endpoints after /api/** are protected and you will have to provide credentia
 
 ![Basic Auth](basic_auth.jpg?raw=true "Basic Authorization for api endpoints")
 
-Credentials are located in property file, and for now, there is only one user:
+
+For storing user credentials, simple in memory user storage solution is implemented, and all user credentials can be found in `users.properties` file.
+
 
 ```
-application.user.api.username=apiUser
-application.user.api.password=encoded_password
+# List of users
+users.list=apiUser,alice
 
+# Credentials for each user
+# encoded - password
+apiUser.password=$2a$10$MQ5grDaIqDpBjMlG78PFduv.AMRe9cs0CNm/V4cgUubrqdGTFCH3m
+# encoded - passwordAlice
+alice.password=$2a$12$xeiemEk5ycerfxq7440ieeTUmZ3EK65hwXwM.NQu.1Y29xbpOMVyq
 ```
+
+
+In the example, the property `user.list` is a list with each item separated by a comma (,) without space. You need to enter all the users you want and then give each one a specific password, which must be BCrypt encoded, you can use the next [link](https://bcrypt-generator.com/) to get encoded value.
+
 
 There is also mechanism to lock user after configured number of consecutive failed attempts from same IP address. Following functionality can be configured by changing:
 

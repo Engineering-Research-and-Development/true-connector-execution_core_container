@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.14.7] - 2024-01-18
+
+### Added
+
+ - Simple user management
+
 ## [1.14.6] - 2023-11-16
 
 ### Changed
