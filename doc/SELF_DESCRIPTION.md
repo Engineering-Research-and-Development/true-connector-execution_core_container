@@ -62,7 +62,15 @@ alice.password=$2a$12$xeiemEk5ycerfxq7440ieeTUmZ3EK65hwXwM.NQu.1Y29xbpOMVyq
 ```
 
 
-In the example, the property `user.list` is a list with each item separated by a comma (,) without space. You need to enter all the users you want and then give each one a specific password, which must be BCrypt encoded, you can use the next [link](https://bcrypt-generator.com/) to get encoded value.
+In the example, the property `user.list` is a list with each item separated by a comma (,) without space. You need to enter all the users you want and then give each one a specific password, which must be BCrypt encoded. Getting password can be done via following endpoint:
+
+```
+/notification/password/{new_password}
+```
+
+
+Bare in mind that this endpoint is password protected, and you will have to provide existing credentials in order for TRUE Connector to generate new hash that matches with the value passed in URL, so the general advice is to keep `apiUser` as a kind of administrator account. Once new hash is returned, you can modify properties file and set new password for specific user.
+
 
 
 There is also mechanism to lock user after configured number of consecutive failed attempts from same IP address. Following functionality can be configured by changing:
