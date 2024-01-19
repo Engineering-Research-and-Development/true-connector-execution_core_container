@@ -1,7 +1,5 @@
 package it.eng.idsa.businesslogic.listener;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,23 +15,17 @@ import it.eng.idsa.businesslogic.service.user.User;
 public class AuthenticationSuccessEventListener implements ApplicationListener<AuthenticationSuccessEvent> {
 
 	private static final Logger logger = LoggerFactory.getLogger(AuthenticationSuccessEventListener.class);
-	
+
 	@Autowired
-    private HttpServletRequest request;
-	 @Autowired
-    private LoginAttemptService loginAttemptService;
+	private LoginAttemptService loginAttemptService;
 
 	@Override
 	public void onApplicationEvent(AuthenticationSuccessEvent event) {
 		UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) event.getSource();
 		User user = (User) token.getPrincipal();
-		logger.info("Successful login for user: " + user.getUsername());		
-		final String xfHeader = request.getHeader("X-Forwarded-For");
-		if (xfHeader == null) {
-            loginAttemptService.loginSucceeded(request.getRemoteAddr());
-        } else {
-            loginAttemptService.loginSucceeded(xfHeader.split(",")[0]);
-        }
-	}
 
+		logger.info("Successful login for user: " + user.getUsername());
+
+		loginAttemptService.loginSucceeded(user.getUsername());
+	}
 }
