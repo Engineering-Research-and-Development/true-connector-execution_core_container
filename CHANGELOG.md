@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [1.14.7] - 2024-01-18
+## [1.14.7] - 2024-01-19
 
 ### Added
 
