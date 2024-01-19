@@ -5,7 +5,6 @@ import static net.logstash.logback.argument.StructuredArguments.keyValue;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.audit.listener.AuditApplicationEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -28,8 +27,7 @@ public class LoggingAuditEventListener {
 
 	private EventTypeHandler eventTypeHandler;
 
-	public LoggingAuditEventListener(EventTypeHandler eventTypeHandler,
-			@Value("${application.isReceiver}") boolean isConnectorReceiver) {
+	public LoggingAuditEventListener(EventTypeHandler eventTypeHandler) {
 		this.eventTypeHandler = eventTypeHandler;
 	}
 
@@ -41,7 +39,7 @@ public class LoggingAuditEventListener {
 			return;
 		}
 
-		LOGGER.info("An Audit Event was received", keyValue("event", event.getAuditEvent()));
+		LOGGER.info("Audit Event: {}", keyValue("event", event.getAuditEvent()));
 
 	}
 
@@ -53,7 +51,7 @@ public class LoggingAuditEventListener {
 			return;
 		}
 
-		LOGGER.info("TrueConnector Audit Event was received", keyValue("event", event.getAuditEvent()));
+		LOGGER.info("TrueConnector Audit Event: {}", keyValue("event", event.getAuditEvent()));
 
 	}
 
@@ -66,18 +64,18 @@ public class LoggingAuditEventListener {
 		}
 		if (abstractEvent instanceof AuthorizationFailureEvent) {
 			AuthorizationFailureEvent event = (AuthorizationFailureEvent) abstractEvent;
-			LOGGER.error("Failure authorization event was received: {}", keyValue("event", event.getSource()));
+			LOGGER.error("Failure authorization event: {}", keyValue("event", event.getSource()));
 
 		}
 		if (abstractEvent instanceof AuthorizedEvent) {
 			AuthorizedEvent event = (AuthorizedEvent) abstractEvent;
-			LOGGER.info("Succesfull autorization event was received: {}", keyValue("event", event.getSource()));
+			LOGGER.info("Succesfull autorization event: {}", keyValue("event", event.getSource()));
 
 		}
 		if (abstractEvent.getSource() instanceof FilterInvocation) {
 			FilterInvocation filterInvocation = (FilterInvocation) abstractEvent.getSource();
-			LOGGER.info("Filter invocation event was received: Filter: {}, Event:  {}",
-					filterInvocation.getRequestUrl(), keyValue("event", abstractEvent.getSource()));
+			LOGGER.info("Filter invocation event: Filter: {}, Event:  {}", filterInvocation.getRequestUrl(),
+					keyValue("event", abstractEvent.getSource()));
 		}
 	}
 
@@ -90,18 +88,18 @@ public class LoggingAuditEventListener {
 		}
 		if (abstractEvent instanceof AuthenticationFailureBadCredentialsEvent) {
 			AuthenticationFailureBadCredentialsEvent event = (AuthenticationFailureBadCredentialsEvent) abstractEvent;
-			LOGGER.error("Failure login event was received: {}", keyValue("event", event.getSource()));
+			LOGGER.error("Failure login event: {}", keyValue("event", event.getSource()));
 
 		}
 		if (abstractEvent instanceof AuthenticationSuccessEvent) {
 			AuthenticationSuccessEvent event = (AuthenticationSuccessEvent) abstractEvent;
-			LOGGER.info("Succesfull login event was received: {}", keyValue("event", event.getSource()));
+			LOGGER.info("Succesful login event: {}", keyValue("event", event.getSource()));
 
 		}
 		if (abstractEvent.getSource() instanceof FilterInvocation) {
 			FilterInvocation filterInvocation = (FilterInvocation) abstractEvent.getSource();
-			LOGGER.info("Filter invocation event was received: Filter: {}, Event:  {}",
-					filterInvocation.getRequestUrl(), keyValue("event", abstractEvent.getSource()));
+			LOGGER.info("Filter invocation event: Filter: {}, Event:  {}", filterInvocation.getRequestUrl(),
+					keyValue("event", abstractEvent.getSource()));
 		}
 	}
 }

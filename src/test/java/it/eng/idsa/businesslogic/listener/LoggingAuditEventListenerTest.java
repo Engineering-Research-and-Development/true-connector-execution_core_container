@@ -38,7 +38,7 @@ public class LoggingAuditEventListenerTest {
 		eventTypeHandler = mock(EventTypeHandler.class);
 		authentication = mock(Authentication.class);
 		filterInvocation = mock(FilterInvocation.class);
-		listener = new LoggingAuditEventListener(eventTypeHandler, false);
+		listener = new LoggingAuditEventListener(eventTypeHandler);
 		when(eventTypeHandler.shouldAuditEvent(any())).thenReturn(true);
 	}
 	
