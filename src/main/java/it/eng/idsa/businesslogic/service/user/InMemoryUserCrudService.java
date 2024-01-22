@@ -27,19 +27,23 @@ import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
 import it.eng.idsa.businesslogic.util.TrueConnectorConstants;
 
 @Service
-@DependsOn({"encoder"})
+@DependsOn({ "encoder" })
 public class InMemoryUserCrudService implements TrueConnectorUserDetailsService {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(InMemoryUserCrudService.class);
-	
+
 	@Autowired
 	private ApplicationEventPublisher publisher;
+
 	@Autowired
 	private UserConfiguration userConfiguration;
+
 	@Autowired
 	private LoginAttemptService loginAttemptService;
+
 	@Autowired
-    private HttpServletRequest request;
+	private HttpServletRequest request;
+
 	@Autowired
 	private PasswordEncoder encoder;
 
@@ -47,25 +51,26 @@ public class InMemoryUserCrudService implements TrueConnectorUserDetailsService 
 
 	@PostConstruct
 	public void setup() {
-		users.put(userConfiguration.getApiUser().getUsername(), new User(UUID.randomUUID().toString(), 
-				userConfiguration.getApiUser().getUsername(), userConfiguration.getApiUser().getPassword(), TrueConnectorConstants.API_USER_ROLE));
+		userConfiguration.getUserCredentials().keySet().forEach(user -> {
+			users.put(user, new User(UUID.randomUUID().toString(), user, userConfiguration.getPasswordForUser(user),
+					TrueConnectorConstants.API_USER_ROLE));
+		});
 	}
-	
+
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		String ip = getClientIP();
-		if (loginAttemptService.isBlocked(ip)) {
+
+		if (loginAttemptService.isBlocked(username)) {
 			logger.info("User '{}' is blocked!", username);
-			publisher.publishEvent(new TrueConnectorEvent(request, TrueConnectorEventType.USER_BLOCKED));
+			publisher.publishEvent(new TrueConnectorEvent(request, username, TrueConnectorEventType.USER_BLOCKED));
 			throw new RuntimeException("blocked");
 		}
 		return findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
 	}
-	
+
 	@Override
 	public UserDetails loadCamelUserByUsername(String username) {
-		return findByUsername(username)
-				.orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
+		return findByUsername(username).orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
 	}
 
 	public User save(User user) {
@@ -81,21 +86,13 @@ public class InMemoryUserCrudService implements TrueConnectorUserDetailsService 
 	}
 
 	public Optional<User> findByUsernameAndPassword(String username, String password) {
-		String ip = getClientIP();
-		if (loginAttemptService.isBlocked(ip)) {
+
+		if (loginAttemptService.isBlocked(username)) {
 			logger.info("User '{}' is blocked!", username);
 			throw new RuntimeException("blocked");
 		}
-		return users.values().stream().filter(u -> Objects.equals(username, u.getUsername()) 
-				&& (encoder.matches(password, u.getPassword())))
+		return users.values().stream()
+				.filter(u -> Objects.equals(username, u.getUsername()) && (encoder.matches(password, u.getPassword())))
 				.findFirst();
-	}
-
-	private String getClientIP() {
-	    String xfHeader = request.getHeader("X-Forwarded-For");
-	    if (xfHeader == null){
-	        return request.getRemoteAddr();
-	    }
-	    return xfHeader.split(",")[0];
 	}
 }

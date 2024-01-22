@@ -27,6 +27,13 @@ public class User implements UserDetails {
 		this.role = role;
 	}
 	
+	User(final String id, final String username, final String password) {
+		super();
+		this.id = requireNonNull(id);
+		this.username = requireNonNull(username);
+		this.password = requireNonNull(password);
+	}
+	
 	public String getId() {
 		return id;
 	}
