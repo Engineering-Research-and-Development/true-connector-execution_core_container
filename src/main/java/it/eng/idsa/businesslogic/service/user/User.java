@@ -26,14 +26,14 @@ public class User implements UserDetails {
 		this.password = requireNonNull(password);
 		this.role = role;
 	}
-	
+
 	User(final String id, final String username, final String password) {
 		super();
 		this.id = requireNonNull(id);
 		this.username = requireNonNull(username);
 		this.password = requireNonNull(password);
 	}
-	
+
 	public String getId() {
 		return id;
 	}
@@ -41,8 +41,8 @@ public class User implements UserDetails {
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
-        return authorities;
+		authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+		return authorities;
 	}
 
 	@Override
@@ -73,6 +73,14 @@ public class User implements UserDetails {
 	@Override
 	public boolean isEnabled() {
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "User{" + "id='" + id + '\'' + ", username='" + username + '\'' + ", password='"
+				+ (password != null && !password.isEmpty() ? "[PROTECTED]" : "[NOT SET]") + '\'' + ", role='" + role
+				+ '\'' + ", accountNonExpired=" + isAccountNonExpired() + ", accountNonLocked=" + isAccountNonLocked()
+				+ ", credentialsNonExpired=" + isCredentialsNonExpired() + ", enabled=" + isEnabled() + '}';
 	}
 
 }
