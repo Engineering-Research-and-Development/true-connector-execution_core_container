@@ -1,6 +1,21 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.14.8] - 2024-02-14
+
+### Added
+
+ - Audit logs stored in database
+ - New endpoint for fetching audit events
+
+### Changed
+
+ - Using JFrog for IDS dependency management
+ 
+### Removed
+
+ - Audit events are not stored into file with this change but in DB onlys
+
 ## [1.14.7] - 2024-01-19
 
 ### Added

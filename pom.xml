@@ -24,11 +24,11 @@
 		<jacoco.version>0.8.8</jacoco.version>
 	</properties>
 	<repositories>
-		<!--         <repository> -->
-		<!--             <id>snapshots</id> -->
-		<!--             <name>maven-snapshots</name> -->
-		<!--             <url>https://maven.iais.fraunhofer.de/artifactory/eis-ids-public</url> -->
-		<!--         </repository> -->
+        <repository>
+            <id>snapshots</id>
+            <name>maven-snapshots</name>
+            <url>https://jfrog.iais.fraunhofer.de/artifactory/public</url>
+        </repository>
 		<repository>
 			<id>github</id>
 			<url>
@@ -409,6 +409,12 @@
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+       <!-- Posgres Database -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+		<!--   <version>42.2.5</version> -->
+        </dependency>
 	</dependencies>
 	<build>
 		<resources>

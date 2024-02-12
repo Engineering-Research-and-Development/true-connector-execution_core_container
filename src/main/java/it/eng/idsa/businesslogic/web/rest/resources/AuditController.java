@@ -3,11 +3,14 @@ package it.eng.idsa.businesslogic.web.rest.resources;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -51,4 +54,11 @@ public class AuditController {
 			return ResponseEntity.ok(auditService.getAllAuditEvents());
 		}
 	}
+	
+	 @ExceptionHandler(IllegalArgumentException.class)
+	  public ResponseEntity handleError(HttpServletRequest req, Exception ex) {
+	    logger.error("Request: " + req.getRequestURL() + " raised " + ex);
+
+	    return ResponseEntity.badRequest().body(null);
+	  }
 }
