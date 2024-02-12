@@ -14,7 +14,7 @@ All notable changes to this project will be documented in this file.
  
 ### Removed
 
- - Audit events are not stored into file with this change but in DB onlys
+ - Audit events are not stored into file with this change but in DB (H2 as default)
 
 ## [1.14.7] - 2024-01-19
 
