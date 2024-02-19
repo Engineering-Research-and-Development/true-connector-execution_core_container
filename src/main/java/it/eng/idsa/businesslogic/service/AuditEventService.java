@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import it.eng.idsa.businesslogic.entity.AuditLog;
 import it.eng.idsa.businesslogic.repository.AuditEventRepository;
-import it.eng.idsa.businesslogic.util.AES256Static;
+import it.eng.idsa.businesslogic.util.AES256;
 
 @Service
 public class AuditEventService {
@@ -42,7 +42,7 @@ public class AuditEventService {
 	private AuditLog decryptAuditLog(AuditLog auditLog) {
 		AuditLog a = new AuditLog();
 		a.setId(auditLog.getId());
-		a.setEvent(AES256Static.decrypt(auditLog.getEvent()));
+		a.setEvent(AES256.decrypt(auditLog.getEvent()));
 		a.setTimestamp(auditLog.getTimestamp());
 		return a;
 	}

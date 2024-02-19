@@ -1,6 +1,7 @@
 package it.eng.idsa.businesslogic.entity;
 
 import java.time.LocalDateTime;
+import it.eng.idsa.businesslogic.util.AES256;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,8 +11,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import it.eng.idsa.businesslogic.util.AES256Static;
 
 @Entity
 @Table(name = "AuditLogs")
@@ -30,7 +29,7 @@ public class AuditLog {
 	}
 
 	public AuditLog(String event) {
-		this.event = AES256Static.encrypt(event);
+		this.event = AES256.encrypt(event);
 		this.timestamp = LocalDateTime.now();
 	}
 
