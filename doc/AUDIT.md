@@ -1,6 +1,8 @@
 # Audit events in TRUE Connector
 
-Audit events are stored in database (H2 with default configuration, possible to replace with PostgreSQL), this way tampering of the logs is prohibited. Entries in database are done only by the Execution Core Container, and ECC exposes protected endpoint, for API user, to fetch all audit logs, or audit logs for specific date:
+Audit events are stored in database (H2 with default configuration, possible to replace with PostgreSQL), this way tampering of the logs is prohibited. Entries in database are done only by the Execution Core Container. Column for storing auditLog entry is encrypted using *AES/GCM/NoPadding* algorithm which requires user to set valid password. It must be done using environment variable with following name: *AES256-SECRET-KEY*. </br>
+When ECC inserts audit entry into Database, AuditLog value will be encrypted using provided algorithm, and when data is requested, it will be decrypted.</br>
+ECC exposes protected endpoint, for API user, to fetch all audit logs, or audit logs for specific date:
 
 ```
 https://localhost:8090/api/audit/

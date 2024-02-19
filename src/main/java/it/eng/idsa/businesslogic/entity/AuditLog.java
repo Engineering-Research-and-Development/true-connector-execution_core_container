@@ -11,6 +11,8 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import it.eng.idsa.businesslogic.util.AES256Static;
+
 @Entity
 @Table(name = "AuditLogs")
 public class AuditLog {
@@ -28,7 +30,7 @@ public class AuditLog {
 	}
 
 	public AuditLog(String event) {
-		this.event = event;
+		this.event = AES256Static.encrypt(event);
 		this.timestamp = LocalDateTime.now();
 	}
 

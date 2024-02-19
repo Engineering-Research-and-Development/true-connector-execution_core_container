@@ -6,8 +6,10 @@ All notable changes to this project will be documented in this file.
 ### Added
 
  - Audit logs stored in database
+ - Column encrypted using AES/GCM/NoPadding
  - New endpoint for fetching audit events
-
+ - requires to set environment variable with AES256-SECRET-KEY used in encryption algorithm
+ 
 ### Changed
 
  - Using JFrog for IDS dependency management
