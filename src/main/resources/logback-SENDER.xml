@@ -8,17 +8,6 @@
       <pattern>%d{dd-MM-yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg %n</pattern>
     </encoder>
   </appender>
-
-	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
-		<file>true_connector_audit_SENDER.log</file>
-		<append>true</append>
-		<encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
-	</appender>
-  
-  <logger name="JSON" level="INFO">
-<!--     <appender-ref ref="jsonConsoleAppender"/> -->
-    <appender-ref ref="FILE"/>
-  </logger>
   
    <logger name="it.eng.idsa" level="info" additivity="false">
         <appender-ref ref="STDOUT"/>

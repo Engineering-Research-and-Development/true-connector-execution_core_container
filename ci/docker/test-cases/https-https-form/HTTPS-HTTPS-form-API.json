@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "6ef42754-a67c-4321-b679-ca0dc818c213",
+		"_postman_id": "dcc7e70f-8709-4412-898a-be604e89c13d",
 		"name": "GHA API Tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "12578087"
@@ -500,6 +500,169 @@
 					"path": [
 						"password",
 						"Test1234!"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-form-Audit_logs",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"pm.response.to.be.ok;\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "apiUser",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8090/api/audit/",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"audit",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-form-Audit_logs_date_invalid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Invalid date param for audit logs\", function () {\r",
+							"  pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require('moment');\r",
+							"pm.environment.set('currentdate', moment().format((\"YYYY-MM-DD\")));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "apiUser",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8090/api/audit/?date=invalid_date",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"audit",
+						""
+					],
+					"query": [
+						{
+							"key": "date",
+							"value": "invalid_date"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS-HTTPS-form-Audit_logs_unauthorized",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Unauthorized user for audit logs\", function () {\r",
+							"  pm.response.to.have.status(401);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "unauth",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8090/api/audit/",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"audit",
+						""
 					]
 				}
 			},

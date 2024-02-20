@@ -1,10 +1,6 @@
 package it.eng.idsa.businesslogic.listener;
 
-import static net.logstash.logback.argument.StructuredArguments.keyValue;
-
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.audit.listener.AuditApplicationEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -20,15 +16,18 @@ import org.springframework.stereotype.Component;
 import it.eng.idsa.businesslogic.audit.EventTypeHandler;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEvent;
 import it.eng.idsa.businesslogic.audit.TrueConnectorEventType;
+import it.eng.idsa.businesslogic.entity.AuditLog;
+import it.eng.idsa.businesslogic.service.AuditEventService;
 
 @Component
 public class LoggingAuditEventListener {
-	private static final Logger LOGGER = LoggerFactory.getLogger("JSON");
 
 	private EventTypeHandler eventTypeHandler;
+	private AuditEventService auditEventService;
 
-	public LoggingAuditEventListener(EventTypeHandler eventTypeHandler) {
+	public LoggingAuditEventListener(EventTypeHandler eventTypeHandler, AuditEventService auditEventService) {
 		this.eventTypeHandler = eventTypeHandler;
+		this.auditEventService = auditEventService;
 	}
 
 //	@EventListener
@@ -39,8 +38,7 @@ public class LoggingAuditEventListener {
 			return;
 		}
 
-		LOGGER.info("Audit Event: {}", keyValue("event", event.getAuditEvent()));
-
+		auditEventService.saveAuditEvent(new AuditLog(event.getAuditEvent().toString()));
 	}
 
 	@EventListener
@@ -51,8 +49,7 @@ public class LoggingAuditEventListener {
 			return;
 		}
 
-		LOGGER.info("TrueConnector Audit Event: {}", keyValue("event", event.getAuditEvent()));
-
+		auditEventService.saveAuditEvent(new AuditLog(event.getAuditEvent().toString()));
 	}
 
 	@EventListener
@@ -64,18 +61,18 @@ public class LoggingAuditEventListener {
 		}
 		if (abstractEvent instanceof AuthorizationFailureEvent) {
 			AuthorizationFailureEvent event = (AuthorizationFailureEvent) abstractEvent;
-			LOGGER.error("Failure authorization event: {}", keyValue("event", event.getSource()));
-
+			auditEventService.saveAuditEvent(new AuditLog(event.getSource().toString()));
 		}
 		if (abstractEvent instanceof AuthorizedEvent) {
 			AuthorizedEvent event = (AuthorizedEvent) abstractEvent;
-			LOGGER.info("Succesfull autorization event: {}", keyValue("event", event.getSource()));
 
+			auditEventService.saveAuditEvent(new AuditLog(event.getSource().toString()));
 		}
 		if (abstractEvent.getSource() instanceof FilterInvocation) {
 			FilterInvocation filterInvocation = (FilterInvocation) abstractEvent.getSource();
-			LOGGER.info("Filter invocation event: Filter: {}, Event:  {}", filterInvocation.getRequestUrl(),
-					keyValue("event", abstractEvent.getSource()));
+			String auditEventDetails = createAuditLogEntryWithFiler(abstractEvent.getSource(), filterInvocation);
+
+			auditEventService.saveAuditEvent(new AuditLog(auditEventDetails));
 		}
 	}
 
@@ -88,18 +85,26 @@ public class LoggingAuditEventListener {
 		}
 		if (abstractEvent instanceof AuthenticationFailureBadCredentialsEvent) {
 			AuthenticationFailureBadCredentialsEvent event = (AuthenticationFailureBadCredentialsEvent) abstractEvent;
-			LOGGER.error("Failure login event: {}", keyValue("event", event.getSource()));
 
+			auditEventService.saveAuditEvent(new AuditLog(event.getSource().toString()));
 		}
 		if (abstractEvent instanceof AuthenticationSuccessEvent) {
 			AuthenticationSuccessEvent event = (AuthenticationSuccessEvent) abstractEvent;
-			LOGGER.info("Succesful login event: {}", keyValue("event", event.getSource()));
 
+			auditEventService.saveAuditEvent(new AuditLog(event.getSource().toString()));
 		}
 		if (abstractEvent.getSource() instanceof FilterInvocation) {
 			FilterInvocation filterInvocation = (FilterInvocation) abstractEvent.getSource();
-			LOGGER.info("Filter invocation event: Filter: {}, Event:  {}", filterInvocation.getRequestUrl(),
-					keyValue("event", abstractEvent.getSource()));
+			String auditEventDetails = createAuditLogEntryWithFiler(abstractEvent.getSource(), filterInvocation);
+
+			auditEventService.saveAuditEvent(new AuditLog(auditEventDetails));
 		}
+	}
+
+	private String createAuditLogEntryWithFiler(Object eventSource, FilterInvocation filterInvocation) {
+		String eventDetails = eventSource.toString();
+		String requestUrl = filterInvocation.getRequestUrl();
+
+		return "Event: " + eventDetails + ", Filter: Requested URL=[" + requestUrl + "]";
 	}
 }
