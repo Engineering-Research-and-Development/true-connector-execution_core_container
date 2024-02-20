@@ -462,6 +462,7 @@ application.connectorUUID=
 application.dapsJWKSUrl=
 ```
  * Choose one of 2 profiles: SENDER or RECEIVER.
+ * Set environment variable with following name: *AES256-SECRET-KEY* with any value (MyPassword for example). This will be used for encrypting AuditLog column in DB.
  * Start application 
  
 ### Creating docker image
