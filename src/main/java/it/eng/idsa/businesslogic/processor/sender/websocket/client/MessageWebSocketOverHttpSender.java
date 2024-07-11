@@ -43,7 +43,6 @@ public class MessageWebSocketOverHttpSender {
     private ResponseMessageBufferClient responseMessageBufferClient;
     private InputStreamSocketListenerClient inputStreamSocketListenerWebSocketClient;
     
-    @Autowired
     private TLSProvider tlsProvider;
 
     public MessageWebSocketOverHttpSender(RejectionMessageService rejectionMessageService, FileStreamingBean fileStreamingBean,
