@@ -97,6 +97,35 @@ allowUrlEncodedPeriod=true
 ```
 *IMPORTANT:* If you're not an expert, the strong advice is to keep values at their default values. If you decide to change values, pay special attention to allowHeaderNames and allowHeaderValues, since those set values are exclusive and considered as only values that should be present in the header.
 
+## CORS Configuration
+
+In order to communicate with UI, CORS (Cross-Origin Resource Sharing) settings should be configured in `application.properties` file. This allows you to specify which origins, methods, and headers are permitted when making cross-origin requests to your application.
+
+```
+application.cors.allowed.origins=
+application.cors.allowed.methods=
+application.cors.allowed.headers=
+```
+
+ - `application.cors.allowed.origins`: Specifies the allowed origins. If empty, all origins (*) are allowed.
+ - `application.cors.allowed.methods`: Specifies the allowed HTTP methods. If empty, all methods (*) are allowed.
+ - `application.cors.allowed.header`s: Specifies the allowed headers. If empty, all headers (*) are allowed.
+ 
+ Example configuration:
+ 
+ ```
+ # Allow specific origins
+application.cors.allowed.origins=https://example.com,https://another-example.com
+
+# Allow specific HTTP methods
+application.cors.allowed.methods=GET,POST,PUT,DELETE
+
+# Allow specific headers
+application.cors.allowed.headers=
+ ```
+
+
+
 ## How to Test
 The reachability could be verified using the following endpoints:
 *  **http://{IP_ADDRESS}:{HTTP_PUBLIC_PORT}/about/version**

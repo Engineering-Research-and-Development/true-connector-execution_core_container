@@ -1,6 +1,21 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.14.9] - 2024-07-11
+
+### Added
+
+ - CORS configuration (for compatibility with UI)
+
+### Changed
+
+ - Updated firewall.properties
+ - Multipart message library upgraded to 1.0.18
+ - Websocket library upgraded to 1.0.18
+ - Fix WSS SSL support
+ - Upgrade GHA to use Node.js 20
+ 
+ 
 ## [1.14.8] - 2024-02-14
 
 ### Added
