@@ -108,7 +108,7 @@
 						}
 					]
 				},
-				"method": "OPTIONS",
+				"method": "PUT",
 				"header": [
 					{
 						"key": "fizz",

@@ -19,7 +19,7 @@
 		<camel.version>3.19.0</camel.version>
 		<tomcat.version>9.0.76</tomcat.version>
 		<application.basedir>${basedir}</application.basedir>
-		<multipart.message.processor.version>1.0.17</multipart.message.processor.version>
+		<multipart.message.processor.version>1.0.18</multipart.message.processor.version>
 		<idscp2.libraries.version>0.5.2</idscp2.libraries.version>
 		<jacoco.version>0.8.8</jacoco.version>
 	</properties>

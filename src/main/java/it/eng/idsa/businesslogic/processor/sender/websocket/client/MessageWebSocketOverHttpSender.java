@@ -5,12 +5,9 @@ import static org.asynchttpclient.Dsl.asyncHttpClient;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.util.concurrent.ExecutionException;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import javax.validation.constraints.NotNull;
 
 import org.apache.http.ParseException;
@@ -21,6 +18,7 @@ import org.asynchttpclient.ws.WebSocket;
 import org.asynchttpclient.ws.WebSocketUpgradeHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.fraunhofer.iais.eis.Message;
@@ -30,27 +28,31 @@ import it.eng.idsa.businesslogic.service.RejectionMessageService;
 import it.eng.idsa.multipart.builder.MultipartMessageBuilder;
 import it.eng.idsa.multipart.domain.MultipartMessage;
 import it.eng.idsa.multipart.processor.MultipartMessageProcessor;
+import it.eng.idsa.businesslogic.service.impl.TLSProvider;
 
 /**
- * @author Antonio Scatoloni
+ * Author: Antonio Scatoloni
  */
 
 @Component
 public class MessageWebSocketOverHttpSender {
     private static final Logger logger = LoggerFactory.getLogger(MessageWebSocketOverHttpSender.class);
 
-//    private WebSocketClientConfiguration webSocketClientConfiguration;
     private RejectionMessageService rejectionMessageService;
     private FileStreamingBean fileStreamingBean;
     private ResponseMessageBufferClient responseMessageBufferClient;
     private InputStreamSocketListenerClient inputStreamSocketListenerWebSocketClient;
     
+    private TLSProvider tlsProvider;
+
     public MessageWebSocketOverHttpSender(RejectionMessageService rejectionMessageService, FileStreamingBean fileStreamingBean,
-    		ResponseMessageBufferClient responseMessageBufferClient, InputStreamSocketListenerClient inputStreamSocketListenerWebSocketClient) {
-    	this.rejectionMessageService = rejectionMessageService;
-    	this.fileStreamingBean = fileStreamingBean;
-    	this.responseMessageBufferClient = responseMessageBufferClient;
-    	this.inputStreamSocketListenerWebSocketClient = inputStreamSocketListenerWebSocketClient;
+                                          ResponseMessageBufferClient responseMessageBufferClient, InputStreamSocketListenerClient inputStreamSocketListenerWebSocketClient,
+                                          TLSProvider tlsProvider) {
+        this.rejectionMessageService = rejectionMessageService;
+        this.fileStreamingBean = fileStreamingBean;
+        this.responseMessageBufferClient = responseMessageBufferClient;
+        this.inputStreamSocketListenerWebSocketClient = inputStreamSocketListenerWebSocketClient;
+        this.tlsProvider = tlsProvider;
     }
 
     public String sendMultipartMessageWebSocketOverHttps(String webSocketHost, Integer webSocketPort, String header, String payload)
@@ -73,7 +75,6 @@ public class MessageWebSocketOverHttpSender {
         return doSendMultipartMessageWebSocketOverHttps(webSocketHost, webSocketPort, webSocketPath, header,  payload, message);
     }
 
-
     private String doSendMultipartMessageWebSocketOverHttps(String webSocketHost, Integer webSocketPort, String webSocketPath, String header, String payload, Message message)
             throws ParseException, IOException, KeyManagementException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
     	
@@ -81,15 +82,11 @@ public class MessageWebSocketOverHttpSender {
     			.withHeaderContent(header)
     			.withPayloadContent(payload)
     			.build();
-    	//TODO Use this implementation with includeHttpHeaders set to false, but in future implementations these headers may be mandatory
     	String multipartMessageString = MultipartMessageProcessor.multipartMessagetoString(multipartMessage, false, Boolean.TRUE);
-    													                                                        
-//        FileStreamingBean fileStreamingBean = webSocketClientConfiguration.fileStreamingWebSocket();
+
         WebSocket wsClient = createWebSocketClient(webSocketHost, webSocketPort, webSocketPath, message);
-        // Try to connect to the Server. Wait until you are not connected to the server.
         fileStreamingBean.setup(wsClient);
         fileStreamingBean.sendMultipartMessage(multipartMessageString);
-        // We don't have status of the response (is it 200 OK or not). We have only the content of the response.
         String responseMessage = new String(responseMessageBufferClient.remove());
         closeWSClient(wsClient, message);
         logger.info("Response is received");
@@ -105,7 +102,6 @@ public class MessageWebSocketOverHttpSender {
             final SslEngineFactory ssl = getSslEngineFactory();
 
             DefaultAsyncHttpClientConfig clientConfig = new DefaultAsyncHttpClientConfig.Builder()
-                    .setDisableHttpsEndpointIdentificationAlgorithm(true)
                     .setUseOpenSsl(true)
                     .setSslEngineFactory(ssl)
                     .build();
@@ -129,33 +125,12 @@ public class MessageWebSocketOverHttpSender {
 
     @NotNull
     private SslEngineFactory getSslEngineFactory() throws NoSuchAlgorithmException, KeyManagementException {
-        final TrustManager[] trustAllCerts = new TrustManager[]{
-                new X509TrustManager() {
-                    @Override
-                    public void checkClientTrusted(java.security.cert.X509Certificate[] chain,
-                                                   String authType) throws CertificateException {
-                    }
-
-                    @Override
-                    public void checkServerTrusted(java.security.cert.X509Certificate[] chain,
-                                                   String authType) throws CertificateException {
-                    }
-
-                    @Override
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        return new java.security.cert.X509Certificate[0];
-                    }
-                }
-        };
-        // Install the all-trusting trust manager
-        final SSLContext sslContext = SSLContext.getInstance("SSL");
-        sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+        SSLContext sslContext = SSLContext.getInstance("TLSv1.3");
+        sslContext.init(tlsProvider.getKeyManagers(), tlsProvider.getTrustManagers(), new java.security.SecureRandom());
         return new JsseSslEngineFactory(sslContext);
     }
 
-
     private void closeWSClient(WebSocket wsClient, Message message) {
-        // Send the close frame 1000 (CLOSE), "Shutdown"; in this method we also close the wsClient.
         try {
             wsClient.sendCloseFrame(1000, "Shutdown");
         } catch (Exception e) {
@@ -164,5 +139,4 @@ public class MessageWebSocketOverHttpSender {
                 rejectionMessageService.sendRejectionMessage(message, RejectionReason.INTERNAL_RECIPIENT_ERROR);
         }
     }
-
 }

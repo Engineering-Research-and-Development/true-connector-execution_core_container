@@ -38,11 +38,11 @@ public class EccFirewall {
 	private boolean allowUrlEncodedPercent;
 	@Value("${allowUrlEncodedPeriod}")
 	private boolean allowUrlEncodedPeriod;
-	
+
 	@Bean
 	@ConditionalOnProperty(name = "application.firewall.isEnabled", havingValue = "true", matchIfMissing = false)
 	RequestRejectedHandler requestRejectedHandler() {
-	   return new HttpStatusRequestRejectedHandler(HttpStatus.METHOD_NOT_ALLOWED.value());
+		return new HttpStatusRequestRejectedHandler(HttpStatus.METHOD_NOT_ALLOWED.value());
 	}
 
 	@Bean
@@ -53,13 +53,19 @@ public class EccFirewall {
 		if (!CollectionUtils.isEmpty(allowedHeaderNames)) {
 			Predicate<String> headerNamePredicate = createAllowedHeaderNamesPredicate(allowedHeaderNames);
 			firewall.setAllowedHeaderNames(headerNamePredicate);
+		} else {
+			firewall.setAllowedHeaderNames((header) -> true);
 		}
 		if (!allowedHeaderValues.isEmpty()) {
 			Predicate<String> headerNameValuePredicate = createAllowedHeaderValuesPredicate(allowedHeaderValues);
 			firewall.setAllowedHeaderValues(headerNameValuePredicate);
+		} else {
+			firewall.setAllowedHeaderValues((header) -> true);
 		}
 		if (!CollectionUtils.isEmpty(allowedMethods)) {
 			firewall.setAllowedHttpMethods(allowedMethods);
+		} else {
+			firewall.setUnsafeAllowAnyHttpMethod(true);
 		}
 		firewall.setAllowBackSlash(allowBackSlash);
 		firewall.setAllowUrlEncodedSlash(allowUrlEncodedSlash);
@@ -70,7 +76,7 @@ public class EccFirewall {
 
 		return firewall;
 	}
-	
+
 	private Predicate<String> createAllowedHeaderNamesPredicate(List<String> allowedHeaderNames) {
 		return allowedHeaderNames.stream().collect(Collectors.toSet())::contains;
 	}
