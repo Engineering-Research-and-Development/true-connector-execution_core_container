@@ -8,17 +8,15 @@ import java.net.BindException;
 import java.security.KeyStore;
 
 import javax.annotation.PreDestroy;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import org.eclipse.jetty.http.HttpVersion;
-import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.SecureRequestCustomizer;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
@@ -94,15 +92,39 @@ public class HttpWebSocketServerBean {
     				new SslConnectionFactory(sslContextFactory,
     						HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(https_config));
     		connector.setPort(port);
-    		//connector.setReuseAddress(true);
+
+            // Disable TRACE method
+            for (ConnectionFactory connectionFactory : connector.getConnectionFactories()) {
+                if (connectionFactory instanceof HttpConnectionFactory) {
+                    ((HttpConnectionFactory) connectionFactory).getHttpConfiguration().setFormEncodedMethods(
+                            "GET", "POST", "HEAD", "OPTIONS", "PUT", "DELETE");
+                }
+            }
+
     		server.addConnector(connector);
 
             HandlerCollection handlerCollection = new HandlerCollection();
 
+            // Create a handler wrapper to filter out TRACE requests
+            HandlerWrapper traceFilter = new HandlerWrapper() {
+                @Override
+                public void handle(String target, Request baseRequest, HttpServletRequest request,
+                                   HttpServletResponse response) throws IOException, ServletException {
+                    if ("TRACE".equals(request.getMethod())) {
+                        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+                        baseRequest.setHandled(true);
+                        return;
+                    }
+                    super.handle(target, baseRequest, request, response);
+                }
+            };
+
             ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
             handler.setContextPath("/");
             handler.addServlet(getMessagingServlet(), WS_URL);
-            handlerCollection.setHandlers(new Handler[]{handler});
+            // Add the trace filter
+            traceFilter.setHandler(handler);
+            handlerCollection.setHandlers(new Handler[]{traceFilter});
 
             server.setHandler(handlerCollection);
     	}catch (Exception e) {
@@ -144,6 +166,14 @@ public class HttpWebSocketServerBean {
         http_config.setSecureScheme("https");
         http_config.setSecurePort(port);
         http_config.addCustomizer(new SecureRequestCustomizer());
+
+        // Disable TRACE method to fix CVE-2010-0386
+        http_config.setFormEncodedMethods("GET", "POST", "HEAD", "OPTIONS", "PUT", "DELETE");
+        http_config.setSecurePort(port);
+        http_config.setRequestHeaderSize(8192);
+        http_config.setSendServerVersion(false);
+        http_config.setSendDateHeader(false);
+
         return http_config;
     }
     
