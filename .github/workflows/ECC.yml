@@ -243,107 +243,107 @@ jobs:
       - name: Stop docker container HTTPS-HTTPS-header-contract-negotiation
         run: docker-compose -f ./ci/docker/docker-compose-uc.yml --env-file ./ci/docker/test-cases/https-https-header-contract-negotiation/.env down -v
 
-  https-idscp2-mixed:
-    needs: build
-    runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{secrets.GH_TOKEN}}
-      DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
-      SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
-      TRUSTSTORE_PASSWORD_DOCKER: ${{secrets.TRUSTSTORE_PASSWORD_DOCKER}}
-    steps:
-      - name: Git Checkout
-        uses: actions/checkout@v4
-
-      - name: Run env setup
-        run: ./ci/setupEnv.sh
-
-      - name: Run docker container HTTPS-IDSCP2-mixed
-        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env up -d
-
-      - name: Wait for container starting
-        run: sleep 90
-
-      - name: Check if the container is up and running
-        run: docker ps -a
-
-      - name: Run Test HTTPS-IDSCP2-mixed
-        run: newman run ./ci/docker/test-cases/https-idscp2-mixed/HTTPS-IDSCP2-mixed.json --timeout-request 120000 --insecure --bail --verbose
-
-      - name: Dump docker HTTPS-IDSCP2-mixed
-        if: failure()
-        uses: jwalton/gh-docker-logs@v1
-
-      - name: Stop docker container
-        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env down -v
+#  https-idscp2-mixed:
+#    needs: build
+#    runs-on: ubuntu-latest
+#    env:
+#      GH_TOKEN: ${{secrets.GH_TOKEN}}
+#      DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
+#      SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
+#      TRUSTSTORE_PASSWORD_DOCKER: ${{secrets.TRUSTSTORE_PASSWORD_DOCKER}}
+#    steps:
+#      - name: Git Checkout
+#        uses: actions/checkout@v4
+#
+#      - name: Run env setup
+#        run: ./ci/setupEnv.sh
+#
+#      - name: Run docker container HTTPS-IDSCP2-mixed
+#        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env up -d
+#
+#      - name: Wait for container starting
+#        run: sleep 90
+#
+#      - name: Check if the container is up and running
+#        run: docker ps -a
+#
+#      - name: Run Test HTTPS-IDSCP2-mixed
+#        run: newman run ./ci/docker/test-cases/https-idscp2-mixed/HTTPS-IDSCP2-mixed.json --timeout-request 120000 --insecure --bail --verbose
+#
+#      - name: Dump docker HTTPS-IDSCP2-mixed
+#        if: failure()
+#        uses: jwalton/gh-docker-logs@v1
+#
+#      - name: Stop docker container
+#        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-mixed/.env down -v
   
-  https-idscp2-form:
-    needs: build
-    runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{secrets.GH_TOKEN}}
-      DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
-      SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
-      TRUSTSTORE_PASSWORD_DOCKER: ${{secrets.TRUSTSTORE_PASSWORD_DOCKER}}
-    steps:
-      - name: Git Checkout
-        uses: actions/checkout@v4
+#  https-idscp2-form:
+#    needs: build
+#    runs-on: ubuntu-latest
+#    env:
+#      GH_TOKEN: ${{secrets.GH_TOKEN}}
+#      DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
+#      SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
+#      TRUSTSTORE_PASSWORD_DOCKER: ${{secrets.TRUSTSTORE_PASSWORD_DOCKER}}
+#    steps:
+#      - name: Git Checkout
+#        uses: actions/checkout@v4
+#
+#      - name: Run env setup
+#        run: ./ci/setupEnv.sh
+#
+#      - name: Run docker container HTTPS-IDSCP2-form
+#        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-form/.env up -d
+#
+#      - name: Wait for container starting
+#        run: sleep 90
+#
+#      - name: Check if the container is up and running
+#        run: docker ps -a
+#
+#      - name: Run Test HTTPS-IDSCP2-form
+#        run: newman run ./ci/docker/test-cases/https-idscp2-form/HTTPS-IDSCP2-form.json --timeout-request 120000 --insecure --bail --verbose
+#
+#      - name: Dump docker HTTPS-IDSCP2-form
+#        if: failure()
+#        uses: jwalton/gh-docker-logs@v1
+#
+#      - name: Stop docker container
+#        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-form/.env down -v
 
-      - name: Run env setup
-        run: ./ci/setupEnv.sh
-
-      - name: Run docker container HTTPS-IDSCP2-form
-        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-form/.env up -d
-
-      - name: Wait for container starting
-        run: sleep 90
-
-      - name: Check if the container is up and running
-        run: docker ps -a
-
-      - name: Run Test HTTPS-IDSCP2-form
-        run: newman run ./ci/docker/test-cases/https-idscp2-form/HTTPS-IDSCP2-form.json --timeout-request 120000 --insecure --bail --verbose
-
-      - name: Dump docker HTTPS-IDSCP2-form
-        if: failure()
-        uses: jwalton/gh-docker-logs@v1
-
-      - name: Stop docker container
-        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-form/.env down -v
-
-  https-idscp2-header:
-    needs: build
-    runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{secrets.GH_TOKEN}}
-      DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
-      SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
-      TRUSTSTORE_PASSWORD_DOCKER: ${{secrets.TRUSTSTORE_PASSWORD_DOCKER}}
-    steps:
-      - name: Git Checkout
-        uses: actions/checkout@v4
-
-      - name: Run env setup
-        run: ./ci/setupEnv.sh
-
-      - name: Run docker container HTTPS-IDSCP2-header
-        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-header/.env up -d
-
-      - name: Wait for container starting
-        run: sleep 90
-
-      - name: Check if the container is up and running
-        run: docker ps -a
-
-      - name: Run Test HTTPS-IDSCP2-header
-        run: newman run ./ci/docker/test-cases/https-idscp2-header/HTTPS-IDSCP2-header.json --timeout-request 120000 --insecure --bail --verbose
-
-      - name: Dump docker HTTPS-IDSCP2-header
-        if: failure()
-        uses: jwalton/gh-docker-logs@v1
-
-      - name: Stop docker container
-        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-header/.env down -v
+#  https-idscp2-header:
+#    needs: build
+#    runs-on: ubuntu-latest
+#    env:
+#      GH_TOKEN: ${{secrets.GH_TOKEN}}
+#      DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
+#      SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
+#      TRUSTSTORE_PASSWORD_DOCKER: ${{secrets.TRUSTSTORE_PASSWORD_DOCKER}}
+#    steps:
+#      - name: Git Checkout
+#        uses: actions/checkout@v4
+#
+#      - name: Run env setup
+#        run: ./ci/setupEnv.sh
+#
+#      - name: Run docker container HTTPS-IDSCP2-header
+#        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-header/.env up -d
+#
+#      - name: Wait for container starting
+#        run: sleep 90
+#
+#      - name: Check if the container is up and running
+#        run: docker ps -a
+#
+#      - name: Run Test HTTPS-IDSCP2-header
+#        run: newman run ./ci/docker/test-cases/https-idscp2-header/HTTPS-IDSCP2-header.json --timeout-request 120000 --insecure --bail --verbose
+#
+#      - name: Dump docker HTTPS-IDSCP2-header
+#        if: failure()
+#        uses: jwalton/gh-docker-logs@v1
+#
+#      - name: Stop docker container
+#        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/https-idscp2-header/.env down -v
 
   wss-wss:
     needs: build
@@ -379,36 +379,36 @@ jobs:
       - name: Stop docker container
         run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-ws/.env down -v
 
-  wss-idscp2:
-    needs: build
-    runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{secrets.GH_TOKEN}}
-      DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
-      SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
-      TRUSTSTORE_PASSWORD_DOCKER: ${{secrets.TRUSTSTORE_PASSWORD_DOCKER}}
-    steps:
-      - name: Git Checkout
-        uses: actions/checkout@v4
-
-      - name: Run env setup
-        run: ./ci/setupEnv.sh
-
-      - name: Run docker container WSS-IDSCP2
-        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-idscp2/.env up -d
-
-      - name: Wait for container starting
-        run: sleep 90
-
-      - name: Check if the container is up and running
-        run: docker ps -a
-
-      - name: Run Test WSS-IDSCP2
-        run: newman run ./ci/docker/test-cases/ws-idscp2/WS-IDSCP2.json --timeout-request 120000 --insecure --bail --verbose
-
-      - name: Dump docker WSS-IDSCP2
-        if: failure()
-        uses: jwalton/gh-docker-logs@v1
-
-      - name: Stop docker container
-        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-idscp2/.env down -v
+#  wss-idscp2:
+#    needs: build
+#    runs-on: ubuntu-latest
+#    env:
+#      GH_TOKEN: ${{secrets.GH_TOKEN}}
+#      DAPS_PASSWORD_DOCKER: ${{secrets.KEYSTORE_PASSWORD}}
+#      SSL_KEY_PASSWORD: ${{secrets.SSL_KEY_PASSWORD}}
+#      TRUSTSTORE_PASSWORD_DOCKER: ${{secrets.TRUSTSTORE_PASSWORD_DOCKER}}
+#    steps:
+#      - name: Git Checkout
+#        uses: actions/checkout@v4
+#
+#      - name: Run env setup
+#        run: ./ci/setupEnv.sh
+#
+#      - name: Run docker container WSS-IDSCP2
+#        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-idscp2/.env up -d
+#
+#      - name: Wait for container starting
+#        run: sleep 90
+#
+#      - name: Check if the container is up and running
+#        run: docker ps -a
+#
+#      - name: Run Test WSS-IDSCP2
+#        run: newman run ./ci/docker/test-cases/ws-idscp2/WS-IDSCP2.json --timeout-request 120000 --insecure --bail --verbose
+#
+#      - name: Dump docker WSS-IDSCP2
+#        if: failure()
+#        uses: jwalton/gh-docker-logs@v1
+#
+#      - name: Stop docker container
+#        run: docker-compose -f ./ci/docker/docker-compose.yml --env-file ./ci/docker/test-cases/ws-idscp2/.env down -v

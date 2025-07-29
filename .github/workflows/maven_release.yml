@@ -7,7 +7,7 @@ on:
         description: 'Release and tag version  (ie 5.5.0)'
         required: true
       developmentVersion:
-        decription: 'Next development version, with SNAPSHOT'
+        description: 'Next development version, with SNAPSHOT'
         required: true
       
 jobs:
