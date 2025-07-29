@@ -7,7 +7,7 @@ echo "Certificate from private repository downloaded"
 
 echo "Installing Newman CLI..."
 sudo npm set strict-ssl false
-sudo npm install -g newman@5.2.2
+sudo npm install -g newman@6.2.1
 newman --version
 echo "Newman installed, READY TO TEST..."
 
