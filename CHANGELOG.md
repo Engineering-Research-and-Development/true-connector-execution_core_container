@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.14.10] - 2025-07-24
+
+### Added
+
+ - Fix for Jetty HTTP TRACE - CVE-2010-0386 (disabled TRACE method for Jetty server)
+
 ## [1.14.9] - 2024-07-11
 
 ### Added
