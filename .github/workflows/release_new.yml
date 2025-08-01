@@ -14,6 +14,14 @@ jobs:
   master_release:
     if: "!contains(github.event.head_commit.message, '[maven-release-plugin]')"
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      packages: write
+      attestations: write
+      id-token: write
+      pull-requests: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
