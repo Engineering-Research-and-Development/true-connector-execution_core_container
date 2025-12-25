@@ -5,7 +5,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.5.14</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>it.eng.idsa</groupId>
 	<artifactId>true-connector-execution_core_container</artifactId>
@@ -16,7 +16,7 @@
 		<project.java.version>11</project.java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<start-class>it.eng.idsa.businesslogic.Application</start-class>
-		<camel.version>3.19.0</camel.version>
+		<camel.version>4.8.0</camel.version>
 		<tomcat.version>9.0.76</tomcat.version>
 		<application.basedir>${basedir}</application.basedir>
 		<multipart.message.processor.version>1.0.18</multipart.message.processor.version>
